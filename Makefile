@@ -1,5 +1,8 @@
 .PHONY: docker
 
+hass:
+	hass -c config
+
 docker-build:
 	docker run -d --name home-assistant --restart=unless-stopped -p 8123:8123 \
                -e TZ=America/Vancouver \
@@ -9,5 +12,5 @@ docker-build:
 docker-run:
 	docker start home-assistant
 
-home-assistant:
+docker-hass:
 	docker exec -it home-assistant bash

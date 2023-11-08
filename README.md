@@ -1,5 +1,7 @@
 # uhppoted-app-home-assistant
 
-UHPPOTE controller integration with Home Assistant
+UHPPOTE controller HACS integration for Home Assistant.
 
-(DEV repo)
+(_IN DEVELOPMENT_)
+
+
