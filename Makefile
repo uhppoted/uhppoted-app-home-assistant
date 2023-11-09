@@ -1,12 +1,11 @@
 .PHONY: docker
 
-hass:
-	hass -c config
+SHARE="/usr/local/etc/com.github.uhppoted/home-assistant"
 
 docker-build:
-	docker run -d --name home-assistant --restart=unless-stopped -p 8123:8123 \
-               -e TZ=America/Vancouver \
-               -v /usr/local/etc/com.github.uhppoted/home-assistant:/config \
+	docker run --detach --name home-assistant --restart=unless-stopped --publish 8123:8123 \
+               --env TZ=America/Vancouver \
+               --mount type=bind,source=$(SHARE),target=/config \
                ghcr.io/home-assistant/home-assistant:stable
 
 docker-run:
@@ -14,3 +13,7 @@ docker-run:
 
 docker-hass:
 	docker exec -it home-assistant bash
+
+# hass:
+# 	hass -c config
+
