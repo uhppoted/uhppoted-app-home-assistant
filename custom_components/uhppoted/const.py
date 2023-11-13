@@ -1,3 +1,4 @@
 """Constants for the uhppoted integration."""
 
-DOMAIN = "uhppoted"
+DOMAIN = 'uhppoted'
+

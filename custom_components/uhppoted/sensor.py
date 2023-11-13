@@ -1,32 +1,53 @@
 """Platform for sensor integration."""
 from __future__ import annotations
 
-from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorEntity,
-    SensorStateClass,
-)
-from homeassistant.const import UnitOfTemperature
+import logging
+
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
+from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.typing import ConfigType
+from homeassistant.helpers.typing import DiscoveryInfoType
+from homeassistant.components.sensor import SensorEntity
+
+_LOGGER = logging.getLogger(__name__)
+
+# Configuration constants
+CONF_CONTROLLER_ID = 'controller_id'
+CONF_CONTROLLER_ADDRESS = 'controller_address'
 
 def setup_platform(hass: HomeAssistant, config: ConfigType, add_entities: AddEntitiesCallback, discovery_info: DiscoveryInfoType | None = None) -> None:
-    """Set up the sensor platform."""
-    add_entities([ExampleSensor()])
+    id = config[CONF_CONTROLLER_ID]
+    address = config[CONF_CONTROLLER_ADDRESS]
+
+    add_entities([Controller(id, address)])
 
 
-class ExampleSensor(SensorEntity):
-    """Representation of a Sensor."""
+class Controller(SensorEntity):
+    _attr_name = "UHPPOTE"
+    _attr_device_class = None
+    _attr_last_reset = None
+    _attr_native_unit_of_measurement = None
+    _attr_state_class = None
 
-    _attr_name = "Example Temperature"
-    _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
-    _attr_device_class = SensorDeviceClass.TEMPERATURE
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    def __init__(self, id, address):
+        super().__init__()
+
+        _LOGGER.info(f'>> controller ID:{id}  address:{address}')
+
+        self._name = "UHPPOTE"
+        self.id = id
+        self.address = address
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def unique_id(self) -> str:
+        return self.id
 
     def update(self) -> None:
-        """Fetch new state data for the sensor.
+        _LOGGER.info(f'>> controller::update ID:{self.id}')
 
-        This is the only method that should fetch new data for Home Assistant.
-        """
-        self._attr_native_value = 23
+        self._attr_native_value = self.id
+
