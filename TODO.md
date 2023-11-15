@@ -6,12 +6,15 @@
 ## HACS custom component
 
 - [ ] Controller
+      - [x] async setup
+      - [ ] configure bind, broadcast and listen addresses
+      - [ ] configure debug flag
       - [ ] Entities
             - [x] ID
             - [x] address
-            - [ ] datetime
+            - [x] datetime
+                  - [ ] `await`
 
-   - [ ] async setup
    - [ ] attributes dictionary
    - [ ] config flow
    - [ ] custom card
