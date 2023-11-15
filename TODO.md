@@ -4,12 +4,17 @@
 2. README: installation
 
 ## HACS custom component
-1. Controller entity
+
+- [ ] Controller
+      - [ ] Entities
+            - [x] ID
+            - [x] address
+            - [ ] datetime
+
    - [ ] async setup
    - [ ] attributes dictionary
-   - [ ] configure IP address:port
-   - [ ] show controller info
-
+   - [ ] config flow
+   - [ ] custom card
 
 ## Notes
 
