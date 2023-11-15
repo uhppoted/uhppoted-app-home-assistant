@@ -15,6 +15,11 @@ from uhppoted import uhppote
 _LOGGER = logging.getLogger(__name__)
 
 # Configuration constants
+CONF_BIND_ADDR = 'bind_address'
+CONF_BROADCAST_ADDR = 'broadcast_address'
+CONF_LISTEN_ADDR = 'listen_address'
+CONF_DEBUG = 'debug'
+
 CONF_CONTROLLER_ID = 'controller_id'
 CONF_CONTROLLER_ADDRESS = 'controller_address'
 
@@ -23,13 +28,28 @@ async def async_setup_platform(hass: HomeAssistantType,
                                config: ConfigType,
                                async_add_entities: Callable,
                                discovery_info: DiscoveryInfoType | None = None) -> None:
+    bind = config[CONF_BIND_ADDR]
+    broadcast = config[CONF_BROADCAST_ADDR]
+    listen = config[CONF_LISTEN_ADDR]
+    debug = config[CONF_DEBUG]
+
+    if bind == '':
+        bind = '0.0.0.0'
+
+    if broadcast == '':
+        broadcast = '255.255.255.255:60000'
+
+    if listen == '':
+        listen = '0.0.0.0:60001'
+
+    u = uhppote.Uhppote(bind, broadcast, listen, debug)
     id = config[CONF_CONTROLLER_ID]
     address = config[CONF_CONTROLLER_ADDRESS]
 
     sensors = [
-        ControllerID(id),
-        ControllerAddress(id, address),
-        ControllerDateTime(id, address),
+        ControllerID(u, id),
+        ControllerAddress(u, id, address),
+        ControllerDateTime(u, id, address),
     ]
 
     async_add_entities(sensors, update_before_add=True)
@@ -42,11 +62,12 @@ class ControllerID(SensorEntity):
     _attr_native_unit_of_measurement = None
     _attr_state_class = None
 
-    def __init__(self, id):
+    def __init__(self, u, id):
         super().__init__()
 
         _LOGGER.debug(f'controller ID:{id}')
 
+        self.uhppote = u
         self.id = id
         self._name = "Controller ID"
         self._available = True
@@ -64,7 +85,7 @@ class ControllerID(SensorEntity):
         return self._available
 
     def update(self) -> None:
-        _LOGGER.info(f'>> controller::update ID:{self.id}')
+        _LOGGER.info(f'controller::update ID:{self.id}')
 
         self._attr_native_value = self.id
 
@@ -76,11 +97,12 @@ class ControllerAddress(SensorEntity):
     _attr_native_unit_of_measurement = None
     _attr_state_class = None
 
-    def __init__(self, id, address):
+    def __init__(self, u, id, address):
         super().__init__()
 
         _LOGGER.debug(f'controller address:{id}  address:{address}')
 
+        self.uhppote = u
         self.id = id
         self.address = address
         self._name = "Controller Address"
@@ -99,7 +121,7 @@ class ControllerAddress(SensorEntity):
         return self._available
 
     def update(self) -> None:
-        _LOGGER.info(f'>> controller::update address:{self.id}')
+        _LOGGER.info(f'controller::update address:{self.id}')
 
         self._attr_native_value = self.address
 
@@ -111,11 +133,12 @@ class ControllerDateTime(SensorEntity):
     _attr_native_unit_of_measurement = None
     _attr_state_class = None
 
-    def __init__(self, id, address):
+    def __init__(self, u, id, address):
         super().__init__()
 
         _LOGGER.debug(f'controller datetime:{id}  address:{address}')
 
+        self.uhppote = u
         self.id = id
         self.address = address
         self._name = "Controller Date/Time"
@@ -144,11 +167,8 @@ class ControllerDateTime(SensorEntity):
     async def async_update(self):
         _LOGGER.debug(f'controller::update datetime:{self.id}')
         try:
-            u = uhppote.Uhppote('192.168.1.100', '192.168.1.255:60000', '192.168.1.100:60001', True)
             controller = self.id
-            response = u.get_time(controller)
-
-            print(response)
+            response = self.uhppote.get_time(controller)
 
             if response.controller == self.id:
                 self._state = response.datetime

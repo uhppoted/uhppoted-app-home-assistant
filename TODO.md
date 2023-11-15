@@ -1,13 +1,12 @@
 # TODO
 
 1. _github_ workflow
-2. README: installation
-
-## HACS custom component
+2. README
+3. Install
 
 - [ ] Controller
       - [x] async setup
-      - [ ] configure bind, broadcast and listen addresses
+      - [x] configure bind, broadcast and listen addresses
       - [ ] configure debug flag
       - [ ] Entities
             - [x] ID
@@ -15,9 +14,10 @@
             - [x] datetime
                   - [ ] `await`
 
-   - [ ] attributes dictionary
-   - [ ] config flow
-   - [ ] custom card
+      - [ ] Move ID and address to attributes dictionary
+      - [ ] config flow
+      - [ ] custom card
+      - [ ] discovery
 
 ## Notes
 
