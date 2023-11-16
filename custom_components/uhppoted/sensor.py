@@ -12,6 +12,11 @@ from homeassistant.components.sensor import SensorEntity
 
 from uhppoted import uhppote
 
+from .const import ATTR_ADDRESS
+from .const import ATTR_NETMASK
+from .const import ATTR_GATEWAY
+from .const import ATTR_FIRMWARE
+
 _LOGGER = logging.getLogger(__name__)
 
 # Configuration constants
@@ -49,7 +54,7 @@ async def async_setup_platform(hass: HomeAssistantType,
     sensors = [
         ControllerID(u, id),
         ControllerAddress(u, id, address),
-        ControllerDateTime(u, id, address),
+        ControllerDateTime(u, id),
     ]
 
     async_add_entities(sensors, update_before_add=True)
@@ -69,7 +74,15 @@ class ControllerID(SensorEntity):
 
         self.uhppote = u
         self.id = id
+        self._attributes: Dict[str, Any] = {
+            ATTR_ADDRESS: '',
+            ATTR_NETMASK: '',
+            ATTR_GATEWAY: '',
+            ATTR_FIRMWARE: '',
+        }
+
         self._name = "Controller ID"
+        self._state = id
         self._available = True
 
     @property
@@ -84,10 +97,35 @@ class ControllerID(SensorEntity):
     def available(self) -> bool:
         return self._available
 
-    def update(self) -> None:
-        _LOGGER.info(f'controller::update ID:{self.id}')
+    @property
+    def state(self) -> Optional[str]:
+        if self._state != None:
+            return f'{self._state}'
 
-        self._attr_native_value = self.id
+        return None
+
+    @property
+    def extra_state_attributes(self) -> Dict[str, Any]:
+        return self._attributes
+
+    async def async_update(self):
+        _LOGGER.info(f'controller:{self.id}  update info')
+        try:
+            controller = self.id
+            response = self.uhppote.get_controller(controller)
+
+            print(">>>>>>>>>>>>>>>>>>>>>>", response)
+            if response.controller == self.id:
+                self._state = response.controller
+                self._available = True
+                self._attributes[ATTR_ADDRESS] = f'{response.ip_address}'
+                self._attributes[ATTR_NETMASK] = f'{response.subnet_mask}'
+                self._attributes[ATTR_GATEWAY] = f'{response.gateway}'
+                self._attributes[ATTR_FIRMWARE] = f'{response.version} {response.date:%Y-%m-%d}'
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self.id} information')
 
 
 class ControllerAddress(SensorEntity):
@@ -104,9 +142,9 @@ class ControllerAddress(SensorEntity):
 
         self.uhppote = u
         self.id = id
-        self.address = address
-        self._name = "Controller Address"
-        self._available = True
+        self._name = 'Controller Address'
+        self._state = address
+        self._available = False if address == '' else True
 
     @property
     def name(self) -> str:
@@ -120,10 +158,26 @@ class ControllerAddress(SensorEntity):
     def available(self) -> bool:
         return self._available
 
-    def update(self) -> None:
-        _LOGGER.info(f'controller::update address:{self.id}')
+    @property
+    def state(self) -> Optional[str]:
+        if self._state != None:
+            return f'{self._state}'
 
-        self._attr_native_value = self.address
+        return None
+
+    async def async_update(self):
+        _LOGGER.debug(f'controller:{self.id}  update address')
+        try:
+            controller = self.id
+            response = self.uhppote.get_controller(controller)
+
+            if response.controller == self.id:
+                self._state = response.ip_address
+                self._available = True
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self.id} address')
 
 
 class ControllerDateTime(SensorEntity):
@@ -133,14 +187,13 @@ class ControllerDateTime(SensorEntity):
     _attr_native_unit_of_measurement = None
     _attr_state_class = None
 
-    def __init__(self, u, id, address):
+    def __init__(self, u, id):
         super().__init__()
 
-        _LOGGER.debug(f'controller datetime:{id}  address:{address}')
+        _LOGGER.debug(f'controller datetime:{id}')
 
         self.uhppote = u
         self.id = id
-        self.address = address
         self._name = "Controller Date/Time"
         self._state = None
         self._available = False
@@ -165,7 +218,7 @@ class ControllerDateTime(SensorEntity):
         return None
 
     async def async_update(self):
-        _LOGGER.debug(f'controller::update datetime:{self.id}')
+        _LOGGER.debug(f'controller:{self.id}  update datetime')
         try:
             controller = self.id
             response = self.uhppote.get_time(controller)
@@ -173,12 +226,6 @@ class ControllerDateTime(SensorEntity):
             if response.controller == self.id:
                 self._state = response.datetime
                 self._available = True
-
-            # clones_data = await self.github.getitem(clones_url)
-            # views_url = f"{repo_url}/traffic/views"
-            # views_data = await self.github.getitem(views_url)
-            # self.attrs[ATTR_VIEWS] = views_data["count"]
-            # self.attrs[ATTR_VIEWS_UNIQUE] = views_data["uniques"]
 
         except (Exception):
             self._available = False

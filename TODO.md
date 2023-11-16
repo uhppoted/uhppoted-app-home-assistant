@@ -7,17 +7,24 @@
 - [ ] Controller
       - [x] async setup
       - [x] configure bind, broadcast and listen addresses
-      - [ ] configure debug flag
+      - [x] configure debug flag
+      - [x] Add address, netmask, gateway and firmware to attributes dictionary
       - [ ] Entities
             - [x] ID
             - [x] address
             - [x] datetime
-                  - [ ] `await`
+            - [ ] Use name translation (https://developers.home-assistant.io/docs/core/entity)
+            - [ ] Set has_entity_name True (https://developers.home-assistant.io/docs/core/entity)
 
-      - [ ] Move ID and address to attributes dictionary
       - [ ] config flow
+            - https://developers.home-assistant.io/docs/dev_101_states/
       - [ ] custom card
       - [ ] discovery
+
+- [ ] Add card number to Person entity
+      - https://community.home-assistant.io/t/request-give-the-ability-to-add-attributes-to-people-entities/297483
+      - https://www.home-assistant.io/integrations/person
+      - https://community.home-assistant.io/t/is-there-a-way-to-create-custom-attributes-for-entities/142875
 
 ## Notes
 
