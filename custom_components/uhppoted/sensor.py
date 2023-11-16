@@ -61,7 +61,6 @@ async def async_setup_platform(hass: HomeAssistantType,
 
 
 class ControllerID(SensorEntity):
-    _attr_name = "serial number"
     _attr_device_class = None
     _attr_last_reset = None
     _attr_native_unit_of_measurement = None
@@ -74,15 +73,16 @@ class ControllerID(SensorEntity):
 
         self.uhppote = u
         self.id = id
+
+        self._name = "Controller ID"
+        self._translation_key = 'controller_id'
+        self._state = id
         self._attributes: Dict[str, Any] = {
             ATTR_ADDRESS: '',
             ATTR_NETMASK: '',
             ATTR_GATEWAY: '',
             ATTR_FIRMWARE: '',
         }
-
-        self._name = "Controller ID"
-        self._state = id
         self._available = True
 
     @property
@@ -92,6 +92,14 @@ class ControllerID(SensorEntity):
     @property
     def unique_id(self) -> str:
         return f'{self.id}.ID'
+
+    @property
+    def has_entity_name(self) -> bool:
+        return True
+
+    @property
+    def translation_key(self) -> str:
+        return self._translation_key
 
     @property
     def available(self) -> bool:
@@ -114,7 +122,6 @@ class ControllerID(SensorEntity):
             controller = self.id
             response = self.uhppote.get_controller(controller)
 
-            print(">>>>>>>>>>>>>>>>>>>>>>", response)
             if response.controller == self.id:
                 self._state = response.controller
                 self._available = True
