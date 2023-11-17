@@ -18,6 +18,7 @@
                   - https://developers.home-assistant.io/docs/core/entity
                   - https://github.com/home-assistant/core/issues/98993
                   - https://developers.home-assistant.io/docs/core/entity
+                  - python3 -m script.hassfest
       - [ ] device_info
       - [ ] entity_category
 

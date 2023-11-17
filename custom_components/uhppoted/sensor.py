@@ -74,7 +74,7 @@ class ControllerID(SensorEntity):
         self.uhppote = u
         self.id = id
 
-        self._name = "Controller ID"
+        self._name = 'Controller ID'
         self._translation_key = 'controller_id'
         self._state = id
         self._attributes: Dict[str, Any] = {
@@ -149,7 +149,7 @@ class ControllerAddress(SensorEntity):
 
         self.uhppote = u
         self.id = id
-        self._name = 'Controller Address'
+        self._name = 'Controller address'
         self._state = address
         self._available = False if address == '' else True
 
@@ -201,7 +201,7 @@ class ControllerDateTime(SensorEntity):
 
         self.uhppote = u
         self.id = id
-        self._name = "Controller Date/Time"
+        self._name = "Controller date/time"
         self._state = None
         self._available = False
 

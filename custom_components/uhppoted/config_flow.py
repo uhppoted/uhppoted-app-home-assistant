@@ -1,97 +1,86 @@
-"""Config flow for uhppoted integration."""
-from __future__ import annotations
-
 import logging
 from typing import Any
+from typing import Dict
+from typing import Optional
 
-import voluptuous as vol
-
+from homeassistant import core
 from homeassistant import config_entries
-from homeassistant.core import HomeAssistant
-from homeassistant.data_entry_flow import FlowResult
-from homeassistant.exceptions import HomeAssistantError
+import homeassistant.helpers.config_validation as cv
+import voluptuous as vol
 
 from .const import DOMAIN
 
+CONF_CONTROLLER_ID = 'controller_id'
+CONF_BIND_ADDR = 'bind_address'
+CONF_BROADCAST_ADDR = 'broadcast_address'
+CONF_LISTEN_ADDR = 'listen_address'
+
 _LOGGER = logging.getLogger(__name__)
 
-# TODO adjust the data schema to the data that you need
-STEP_USER_DATA_SCHEMA = vol.Schema({
-    vol.Required("host"): str,
-    vol.Required("username"): str,
-    vol.Required("password"): str,
-})
+UHPPOTE_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_CONTROLLER_ID): int,
+        vol.Optional(CONF_BIND_ADDR, default="0.0.0.0:0"): str,
+        vol.Optional(CONF_BROADCAST_ADDR, default="255.255.255.255:60000"): str,
+        vol.Optional(CONF_LISTEN_ADDR, default="0.0.0.0:60001"): str,
+    })
 
 
-class PlaceholderHub:
-    """Placeholder class to make tests pass.
-
-    TODO Remove this placeholder class and replace with things from your PyPI package.
-    """
-
-    def __init__(self, host: str) -> None:
-        """Initialize."""
-        self.host = host
-
-    async def authenticate(self, username: str, password: str) -> bool:
-        """Test if we can authenticate with the host."""
-        return True
+# def validate_path(path: str) -> None:
+#     """Validates a GitHub repo path.
+#
+#     Raises a ValueError if the path is invalid.
+#     """
+#     if len(path.split("/")) != 2:
+#         raise ValueError
+def validate_uhppote(   bind: str, hass: core.HomeAssistant) -> None:
+    pass
 
 
-async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
-    """Validate the user input allows us to connect.
+class UhppotedConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    data: Optional[Dict[str, Any]]
 
-    Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
-    """
-    # TODO validate the data can be used to set up a connection.
-
-    # If your PyPI package is not built with async, pass your methods
-    # to the executor:
-    # await hass.async_add_executor_job(
-    #     your_validate_func, data["username"], data["password"]
-    # )
-
-    hub = PlaceholderHub(data["host"])
-
-    if not await hub.authenticate(data["username"], data["password"]):
-        raise InvalidAuth
-
-    # If you cannot connect:
-    # throw CannotConnect
-    # If the authentication is wrong:
-    # InvalidAuth
-
-    # Return info that you want to store in the config entry.
-    return {"title": "Name of the device"}
-
-
-class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for uhppoted."""
-
-    VERSION = 1
-
-    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        """Handle the initial step."""
-        errors: dict[str, str] = {}
+    async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
+        errors: Dict[str, str] = {}
         if user_input is not None:
             try:
-                info = await validate_input(self.hass, user_input)
-            except CannotConnect:
-                errors["base"] = "cannot_connect"
-            except InvalidAuth:
-                errors["base"] = "invalid_auth"
-            except Exception:  # pylint: disable=broad-except
-                _LOGGER.exception("Unexpected exception")
-                errors["base"] = "unknown"
-            else:
-                return self.async_create_entry(title=info["title"], data=user_input)
+                validate_uhppote(user_input[CONF_BIND_ADDR], self.hass)
+            except ValueError:
+                errors["base"] = "bind address"
+            if not errors:
+                self.data = user_input
 
-        return self.async_show_form(step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors)
+                # return await self.async_step_repo()
+                return self.async_create_entry(title="uhppoted", data=self.data)
 
+        return self.async_show_form(step_id="user", data_schema=UHPPOTE_SCHEMA, errors=errors)
 
-class CannotConnect(HomeAssistantError):
-    """Error to indicate we cannot connect."""
-
-
-class InvalidAuth(HomeAssistantError):
-    """Error to indicate there is invalid auth."""
+    # async def async_step_repo(self, user_input: Optional[Dict[str, Any]] = None):
+    #     """Second step in config flow to add a repo to watch."""
+    #     errors: Dict[str, str] = {}
+    #     if user_input is not None:
+    #         # Validate the path.
+    #         try:
+    #             validate_path(user_input[CONF_PATH])
+    #         except ValueError:
+    #             errors["base"] = "invalid_path"
+    #
+    #         if not errors:
+    #             # Input is valid, set data.
+    #             self.data[CONF_REPOS].append(
+    #                 {
+    #                     "path": user_input[CONF_PATH],
+    #                     "name": user_input.get(CONF_NAME, user_input[CONF_PATH]),
+    #                 }
+    #             )
+    #             # If user ticked the box show this form again so they can add an
+    #             # additional repo.
+    #             if user_input.get("add_another", False):
+    #                 return await self.async_step_repo()
+    #
+    #             # User is done adding repos, create the config entry.
+    #             return self.async_create_entry(title="GitHub Custom", data=self.data)
+    #
+    #     return self.async_show_form(
+    #         step_id="repo", data_schema=REPO_SCHEMA, errors=errors
+    #     )
