@@ -3,6 +3,7 @@
 1. _github_ workflow
 2. README
 3. Install
+4. Icon
 
 - [ ] Controller
       - [x] async setup
@@ -11,14 +12,19 @@
       - [x] Add address, netmask, gateway and firmware to attributes dictionary
 
       - [ ] config flow
+            - [ ] Get default bind, broadcast, listen from configuration.yaml
             - [x] Validate controller ID
+            - [ ] (optional) controller address
+            - [ ] bind, broadcast, listen as optional second step
             - [ ] PLATFORM_SCHEMA
+            - 303986753
             - https://developers.home-assistant.io/docs/dev_101_states/
 
       - [ ] Entities
             - [x] ID
             - [x] address
             - [x] datetime
+            - [ ] Figure out entity ID numbering
             - [ ] door
             - [ ] card
             - [ ] Name translation
@@ -39,6 +45,10 @@
       - https://community.home-assistant.io/t/request-give-the-ability-to-add-attributes-to-people-entities/297483
       - https://www.home-assistant.io/integrations/person
       - https://community.home-assistant.io/t/is-there-a-way-to-create-custom-attributes-for-entities/142875
+
+- [ ] HACS
+      - Python wheel repo (https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations)
+      - Icon (https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations)
 
 ## Notes
 

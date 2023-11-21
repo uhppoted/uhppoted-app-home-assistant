@@ -9,20 +9,19 @@ import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 
 from .const import DOMAIN
-
-CONF_CONTROLLER_ID = 'controller_id'
-CONF_BIND_ADDR = 'bind_address'
-CONF_BROADCAST_ADDR = 'broadcast_address'
-CONF_LISTEN_ADDR = 'listen_address'
+from .const import CONF_CONTROLLER_ID
+from .const import CONF_BIND_ADDR
+from .const import CONF_BROADCAST_ADDR
+from .const import CONF_LISTEN_ADDR
 
 _LOGGER = logging.getLogger(__name__)
 
 UHPPOTE_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_CONTROLLER_ID): int,
-        vol.Optional(CONF_BIND_ADDR, default="0.0.0.0:0"): str,
-        vol.Optional(CONF_BROADCAST_ADDR, default="255.255.255.255:60000"): str,
-        vol.Optional(CONF_LISTEN_ADDR, default="0.0.0.0:60001"): str,
+        vol.Optional(CONF_BIND_ADDR, default="192.168.1.100"): str,
+        vol.Optional(CONF_BROADCAST_ADDR, default="192.168.1.255:60000"): str,
+        vol.Optional(CONF_LISTEN_ADDR, default="192.168.1.100:60001"): str,
     })
 
 
@@ -34,12 +33,16 @@ class UhppotedConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     data: Optional[Dict[str, Any]]
 
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
+        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', self.hass.data[DOMAIN])
+
+
         errors: Dict[str, str] = {}
         if user_input is not None:
             try:
                 validate_controller_id(user_input[CONF_CONTROLLER_ID], self.hass)
             except ValueError:
                 errors["base"] = f'Invalid controller ID ({user_input[CONF_CONTROLLER_ID]})'
+            
             if not errors:
                 self.data = user_input
 

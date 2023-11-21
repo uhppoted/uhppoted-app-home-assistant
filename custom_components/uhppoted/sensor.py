@@ -12,6 +12,13 @@ from homeassistant.components.sensor import SensorEntity
 
 from uhppoted import uhppote
 
+from .const import DOMAIN
+
+from .const import CONF_CONTROLLER_ID
+from .const import CONF_BIND_ADDR
+from .const import CONF_BROADCAST_ADDR
+from .const import CONF_LISTEN_ADDR
+
 from .const import ATTR_ADDRESS
 from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
@@ -59,6 +66,30 @@ async def async_setup_platform(hass: HomeAssistantType,
 
     async_add_entities(sensors, update_before_add=True)
 
+
+async def async_setup_entry(hass: core.HomeAssistant,config_entry: config_entries.ConfigEntry,async_add_entities):
+    config = hass.data[DOMAIN][config_entry.entry_id]
+    # print(">>>>>>>> awooooogah/config",config)
+
+    id = config[CONF_CONTROLLER_ID]
+    address = '' # FIXME config[CONF_CONTROLLER_ADDRESS]
+
+    bind = config[CONF_BIND_ADDR]
+    broadcast = config[CONF_BROADCAST_ADDR]
+    listen = config[CONF_LISTEN_ADDR]
+    debug = True
+
+    u = uhppote.Uhppote(bind, broadcast, listen, debug)
+
+    # print(">>>>>>>> awooooogah/uhppote",u)
+
+    sensors = [
+        ControllerID(u, id),
+        ControllerAddress(u, id, address),
+        ControllerDateTime(u, id),
+    ]
+
+    async_add_entities(sensors, update_before_add=True)
 
 class ControllerID(SensorEntity):
     _attr_device_class = None
