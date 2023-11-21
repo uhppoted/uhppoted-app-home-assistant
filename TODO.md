@@ -7,26 +7,33 @@
 - [ ] Controller
       - [x] async setup
       - [x] configure bind, broadcast and listen addresses
-            - [ ]  PLATFORM_SCHEMA
       - [x] configure debug flag
       - [x] Add address, netmask, gateway and firmware to attributes dictionary
+
+      - [ ] config flow
+            - [x] Validate controller ID
+            - [ ] PLATFORM_SCHEMA
+            - https://developers.home-assistant.io/docs/dev_101_states/
+
       - [ ] Entities
             - [x] ID
             - [x] address
             - [x] datetime
+            - [ ] door
+            - [ ] card
             - [ ] Name translation
                   - https://developers.home-assistant.io/docs/core/entity
                   - https://github.com/home-assistant/core/issues/98993
                   - https://developers.home-assistant.io/docs/core/entity
                   - python3 -m script.hassfest
+
+      - [ ] Rework as Device
+      - [ ] Service
+
       - [ ] device_info
       - [ ] entity_category
-
-      - [ ] config flow
-            - https://developers.home-assistant.io/docs/dev_101_states/
       - [ ] custom card
       - [ ] discovery
-      - [ ] Rework as Device
 
 - [ ] Add card number to Person entity
       - https://community.home-assistant.io/t/request-give-the-ability-to-add-attributes-to-people-entities/297483

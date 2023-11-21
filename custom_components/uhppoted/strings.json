@@ -5,7 +5,7 @@
                 "title": "UHPPOTE controller configuration",
                 "description": "Controller ID and host IP settings",
                 "data": {
-                    "controller_id": "controller_id",
+                    "controller_id": "controller id",
                     "bind_address": "bind address",
                     "broadcast_address": "broadcast address",
                     "listen_address": "listen address"

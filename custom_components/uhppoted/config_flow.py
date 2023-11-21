@@ -26,16 +26,9 @@ UHPPOTE_SCHEMA = vol.Schema(
     })
 
 
-# def validate_path(path: str) -> None:
-#     """Validates a GitHub repo path.
-#
-#     Raises a ValueError if the path is invalid.
-#     """
-#     if len(path.split("/")) != 2:
-#         raise ValueError
-def validate_uhppote(   bind: str, hass: core.HomeAssistant) -> None:
-    pass
-
+def validate_controller_id(id: int, hass: core.HomeAssistant) -> None:
+    if id < 10:
+        raise ValueError
 
 class UhppotedConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     data: Optional[Dict[str, Any]]
@@ -44,9 +37,9 @@ class UhppotedConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: Dict[str, str] = {}
         if user_input is not None:
             try:
-                validate_uhppote(user_input[CONF_BIND_ADDR], self.hass)
+                validate_controller_id(user_input[CONF_CONTROLLER_ID], self.hass)
             except ValueError:
-                errors["base"] = "bind address"
+                errors["base"] = f'Invalid controller ID ({user_input[CONF_CONTROLLER_ID]})'
             if not errors:
                 self.data = user_input
 
