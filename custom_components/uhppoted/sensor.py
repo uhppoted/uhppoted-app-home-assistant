@@ -67,12 +67,12 @@ async def async_setup_platform(hass: HomeAssistantType,
     async_add_entities(sensors, update_before_add=True)
 
 
-async def async_setup_entry(hass: core.HomeAssistant,config_entry: config_entries.ConfigEntry,async_add_entities):
+async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entries.ConfigEntry, async_add_entities):
     config = hass.data[DOMAIN][config_entry.entry_id]
     # print(">>>>>>>> awooooogah/config",config)
 
     id = config[CONF_CONTROLLER_ID]
-    address = '' # FIXME config[CONF_CONTROLLER_ADDRESS]
+    address = ''  # FIXME config[CONF_CONTROLLER_ADDRESS]
 
     bind = config[CONF_BIND_ADDR]
     broadcast = config[CONF_BROADCAST_ADDR]
@@ -90,6 +90,7 @@ async def async_setup_entry(hass: core.HomeAssistant,config_entry: config_entrie
     ]
 
     async_add_entities(sensors, update_before_add=True)
+
 
 class ControllerID(SensorEntity):
     _attr_device_class = None

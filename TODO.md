@@ -12,7 +12,7 @@
       - [x] Add address, netmask, gateway and firmware to attributes dictionary
 
       - [ ] config flow
-            - [ ] Get default bind, broadcast, listen from configuration.yaml
+            - [x] Get default bind, broadcast, listen from configuration.yaml
             - [x] Validate controller ID
             - [ ] (optional) controller address
             - [ ] bind, broadcast, listen as optional second step
