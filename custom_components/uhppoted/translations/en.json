@@ -3,15 +3,25 @@
         "step": {
             "user": {
                 "title": "UHPPOTE controller configuration",
-                "description": "Controller ID and host IP settings",
+                "description": "Controller ID and address",
                 "data": {
-                    "controller_id": "controller id",
+                    "controller_id": "controller ID",
+                    "controller_address": "controller IPv4 address"
+                },
+                "data_description": {
+                    "controller_id": "UHPPOTE controller serial number",
+                    "controller_address": "Controller IPv4 address"
+                }
+            },
+            "IPv4": {
+                "title": "UHPPOTE controller configuration",
+                "description": "Network settings",
+                "data": {
                     "bind_address": "bind address",
                     "broadcast_address": "broadcast address",
                     "listen_address": "listen address"
                 },
                 "data_description": {
-                    "controller_id": "UHPPOTE controller serial number",
                     "bind_address": "The host bind address (defaults to 0.0.0.0:0)",
                     "broadcast_address": "The host broadcast address (defaults to 255.255.255.255:60000)",
                     "listen_address": "The host event listen address (defaults to 0.0.0.0:60001)"

@@ -14,8 +14,10 @@
       - [ ] config flow
             - [x] Get default bind, broadcast, listen from configuration.yaml
             - [x] Validate controller ID
-            - [ ] (optional) controller address
-            - [ ] bind, broadcast, listen as optional second step
+            - [x] (optional) controller address
+            - [x] bind, broadcast, listen as optional second step
+            - [ ] Controller name
+            - [ ] Make bind, broadcast, etc step optional
             - [ ] PLATFORM_SCHEMA
             - 303986753
             - https://developers.home-assistant.io/docs/dev_101_states/
@@ -24,7 +26,7 @@
             - [x] ID
             - [x] address
             - [x] datetime
-            - [ ] Figure out entity ID numbering
+            - [ ] Figure out entity IDs for multiple controllers
             - [ ] door
             - [ ] card
             - [ ] Name translation
