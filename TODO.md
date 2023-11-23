@@ -26,7 +26,7 @@
             - [x] ID
             - [x] address
             - [x] datetime
-            - [ ] Figure out entity IDs for multiple controllers
+            - [x] Figure out entity IDs for multiple controllers
             - [ ] door
             - [ ] card
             - [ ] Name translation

@@ -14,15 +14,9 @@ from .const import CONF_CONTROLLER_ADDR
 from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
+from .const import CONF_DEBUG
 
 _LOGGER = logging.getLogger(__name__)
-
-# UHPPOTE_SCHEMA = vol.Schema({
-#     vol.Required(CONF_CONTROLLER_ID): int,
-#     vol.Optional(CONF_BIND_ADDR, default="192.168.1.100"): str,
-#     vol.Optional(CONF_BROADCAST_ADDR, default="192.168.1.255:60000"): str,
-#     vol.Optional(CONF_LISTEN_ADDR, default="192.168.1.100:60001"): str,
-# })
 
 
 def validate_controller_id(id: int, hass: core.HomeAssistant) -> None:
@@ -59,6 +53,7 @@ class UhppotedConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         bind = '0.0.0.0'
         broadcast = '255.255.255.255:60000'
         listen = '0.0.0.0:60001'
+        debug = False
 
         if CONF_BIND_ADDR in data:
             bind = data[CONF_BIND_ADDR]
@@ -69,10 +64,14 @@ class UhppotedConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if CONF_LISTEN_ADDR in data:
             listen = data[CONF_LISTEN_ADDR]
 
+        if CONF_DEBUG in data:
+            debug = data[CONF_DEBUG]
+
         schema = vol.Schema({
             vol.Optional(CONF_BIND_ADDR, default=bind): str,
             vol.Optional(CONF_BROADCAST_ADDR, default=broadcast): str,
             vol.Optional(CONF_LISTEN_ADDR, default=listen): str,
+            vol.Optional(CONF_DEBUG, default=debug): bool,
         })
 
         errors: Dict[str, str] = {}

@@ -19,12 +19,14 @@
                 "data": {
                     "bind_address": "bind address",
                     "broadcast_address": "broadcast address",
-                    "listen_address": "listen address"
+                    "listen_address": "listen address",
+                    "debug": "debug enabled"
                 },
                 "data_description": {
                     "bind_address": "The host bind address (defaults to 0.0.0.0:0)",
                     "broadcast_address": "The host broadcast address (defaults to 255.255.255.255:60000)",
-                    "listen_address": "The host event listen address (defaults to 0.0.0.0:60001)"
+                    "listen_address": "The host event listen address (defaults to 0.0.0.0:60001)",
+                    "debug": "Enables verbose controller debugging"
                 }
             }
         },

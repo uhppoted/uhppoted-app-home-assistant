@@ -12,76 +12,75 @@ from homeassistant.components.sensor import SensorEntity
 
 from uhppoted import uhppote
 
-from .const import DOMAIN
+_LOGGER = logging.getLogger(__name__)
 
+# Configuration constants
+from .const import DOMAIN
 from .const import CONF_CONTROLLER_ID
+from .const import CONF_CONTROLLER_ADDR
 from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
+from .const import CONF_DEBUG
 
+# Attribute constants
 from .const import ATTR_ADDRESS
 from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
-
-_LOGGER = logging.getLogger(__name__)
-
-# Configuration constants
-CONF_BIND_ADDR = 'bind_address'
-CONF_BROADCAST_ADDR = 'broadcast_address'
-CONF_LISTEN_ADDR = 'listen_address'
-CONF_DEBUG = 'debug'
-
-CONF_CONTROLLER_ID = 'controller_id'
-CONF_CONTROLLER_ADDRESS = 'controller_address'
 
 
 async def async_setup_platform(hass: HomeAssistantType,
                                config: ConfigType,
                                async_add_entities: Callable,
                                discovery_info: DiscoveryInfoType | None = None) -> None:
-    bind = config[CONF_BIND_ADDR]
-    broadcast = config[CONF_BROADCAST_ADDR]
-    listen = config[CONF_LISTEN_ADDR]
-    debug = config[CONF_DEBUG]
+    # bind = config[CONF_BIND_ADDR]
+    # broadcast = config[CONF_BROADCAST_ADDR]
+    # listen = config[CONF_LISTEN_ADDR]
+    # debug = config[CONF_DEBUG]
+    #
+    # if bind == '':
+    #     bind = '0.0.0.0'
+    #
+    # if broadcast == '':
+    #     broadcast = '255.255.255.255:60000'
+    #
+    # if listen == '':
+    #     listen = '0.0.0.0:60001'
+    #
+    # u = uhppote.Uhppote(bind, broadcast, listen, debug)
 
-    if bind == '':
-        bind = '0.0.0.0'
-
-    if broadcast == '':
-        broadcast = '255.255.255.255:60000'
-
-    if listen == '':
-        listen = '0.0.0.0:60001'
-
-    u = uhppote.Uhppote(bind, broadcast, listen, debug)
-    id = config[CONF_CONTROLLER_ID]
-    address = config[CONF_CONTROLLER_ADDRESS]
-
-    sensors = [
-        ControllerID(u, id),
-        ControllerAddress(u, id, address),
-        ControllerDateTime(u, id),
-    ]
+    sensors = []
 
     async_add_entities(sensors, update_before_add=True)
 
 
 async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entries.ConfigEntry, async_add_entities):
     config = hass.data[DOMAIN][config_entry.entry_id]
-    # print(">>>>>>>> awooooogah/config",config)
 
     id = config[CONF_CONTROLLER_ID]
-    address = ''  # FIXME config[CONF_CONTROLLER_ADDRESS]
+    address = ''
+    bind = '0.0.0.0'
+    broadcast = '255.255.255.255'
+    listen = '0.0.0.0:60001'
+    debug = False
 
-    bind = config[CONF_BIND_ADDR]
-    broadcast = config[CONF_BROADCAST_ADDR]
-    listen = config[CONF_LISTEN_ADDR]
-    debug = True
+    if CONF_CONTROLLER_ADDR in config:
+        address = config[CONF_CONTROLLER_ADDR]
+
+    if CONF_BIND_ADDR in config:
+        bind = config[CONF_BIND_ADDR]
+
+    if CONF_BROADCAST_ADDR in config:
+        broadcast = config[CONF_BROADCAST_ADDR]
+
+    if CONF_LISTEN_ADDR in config:
+        listen = config[CONF_LISTEN_ADDR]
+
+    if CONF_DEBUG in config:
+        debug = config[CONF_DEBUG]
 
     u = uhppote.Uhppote(bind, broadcast, listen, debug)
-
-    # print(">>>>>>>> awooooogah/uhppote",u)
 
     sensors = [
         ControllerID(u, id),
@@ -105,8 +104,8 @@ class ControllerID(SensorEntity):
 
         self.uhppote = u
         self.id = id
-
-        self._name = 'Controller ID'
+        self._name = f'{self.id}.ID'
+        self._icon = 'mdi:identifier'
         self._translation_key = 'controller_id'
         self._state = id
         self._attributes: Dict[str, Any] = {
@@ -124,6 +123,10 @@ class ControllerID(SensorEntity):
     @property
     def unique_id(self) -> str:
         return f'{self.id}.ID'
+
+    @property
+    def icon(self) -> str:
+        return f'{self._icon}'
 
     @property
     def has_entity_name(self) -> bool:
@@ -181,7 +184,8 @@ class ControllerAddress(SensorEntity):
 
         self.uhppote = u
         self.id = id
-        self._name = 'Controller address'
+        self._name = f'{self.id}.address'
+        self._icon = 'mdi:ip-network'
         self._state = address
         self._available = False if address == '' else True
 
@@ -192,6 +196,10 @@ class ControllerAddress(SensorEntity):
     @property
     def unique_id(self) -> str:
         return f'{self.id}.address'
+
+    @property
+    def icon(self) -> str:
+        return f'{self._icon}'
 
     @property
     def available(self) -> bool:
@@ -233,7 +241,8 @@ class ControllerDateTime(SensorEntity):
 
         self.uhppote = u
         self.id = id
-        self._name = "Controller date/time"
+        self._name = f'{self.id}.date/time'
+        self._icon = 'mdi:calendar-clock-outline'
         self._state = None
         self._available = False
 
@@ -244,6 +253,10 @@ class ControllerDateTime(SensorEntity):
     @property
     def unique_id(self) -> str:
         return f'{self.id}.datetime'
+
+    @property
+    def icon(self) -> str:
+        return f'{self._icon}'
 
     @property
     def available(self) -> bool:

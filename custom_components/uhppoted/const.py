@@ -7,6 +7,7 @@ CONF_CONTROLLER_ADDR = 'controller_address'
 CONF_BIND_ADDR = 'bind_address'
 CONF_BROADCAST_ADDR = 'broadcast_address'
 CONF_LISTEN_ADDR = 'listen_address'
+CONF_DEBUG = 'debug'
 
 ATTR_ADDRESS = "address"
 ATTR_NETMASK = "netmask"
