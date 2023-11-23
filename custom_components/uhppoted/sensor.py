@@ -17,6 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 # Configuration constants
 from .const import DOMAIN
 from .const import CONF_CONTROLLER_ID
+from .const import CONF_CONTROLLER_NAME
 from .const import CONF_CONTROLLER_ADDR
 from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
@@ -34,36 +35,22 @@ async def async_setup_platform(hass: HomeAssistantType,
                                config: ConfigType,
                                async_add_entities: Callable,
                                discovery_info: DiscoveryInfoType | None = None) -> None:
-    # bind = config[CONF_BIND_ADDR]
-    # broadcast = config[CONF_BROADCAST_ADDR]
-    # listen = config[CONF_LISTEN_ADDR]
-    # debug = config[CONF_DEBUG]
-    #
-    # if bind == '':
-    #     bind = '0.0.0.0'
-    #
-    # if broadcast == '':
-    #     broadcast = '255.255.255.255:60000'
-    #
-    # if listen == '':
-    #     listen = '0.0.0.0:60001'
-    #
-    # u = uhppote.Uhppote(bind, broadcast, listen, debug)
-
-    sensors = []
-
-    async_add_entities(sensors, update_before_add=True)
+    async_add_entities([], update_before_add=True)
 
 
 async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entries.ConfigEntry, async_add_entities):
     config = hass.data[DOMAIN][config_entry.entry_id]
 
     id = config[CONF_CONTROLLER_ID]
+    name = f'{id}'
     address = ''
     bind = '0.0.0.0'
     broadcast = '255.255.255.255'
     listen = '0.0.0.0:60001'
     debug = False
+
+    if CONF_CONTROLLER_NAME in config and not config[CONF_CONTROLLER_NAME].strip() == '':
+        name = config[CONF_CONTROLLER_NAME].strip()
 
     if CONF_CONTROLLER_ADDR in config:
         address = config[CONF_CONTROLLER_ADDR]
@@ -83,9 +70,9 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
     u = uhppote.Uhppote(bind, broadcast, listen, debug)
 
     sensors = [
-        ControllerID(u, id),
-        ControllerAddress(u, id, address),
-        ControllerDateTime(u, id),
+        ControllerID(u, id, name),
+        ControllerAddress(u, id, name, address),
+        ControllerDateTime(u, id, name),
     ]
 
     async_add_entities(sensors, update_before_add=True)
@@ -97,14 +84,14 @@ class ControllerID(SensorEntity):
     _attr_native_unit_of_measurement = None
     _attr_state_class = None
 
-    def __init__(self, u, id):
+    def __init__(self, u, id, name):
         super().__init__()
 
         _LOGGER.debug(f'controller ID:{id}')
 
         self.uhppote = u
         self.id = id
-        self._name = f'{self.id}.ID'
+        self._name = f'{name}.ID'
         self._icon = 'mdi:identifier'
         self._translation_key = 'controller_id'
         self._state = id
@@ -177,14 +164,14 @@ class ControllerAddress(SensorEntity):
     _attr_native_unit_of_measurement = None
     _attr_state_class = None
 
-    def __init__(self, u, id, address):
+    def __init__(self, u, id, name, address):
         super().__init__()
 
         _LOGGER.debug(f'controller address:{id}  address:{address}')
 
         self.uhppote = u
         self.id = id
-        self._name = f'{self.id}.address'
+        self._name = f'{name}.address'
         self._icon = 'mdi:ip-network'
         self._state = address
         self._available = False if address == '' else True
@@ -234,14 +221,14 @@ class ControllerDateTime(SensorEntity):
     _attr_native_unit_of_measurement = None
     _attr_state_class = None
 
-    def __init__(self, u, id):
+    def __init__(self, u, id, name):
         super().__init__()
 
         _LOGGER.debug(f'controller datetime:{id}')
 
         self.uhppote = u
         self.id = id
-        self._name = f'{self.id}.date/time'
+        self._name = f'{name}.date/time'
         self._icon = 'mdi:calendar-clock-outline'
         self._state = None
         self._available = False

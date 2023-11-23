@@ -10,6 +10,7 @@ import voluptuous as vol
 
 from .const import DOMAIN
 from .const import CONF_CONTROLLER_ID
+from .const import CONF_CONTROLLER_NAME
 from .const import CONF_CONTROLLER_ADDR
 from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
@@ -32,6 +33,7 @@ class UhppotedConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         schema = vol.Schema({
             vol.Required(CONF_CONTROLLER_ID): int,
+            vol.Optional(CONF_CONTROLLER_NAME, default=''): str,
             vol.Optional(CONF_CONTROLLER_ADDR, default=''): str,
         })
 

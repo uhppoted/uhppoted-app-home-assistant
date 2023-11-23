@@ -6,20 +6,20 @@
 4. Icon
 
 - [ ] Controller
-      - [x] async setup
-      - [x] configure bind, broadcast and listen addresses
-      - [x] configure debug flag
-      - [x] Add address, netmask, gateway and firmware to attributes dictionary
+      - [ ] Rework as Device
 
       - [ ] config flow
             - [x] Get default bind, broadcast, listen from configuration.yaml
             - [x] Validate controller ID
             - [x] (optional) controller address
             - [x] bind, broadcast, listen as optional second step
-            - [ ] Controller name
+            - [x] (optional) controller name
             - [ ] Make bind, broadcast, etc step optional
+            - [ ] Integration icon
             - [ ] PLATFORM_SCHEMA
+            - 201020304
             - 303986753
+            - 405419896
             - https://developers.home-assistant.io/docs/dev_101_states/
 
       - [ ] Entities
@@ -35,7 +35,6 @@
                   - https://developers.home-assistant.io/docs/core/entity
                   - python3 -m script.hassfest
 
-      - [ ] Rework as Device
       - [ ] Service
 
       - [ ] device_info
