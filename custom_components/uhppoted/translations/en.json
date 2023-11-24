@@ -30,35 +30,44 @@
                     "listen_address": "The service event listen address (defaults to 0.0.0.0:60001)",
                     "debug": "Logs messages between controller and Home Assistant"
                 }
+            },
+            "door": {
+                "title": "UHPPOTE controller door configuration",
+                "description": "Door configuration",
+                "data": {
+                    "door_id": "door ID",
+                    "door_name": "door name (optional)"
+                },
+                "data_description": {
+                    "door_id": "Door ID (1-4)",
+                    "door_name": "Door name (optional, defaults to door ID)"
+                }
             }
         },
-
         "error": {
             "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
             "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
             "unknown": "[%key:common::config_flow::error::unknown%]"
         },
-
         "abort": {
             "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
         }
     },
-
     "entity": {
         "sensor": {
             "uhppote": {
                 "controller_id": {
                     "name": "THING"
-                }                
+                }
             },
             "uhppoted": {
                 "controller_id": {
                     "name": "THINGX"
-                }                
+                }
             },
             "controller_id": {
                 "name": "THINGQ"
-            }                
-        }                
+            }
+        }
     }
 }

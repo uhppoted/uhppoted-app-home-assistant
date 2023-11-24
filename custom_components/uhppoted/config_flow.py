@@ -9,13 +9,15 @@ import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 
 from .const import DOMAIN
-from .const import CONF_CONTROLLER_ID
-from .const import CONF_CONTROLLER_NAME
-from .const import CONF_CONTROLLER_ADDR
 from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
+from .const import CONF_CONTROLLER_ID
+from .const import CONF_CONTROLLER_NAME
+from .const import CONF_CONTROLLER_ADDR
+from .const import CONF_DOOR_ID
+from .const import CONF_DOOR_NAME
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -81,6 +83,23 @@ class UhppotedConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             if not errors:
                 self.data.update(user_input)
-                return self.async_create_entry(title="uhppoted", data=self.data)
+                return await self.async_step_door()
 
         return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
+
+    async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
+        data = self.hass.data[DOMAIN]
+
+        schema = vol.Schema({
+            vol.Required(CONF_DOOR_ID, default=1): int,
+            vol.Optional(CONF_DOOR_NAME, default=''): str,
+        })
+
+        errors: Dict[str, str] = {}
+
+        if user_input is not None:
+            if not errors:
+                self.data.update(user_input)
+                return self.async_create_entry(title="uhppoted", data=self.data)
+
+        return self.async_show_form(step_id="door", data_schema=schema, errors=errors)

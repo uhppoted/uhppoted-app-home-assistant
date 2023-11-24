@@ -4,11 +4,17 @@
 2. README
 3. Install
 4. Icon
+   - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/
+   - https://smarthomescene.com/guides/how-to-add-custom-icons-in-home-assistant
+   - https://www.reddit.com/r/homeassistant/comments/lqoxoy/how_can_i_use_custom_images_for_icons/
 
 - [ ] Controller
       - [ ] Rework as Device
 
       - [ ] config flow
+            - [ ] Rethink using controller ID for unique ID
+                  - Do want unique controller IDs
+                  - But also need to be able to change controller ID without redoing configuration
             - [x] Get default bind, broadcast, listen from configuration.yaml
             - [x] Validate controller ID
             - [x] (optional) controller address
@@ -16,6 +22,7 @@
             - [x] (optional) controller name
             - [ ] Make bind, broadcast, etc step optional
             - [ ] Integration icon
+            - [ ] Set integration name to controller name
             - [ ] PLATFORM_SCHEMA
             - 201020304
             - 303986753
@@ -26,8 +33,14 @@
             - [x] ID
             - [x] address
             - [x] datetime
+                  - (?) Derive from TimeEntity
             - [x] Figure out entity IDs for multiple controllers
             - [ ] door
+                  - [ ] open/closed sensor
+                        - [ ] test with real controller
+                        - [ ] string translation
+                  - [ ] delay
+                  - [ ] mode
             - [ ] card
             - [ ] Name translation
                   - https://developers.home-assistant.io/docs/core/entity

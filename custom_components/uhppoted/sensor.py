@@ -1,4 +1,3 @@
-"""Platform for sensor integration."""
 from __future__ import annotations
 
 import datetime
@@ -16,13 +15,15 @@ _LOGGER = logging.getLogger(__name__)
 
 # Configuration constants
 from .const import DOMAIN
-from .const import CONF_CONTROLLER_ID
-from .const import CONF_CONTROLLER_NAME
-from .const import CONF_CONTROLLER_ADDR
 from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
+from .const import CONF_CONTROLLER_ID
+from .const import CONF_CONTROLLER_NAME
+from .const import CONF_CONTROLLER_ADDR
+from .const import CONF_DOOR_ID
+from .const import CONF_DOOR_NAME
 
 # Attribute constants
 from .const import ATTR_ADDRESS
@@ -49,6 +50,8 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
     listen = '0.0.0.0:60001'
     debug = False
 
+    door = {'id': 1, 'name': '1'}
+
     if CONF_CONTROLLER_NAME in config and not config[CONF_CONTROLLER_NAME].strip() == '':
         name = config[CONF_CONTROLLER_NAME].strip()
 
@@ -67,15 +70,23 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
     if CONF_DEBUG in config:
         debug = config[CONF_DEBUG]
 
+    if CONF_DOOR_ID in config:
+        door['id'] = config[CONF_DOOR_ID]
+        door['name'] = f"{door['id']}"
+
+    if CONF_DOOR_NAME in config:
+        door['name'] = config[CONF_DOOR_NAME]
+
     u = uhppote.Uhppote(bind, broadcast, listen, debug)
 
-    sensors = [
+    controller = [
         ControllerID(u, id, name),
         ControllerAddress(u, id, name, address),
         ControllerDateTime(u, id, name),
+        ControllerDoor(u, id, name, door['id'], door['name']),
     ]
 
-    async_add_entities(sensors, update_before_add=True)
+    async_add_entities(controller, update_before_add=True)
 
 
 class ControllerID(SensorEntity):
@@ -269,3 +280,106 @@ class ControllerDateTime(SensorEntity):
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self.id} date/time')
+
+
+class ControllerDoor(SensorEntity):
+    _attr_name = "door"
+    _attr_device_class = None
+    _attr_last_reset = None
+    _attr_native_unit_of_measurement = None
+    _attr_state_class = None
+
+    def __init__(self, u, id, name, door_id, door):
+        super().__init__()
+
+        _LOGGER.debug(f'controller {id}: door:{door_id}')
+
+        self.uhppote = u
+        self.id = id
+        self.door_id = door_id
+        self.door = door
+
+        self._name = f'{name}.door.{door}'
+        self._icon = 'mdi:door'
+        self._locked = None
+        self._open = None
+        self._available = False
+
+        match door_id:
+            case 1:
+                self._mask = 0x01
+            case 2:
+                self._mask = 0x02
+            case 3:
+                self._mask = 0x04
+            case 4:
+                self._mask = 0x08
+            case _:
+                self._mask = None
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def unique_id(self) -> str:
+        return f'{self.id}.door.{self.door_id}'
+
+    @property
+    def icon(self) -> str:
+        return f'{self._icon}'
+
+    @property
+    def available(self) -> bool:
+        return self._available
+
+    @property
+    def state(self) -> Optional[str]:
+        match (self._unlocked, self._open):
+            case (False, False):
+                return f'LOCKED, CLOSED'
+            case (False, True):
+                return f'LOCKED, OPEN'
+            case (False, _):
+                return f'LOCKED'
+            case (True, False):
+                return f'UNLOCKED, CLOSED'
+            case (True, True):
+                return f'UNLOCKED, OPEN'
+            case (True, _):
+                return f'UNLOCKED'
+            case (_, False):
+                return f'CLOSED'
+            case (_, True):
+                return f'OPEN'
+
+        return None
+
+    async def async_update(self):
+        _LOGGER.debug(f'controller:{self.id}  update door {self.door_id} state')
+        try:
+            controller = self.id
+            response = self.uhppote.get_status(controller)
+
+            if response.controller == self.id:
+                if self.door_id == 1:
+                    self._unlocked = response.door_1_open == True
+                elif self.door_id == 2:
+                    self._unlocked = response.door_2_open == True
+                elif self.door_id == 3:
+                    self._unlocked = response.door_3_open == True
+                elif self.door_id == 4:
+                    self._unlocked = response.door_4_open == True
+                else:
+                    self._unlocked = None
+
+                if self._mask != None:
+                    self._open = response.inputs & self._mask != 0x00
+                else:
+                    self._open = None
+
+                self._available = True
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self.id} status')
