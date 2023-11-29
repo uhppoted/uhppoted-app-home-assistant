@@ -305,18 +305,6 @@ class ControllerDoor(SensorEntity):
         self._open = None
         self._available = False
 
-        match door_id:
-            case 1:
-                self._mask = 0x01
-            case 2:
-                self._mask = 0x02
-            case 3:
-                self._mask = 0x04
-            case 4:
-                self._mask = 0x08
-            case _:
-                self._mask = None
-
     @property
     def name(self) -> str:
         return self._name
@@ -363,20 +351,20 @@ class ControllerDoor(SensorEntity):
 
             if response.controller == self.id:
                 if self.door_id == 1:
-                    self._unlocked = response.door_1_open == True
+                    self._open = response.door_1_open == True
+                    self._unlocked = response.relays & 0x01 == 0x01
                 elif self.door_id == 2:
-                    self._unlocked = response.door_2_open == True
+                    self._open = response.door_2_open == True
+                    self._unlocked = response.relays & 0x02 == 0x02
                 elif self.door_id == 3:
-                    self._unlocked = response.door_3_open == True
+                    self._open = response.door_3_open == True
+                    self._unlocked = response.relays & 0x04 == 0x04
                 elif self.door_id == 4:
-                    self._unlocked = response.door_4_open == True
-                else:
-                    self._unlocked = None
-
-                if self._mask != None:
-                    self._open = response.inputs & self._mask != 0x00
+                    self._open = response.door_4_open == True
+                    self._unlocked = response.relays & 0x08 == 0x08
                 else:
                     self._open = None
+                    self._unlocked = None
 
                 self._available = True
 
