@@ -31,6 +31,15 @@ from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
 
+from .controller import ControllerID
+from .controller import ControllerAddress
+from .controller import ControllerDateTime
+
+from .door import ControllerDoor
+from .door import ControllerDoorOpen
+from .door import ControllerDoorLocked
+from .door import ControllerDoorButton
+
 
 async def async_setup_platform(hass: HomeAssistantType,
                                config: ConfigType,
@@ -84,290 +93,204 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
         ControllerAddress(u, id, name, address),
         ControllerDateTime(u, id, name),
         ControllerDoor(u, id, name, door['id'], door['name']),
+        ControllerDoorOpen(u, id, name, door['id'], door['name']),
+        ControllerDoorLocked(u, id, name, door['id'], door['name']),
+        ControllerDoorButton(u, id, name, door['id'], door['name']),
     ]
 
     async_add_entities(controller, update_before_add=True)
 
 
-class ControllerID(SensorEntity):
-    _attr_device_class = None
-    _attr_last_reset = None
-    _attr_native_unit_of_measurement = None
-    _attr_state_class = None
+# class ControllerID(SensorEntity):
+#     _attr_device_class = None
+#     _attr_last_reset = None
+#     _attr_native_unit_of_measurement = None
+#     _attr_state_class = None
 
-    def __init__(self, u, id, name):
-        super().__init__()
+#     def __init__(self, u, id, name):
+#         super().__init__()
 
-        _LOGGER.debug(f'controller ID:{id}')
+#         _LOGGER.debug(f'controller ID:{id}')
 
-        self.uhppote = u
-        self.id = id
-        self._name = f'{name}.ID'
-        self._icon = 'mdi:identifier'
-        self._translation_key = 'controller_id'
-        self._state = id
-        self._attributes: Dict[str, Any] = {
-            ATTR_ADDRESS: '',
-            ATTR_NETMASK: '',
-            ATTR_GATEWAY: '',
-            ATTR_FIRMWARE: '',
-        }
-        self._available = True
+#         self.uhppote = u
+#         self.id = id
+#         self._name = f'{name}.ID'
+#         self._icon = 'mdi:identifier'
+#         self._translation_key = 'controller_id'
+#         self._state = id
+#         self._attributes: Dict[str, Any] = {
+#             ATTR_ADDRESS: '',
+#             ATTR_NETMASK: '',
+#             ATTR_GATEWAY: '',
+#             ATTR_FIRMWARE: '',
+#         }
+#         self._available = True
 
-    @property
-    def name(self) -> str:
-        return self._name
+#     @property
+#     def name(self) -> str:
+#         return self._name
 
-    @property
-    def unique_id(self) -> str:
-        return f'{self.id}.ID'
+#     @property
+#     def unique_id(self) -> str:
+#         return f'{self.id}.ID'
 
-    @property
-    def icon(self) -> str:
-        return f'{self._icon}'
+#     @property
+#     def icon(self) -> str:
+#         return f'{self._icon}'
 
-    @property
-    def has_entity_name(self) -> bool:
-        return True
+#     @property
+#     def has_entity_name(self) -> bool:
+#         return True
 
-    @property
-    def translation_key(self) -> str:
-        return self._translation_key
+#     @property
+#     def translation_key(self) -> str:
+#         return self._translation_key
 
-    @property
-    def available(self) -> bool:
-        return self._available
+#     @property
+#     def available(self) -> bool:
+#         return self._available
 
-    @property
-    def state(self) -> Optional[str]:
-        if self._state != None:
-            return f'{self._state}'
+#     @property
+#     def state(self) -> Optional[str]:
+#         if self._state != None:
+#             return f'{self._state}'
 
-        return None
+#         return None
 
-    @property
-    def extra_state_attributes(self) -> Dict[str, Any]:
-        return self._attributes
+#     @property
+#     def extra_state_attributes(self) -> Dict[str, Any]:
+#         return self._attributes
 
-    async def async_update(self):
-        _LOGGER.info(f'controller:{self.id}  update info')
-        try:
-            controller = self.id
-            response = self.uhppote.get_controller(controller)
+#     async def async_update(self):
+#         _LOGGER.info(f'controller:{self.id}  update info')
+#         try:
+#             controller = self.id
+#             response = self.uhppote.get_controller(controller)
 
-            if response.controller == self.id:
-                self._state = response.controller
-                self._available = True
-                self._attributes[ATTR_ADDRESS] = f'{response.ip_address}'
-                self._attributes[ATTR_NETMASK] = f'{response.subnet_mask}'
-                self._attributes[ATTR_GATEWAY] = f'{response.gateway}'
-                self._attributes[ATTR_FIRMWARE] = f'{response.version} {response.date:%Y-%m-%d}'
+#             if response.controller == self.id:
+#                 self._state = response.controller
+#                 self._available = True
+#                 self._attributes[ATTR_ADDRESS] = f'{response.ip_address}'
+#                 self._attributes[ATTR_NETMASK] = f'{response.subnet_mask}'
+#                 self._attributes[ATTR_GATEWAY] = f'{response.gateway}'
+#                 self._attributes[ATTR_FIRMWARE] = f'{response.version} {response.date:%Y-%m-%d}'
 
-        except (Exception):
-            self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.id} information')
-
-
-class ControllerAddress(SensorEntity):
-    _attr_name = "address"
-    _attr_device_class = None
-    _attr_last_reset = None
-    _attr_native_unit_of_measurement = None
-    _attr_state_class = None
-
-    def __init__(self, u, id, name, address):
-        super().__init__()
-
-        _LOGGER.debug(f'controller address:{id}  address:{address}')
-
-        self.uhppote = u
-        self.id = id
-        self._name = f'{name}.address'
-        self._icon = 'mdi:ip-network'
-        self._state = address
-        self._available = False if address == '' else True
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def unique_id(self) -> str:
-        return f'{self.id}.address'
-
-    @property
-    def icon(self) -> str:
-        return f'{self._icon}'
-
-    @property
-    def available(self) -> bool:
-        return self._available
-
-    @property
-    def state(self) -> Optional[str]:
-        if self._state != None:
-            return f'{self._state}'
-
-        return None
-
-    async def async_update(self):
-        _LOGGER.debug(f'controller:{self.id}  update address')
-        try:
-            controller = self.id
-            response = self.uhppote.get_controller(controller)
-
-            if response.controller == self.id:
-                self._state = response.ip_address
-                self._available = True
-
-        except (Exception):
-            self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.id} address')
+#         except (Exception):
+#             self._available = False
+#             _LOGGER.exception(f'error retrieving controller {self.id} information')
 
 
-class ControllerDateTime(SensorEntity):
-    _attr_name = "datetime"
-    _attr_device_class = None
-    _attr_last_reset = None
-    _attr_native_unit_of_measurement = None
-    _attr_state_class = None
+# class ControllerAddress(SensorEntity):
+#     _attr_name = "address"
+#     _attr_device_class = None
+#     _attr_last_reset = None
+#     _attr_native_unit_of_measurement = None
+#     _attr_state_class = None
 
-    def __init__(self, u, id, name):
-        super().__init__()
+#     def __init__(self, u, id, name, address):
+#         super().__init__()
 
-        _LOGGER.debug(f'controller datetime:{id}')
+#         _LOGGER.debug(f'controller address:{id}  address:{address}')
 
-        self.uhppote = u
-        self.id = id
-        self._name = f'{name}.date/time'
-        self._icon = 'mdi:calendar-clock-outline'
-        self._state = None
-        self._available = False
+#         self.uhppote = u
+#         self.id = id
+#         self._name = f'{name}.address'
+#         self._icon = 'mdi:ip-network'
+#         self._state = address
+#         self._available = False if address == '' else True
 
-    @property
-    def name(self) -> str:
-        return self._name
+#     @property
+#     def name(self) -> str:
+#         return self._name
 
-    @property
-    def unique_id(self) -> str:
-        return f'{self.id}.datetime'
+#     @property
+#     def unique_id(self) -> str:
+#         return f'{self.id}.address'
 
-    @property
-    def icon(self) -> str:
-        return f'{self._icon}'
+#     @property
+#     def icon(self) -> str:
+#         return f'{self._icon}'
 
-    @property
-    def available(self) -> bool:
-        return self._available
+#     @property
+#     def available(self) -> bool:
+#         return self._available
 
-    @property
-    def state(self) -> Optional[str]:
-        if self._state != None:
-            return f'{self._state:%Y-%m-%d %H:%M:%S}'
+#     @property
+#     def state(self) -> Optional[str]:
+#         if self._state != None:
+#             return f'{self._state}'
 
-        return None
+#         return None
 
-    async def async_update(self):
-        _LOGGER.debug(f'controller:{self.id}  update datetime')
-        try:
-            controller = self.id
-            response = self.uhppote.get_time(controller)
+#     async def async_update(self):
+#         _LOGGER.debug(f'controller:{self.id}  update address')
+#         try:
+#             controller = self.id
+#             response = self.uhppote.get_controller(controller)
 
-            if response.controller == self.id:
-                self._state = response.datetime
-                self._available = True
+#             if response.controller == self.id:
+#                 self._state = response.ip_address
+#                 self._available = True
 
-        except (Exception):
-            self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.id} date/time')
+#         except (Exception):
+#             self._available = False
+#             _LOGGER.exception(f'error retrieving controller {self.id} address')
 
 
-class ControllerDoor(SensorEntity):
-    _attr_name = "door"
-    _attr_device_class = None
-    _attr_last_reset = None
-    _attr_native_unit_of_measurement = None
-    _attr_state_class = None
+# class ControllerDateTime(SensorEntity):
+#     _attr_name = "datetime"
+#     _attr_device_class = None
+#     _attr_last_reset = None
+#     _attr_native_unit_of_measurement = None
+#     _attr_state_class = None
 
-    def __init__(self, u, id, name, door_id, door):
-        super().__init__()
+#     def __init__(self, u, id, name):
+#         super().__init__()
 
-        _LOGGER.debug(f'controller {id}: door:{door_id}')
+#         _LOGGER.debug(f'controller datetime:{id}')
 
-        self.uhppote = u
-        self.id = id
-        self.door_id = door_id
-        self.door = door
+#         self.uhppote = u
+#         self.id = id
+#         self._name = f'{name}.date/time'
+#         self._icon = 'mdi:calendar-clock-outline'
+#         self._state = None
+#         self._available = False
 
-        self._name = f'{name}.door.{door}'
-        self._icon = 'mdi:door'
-        self._locked = None
-        self._open = None
-        self._available = False
+#     @property
+#     def name(self) -> str:
+#         return self._name
 
-    @property
-    def name(self) -> str:
-        return self._name
+#     @property
+#     def unique_id(self) -> str:
+#         return f'{self.id}.datetime'
 
-    @property
-    def unique_id(self) -> str:
-        return f'{self.id}.door.{self.door_id}'
+#     @property
+#     def icon(self) -> str:
+#         return f'{self._icon}'
 
-    @property
-    def icon(self) -> str:
-        return f'{self._icon}'
+#     @property
+#     def available(self) -> bool:
+#         return self._available
 
-    @property
-    def available(self) -> bool:
-        return self._available
+#     @property
+#     def state(self) -> Optional[str]:
+#         if self._state != None:
+#             return f'{self._state:%Y-%m-%d %H:%M:%S}'
 
-    @property
-    def state(self) -> Optional[str]:
-        match (self._unlocked, self._open):
-            case (False, False):
-                return f'LOCKED, CLOSED'
-            case (False, True):
-                return f'LOCKED, OPEN'
-            case (False, _):
-                return f'LOCKED'
-            case (True, False):
-                return f'UNLOCKED, CLOSED'
-            case (True, True):
-                return f'UNLOCKED, OPEN'
-            case (True, _):
-                return f'UNLOCKED'
-            case (_, False):
-                return f'CLOSED'
-            case (_, True):
-                return f'OPEN'
+#         return None
 
-        return None
+#     async def async_update(self):
+#         _LOGGER.debug(f'controller:{self.id}  update datetime')
+#         try:
+#             controller = self.id
+#             response = self.uhppote.get_time(controller)
 
-    async def async_update(self):
-        _LOGGER.debug(f'controller:{self.id}  update door {self.door_id} state')
-        try:
-            controller = self.id
-            response = self.uhppote.get_status(controller)
+#             if response.controller == self.id:
+#                 self._state = response.datetime
+#                 self._available = True
 
-            if response.controller == self.id:
-                if self.door_id == 1:
-                    self._open = response.door_1_open == True
-                    self._unlocked = response.relays & 0x01 == 0x01
-                elif self.door_id == 2:
-                    self._open = response.door_2_open == True
-                    self._unlocked = response.relays & 0x02 == 0x02
-                elif self.door_id == 3:
-                    self._open = response.door_3_open == True
-                    self._unlocked = response.relays & 0x04 == 0x04
-                elif self.door_id == 4:
-                    self._open = response.door_4_open == True
-                    self._unlocked = response.relays & 0x08 == 0x08
-                else:
-                    self._open = None
-                    self._unlocked = None
+#         except (Exception):
+#             self._available = False
+#             _LOGGER.exception(f'error retrieving controller {self.id} date/time')
 
-                self._available = True
 
-        except (Exception):
-            self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.id} status')

@@ -7,6 +7,14 @@
    - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/
    - https://smarthomescene.com/guides/how-to-add-custom-icons-in-home-assistant
    - https://www.reddit.com/r/homeassistant/comments/lqoxoy/how_can_i_use_custom_images_for_icons/
+5. Shutdown while waiting for controller response
+```
+TimeoutError: timed out
+^C2023-11-29 12:44:52.365 ERROR (MainThread) [root] Uncaught exception
+...               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+```
 
 - [ ] Controller
       - [ ] Rework as Device
@@ -20,6 +28,7 @@
             - [x] (optional) controller address
             - [x] bind, broadcast, listen as optional second step
             - [x] (optional) controller name
+            - [ ] Multiple doors
             - [ ] Make bind, broadcast, etc step optional
             - [ ] Integration icon
             - [ ] Set integration name to controller name
@@ -56,15 +65,16 @@ Traceback (most recent call last):
   File "_strptime.py", line 349, in _strptime
     raise ValueError("time data %r does not match format %r" %
 ValueError: time data '20000000000000' does not match format '%Y%m%d%H%M%S'
-2023-11-29 11:37:29.754 ERROR (MainThread) [custom_components.uhppoted.sensor] error retrieving controller 423187757 status
+2023-11-29 11:37:29.754 ERROR (MainThread) [custom_components.uhppoted.sensor] error retrieving controller status
 ```
             - [ ] door
-                  - [ ] open/closed sensor
-                        - [x] test with real controller
-                        - [ ] string translation
-                  - [ ] button
+                  - [x] open/locked/button sensor
+                  - [x] seperate open/locked/pressed sensors
                   - [ ] delay
                   - [ ] mode
+                  - [ ] string translation
+                  - [ ] update on event
+
             - [ ] card
             - [ ] Name translation
                   - https://developers.home-assistant.io/docs/core/entity
