@@ -12,6 +12,7 @@ from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
 
+
 class ControllerID(SensorEntity):
     _attr_device_class = None
     _attr_last_reset = None
@@ -203,5 +204,3 @@ class ControllerDateTime(SensorEntity):
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self.id} date/time')
-
-

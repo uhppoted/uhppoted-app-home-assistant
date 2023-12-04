@@ -39,6 +39,7 @@ from .door import ControllerDoor
 from .door import ControllerDoorOpen
 from .door import ControllerDoorLocked
 from .door import ControllerDoorButton
+from .door import ControllerDoorMode
 
 
 async def async_setup_platform(hass: HomeAssistantType,
@@ -96,6 +97,7 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
         ControllerDoorOpen(u, id, name, door['id'], door['name']),
         ControllerDoorLocked(u, id, name, door['id'], door['name']),
         ControllerDoorButton(u, id, name, door['id'], door['name']),
+        ControllerDoorMode(u, id, name, door['id'], door['name']),
     ]
 
     async_add_entities(controller, update_before_add=True)

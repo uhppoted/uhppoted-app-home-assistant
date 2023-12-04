@@ -31,7 +31,7 @@ class UhppotedConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     data: Optional[Dict[str, Any]]
 
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
-        data = self.hass.data[DOMAIN]
+        data = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
 
         schema = vol.Schema({
             vol.Required(CONF_CONTROLLER_ID): int,
@@ -53,7 +53,7 @@ class UhppotedConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
 
     async def async_step_IPv4(self, user_input: Optional[Dict[str, Any]] = None):
-        data = self.hass.data[DOMAIN]
+        data = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
         bind = '0.0.0.0'
         broadcast = '255.255.255.255:60000'
         listen = '0.0.0.0:60001'
@@ -88,7 +88,7 @@ class UhppotedConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
 
     async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
-        data = self.hass.data[DOMAIN]
+        data = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
 
         schema = vol.Schema({
             vol.Required(CONF_DOOR_ID, default=1): int,

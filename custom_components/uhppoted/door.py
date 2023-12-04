@@ -3,8 +3,10 @@ from __future__ import annotations
 import logging
 
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.select import SelectEntity
 
 _LOGGER = logging.getLogger(__name__)
+
 
 class ControllerDoor(SensorEntity):
     _attr_device_class = None
@@ -315,3 +317,102 @@ class ControllerDoorButton(SensorEntity):
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self.id} status')
+
+
+class ControllerDoorMode(SelectEntity):
+    _attr_device_class = 'select'
+    _attr_last_reset = None
+    _attr_native_unit_of_measurement = None
+    _attr_state_class = None
+
+    def __init__(self, u, id, name, door_id, door):
+        super().__init__()
+
+        _LOGGER.debug(f'controller {id}: door:{door_id} mode')
+
+        self.uhppote = u
+        self.id = id
+        self.door_id = door_id
+        self.door = door
+
+        self._name = f'uhppoted.{name}.door.{door}.mode'
+        self._icon = 'mdi:door'
+        self._mode = None
+        self._available = False
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def unique_id(self) -> str:
+        return f'{self.id}.door.{self.door_id}.mode'
+
+    @property
+    def icon(self) -> str:
+        return f'{self._icon}'
+
+    @property
+    def available(self) -> bool:
+        return self._available
+
+    @property
+    def options(self):
+        return ['CONTROLLED', 'LOCKED', 'UNLOCKED']
+
+    @property
+    def current_option(self) -> Optional[str]:
+        if self._available:
+            if self._mode == 1:
+                return 'UNLOCKED'
+            elif self._mode == 2:
+                return 'LOCKED'
+            elif self._mode == 3:
+                return 'CONTROLLED'
+            else:
+                return 'UNKNOWN'
+
+        return None
+
+    def select_option(self, option: str) -> None:
+        if option == 'UNLOCKED':
+            self._mode = 1
+        elif option == 'LOCKED':
+            self._mode = 2
+        elif option == 'CONTROLLED':
+            self._mode = 3
+
+        try:
+            response = self.uhppote.get_door_control(controller, door)
+            if response.controller == self.id and response.door == self.door:
+                controller = self.id
+                door = self.door_id
+                delay = response.delay
+                response = self.uhppote.set_door_control(controller, door, mode, delay)
+
+                if response.controller == self.id and response.door == self.door_id and response.ok:
+                    _LOGGER.debug(f'controller {self.id} door {self.door}: door mode updated')
+                    self._mode = response.mode
+                    self._available = True
+                else:
+                    raise ValueError(f'failed to set controller {self.id} door {self.door} mode')
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self.id} door {self.door} mode')
+
+    async def async_update(self):
+        _LOGGER.debug(f'controller:{self.id}  update door {self.door_id} mode')
+        try:
+            controller = self.id
+            door = self.door_id
+
+            response = self.uhppote.get_door_control(controller, door)
+
+            if response.controller == self.id and response.door == self.door_id:
+                self._mode = response.mode
+                self._available = True
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self.id} door {self.door} mode')
