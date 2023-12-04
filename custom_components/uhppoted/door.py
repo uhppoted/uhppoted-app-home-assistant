@@ -22,7 +22,7 @@ class ControllerDoor(SensorEntity):
         self.door_id = door_id
         self.door = door
 
-        self._name = f'{name}.door.{door}'
+        self._name = f'uhppoted.{name}.door.{door}'
         self._icon = 'mdi:door'
         self._unlocked = None
         self._open = None
@@ -117,7 +117,7 @@ class ControllerDoorOpen(SensorEntity):
         self.door_id = door_id
         self.door = door
 
-        self._name = f'{name}.door.{door}.open'
+        self._name = f'uhppoted.{name}.door.{door}.open'
         self._icon = 'mdi:door'
         self._open = None
         self._available = False
@@ -189,7 +189,7 @@ class ControllerDoorLocked(SensorEntity):
         self.door_id = door_id
         self.door = door
 
-        self._name = f'{name}.door.{door}.locked'
+        self._name = f'uhppoted.{name}.door.{door}.locked'
         self._icon = 'mdi:door'
         self._unlocked = None
         self._available = False
@@ -261,7 +261,7 @@ class ControllerDoorButton(SensorEntity):
         self.door_id = door_id
         self.door = door
 
-        self._name = f'{name}.door.{door}.button'
+        self._name = f'uhppoted.{name}.door.{door}.button'
         self._icon = 'mdi:door'
         self._button = None
         self._available = False

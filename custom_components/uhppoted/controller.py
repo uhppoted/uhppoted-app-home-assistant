@@ -25,7 +25,7 @@ class ControllerID(SensorEntity):
 
         self.uhppote = u
         self.id = id
-        self._name = f'{name}.ID'
+        self._name = f'uhppoted.{name}.ID'
         self._icon = 'mdi:identifier'
         self._translation_key = 'controller_id'
         self._state = id
@@ -105,7 +105,7 @@ class ControllerAddress(SensorEntity):
 
         self.uhppote = u
         self.id = id
-        self._name = f'{name}.address'
+        self._name = f'uhppoted.{name}.address'
         self._icon = 'mdi:ip-network'
         self._state = address
         self._available = False if address == '' else True
@@ -162,7 +162,7 @@ class ControllerDateTime(SensorEntity):
 
         self.uhppote = u
         self.id = id
-        self._name = f'{name}.date/time'
+        self._name = f'uhppoted.{name}.date/time'
         self._icon = 'mdi:calendar-clock-outline'
         self._state = None
         self._available = False
