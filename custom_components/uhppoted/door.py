@@ -374,7 +374,7 @@ class ControllerDoorMode(SelectEntity):
 
         return None
 
-    def select_option(self, option: str) -> None:
+    async def async_select_option(self, option):
         if option == 'UNLOCKED':
             self._mode = 1
         elif option == 'LOCKED':
@@ -383,14 +383,16 @@ class ControllerDoorMode(SelectEntity):
             self._mode = 3
 
         try:
+            controller = self.id
+            door = self.door_id
+
             response = self.uhppote.get_door_control(controller, door)
-            if response.controller == self.id and response.door == self.door:
-                controller = self.id
-                door = self.door_id
+            if response.controller == self.id and response.door == self.door_id:
+                mode = self._mode
                 delay = response.delay
                 response = self.uhppote.set_door_control(controller, door, mode, delay)
 
-                if response.controller == self.id and response.door == self.door_id and response.ok:
+                if response.controller == self.id and response.door == self.door_id:
                     _LOGGER.debug(f'controller {self.id} door {self.door}: door mode updated')
                     self._mode = response.mode
                     self._available = True

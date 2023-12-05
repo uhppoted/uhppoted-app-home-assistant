@@ -8,6 +8,8 @@
    - https://smarthomescene.com/guides/how-to-add-custom-icons-in-home-assistant
    - https://www.reddit.com/r/homeassistant/comments/lqoxoy/how_can_i_use_custom_images_for_icons/
 5. Shutdown while waiting for controller response
+   - asyncio maybe ????
+     - https://community.home-assistant.io/t/hass-async-create-task/428301
 ```
 TimeoutError: timed out
 ^C2023-11-29 12:44:52.365 ERROR (MainThread) [root] Uncaught exception
@@ -44,34 +46,16 @@ KeyboardInterrupt
             - [x] address
             - [x] datetime
                   - (?) Derive from TimeEntity
-                  - [ ] Handle controller without valid date/time
-```
-Traceback (most recent call last):
-  File "sensor.py", line 274, in async_update
-    response = self.uhppote.get_time(controller)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "uhppote.py", line 111, in get_time
-    return decode.get_time_response(reply)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "decode.py", line 107, in get_time_response
-    unpack_datetime(packet, 8),
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "decode.py", line 1159, in unpack_datetime
-    return datetime.datetime.strptime(bcd, '%Y%m%d%H%M%S')
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "_strptime.py", line 568, in _strptime_datetime
-    tt, fraction, gmtoff_fraction = _strptime(data_string, format)
-                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "_strptime.py", line 349, in _strptime
-    raise ValueError("time data %r does not match format %r" %
-ValueError: time data '20000000000000' does not match format '%Y%m%d%H%M%S'
-2023-11-29 11:37:29.754 ERROR (MainThread) [custom_components.uhppoted.sensor] error retrieving controller status
-```
+                  - [x] Handle controller without valid date/time
             - [ ] door
                   - [x] open/locked/button sensor
                   - [x] seperate open/locked/pressed sensors
                   - [ ] delay
                   - [ ] mode
+                        - https://community.home-assistant.io/t/lovelace-input-select-card/84440/2
+                        - https://www.reddit.com/r/homeassistant/comments/s6012g/select_entity_as_a_button_card
+                        - https://community.home-assistant.io/t/custom-button-card-with-input-select-entity/452724
+                        - https://community.home-assistant.io/t/how-to-add-custom-devices/267907
                   - [ ] string translation
                   - [ ] update on event
 
