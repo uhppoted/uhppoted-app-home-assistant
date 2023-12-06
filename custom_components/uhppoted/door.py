@@ -4,6 +4,7 @@ import logging
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.select import SelectEntity
+from homeassistant.components.number import NumberEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -320,7 +321,7 @@ class ControllerDoorButton(SensorEntity):
 
 
 class ControllerDoorMode(SelectEntity):
-    _attr_device_class = 'select'
+    _attr_device_class = ''
     _attr_last_reset = None
     _attr_native_unit_of_measurement = None
     _attr_state_class = None
@@ -418,3 +419,87 @@ class ControllerDoorMode(SelectEntity):
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self.id} door {self.door} mode')
+
+
+class ControllerDoorDelay(NumberEntity):
+    _attr_device_class = ''
+    _attr_last_reset = None
+    _attr_native_unit_of_measurement = None
+    _attr_state_class = None
+    _attr_mode = 'auto'
+    _attr_native_max_value = 60
+    _attr_native_min_value = 1
+    _attr_native_step = 1
+
+    def __init__(self, u, id, name, door_id, door):
+        super().__init__()
+
+        _LOGGER.debug(f'controller {id}: door:{door_id} delay')
+
+        self.uhppote = u
+        self.id = id
+        self.door_id = door_id
+        self.door = door
+
+        self._name = f'uhppoted.{name}.door.{door}.delay'
+        self._icon = 'mdi:door'
+        self._delay = None
+        self._available = False
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def unique_id(self) -> str:
+        return f'{self.id}.door.{self.door_id}.delay'
+
+    @property
+    def icon(self) -> str:
+        return f'{self._icon}'
+
+    @property
+    def available(self) -> bool:
+        return self._available
+
+    @property
+    def native_value(self) -> Optional[float]:
+        return self._delay
+
+    async def async_set_native_value(self, value):
+        try:
+            controller = self.id
+            door = self.door_id
+
+            response = self.uhppote.get_door_control(controller, door)
+            if response.controller == self.id and response.door == self.door_id:
+                mode = response.mode
+                delay = int(value)
+                response = self.uhppote.set_door_control(controller, door, mode, delay)
+
+                if response.controller == self.id and response.door == self.door_id:
+                    _LOGGER.debug(f'controller {self.id} door {self.door}: door delay updated')
+                    self._delay = response.delay
+                    self._available = True
+                else:
+                    raise ValueError(f'failed to set controller {self.id} door {self.door} delay')
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self.id} door {self.door} delay')
+
+    async def async_update(self):
+        _LOGGER.debug(f'controller:{self.id}  update door {self.door_id} delay')
+        try:
+            controller = self.id
+            door = self.door_id
+
+            response = self.uhppote.get_door_control(controller, door)
+
+            if response.controller == self.id and response.door == self.door_id:
+                self._delay = response.delay
+                self._available = True
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self.id} door {self.door} delay')

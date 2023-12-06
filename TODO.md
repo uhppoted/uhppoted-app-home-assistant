@@ -26,6 +26,8 @@ KeyboardInterrupt
 ```
 
 - [ ] Config flow
+      - [ ] Updatable configuration
+            - https://community.home-assistant.io/t/how-do-you-modify-configuration-of-integrations-its-impossible/445070/6
       - [ ] Rework to configure multiple controllers, doors, etc
       - [ ] Rethink using controller ID for unique ID
             - Do want unique controller IDs
@@ -59,17 +61,14 @@ KeyboardInterrupt
       - [x] seperate open/locked/pressed sensors
             - [ ] Rework open/pressed as event entities
       - [x] mode
-      - [ ] delay
+      - [x] delay
       - [ ] Name translation
             - https://developers.home-assistant.io/docs/core/entity
             - https://github.com/home-assistant/core/issues/98993
             - https://developers.home-assistant.io/docs/core/entity
             - python3 -m script.hassfest
-      - [ ] Seperate from controller
-      - [ ] Config flow
-      - [ ] Link to controller
-      - [ ] string translation
-      - [ ] update on event
+      - [ ] Somehow seperate from controller and then just link to controller name
+      - [ ] Update on event
 
 - [ ] Cards
       - (?) Add card number to Person entity
