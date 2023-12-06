@@ -1,5 +1,11 @@
 # TODO
 
+```
+201020304
+303986753
+405419896
+```
+
 1. _github_ workflow
 2. README
 3. Install
@@ -20,6 +26,19 @@ KeyboardInterrupt
 
 - [ ] Controller
       - [ ] Rework as Device
+      - [ ] device_info
+      - [ ] entity_category
+      - [x] Figure out entity IDs for multiple controllers
+      - [x] ID
+      - [x] address
+      - [x] datetime
+            - [x] Handle controller without valid date/time
+            - (?) Derive from TimeEntity
+            - [ ] Name translation
+                  - https://developers.home-assistant.io/docs/core/entity
+                  - https://github.com/home-assistant/core/issues/98993
+                  - https://developers.home-assistant.io/docs/core/entity
+                  - python3 -m script.hassfest
 
       - [ ] config flow
             - [ ] Rethink using controller ID for unique ID
@@ -35,43 +54,23 @@ KeyboardInterrupt
             - [ ] Integration icon
             - [ ] Set integration name to controller name
             - [ ] PLATFORM_SCHEMA
-            - 201020304
-            - 303986753
-            - 405419896
             - https://developers.home-assistant.io/docs/dev_101_states/
 
-      - [ ] Entities
-            - [x] Figure out entity IDs for multiple controllers
-            - [x] ID
-            - [x] address
-            - [x] datetime
-                  - (?) Derive from TimeEntity
-                  - [x] Handle controller without valid date/time
-            - [ ] door
-                  - [x] open/locked/button sensor
-                  - [x] seperate open/locked/pressed sensors
-                  - [ ] delay
-                  - [ ] mode
-                        - https://community.home-assistant.io/t/lovelace-input-select-card/84440/2
-                        - https://www.reddit.com/r/homeassistant/comments/s6012g/select_entity_as_a_button_card
-                        - https://community.home-assistant.io/t/custom-button-card-with-input-select-entity/452724
-                        - https://community.home-assistant.io/t/how-to-add-custom-devices/267907
-                  - [ ] string translation
-                  - [ ] update on event
+- [ ] Doors
+      - [x] open/locked/button sensor
+      - [x] seperate open/locked/pressed sensors
+      - [x] mode
+      - [ ] delay
+      - [ ] Seperate from controller
+      - [ ] Config flow
+      - [ ] Link to controller
+      - [ ] string translation
+      - [ ] update on event
 
-            - [ ] card
-            - [ ] Name translation
-                  - https://developers.home-assistant.io/docs/core/entity
-                  - https://github.com/home-assistant/core/issues/98993
-                  - https://developers.home-assistant.io/docs/core/entity
-                  - python3 -m script.hassfest
-
-      - [ ] Service
-
-      - [ ] device_info
-      - [ ] entity_category
-      - [ ] custom card
-      - [ ] discovery
+- [ ] Cards
+- [ ] Service
+- [ ] Custom card
+- [ ] Discovery
 
 - [ ] Add card number to Person entity
       - https://community.home-assistant.io/t/request-give-the-ability-to-add-attributes-to-people-entities/297483

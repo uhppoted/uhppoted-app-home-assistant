@@ -30,12 +30,11 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
         CONF_DEBUG: False,
     }
 
-    if 'sensor' in config:
-        for c in config['sensor']:
-            if 'platform' in c and c['platform'] == 'uhppoted':
-                for v in [CONF_BIND_ADDR, CONF_BROADCAST_ADDR, CONF_LISTEN_ADDR, CONF_DEBUG]:
-                    if v in c:
-                        defaults[v] = c[v]
+    if 'uhppoted' in config:
+        c = config['uhppoted']
+        for v in [CONF_BIND_ADDR, CONF_BROADCAST_ADDR, CONF_LISTEN_ADDR, CONF_DEBUG]:
+            if v in c:
+                defaults[v] = c[v]
 
     _LOGGER.info(f'default bind address {defaults[CONF_BIND_ADDR]}')
     _LOGGER.info(f'default broadcast address {defaults[CONF_BROADCAST_ADDR]}')

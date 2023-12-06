@@ -35,7 +35,8 @@ from .const import ATTR_FIRMWARE
 from .door import ControllerDoorMode
 
 
-async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entries.ConfigEntry, async_add_entities: AddEntitiesCallback):
+async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entries.ConfigEntry,
+                            async_add_entities: AddEntitiesCallback):
     config = hass.data[DOMAIN][config_entry.entry_id]
 
     id = config[CONF_CONTROLLER_ID]
@@ -80,4 +81,3 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
     ]
 
     async_add_entities(controller, update_before_add=True)
-
