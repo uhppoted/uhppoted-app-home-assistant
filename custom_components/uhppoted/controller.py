@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import datetime
 import logging
 
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.datetime import DateTimeEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -149,7 +151,7 @@ class ControllerAddress(SensorEntity):
             _LOGGER.exception(f'error retrieving controller {self.id} address')
 
 
-class ControllerDateTime(SensorEntity):
+class ControllerDateTime(DateTimeEntity):
     _attr_name = "datetime"
     _attr_device_class = None
     _attr_last_reset = None
@@ -165,7 +167,7 @@ class ControllerDateTime(SensorEntity):
         self.id = id
         self._name = f'uhppoted.{name}.date/time'
         self._icon = 'mdi:calendar-clock-outline'
-        self._state = None
+        self._datetime = None
         self._available = False
 
     @property
@@ -185,11 +187,29 @@ class ControllerDateTime(SensorEntity):
         return self._available
 
     @property
-    def state(self) -> Optional[str]:
-        if self._state != None:
-            return f'{self._state:%Y-%m-%d %H:%M:%S}'
+    def native_value(self) -> Optional[datetime.datetime]:
+        return self._datetime
 
-        return None
+    async def async_set_value(self, utc: datetime) -> None:
+        try:
+            controller = self.id
+            tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
+            local = utc.astimezone(tz)
+            response = self.uhppote.set_time(controller, local)
+
+            if response.controller == self.id:
+                year = response.datetime.year
+                month = response.datetime.month
+                day = response.datetime.day
+                hour = response.datetime.hour
+                minute = response.datetime.minute
+                second = response.datetime.second
+                self._datetime = datetime.datetime(year, month, day, hour, minute, second, 0, tz)
+                self._available = True
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self.id} date/time')
 
     async def async_update(self):
         _LOGGER.debug(f'controller:{self.id}  update datetime')
@@ -198,7 +218,15 @@ class ControllerDateTime(SensorEntity):
             response = self.uhppote.get_time(controller)
 
             if response.controller == self.id:
-                self._state = response.datetime
+                year = response.datetime.year
+                month = response.datetime.month
+                day = response.datetime.day
+                hour = response.datetime.hour
+                minute = response.datetime.minute
+                second = response.datetime.second
+                tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
+
+                self._datetime = datetime.datetime(year, month, day, hour, minute, second, 0, tz)
                 self._available = True
 
         except (Exception):

@@ -31,7 +31,7 @@ from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
 
-from .door import ControllerDoorMode
+from .controller import ControllerDateTime
 
 
 async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entries.ConfigEntry,
@@ -76,7 +76,7 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
     u = uhppote.Uhppote(bind, broadcast, listen, debug)
 
     controller = [
-        ControllerDoorMode(u, id, name, door['id'], door['name']),
+        ControllerDateTime(u, id, name),
     ]
 
     async_add_entities(controller, update_before_add=True)

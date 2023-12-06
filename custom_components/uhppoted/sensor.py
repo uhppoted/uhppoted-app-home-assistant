@@ -34,7 +34,6 @@ from .const import ATTR_FIRMWARE
 
 from .controller import ControllerID
 from .controller import ControllerAddress
-from .controller import ControllerDateTime
 
 from .door import ControllerDoor
 from .door import ControllerDoorOpen
@@ -87,7 +86,6 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
     controller = [
         ControllerID(u, id, name),
         ControllerAddress(u, id, name, address),
-        ControllerDateTime(u, id, name),
         ControllerDoor(u, id, name, door['id'], door['name']),
         ControllerDoorOpen(u, id, name, door['id'], door['name']),
         ControllerDoorLocked(u, id, name, door['id'], door['name']),
