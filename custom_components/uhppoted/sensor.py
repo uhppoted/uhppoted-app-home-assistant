@@ -46,6 +46,10 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
                             async_add_entities: AddEntitiesCallback):
     config = hass.data[DOMAIN][config_entry.entry_id]
 
+    print('>>>>>>>>>>>>>>> sensor', config)
+    print('>>>>>>>>>>>>>>> sensor/data', config_entry.data)
+    print('>>>>>>>>>>>>>>> sensor/options', config_entry.options)
+
     id = config[CONF_CONTROLLER_ID]
     name = f'{id}'
     address = ''

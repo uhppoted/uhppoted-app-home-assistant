@@ -1,10 +1,14 @@
 import logging
+
 from typing import Any
 from typing import Dict
 from typing import Optional
 
-from homeassistant import core
-from homeassistant import config_entries
+from homeassistant.core import HomeAssistant
+from homeassistant.core import callback
+from homeassistant.config_entries import ConfigFlow
+from homeassistant.config_entries import OptionsFlow
+from homeassistant.config_entries import ConfigEntry
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 
@@ -19,16 +23,23 @@ from .const import CONF_CONTROLLER_ADDR
 from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_NAME
 
+from .options_flow import UhppotedOptionsFlow
+
 _LOGGER = logging.getLogger(__name__)
 
 
-def validate_controller_id(id: int, hass: core.HomeAssistant) -> None:
+def validate_controller_id(id: int, hass: HomeAssistant) -> None:
     if id < 10:
         raise ValueError
 
 
-class UhppotedConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
     data: Optional[Dict[str, Any]]
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+        return UhppotedOptionsFlow(config_entry)        
 
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
         data = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
@@ -103,3 +114,4 @@ class UhppotedConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(title="uhppoted", data=self.data)
 
         return self.async_show_form(step_id="door", data_schema=schema, errors=errors)
+

@@ -1,14 +1,8 @@
 # TODO
 
-```
-201020304
-303986753
-405419896
-```
-
 1. _github_ workflow
 2. README
-3. Install
+   - [ ] Installation
 4. Icon
    - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/
    - https://smarthomescene.com/guides/how-to-add-custom-icons-in-home-assistant
@@ -28,19 +22,28 @@ KeyboardInterrupt
 - [ ] Config flow
       - [ ] Updatable configuration
             - https://community.home-assistant.io/t/how-do-you-modify-configuration-of-integrations-its-impossible/445070/6
+            - https://community.home-assistant.io/t/config-flow-how-to-update-an-existing-entity/522442/5
+```
+2023-12-07 13:07:51.302 ERROR (MainThread) [homeassistant] Error doing job: Task exception was never retrieved
+Traceback (most recent call last):
+  File ".../hass/config/custom_components/uhppoted/__init__.py", line 65, in update_listener
+    await hass.config_entries.async_reload(entry.entry_id)
+  File ".../hass/homeassistant/config_entries.py", line 1276, in async_reload
+    unload_result = await self.async_unload(entry_id)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ".../hass/homeassistant/config_entries.py", line 1259, in async_unload
+    raise OperationNotAllowed(
+homeassistant.config_entries.OperationNotAllowed: The config entry uhppoted (uhppoted) with entry_id 1acf10617995ae2bae365129d00238ee cannot be unloaded because it is not in a recoverable state (ConfigEntryState.FAILED_UNLOAD)
+
+```
       - [ ] Rework to configure multiple controllers, doors, etc
       - [ ] Rethink using controller ID for unique ID
             - Do want unique controller IDs
             - But also need to be able to change controller ID without redoing configuration
-      - [x] Get default bind, broadcast, listen from configuration.yaml
-      - [x] Validate controller ID
-      - [x] (optional) controller address
-      - [x] bind, broadcast, listen as optional second step
-      - [x] (optional) controller name
       - [ ] Multiple doors
       - [ ] Make bind, broadcast, etc step optional
       - [ ] Integration icon
-      - [ ] Set integration name to controller name
+      - (?) Set integration name to controller name
       - [ ] PLATFORM_SCHEMA
       - https://developers.home-assistant.io/docs/dev_101_states/
 
@@ -54,7 +57,7 @@ KeyboardInterrupt
       - [x] datetime
             - [x] Handle controller without valid date/time
             - [x] Derive from DateTimeEntity
-            - [ ] Set timezone in config-flow
+            - [ ] Set timezone in config-flow/configuration.yaml
 
 - [ ] Doors
       - [x] open/locked/button sensor
