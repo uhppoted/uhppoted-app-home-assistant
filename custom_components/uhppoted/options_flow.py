@@ -16,16 +16,19 @@ from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
 from .const import CONF_CONTROLLER_ID
-from .const import CONF_CONTROLLER_NAME
+from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
 from .const import CONF_DOOR_ID
-from .const import CONF_DOOR_NAME
+from .const import CONF_DOOR_CONTROLLER
+from .const import CONF_DOOR_NUMBER
 
 _LOGGER = logging.getLogger(__name__)
+
 
 def validate_controller_id(id: int, hass: HomeAssistant) -> None:
     if id < 10:
         raise ValueError
+
 
 class UhppotedOptionsFlow(OptionsFlow):
 
@@ -84,7 +87,7 @@ class UhppotedOptionsFlow(OptionsFlow):
         return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
 
     async def async_end(self):
-        print ('>>>>>>>>>>>>>>>>>>>>>>> async_end')
+        print('>>>>>>>>>>>>>>>>>>>>>>> async_end')
         # """Finalization of the ConfigEntry creation"""
         # _LOGGER.info(
         #     "Recreating entry %s due to configuration change",

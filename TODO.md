@@ -20,30 +20,23 @@ KeyboardInterrupt
 ```
 
 - [ ] Config flow
+      - [ ] Select controllers to configure
+
+      - [ ] Rework to configure multiple controllers, doors, etc
+            - [ ] Use mapping for controller and door selectors
+                  - https://next.home-assistant.io/docs/blueprint/selectors/#select-selector
+
       - [ ] Updatable configuration
             - https://community.home-assistant.io/t/how-do-you-modify-configuration-of-integrations-its-impossible/445070/6
             - https://community.home-assistant.io/t/config-flow-how-to-update-an-existing-entity/522442/5
-```
-2023-12-07 13:07:51.302 ERROR (MainThread) [homeassistant] Error doing job: Task exception was never retrieved
-Traceback (most recent call last):
-  File ".../hass/config/custom_components/uhppoted/__init__.py", line 65, in update_listener
-    await hass.config_entries.async_reload(entry.entry_id)
-  File ".../hass/homeassistant/config_entries.py", line 1276, in async_reload
-    unload_result = await self.async_unload(entry_id)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File ".../hass/homeassistant/config_entries.py", line 1259, in async_unload
-    raise OperationNotAllowed(
-homeassistant.config_entries.OperationNotAllowed: The config entry uhppoted (uhppoted) with entry_id 1acf10617995ae2bae365129d00238ee cannot be unloaded because it is not in a recoverable state (ConfigEntryState.FAILED_UNLOAD)
+            - https://community.home-assistant.io/t/configflowhandler-and-optionsflowhandler-managing-the-same-parameter/365582/10
 
-```
-      - [ ] Rework to configure multiple controllers, doors, etc
       - [ ] Rethink using controller ID for unique ID
             - Do want unique controller IDs
             - But also need to be able to change controller ID without redoing configuration
-      - [ ] Multiple doors
-      - [ ] Make bind, broadcast, etc step optional
+
       - [ ] Integration icon
-      - (?) Set integration name to controller name
+      - (?) Make bind, broadcast, etc step optional
       - [ ] PLATFORM_SCHEMA
       - https://developers.home-assistant.io/docs/dev_101_states/
 
@@ -64,7 +57,9 @@ homeassistant.config_entries.OperationNotAllowed: The config entry uhppoted (uhp
       - [x] seperate open/locked/pressed sensors
             - [ ] Rework open/pressed as event entities
       - [x] mode
+            - [ ] Use state selector (https://next.home-assistant.io/docs/blueprint/selectors/#state-selector)
       - [x] delay
+            - [ ] Set unit of measurement to seconds (https://next.home-assistant.io/docs/blueprint/selectors/#number-selector)
       - [ ] Name translation
             - https://developers.home-assistant.io/docs/core/entity
             - https://github.com/home-assistant/core/issues/98993
@@ -95,3 +90,4 @@ homeassistant.config_entries.OperationNotAllowed: The config entry uhppoted (uhp
 4. https://stackoverflow.com/questions/57819352/docker-desktop-for-macos-cant-add-usr-local-folder-in-preferences-file-sharing
 5. https://www.reddit.com/r/homeassistant/comments/xyloo0/how_do_i_arrange_the_cards_in_a_way_i_want
 6. https://dev.to/adafycheng/write-custom-component-for-home-assistant-4fce
+7. https://community.home-assistant.io/t/optionsflowhandler-single-select-radio-buttons/610623

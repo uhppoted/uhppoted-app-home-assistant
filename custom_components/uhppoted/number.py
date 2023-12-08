@@ -20,10 +20,11 @@ from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
 from .const import CONF_CONTROLLER_ID
-from .const import CONF_CONTROLLER_NAME
+from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
 from .const import CONF_DOOR_ID
-from .const import CONF_DOOR_NAME
+from .const import CONF_DOOR_CONTROLLER
+from .const import CONF_DOOR_NUMBER
 
 # Attribute constants
 from .const import ATTR_ADDRESS
@@ -46,10 +47,10 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
     listen = '0.0.0.0:60001'
     debug = False
 
-    door = {'id': 1, 'name': '1'}
+    door = {'id': 'Dungeon', 'controller': 'Alpha', 'number': 1}
 
-    if CONF_CONTROLLER_NAME in config and not config[CONF_CONTROLLER_NAME].strip() == '':
-        name = config[CONF_CONTROLLER_NAME].strip()
+    if CONF_CONTROLLER_ID in config and not config[CONF_CONTROLLER_ID].strip() == '':
+        name = config[CONF_CONTROLLER_ID].strip()
 
     if CONF_CONTROLLER_ADDR in config:
         address = config[CONF_CONTROLLER_ADDR]
@@ -68,10 +69,8 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
 
     if CONF_DOOR_ID in config:
         door['id'] = config[CONF_DOOR_ID]
-        door['name'] = f"{door['id']}"
-
-    if CONF_DOOR_NAME in config:
-        door['name'] = config[CONF_DOOR_NAME]
+        door['controller'] = config[CONF_DOOR_ID]
+        door['number'] = config[CONF_DOOR_NUMBER]
 
     u = uhppote.Uhppote(bind, broadcast, listen, debug)
 
