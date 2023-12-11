@@ -2,6 +2,7 @@ import logging
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 
 from .const import DOMAIN
 from .const import CONF_BIND_ADDR
@@ -10,27 +11,6 @@ from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
 
 _LOGGER = logging.getLogger(__name__)
-
-
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    hass.data.setdefault(DOMAIN, {})
-
-    # hass.data[DOMAIN][entry.entry_id] = entry.data
-
-    hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "sensor"))
-    # hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "datetime"))
-    # hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "select"))
-    # hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "number"))
-
-    # data = dict(entry.data)
-    # unsubscribe = entry.add_update_listener(update_listener)
-    # hass_data["unsub_options_update_listener"] = unsub_options_update_listener
-    # hass.data[DOMAIN][entry.entry_id] = hass_data
-
-    # entry.async_on_unload(entry.add_update_listener(update_listener))
-    entry.add_update_listener(update_listener)
-
-    return True
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
@@ -56,13 +36,28 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
     return True
 
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    hass.data.setdefault(DOMAIN, {})
+
+    hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "sensor"))
+    # hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "datetime"))
+    # hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "select"))
+    # hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "number"))
+
+    entry.async_on_unload(entry.add_update_listener(update_listener))
+
+    return True
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    platforms = [
+        Platform.SENSOR,
+    ]
+
+    ok = await hass.config_entries.async_unload_platforms(entry,platforms)
+
+    return ok
 
 async def update_listener(hass: HomeAssistant, entry: ConfigEntry):
-    print(">>>>>>>>>>>>>>>>>>> AWOOOGAH")
-    print("                >>> id", entry.entry_id)
-    print("                >>> data", entry.data)
-    print("                >>> options", entry.options)
-
     await hass.config_entries.async_reload(entry.entry_id)
 
     # if self._async_current_entries():

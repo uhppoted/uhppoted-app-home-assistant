@@ -43,8 +43,7 @@ from .door import ControllerDoorButton
 from .door import ControllerDoorMode
 
 
-async def async_setup_entry(hass: core.HomeAssistant, 
-                            entry: config_entries.ConfigEntry,
+async def async_setup_entry(hass: core.HomeAssistant, entry: config_entries.ConfigEntry,
                             async_add_entities: AddEntitiesCallback):
     config = entry.data
     options = entry.options
@@ -69,11 +68,11 @@ async def async_setup_entry(hass: core.HomeAssistant,
 
     controller = [
         ControllerID(u, name, cid),
-    #     ControllerAddress(u, id, name, address),
-    #     ControllerDoor(u, id, name, door['id'], door['name']),
-    #     ControllerDoorOpen(u, id, name, door['id'], door['name']),
-    #     ControllerDoorLocked(u, id, name, door['id'], door['name']),
-    #     ControllerDoorButton(u, id, name, door['id'], door['name']),
+        #     ControllerAddress(u, id, name, address),
+        #     ControllerDoor(u, id, name, door['id'], door['name']),
+        #     ControllerDoorOpen(u, id, name, door['id'], door['name']),
+        #     ControllerDoorLocked(u, id, name, door['id'], door['name']),
+        #     ControllerDoorButton(u, id, name, door['id'], door['name']),
     ]
 
     async_add_entities(controller, update_before_add=True)
