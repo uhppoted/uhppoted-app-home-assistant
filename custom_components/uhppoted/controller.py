@@ -21,44 +21,42 @@ class ControllerID(SensorEntity):
     _attr_native_unit_of_measurement = None
     _attr_state_class = None
 
-    def __init__(self, u, id, name):
+    _attr_icon = 'mdi:identifier'
+    _attr_translation_key = 'controller_id'
+
+    def __init__(self, u, name, controller):
         super().__init__()
 
-        _LOGGER.debug(f'controller ID:{id}')
+        _LOGGER.debug(f'controller {name} {controller}')
 
         self.uhppote = u
-        self.id = id
+        self.id = name
+        self.controller = int(f'{controller}')
         self._name = f'uhppoted.{name}.ID'
-        self._icon = 'mdi:identifier'
-        self._translation_key = 'controller_id'
-        self._state = id
+        self._state = None
         self._attributes: Dict[str, Any] = {
             ATTR_ADDRESS: '',
             ATTR_NETMASK: '',
             ATTR_GATEWAY: '',
             ATTR_FIRMWARE: '',
         }
-        self._available = True
+        self._available = False
+
+    @property
+    def unique_id(self) -> str:
+        return f'uhppoted.{self.id}.ID'
 
     @property
     def name(self) -> str:
         return self._name
 
     @property
-    def unique_id(self) -> str:
-        return f'{self.id}.ID'
-
-    @property
-    def icon(self) -> str:
-        return f'{self._icon}'
-
-    @property
     def has_entity_name(self) -> bool:
         return True
 
-    @property
-    def translation_key(self) -> str:
-        return self._translation_key
+    # @property
+    # def translation_key(self) -> str:
+    #     return self._translation_key
 
     @property
     def available(self) -> bool:
@@ -76,12 +74,11 @@ class ControllerID(SensorEntity):
         return self._attributes
 
     async def async_update(self):
-        _LOGGER.info(f'controller:{self.id}  update info')
+        _LOGGER.debug(f'controller:{self.id}  update info')
         try:
-            controller = self.id
-            response = self.uhppote.get_controller(controller)
+            response = self.uhppote.get_controller(self.controller)
 
-            if response.controller == self.id:
+            if response.controller == self.controller:
                 self._state = response.controller
                 self._available = True
                 self._attributes[ATTR_ADDRESS] = f'{response.ip_address}'

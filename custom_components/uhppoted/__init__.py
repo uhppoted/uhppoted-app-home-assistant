@@ -14,9 +14,10 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = entry.data
 
-    # hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "sensor"))
+    # hass.data[DOMAIN][entry.entry_id] = entry.data
+
+    hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "sensor"))
     # hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "datetime"))
     # hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "select"))
     # hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "number"))

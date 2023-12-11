@@ -8,5 +8,7 @@ UHPPOTE controller HACS integration for Home Assistant.
 
 ## Installation
 
-### Development Version
+### Manual install
+
+### Development version
 

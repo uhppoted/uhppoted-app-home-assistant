@@ -1,19 +1,11 @@
 # TODO
 
-- [ ] _github_ workflow
+- [x] _github_ workflow
 
-2. README
-   - [ ] Installation
-
-3. Icon
-   - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/
-   - https://smarthomescene.com/guides/how-to-add-custom-icons-in-home-assistant
-   - https://www.reddit.com/r/homeassistant/comments/lqoxoy/how_can_i_use_custom_images_for_icons/
-
-4. Shutdown while waiting for controller response
-   - (?) asyncio maybe
-   - (?) move from polled to event model
-     - https://community.home-assistant.io/t/hass-async-create-task/428301
+- [ ] Shutdown while waiting for controller response
+      - (?) asyncio maybe
+      - (?) move from polled to event model
+      - https://community.home-assistant.io/t/hass-async-create-task/428301
 ```
 TimeoutError: timed out
 ^C2023-11-29 12:44:52.365 ERROR (MainThread) [root] Uncaught exception
@@ -79,6 +71,14 @@ KeyboardInterrupt
 - [ ] Service
 - [ ] Custom card
 - [ ] Discovery
+
+- [ ] README
+      - [ ] Installation
+
+- [ ] Icon
+      - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/
+      - https://smarthomescene.com/guides/how-to-add-custom-icons-in-home-assistant
+      - https://www.reddit.com/r/homeassistant/comments/lqoxoy/how_can_i_use_custom_images_for_icons/
 
 
 - [ ] HACS

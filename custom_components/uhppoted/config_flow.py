@@ -58,7 +58,7 @@ def validate_door_number(v) -> None:
 
 
 class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
-    data: Optional[Dict[str, Any]]
+    # data: Optional[Dict[str, Any]]
 
     @staticmethod
     @callback
@@ -143,7 +143,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = f'Invalid controller serial number ({user_input[CONF_CONTROLLER_SERIAL_NUMBER]})'
 
             if not errors:
-                self.data = user_input
+                self.options.update(user_input)
                 return await self.async_step_door()
 
         return self.async_show_form(step_id="controller", data_schema=schema, errors=errors)
@@ -174,7 +174,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = f'Invalid door ID ({user_input[CONF_DOOR_ID]})'
 
             try:
-                validate_door_controller(user_input[CONF_DOOR_CONTROLLER], [self.data[CONF_CONTROLLER_ID]])
+                validate_door_controller(user_input[CONF_DOOR_CONTROLLER], [self.options[CONF_CONTROLLER_ID]])
             except ValueError:
                 errors["base"] = f'Invalid door controller ({user_input[CONF_DOOR_CONTROLLER]})'
 
@@ -184,7 +184,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = f'Invalid door number ({user_input[CONF_DOOR_NUMBER]})'
 
             if not errors:
-                self.data.update(user_input)
-                return self.async_create_entry(title="uhppoted", data=self.data)
+                self.options.update(user_input)
+                return self.async_create_entry(title="uhppoted", data=self.data, options=self.options)
 
         return self.async_show_form(step_id="door", data_schema=schema, errors=errors)

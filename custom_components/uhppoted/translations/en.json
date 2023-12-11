@@ -112,15 +112,8 @@
 
     "entity": {
         "sensor": {
-            "uhppote": {
-                "controller_id": {
-                    "name": "THING"
-                }
-            },
             "uhppoted": {
-                "controller_id": {
-                    "name": "THINGX"
-                }
+                "controller_id": "THINGX",
             },
             "controller_id": {
                 "name": "THINGQ"
