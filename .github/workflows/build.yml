@@ -1,0 +1,30 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: ^3.11
+      id: python
+
+    - name: Install Python packages
+      run: pip install toml yapf
+
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Build
+      run: make build-all

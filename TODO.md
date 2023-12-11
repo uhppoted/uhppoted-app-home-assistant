@@ -1,13 +1,16 @@
 # TODO
 
-1. _github_ workflow
+- [ ] _github_ workflow
+
 2. README
    - [ ] Installation
-4. Icon
+
+3. Icon
    - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/
    - https://smarthomescene.com/guides/how-to-add-custom-icons-in-home-assistant
    - https://www.reddit.com/r/homeassistant/comments/lqoxoy/how_can_i_use_custom_images_for_icons/
-5. Shutdown while waiting for controller response
+
+4. Shutdown while waiting for controller response
    - (?) asyncio maybe
    - (?) move from polled to event model
      - https://community.home-assistant.io/t/hass-async-create-task/428301

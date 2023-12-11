@@ -8,9 +8,11 @@ format:
 
 build: format
 
+build-all: format
+
 docker-build:
 	docker run --detach --name home-assistant --restart=unless-stopped --publish 8123:8123 \
-               --env TZ=America/Vancouver \
+               --env TZ=America/New York \
                --mount type=bind,source=$(SHARE),target=/config \
                ghcr.io/home-assistant/home-assistant:stable
 
