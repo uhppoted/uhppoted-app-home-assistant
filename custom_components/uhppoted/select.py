@@ -40,10 +40,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     config = entry.data
     options = entry.options
 
-    bind = config[CONF_BIND_ADDR]
-    broadcast = config[CONF_BROADCAST_ADDR]
-    listen = config[CONF_LISTEN_ADDR]
-    debug = config[CONF_DEBUG]
+    bind = options[CONF_BIND_ADDR]
+    broadcast = options[CONF_BROADCAST_ADDR]
+    listen = options[CONF_LISTEN_ADDR]
+    debug = options[CONF_DEBUG]
 
     controller = options[CONF_CONTROLLER_ID].strip()
     serial_no = options[CONF_CONTROLLER_SERIAL_NUMBER].strip()

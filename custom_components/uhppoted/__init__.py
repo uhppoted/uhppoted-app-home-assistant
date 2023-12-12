@@ -51,19 +51,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    platforms = [
-        Platform.SENSOR,
-    ]
+    platforms = [Platform.SENSOR, Platform.DATETIME, Platform.SELECT, Platform.NUMBER]
 
+    # TODO pre-unload cleanup (if any)
     ok = await hass.config_entries.async_unload_platforms(entry, platforms)
+    # TODO post-unload cleanup (if any)
 
     return ok
 
 
 async def update_listener(hass: HomeAssistant, entry: ConfigEntry):
     await hass.config_entries.async_reload(entry.entry_id)
-
-    # if self._async_current_entries():
-    #         await self.hass.config_entries.async_reload(self.context["entry_id"])
-
-    # hass.async_create_task(hass.config_entries.async_forward_entry_setup(config_entry, "sensor"))

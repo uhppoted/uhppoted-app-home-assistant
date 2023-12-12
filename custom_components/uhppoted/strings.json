@@ -87,16 +87,34 @@
                     "debug": "Logs messages between controller and Home Assistant"
                 }
             },
+
+            "controller": {
+                "title": "UHPPOTE controller configuration",
+                "description": "Controller ID, serial number and (optional) IP address",
+                "data": {
+                    "controller_id": "controller identifier",
+                    "controller_serial_number": "UHPPOTE controller ID",
+                    "controller_address": "controller IPv4 address"
+                },
+                "data_description": {
+                    "controller_id": "Controller (human) name e.g. Alpha",
+                    "controller_serial_number": "UHPPOTE controller serial number e.g. 405419896",
+                    "controller_address": "UHPPOTE controller IPv4 address (optional) e.g. 192.168.1.100"
+                }
+            },
+
             "door": {
                 "title": "UHPPOTE controller door configuration",
                 "description": "Door configuration",
                 "data": {
-                    "door_id": "door ID",
-                    "door_name": "door name (optional)"
+                    "door_id": "door identifier",
+                    "door_controller": "Door controller",
+                    "door_number": "Door number (1-4)"
                 },
                 "data_description": {
-                    "door_id": "Door ID (1-4)",
-                    "door_name": "Door name (optional, defaults to door ID)"
+                    "door_id": "Door (human) name e.g. Entrance",
+                    "door_controller": "Identifier of the controller for the door e.g. Alpha",
+                    "door_number": "Door number [1-4] on the controller"
                 }
             }
         },
@@ -112,15 +130,8 @@
 
     "entity": {
         "sensor": {
-            "uhppote": {
-                "controller_id": {
-                    "name": "THING"
-                }
-            },
             "uhppoted": {
-                "controller_id": {
-                    "name": "THINGX"
-                }
+                "controller_id": "THINGX"
             },
             "controller_id": {
                 "name": "THINGQ"

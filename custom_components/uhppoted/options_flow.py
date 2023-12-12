@@ -61,56 +61,29 @@ class UhppotedOptionsFlow(OptionsFlow):
         self.options = dict(entry.options)
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        return await self.async_step_controller()
+        return await self.async_step_IPv4()
 
     async def async_step_IPv4(self, user_input: Optional[Dict[str, Any]] = None):
-        pass
+        bind = self.options[CONF_BIND_ADDR]
+        broadcast = self.options[CONF_BROADCAST_ADDR]
+        listen = self.options[CONF_LISTEN_ADDR]
+        debug = self.options[CONF_DEBUG]
 
-    #     data = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
-    #     bind = '0.0.0.0'
-    #     broadcast = '255.255.255.255:60000'
-    #     listen = '0.0.0.0:60001'
-    #     debug = False
-    #
-    #     if CONF_BIND_ADDR in data:
-    #         bind = data[CONF_BIND_ADDR]
-    #
-    #     if CONF_BROADCAST_ADDR in data:
-    #         broadcast = data[CONF_BROADCAST_ADDR]
-    #
-    #     if CONF_LISTEN_ADDR in data:
-    #         listen = data[CONF_LISTEN_ADDR]
-    #
-    #     if CONF_DEBUG in data:
-    #         debug = data[CONF_DEBUG]
-    #
-    #     if CONF_BIND_ADDR in self.config_entry.data:
-    #         bind = self.config_entry.data[CONF_BIND_ADDR]
-    #
-    #     if CONF_BROADCAST_ADDR in self.config_entry.data:
-    #         broadcast = self.config_entry.data[CONF_BROADCAST_ADDR]
-    #
-    #     if CONF_LISTEN_ADDR in self.config_entry.data:
-    #         listen = self.config_entry.data[CONF_LISTEN_ADDR]
-    #
-    #     if CONF_DEBUG in self.config_entry.data:
-    #         debug = self.config_entry.data[CONF_DEBUG]
-    #
-    #     schema = vol.Schema({
-    #         vol.Optional(CONF_BIND_ADDR, default=bind): str,
-    #         vol.Optional(CONF_BROADCAST_ADDR, default=broadcast): str,
-    #         vol.Optional(CONF_LISTEN_ADDR, default=listen): str,
-    #         vol.Optional(CONF_DEBUG, default=debug): bool,
-    #     })
-    #
-    #     errors: Dict[str, str] = {}
-    #
-    #     if user_input is not None:
-    #         if not errors:
-    #             self.data.update(user_input)
-    #             return self.async_create_entry(title="uhppoted", data=self.data)
-    #
-    #     return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
+        schema = vol.Schema({
+            vol.Optional(CONF_BIND_ADDR, default=bind): str,
+            vol.Optional(CONF_BROADCAST_ADDR, default=broadcast): str,
+            vol.Optional(CONF_LISTEN_ADDR, default=listen): str,
+            vol.Optional(CONF_DEBUG, default=debug): bool,
+        })
+
+        errors: Dict[str, str] = {}
+
+        if user_input is not None:
+            if not errors:
+                self.options.update(user_input)
+                return await self.async_step_controller()
+
+        return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
 
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
         name = self.options[CONF_CONTROLLER_ID]
@@ -143,17 +116,51 @@ class UhppotedOptionsFlow(OptionsFlow):
 
             if not errors:
                 self.options.update(user_input)
-                # return await self.async_step_door()
-                return self.async_create_entry(title="uhppoted", data=self.options)
+                return await self.async_step_door()
 
         return self.async_show_form(step_id="controller", data_schema=schema, errors=errors)
 
-    async def async_end(self):
-        print('>>>>>>>>>>>>>>>>>>>>>>> async_end')
-        # """Finalization of the ConfigEntry creation"""
-        # _LOGGER.info(
-        #     "Recreating entry %s due to configuration change",
-        #     self.config_entry.entry_id,
-        # )
-        # self.hass.config_entries.async_update_entry(self.config_entry, data=self._infos)
-        # return self.async_create_entry(title=None, data=None)
+    async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
+        name = self.options[CONF_DOOR_ID]
+        controller = self.options[CONF_DOOR_CONTROLLER]
+        door = self.options[CONF_DOOR_NUMBER]
+
+        controllers = selector.SelectSelector(
+            selector.SelectSelectorConfig(options=['Alpha', 'Beta', 'Gamma', 'Delta'],
+                                          multiple=False,
+                                          mode=selector.SelectSelectorMode.DROPDOWN))
+
+        doors = selector.SelectSelector(
+            selector.SelectSelectorConfig(options=['1', '2', '3', '4'],
+                                          multiple=False,
+                                          mode=selector.SelectSelectorMode.DROPDOWN))
+
+        schema = vol.Schema({
+            vol.Required(CONF_DOOR_ID, default=name): str,
+            vol.Required(CONF_DOOR_CONTROLLER, default=controller): controllers,
+            vol.Required(CONF_DOOR_NUMBER, default=door): doors,
+        })
+
+        errors: Dict[str, str] = {}
+
+        if user_input is not None:
+            try:
+                validate_door_id(user_input[CONF_DOOR_ID])
+            except ValueError:
+                errors["base"] = f'Invalid door ID ({user_input[CONF_DOOR_ID]})'
+
+            try:
+                validate_door_controller(user_input[CONF_DOOR_CONTROLLER], [self.options[CONF_CONTROLLER_ID]])
+            except ValueError:
+                errors["base"] = f'Invalid door controller ({user_input[CONF_DOOR_CONTROLLER]})'
+
+            try:
+                validate_door_number(user_input[CONF_DOOR_NUMBER])
+            except ValueError:
+                errors["base"] = f'Invalid door number ({user_input[CONF_DOOR_NUMBER]})'
+
+            if not errors:
+                self.options.update(user_input)
+                return self.async_create_entry(title="uhppoted", data=self.options)
+
+        return self.async_show_form(step_id="door", data_schema=schema, errors=errors)

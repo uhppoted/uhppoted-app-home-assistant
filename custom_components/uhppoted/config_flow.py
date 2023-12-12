@@ -84,22 +84,22 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         if CONF_DEBUG in defaults:
             debug = defaults[CONF_DEBUG]
 
-        self.data = {
+        self.data = {}
+
+        self.options = {
             CONF_BIND_ADDR: bind,
             CONF_BROADCAST_ADDR: broadcast,
             CONF_LISTEN_ADDR: listen,
             CONF_DEBUG: debug,
         }
 
-        self.options = {}
-
         return await self.async_step_IPv4()
 
     async def async_step_IPv4(self, user_input: Optional[Dict[str, Any]] = None):
-        bind = self.data[CONF_BIND_ADDR]
-        broadcast = self.data[CONF_BROADCAST_ADDR]
-        listen = self.data[CONF_LISTEN_ADDR]
-        debug = self.data[CONF_DEBUG]
+        bind = self.options[CONF_BIND_ADDR]
+        broadcast = self.options[CONF_BROADCAST_ADDR]
+        listen = self.options[CONF_LISTEN_ADDR]
+        debug = self.options[CONF_DEBUG]
 
         schema = vol.Schema({
             vol.Optional(CONF_BIND_ADDR, default=bind): str,
@@ -112,7 +112,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             if not errors:
-                self.data.update(user_input)
+                self.options.update(user_input)
                 return await self.async_step_controller()
 
         return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
