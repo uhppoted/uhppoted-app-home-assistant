@@ -36,11 +36,12 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
     return True
 
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
 
     hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "sensor"))
-    # hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "datetime"))
+    hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "datetime"))
     # hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "select"))
     # hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "number"))
 
@@ -48,14 +49,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     return True
 
+
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     platforms = [
         Platform.SENSOR,
     ]
 
-    ok = await hass.config_entries.async_unload_platforms(entry,platforms)
+    ok = await hass.config_entries.async_unload_platforms(entry, platforms)
 
     return ok
+
 
 async def update_listener(hass: HomeAssistant, entry: ConfigEntry):
     await hass.config_entries.async_reload(entry.entry_id)

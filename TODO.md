@@ -39,18 +39,13 @@ KeyboardInterrupt
       - [ ] Rework as Device
       - [ ] device_info
       - [ ] entity_category
-      - [x] Figure out entity IDs for multiple controllers
-      - [x] ID
-      - [x] address
       - [x] datetime
-            - [x] Handle controller without valid date/time
-            - [x] Derive from DateTimeEntity
             - [ ] Set timezone in config-flow/configuration.yaml
 
 - [ ] Doors
       - [x] open/locked/button sensor
       - [x] seperate open/locked/pressed sensors
-            - [ ] Rework open/pressed as event entities
+      - [ ] Rework open/pressed as event entities
       - [x] mode
             - [ ] Use state selector (https://next.home-assistant.io/docs/blueprint/selectors/#state-selector)
       - [x] delay

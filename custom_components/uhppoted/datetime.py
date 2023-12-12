@@ -32,40 +32,30 @@ from .const import ATTR_FIRMWARE
 from .controller import ControllerDateTime
 
 
-async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entries.ConfigEntry,
+async def async_setup_entry(hass: core.HomeAssistant, entry: config_entries.ConfigEntry,
                             async_add_entities: AddEntitiesCallback):
-    config = hass.data[DOMAIN][config_entry.entry_id]
+    config = entry.data
+    options = entry.options
 
-    id = config[CONF_CONTROLLER_ID]
-    name = f'{id}'
-    address = ''
-    bind = '0.0.0.0'
-    broadcast = '255.255.255.255'
-    listen = '0.0.0.0:60001'
-    debug = False
+    bind = config[CONF_BIND_ADDR]
+    broadcast = config[CONF_BROADCAST_ADDR]
+    listen = config[CONF_LISTEN_ADDR]
+    debug = config[CONF_DEBUG]
 
-    if CONF_CONTROLLER_ID in config and not config[CONF_CONTROLLER_ID].strip() == '':
-        name = config[CONF_CONTROLLER_ID].strip()
+    controller = options[CONF_CONTROLLER_ID].strip()
+    serial_no = options[CONF_CONTROLLER_SERIAL_NUMBER].strip()
 
-    if CONF_CONTROLLER_ADDR in config:
-        address = config[CONF_CONTROLLER_ADDR]
+    # door = {'id': 'Dungeon', 'controller': 'Alpha', 'number': 1}
 
-    if CONF_BIND_ADDR in config:
-        bind = config[CONF_BIND_ADDR]
-
-    if CONF_BROADCAST_ADDR in config:
-        broadcast = config[CONF_BROADCAST_ADDR]
-
-    if CONF_LISTEN_ADDR in config:
-        listen = config[CONF_LISTEN_ADDR]
-
-    if CONF_DEBUG in config:
-        debug = config[CONF_DEBUG]
+    # if CONF_DOOR_ID in config:
+    #     door['id'] = config[CONF_DOOR_ID]
+    #     door['controller'] = config[CONF_DOOR_CONTROLLER]
+    #     door['number'] = config[CONF_DOOR_NUMBER]
 
     u = uhppote.Uhppote(bind, broadcast, listen, debug)
 
-    controller = [
-        ControllerDateTime(u, id, name),
+    controllers = [
+        ControllerDateTime(u, controller, serial_no),
     ]
 
-    async_add_entities(controller, update_before_add=True)
+    async_add_entities(controllers, update_before_add=True)

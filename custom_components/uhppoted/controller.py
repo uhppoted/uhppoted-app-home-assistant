@@ -15,7 +15,7 @@ from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
 
 
-class ControllerID(SensorEntity):
+class ControllerInfo(SensorEntity):
     _attr_device_class = None
     _attr_last_reset = None
     _attr_native_unit_of_measurement = None
@@ -24,15 +24,15 @@ class ControllerID(SensorEntity):
     _attr_icon = 'mdi:identifier'
     _attr_translation_key = 'controller_id'
 
-    def __init__(self, u, name, controller):
+    def __init__(self, u, controller, serial_no):
         super().__init__()
 
-        _LOGGER.debug(f'controller {name} {controller}')
+        _LOGGER.debug(f'controller {controller} {serial_no}')
 
         self.uhppote = u
-        self.id = name
-        self.controller = int(f'{controller}')
-        self._name = f'uhppoted.{name}.ID'
+        self.id = controller
+        self.serial_no = int(f'{serial_no}')
+        self._name = f'uhppoted.{controller}.info'
         self._state = None
         self._attributes: Dict[str, Any] = {
             ATTR_ADDRESS: '',
@@ -44,7 +44,7 @@ class ControllerID(SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.{self.id}.ID'
+        return f'uhppoted.{self.id}.info'
 
     @property
     def name(self) -> str:
@@ -53,10 +53,6 @@ class ControllerID(SensorEntity):
     @property
     def has_entity_name(self) -> bool:
         return True
-
-    # @property
-    # def translation_key(self) -> str:
-    #     return self._translation_key
 
     @property
     def available(self) -> bool:
@@ -76,9 +72,9 @@ class ControllerID(SensorEntity):
     async def async_update(self):
         _LOGGER.debug(f'controller:{self.id}  update info')
         try:
-            response = self.uhppote.get_controller(self.controller)
+            response = self.uhppote.get_controller(self.serial_no)
 
-            if response.controller == self.controller:
+            if response.controller == self.serial_no:
                 self._state = response.controller
                 self._available = True
                 self._attributes[ATTR_ADDRESS] = f'{response.ip_address}'
@@ -91,93 +87,32 @@ class ControllerID(SensorEntity):
             _LOGGER.exception(f'error retrieving controller {self.id} information')
 
 
-class ControllerAddress(SensorEntity):
-    _attr_name = "address"
-    _attr_device_class = None
-    _attr_last_reset = None
-    _attr_native_unit_of_measurement = None
-    _attr_state_class = None
-
-    def __init__(self, u, id, name, address):
-        super().__init__()
-
-        _LOGGER.debug(f'controller address:{id}  address:{address}')
-
-        self.uhppote = u
-        self.id = id
-        self._name = f'uhppoted.{name}.address'
-        self._icon = 'mdi:ip-network'
-        self._state = address
-        self._available = False if address == '' else True
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def unique_id(self) -> str:
-        return f'{self.id}.address'
-
-    @property
-    def icon(self) -> str:
-        return f'{self._icon}'
-
-    @property
-    def available(self) -> bool:
-        return self._available
-
-    @property
-    def state(self) -> Optional[str]:
-        if self._state != None:
-            return f'{self._state}'
-
-        return None
-
-    async def async_update(self):
-        _LOGGER.debug(f'controller:{self.id}  update address')
-        try:
-            controller = self.id
-            response = self.uhppote.get_controller(controller)
-
-            if response.controller == self.id:
-                self._state = response.ip_address
-                self._available = True
-
-        except (Exception):
-            self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.id} address')
-
-
 class ControllerDateTime(DateTimeEntity):
-    _attr_name = "datetime"
-    _attr_device_class = None
-    _attr_last_reset = None
-    _attr_native_unit_of_measurement = None
-    _attr_state_class = None
+    _attr_icon = 'mdi:calendar-clock-outline'
 
-    def __init__(self, u, id, name):
+    def __init__(self, u, controller, serial_no):
         super().__init__()
 
-        _LOGGER.debug(f'controller datetime:{id}')
+        _LOGGER.debug(f'controller datetime:{controller}')
 
         self.uhppote = u
-        self.id = id
-        self._name = f'uhppoted.{name}.date/time'
-        self._icon = 'mdi:calendar-clock-outline'
+        self.id = controller
+        self.serial_no = int(f'{serial_no}')
+        self._name = f'uhppoted.{controller}.datetime'
         self._datetime = None
         self._available = False
 
     @property
+    def unique_id(self) -> str:
+        return f'uhppoted.{self.id}.datetime'
+
+    @property
     def name(self) -> str:
         return self._name
 
     @property
-    def unique_id(self) -> str:
-        return f'{self.id}.datetime'
-
-    @property
-    def icon(self) -> str:
-        return f'{self._icon}'
+    def has_entity_name(self) -> bool:
+        return True
 
     @property
     def available(self) -> bool:
@@ -189,12 +124,11 @@ class ControllerDateTime(DateTimeEntity):
 
     async def async_set_value(self, utc: datetime) -> None:
         try:
-            controller = self.id
             tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
             local = utc.astimezone(tz)
-            response = self.uhppote.set_time(controller, local)
+            response = self.uhppote.set_time(self.serial_no, local)
 
-            if response.controller == self.id:
+            if response.controller == self.serial_no:
                 year = response.datetime.year
                 month = response.datetime.month
                 day = response.datetime.day
@@ -211,10 +145,9 @@ class ControllerDateTime(DateTimeEntity):
     async def async_update(self):
         _LOGGER.debug(f'controller:{self.id}  update datetime')
         try:
-            controller = self.id
-            response = self.uhppote.get_time(controller)
+            response = self.uhppote.get_time(self.serial_no)
 
-            if response.controller == self.id:
+            if response.controller == self.serial_no:
                 year = response.datetime.year
                 month = response.datetime.month
                 day = response.datetime.day

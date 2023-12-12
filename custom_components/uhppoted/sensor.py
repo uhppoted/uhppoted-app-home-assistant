@@ -33,8 +33,7 @@ from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
 
-from .controller import ControllerID
-from .controller import ControllerAddress
+from .controller import ControllerInfo
 
 from .door import ControllerDoor
 from .door import ControllerDoorOpen
@@ -53,8 +52,8 @@ async def async_setup_entry(hass: core.HomeAssistant, entry: config_entries.Conf
     listen = config[CONF_LISTEN_ADDR]
     debug = config[CONF_DEBUG]
 
-    name = options[CONF_CONTROLLER_ID].strip()
-    cid = options[CONF_CONTROLLER_SERIAL_NUMBER].strip()
+    controller = options[CONF_CONTROLLER_ID].strip()
+    serial_no = options[CONF_CONTROLLER_SERIAL_NUMBER].strip()
     address = options[CONF_CONTROLLER_ADDR].strip()
 
     # door = {'id': 'Dungeon', 'controller': 'Alpha', 'number': 1}
@@ -66,13 +65,12 @@ async def async_setup_entry(hass: core.HomeAssistant, entry: config_entries.Conf
 
     u = uhppote.Uhppote(bind, broadcast, listen, debug)
 
-    controller = [
-        ControllerID(u, name, cid),
-        #     ControllerAddress(u, id, name, address),
+    controllers = [
+        ControllerInfo(u, controller, serial_no),
         #     ControllerDoor(u, id, name, door['id'], door['name']),
         #     ControllerDoorOpen(u, id, name, door['id'], door['name']),
         #     ControllerDoorLocked(u, id, name, door['id'], door['name']),
         #     ControllerDoorButton(u, id, name, door['id'], door['name']),
     ]
 
-    async_add_entities(controller, update_before_add=True)
+    async_add_entities(controllers, update_before_add=True)
