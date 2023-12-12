@@ -4,6 +4,7 @@ import datetime
 import logging
 
 from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers.typing import DiscoveryInfoType
@@ -32,8 +33,7 @@ from .const import ATTR_FIRMWARE
 from .controller import ControllerDateTime
 
 
-async def async_setup_entry(hass: core.HomeAssistant, entry: config_entries.ConfigEntry,
-                            async_add_entities: AddEntitiesCallback):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     config = entry.data
     options = entry.options
 
@@ -44,13 +44,6 @@ async def async_setup_entry(hass: core.HomeAssistant, entry: config_entries.Conf
 
     controller = options[CONF_CONTROLLER_ID].strip()
     serial_no = options[CONF_CONTROLLER_SERIAL_NUMBER].strip()
-
-    # door = {'id': 'Dungeon', 'controller': 'Alpha', 'number': 1}
-
-    # if CONF_DOOR_ID in config:
-    #     door['id'] = config[CONF_DOOR_ID]
-    #     door['controller'] = config[CONF_DOOR_CONTROLLER]
-    #     door['number'] = config[CONF_DOOR_NUMBER]
 
     u = uhppote.Uhppote(bind, broadcast, listen, debug)
 

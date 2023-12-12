@@ -16,12 +16,8 @@ from .const import ATTR_FIRMWARE
 
 
 class ControllerInfo(SensorEntity):
-    _attr_device_class = None
-    _attr_last_reset = None
-    _attr_native_unit_of_measurement = None
-    _attr_state_class = None
-
     _attr_icon = 'mdi:identifier'
+    _attr_has_entity_name: True
     _attr_translation_key = 'controller_id'
 
     def __init__(self, u, controller, serial_no):
@@ -30,9 +26,9 @@ class ControllerInfo(SensorEntity):
         _LOGGER.debug(f'controller {controller} {serial_no}')
 
         self.uhppote = u
-        self.id = controller
+        self.controller = controller
         self.serial_no = int(f'{serial_no}')
-        self._name = f'uhppoted.{controller}.info'
+        self._name = f'uhppoted.{controller}.info'.lower()
         self._state = None
         self._attributes: Dict[str, Any] = {
             ATTR_ADDRESS: '',
@@ -44,15 +40,11 @@ class ControllerInfo(SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.{self.id}.info'
+        return f'uhppoted.{self.controller}.info'.lower()
 
     @property
     def name(self) -> str:
         return self._name
-
-    @property
-    def has_entity_name(self) -> bool:
-        return True
 
     @property
     def available(self) -> bool:
@@ -70,7 +62,7 @@ class ControllerInfo(SensorEntity):
         return self._attributes
 
     async def async_update(self):
-        _LOGGER.debug(f'controller:{self.id}  update info')
+        _LOGGER.debug(f'controller:{self.controller}  update info')
         try:
             response = self.uhppote.get_controller(self.serial_no)
 
@@ -84,11 +76,12 @@ class ControllerInfo(SensorEntity):
 
         except (Exception):
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.id} information')
+            _LOGGER.exception(f'error retrieving controller {self.controller} information')
 
 
 class ControllerDateTime(DateTimeEntity):
     _attr_icon = 'mdi:calendar-clock-outline'
+    _attr_has_entity_name: True
 
     def __init__(self, u, controller, serial_no):
         super().__init__()
@@ -96,23 +89,19 @@ class ControllerDateTime(DateTimeEntity):
         _LOGGER.debug(f'controller datetime:{controller}')
 
         self.uhppote = u
-        self.id = controller
+        self.controller = controller
         self.serial_no = int(f'{serial_no}')
-        self._name = f'uhppoted.{controller}.datetime'
+        self._name = f'uhppoted.{controller}.datetime'.lower()
         self._datetime = None
         self._available = False
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.{self.id}.datetime'
+        return f'uhppoted.{self.controller}.datetime'.lower()
 
     @property
     def name(self) -> str:
         return self._name
-
-    @property
-    def has_entity_name(self) -> bool:
-        return True
 
     @property
     def available(self) -> bool:
@@ -140,10 +129,10 @@ class ControllerDateTime(DateTimeEntity):
 
         except (Exception):
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.id} date/time')
+            _LOGGER.exception(f'error retrieving controller {self.controller} date/time')
 
     async def async_update(self):
-        _LOGGER.debug(f'controller:{self.id}  update datetime')
+        _LOGGER.debug(f'controller:{self.controller}  update datetime')
         try:
             response = self.uhppote.get_time(self.serial_no)
 
@@ -161,4 +150,4 @@ class ControllerDateTime(DateTimeEntity):
 
         except (Exception):
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.id} date/time')
+            _LOGGER.exception(f'error retrieving controller {self.controller} date/time')

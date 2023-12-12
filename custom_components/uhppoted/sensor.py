@@ -4,6 +4,7 @@ import datetime
 import logging
 
 from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers.typing import DiscoveryInfoType
@@ -37,13 +38,12 @@ from .controller import ControllerInfo
 
 from .door import ControllerDoor
 from .door import ControllerDoorOpen
-from .door import ControllerDoorLocked
+from .door import ControllerDoorLock
 from .door import ControllerDoorButton
 from .door import ControllerDoorMode
 
 
-async def async_setup_entry(hass: core.HomeAssistant, entry: config_entries.ConfigEntry,
-                            async_add_entities: AddEntitiesCallback):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     config = entry.data
     options = entry.options
 
@@ -56,21 +56,18 @@ async def async_setup_entry(hass: core.HomeAssistant, entry: config_entries.Conf
     serial_no = options[CONF_CONTROLLER_SERIAL_NUMBER].strip()
     address = options[CONF_CONTROLLER_ADDR].strip()
 
-    # door = {'id': 'Dungeon', 'controller': 'Alpha', 'number': 1}
-
-    # if CONF_DOOR_ID in config:
-    #     door['id'] = config[CONF_DOOR_ID]
-    #     door['controller'] = config[CONF_DOOR_CONTROLLER]
-    #     door['number'] = config[CONF_DOOR_NUMBER]
+    door = options[CONF_DOOR_ID]
+    # door_controller = options[CONF_DOOR_CONTROLLER] // FIXME
+    door_no = options[CONF_DOOR_NUMBER]
 
     u = uhppote.Uhppote(bind, broadcast, listen, debug)
 
     controllers = [
         ControllerInfo(u, controller, serial_no),
-        #     ControllerDoor(u, id, name, door['id'], door['name']),
-        #     ControllerDoorOpen(u, id, name, door['id'], door['name']),
-        #     ControllerDoorLocked(u, id, name, door['id'], door['name']),
-        #     ControllerDoorButton(u, id, name, door['id'], door['name']),
+        ControllerDoor(u, controller, serial_no, door, door_no),
+        ControllerDoorOpen(u, controller, serial_no, door, door_no),
+        ControllerDoorLock(u, controller, serial_no, door, door_no),
+        ControllerDoorButton(u, controller, serial_no, door, door_no),
     ]
 
     async_add_entities(controllers, update_before_add=True)
