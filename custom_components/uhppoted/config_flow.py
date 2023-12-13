@@ -13,6 +13,8 @@ from homeassistant.helpers import selector
 from homeassistant.helpers import config_validation as cv
 import voluptuous as vol
 
+from uhppoted import uhppote
+
 from .const import DOMAIN
 from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
@@ -27,38 +29,17 @@ from .const import CONF_DOOR_NUMBER
 
 from .options_flow import UhppotedOptionsFlow
 
+from .config import validate_controller_id
+from .config import validate_controller_serial_no
+from .config import validate_door_id
+from .config import validate_door_controller
+from .config import validate_door_number
+from .config import get_all_controllers
+
 _LOGGER = logging.getLogger(__name__)
 
 
-def validate_controller_id(v: int) -> None:
-    if not v or v.strip() == '':
-        raise ValueError
-
-
-def validate_controller_serial_no(v) -> None:
-    controller = int(f'{v}')
-    if controller < 100000000:
-        raise ValueError
-
-
-def validate_door_id(v: int) -> None:
-    if not v or v.strip() == '':
-        raise ValueError
-
-
-def validate_door_controller(v: str, controllers: list[str]) -> None:
-    if v not in controllers:
-        raise ValueError
-
-
-def validate_door_number(v) -> None:
-    door = int(f'{v}')
-    if door < 1 or door > 4:
-        raise ValueError
-
-
 class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
-    # data: Optional[Dict[str, Any]]
 
     @staticmethod
     @callback
@@ -113,20 +94,21 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             if not errors:
                 self.options.update(user_input)
+                self.controllers = get_all_controllers(self.options)
                 return await self.async_step_controller()
 
         return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
 
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
         controllers = selector.SelectSelector(
-            selector.SelectSelectorConfig(options=['201020304', '303986753', '405419896'],
+            selector.SelectSelectorConfig(options=[f'{v}' for v in self.controllers],
                                           multiple=False,
                                           custom_value=True,
                                           mode=selector.SelectSelectorMode.DROPDOWN))
 
         schema = vol.Schema({
+            vol.Required(CONF_CONTROLLER_SERIAL_NUMBER): controllers,
             vol.Required(CONF_CONTROLLER_ID, default='Alpha'): str,
-            vol.Required(CONF_CONTROLLER_SERIAL_NUMBER, default='405419896'): controllers,
             vol.Optional(CONF_CONTROLLER_ADDR, default='192.168.1.100'): str,
         })
 

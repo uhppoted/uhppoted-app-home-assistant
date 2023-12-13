@@ -14,12 +14,13 @@ KeyboardInterrupt
 
 - [ ] Config flow
       - [x] Rethink using controller ID for unique ID
-      - [ ] (somehow) commonalise config-flow and options-flow
+      - [x] Find controllers with `get-all-controllers`
       - [ ] Rework to configure multiple controllers, doors, etc
             - [ ] Select controllers to configure
             - [ ] Use mapping for controller and door selectors
                   - https://next.home-assistant.io/docs/blueprint/selectors/#select-selector
 
+      - [ ] (somehow) commonalise config-flow and options-flow
       - [ ] Integration icon
       - (?) Make bind, broadcast, etc step optional
       - [ ] PLATFORM_SCHEMA
@@ -29,12 +30,9 @@ KeyboardInterrupt
       - [ ] Rework as Device
       - [ ] device_info
       - [ ] entity_category
-      - [x] datetime
       - [ ] Set timezone in config-flow/configuration.yaml
 
 - [ ] Doors
-      - [x] open/locked/button sensor
-      - [x] seperate open/locked/pressed sensors
       - [ ] Rework open/pressed as event entities
       - [x] mode
             - [ ] Use state selector (https://next.home-assistant.io/docs/blueprint/selectors/#state-selector)

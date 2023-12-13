@@ -23,34 +23,14 @@ from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
 
+from .config import validate_controller_id
+from .config import validate_controller_serial_no
+from .config import validate_door_id
+from .config import validate_door_controller
+from .config import validate_door_number
+from .config import get_all_controllers
+
 _LOGGER = logging.getLogger(__name__)
-
-
-def validate_controller_id(v: int) -> None:
-    if not v or v.strip() == '':
-        raise ValueError
-
-
-def validate_controller_serial_no(v) -> None:
-    controller = int(f'{v}')
-    if controller < 100000000:
-        raise ValueError
-
-
-def validate_door_id(v: int) -> None:
-    if not v or v.strip() == '':
-        raise ValueError
-
-
-def validate_door_controller(v: str, controllers: list[str]) -> None:
-    if v not in controllers:
-        raise ValueError
-
-
-def validate_door_number(v) -> None:
-    door = int(f'{v}')
-    if door < 1 or door > 4:
-        raise ValueError
 
 
 class UhppotedOptionsFlow(OptionsFlow):
@@ -81,6 +61,7 @@ class UhppotedOptionsFlow(OptionsFlow):
         if user_input is not None:
             if not errors:
                 self.options.update(user_input)
+                self.controllers = get_all_controllers(self.options)
                 return await self.async_step_controller()
 
         return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
@@ -91,7 +72,7 @@ class UhppotedOptionsFlow(OptionsFlow):
         address = self.options[CONF_CONTROLLER_ADDR]
 
         controllers = selector.SelectSelector(
-            selector.SelectSelectorConfig(options=['201020304', '303986753', '405419896'],
+            selector.SelectSelectorConfig(options=[f'{v}' for v in self.controllers],
                                           multiple=False,
                                           custom_value=True,
                                           mode=selector.SelectSelectorMode.DROPDOWN))
