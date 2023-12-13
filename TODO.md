@@ -16,7 +16,10 @@ KeyboardInterrupt
       - [x] Rethink using controller ID for unique ID
       - [x] Find controllers with `get-all-controllers`
       - [ ] Rework to configure multiple controllers, doors, etc
-            - [ ] Select controllers to configure
+            - [x] Restructure configuration for list of controllers
+            - [ ] Flatten and validate list
+            - [ ] Select controller to configure
+            - [ ] Loop until done
             - [ ] Use mapping for controller and door selectors
                   - https://next.home-assistant.io/docs/blueprint/selectors/#select-selector
 

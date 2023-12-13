@@ -20,6 +20,7 @@ from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
+from .const import CONF_CONTROLLERS
 from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
@@ -42,13 +43,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     listen = options[CONF_LISTEN_ADDR]
     debug = options[CONF_DEBUG]
 
-    controller = options[CONF_CONTROLLER_ID].strip()
-    serial_no = options[CONF_CONTROLLER_SERIAL_NUMBER].strip()
-
     u = uhppote.Uhppote(bind, broadcast, listen, debug)
 
-    controllers = [
-        ControllerDateTime(u, controller, serial_no),
-    ]
+    entities = []
+    controllers = options[CONF_CONTROLLERS]
 
-    async_add_entities(controllers, update_before_add=True)
+    for v in controllers:
+        controller = v[CONF_CONTROLLER_ID].strip()
+        serial_no = v[CONF_CONTROLLER_SERIAL_NUMBER].strip()
+        address = v[CONF_CONTROLLER_ADDR].strip()
+
+        entities.extend([
+            ControllerDateTime(u, controller, serial_no),
+        ])
+
+    async_add_entities(entities, update_before_add=True)

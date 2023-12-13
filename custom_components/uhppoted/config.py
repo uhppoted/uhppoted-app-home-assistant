@@ -1,11 +1,14 @@
 import logging
 
+from typing import Any
+
 from uhppoted import uhppote
 
 from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
+from .const import CONF_CONTROLLER_ID
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -26,9 +29,12 @@ def validate_door_id(v: int) -> None:
         raise ValueError
 
 
-def validate_door_controller(v: str, controllers: list[str]) -> None:
-    if v not in controllers:
-        raise ValueError
+def validate_door_controller(v: str, controllers: list[Any]) -> None:
+    for controller in controllers:
+        if v == controller[CONF_CONTROLLER_ID]:
+            return
+
+    raise ValueError
 
 
 def validate_door_number(v) -> None:

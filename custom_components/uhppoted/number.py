@@ -20,6 +20,7 @@ from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
+from .const import CONF_CONTROLLERS
 from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
@@ -45,18 +46,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     listen = options[CONF_LISTEN_ADDR]
     debug = options[CONF_DEBUG]
 
-    controller = options[CONF_CONTROLLER_ID].strip()
-    serial_no = options[CONF_CONTROLLER_SERIAL_NUMBER].strip()
-    address = options[CONF_CONTROLLER_ADDR].strip()
+    u = uhppote.Uhppote(bind, broadcast, listen, debug)
 
+    entities = []
+    controllers = options[CONF_CONTROLLERS]
+
+    # FIXME
     door = options[CONF_DOOR_ID]
     # door_controller = options[CONF_DOOR_CONTROLLER] // FIXME
     door_no = options[CONF_DOOR_NUMBER]
 
-    u = uhppote.Uhppote(bind, broadcast, listen, debug)
+    for v in controllers:
+        controller = v[CONF_CONTROLLER_ID].strip()
+        serial_no = v[CONF_CONTROLLER_SERIAL_NUMBER].strip()
+        address = v[CONF_CONTROLLER_ADDR].strip()
 
-    controllers = [
-        ControllerDoorDelay(u, controller, serial_no, door, door_no),
-    ]
+        entities.extend([
+            ControllerDoorDelay(u, controller, serial_no, door, door_no),
+        ])
 
-    async_add_entities(controllers, update_before_add=True)
+    async_add_entities(entities, update_before_add=True)

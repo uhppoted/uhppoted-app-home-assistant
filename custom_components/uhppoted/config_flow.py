@@ -20,6 +20,7 @@ from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
+from .const import CONF_CONTROLLERS
 from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
@@ -125,7 +126,15 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = f'Invalid controller serial number ({user_input[CONF_CONTROLLER_SERIAL_NUMBER]})'
 
             if not errors:
-                self.options.update(user_input)
+                v = []
+                v.append({
+                    CONF_CONTROLLER_ID: user_input[CONF_CONTROLLER_ID],
+                    CONF_CONTROLLER_SERIAL_NUMBER: user_input[CONF_CONTROLLER_SERIAL_NUMBER],
+                    CONF_CONTROLLER_ADDR: user_input[CONF_CONTROLLER_ADDR],
+                })
+
+                self.options.update({CONF_CONTROLLERS: v})
+
                 return await self.async_step_door()
 
         return self.async_show_form(step_id="controller", data_schema=schema, errors=errors)
@@ -156,7 +165,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = f'Invalid door ID ({user_input[CONF_DOOR_ID]})'
 
             try:
-                validate_door_controller(user_input[CONF_DOOR_CONTROLLER], [self.options[CONF_CONTROLLER_ID]])
+                validate_door_controller(user_input[CONF_DOOR_CONTROLLER], self.options[CONF_CONTROLLERS])
             except ValueError:
                 errors["base"] = f'Invalid door controller ({user_input[CONF_DOOR_CONTROLLER]})'
 
