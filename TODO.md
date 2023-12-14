@@ -38,11 +38,12 @@ KeyboardInterrupt
 
 - [ ] Doors
       - [ ] Rework open/pressed as event entities
-      - [ ] Unlock action
       - [x] mode
-            - [ ] Use state selector (https://next.home-assistant.io/docs/blueprint/selectors/#state-selector)
       - [x] delay
             - [x] Set unit of measurement to seconds (https://next.home-assistant.io/docs/blueprint/selectors/#number-selector)
+      - [ ] unlock
+            - [x] `ControllerDoorUnlock`
+            - [ ] Update other entities (data coordinator)
       - [ ] Name translation
             - https://developers.home-assistant.io/docs/core/entity
             - https://github.com/home-assistant/core/issues/98993

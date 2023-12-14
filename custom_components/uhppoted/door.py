@@ -4,6 +4,7 @@ import logging
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.select import SelectEntity
+from homeassistant.components.button import ButtonEntity
 from homeassistant.components.number import NumberEntity
 from homeassistant.const import TIME_SECONDS
 
@@ -358,7 +359,7 @@ class ControllerDoorMode(SelectEntity):
                 response = self.uhppote.set_door_control(self.serial_no, self.door_id, mode, delay)
 
                 if response.controller == self.serial_no and response.door == self.door_id:
-                    _LOGGER.debug(f'controller {self.controller} door {self.door}: door mode updated')
+                    _LOGGER.info(f'updated door {self.door} mode ({option})')
                     self._mode = response.mode
                     self._available = True
                 else:
@@ -432,7 +433,7 @@ class ControllerDoorDelay(NumberEntity):
                 response = self.uhppote.set_door_control(self.serial_no, self.door_id, mode, delay)
 
                 if response.controller == self.serial_no and response.door == self.door_id:
-                    _LOGGER.debug(f'controller {self.controller} door {self.door}: door delay updated')
+                    _LOGGER.info(f'updated door {self.door} delay ({delay}s)')
                     self._delay = response.delay
                     self._available = True
                 else:
@@ -454,3 +455,49 @@ class ControllerDoorDelay(NumberEntity):
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door} delay')
+
+
+class ControllerDoorUnlock(ButtonEntity):
+    _attr_icon = 'mdi:door'
+    _attr_has_entity_name: True
+
+    def __init__(self, u, controller, serial_no, door, door_id):
+        super().__init__()
+
+        _LOGGER.debug(f'controller {controller}: door:{door} unlock')
+
+        self.uhppote = u
+        self.controller = controller
+        self.serial_no = int(f'{serial_no}')
+        self.door = door
+        self.door_id = int(f'{door_id}')
+
+        self._name = f'uhppoted.{controller}.door.{door}.unlock'.lower()
+        self._available = True
+
+    @property
+    def unique_id(self) -> str:
+        return f'{self.controller}.door.{self.door}.unlock'.lower()
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def available(self) -> bool:
+        return self._available
+
+    async def async_press(self) -> None:
+        try:
+            response = self.uhppote.open_door(self.serial_no, self.door_id)
+            if response.controller == self.serial_no:
+                if response.opened:
+                    _LOGGER.info(f'unlocked door {self.door}')
+                else:
+                    raise ValueError(f'failed to unlock door {self.door}')
+
+        except (Exception):
+            _LOGGER.exception(f'error unlocking door {self.door}')
+
+    async def async_update(self):
+        self._available = True
