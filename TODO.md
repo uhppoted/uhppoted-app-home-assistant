@@ -17,8 +17,9 @@ KeyboardInterrupt
       - [x] Find controllers with `get-all-controllers`
       - [ ] Rework to configure multiple controllers, doors, etc
             - [x] Restructure configuration for list of controllers
+            - [ ] Restructure configuration for list of doors
             - [ ] Flatten and validate list
-            - [ ] Select controller to configure
+            - [ ] Select controller/door to configure
             - [ ] Loop until done
             - [ ] Use mapping for controller and door selectors
                   - https://next.home-assistant.io/docs/blueprint/selectors/#select-selector
@@ -37,10 +38,11 @@ KeyboardInterrupt
 
 - [ ] Doors
       - [ ] Rework open/pressed as event entities
+      - [ ] Unlock action
       - [x] mode
             - [ ] Use state selector (https://next.home-assistant.io/docs/blueprint/selectors/#state-selector)
       - [x] delay
-            - [ ] Set unit of measurement to seconds (https://next.home-assistant.io/docs/blueprint/selectors/#number-selector)
+            - [x] Set unit of measurement to seconds (https://next.home-assistant.io/docs/blueprint/selectors/#number-selector)
       - [ ] Name translation
             - https://developers.home-assistant.io/docs/core/entity
             - https://github.com/home-assistant/core/issues/98993

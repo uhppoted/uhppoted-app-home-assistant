@@ -5,6 +5,7 @@ import logging
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.number import NumberEntity
+from homeassistant.const import TIME_SECONDS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -389,6 +390,7 @@ class ControllerDoorDelay(NumberEntity):
     _attr_native_max_value = 60
     _attr_native_min_value = 1
     _attr_native_step = 1
+    _attr_native_unit_of_measurement = TIME_SECONDS
 
     def __init__(self, u, controller, serial_no, door, door_id):
         super().__init__()
