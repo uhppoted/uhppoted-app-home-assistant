@@ -17,8 +17,8 @@ KeyboardInterrupt
       - [x] Find controllers with `get-all-controllers`
       - [ ] Rework to configure multiple controllers, doors, etc
             - [x] Restructure configuration for list of controllers
-            - [ ] Restructure configuration for list of doors
-            - [ ] Flatten and validate list
+            - [x] Restructure configuration for list of doors
+            - [ ] Flatten and validate lists
             - [ ] Select controller/door to configure
             - [ ] Loop until done
             - [ ] Use mapping for controller and door selectors

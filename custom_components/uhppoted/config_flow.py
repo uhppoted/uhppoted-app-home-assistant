@@ -20,10 +20,13 @@ from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
+
 from .const import CONF_CONTROLLERS
 from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
+
+from .const import CONF_DOORS
 from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
@@ -175,7 +178,15 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = f'Invalid door number ({user_input[CONF_DOOR_NUMBER]})'
 
             if not errors:
-                self.options.update(user_input)
+                v = []
+                v.append({
+                    CONF_DOOR_ID: user_input[CONF_DOOR_ID],
+                    CONF_DOOR_CONTROLLER: user_input[CONF_DOOR_CONTROLLER],
+                    CONF_DOOR_NUMBER: user_input[CONF_DOOR_NUMBER],
+                })
+
+                self.options.update({CONF_DOORS: v})
+
                 return self.async_create_entry(title="uhppoted", data=self.data, options=self.options)
 
         return self.async_show_form(step_id="door", data_schema=schema, errors=errors)

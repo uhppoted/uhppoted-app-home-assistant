@@ -20,10 +20,13 @@ from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
+
 from .const import CONF_CONTROLLERS
 from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
+
+from .const import CONF_DOORS
 from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
@@ -38,7 +41,6 @@ from .door import ControllerDoorDelay
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
-    config = entry.data
     options = entry.options
 
     bind = options[CONF_BIND_ADDR]
@@ -50,19 +52,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     entities = []
     controllers = options[CONF_CONTROLLERS]
+    doors = options[CONF_DOORS]
 
-    # FIXME
-    door = options[CONF_DOOR_ID]
-    # door_controller = options[CONF_DOOR_CONTROLLER] // FIXME
-    door_no = options[CONF_DOOR_NUMBER]
+    for c in controllers:
+        controller = c[CONF_CONTROLLER_ID].strip()
+        serial_no = c[CONF_CONTROLLER_SERIAL_NUMBER].strip()
 
-    for v in controllers:
-        controller = v[CONF_CONTROLLER_ID].strip()
-        serial_no = v[CONF_CONTROLLER_SERIAL_NUMBER].strip()
-        address = v[CONF_CONTROLLER_ADDR].strip()
+        for d in doors:
+            door = d[CONF_DOOR_ID].strip()
+            door_no = d[CONF_DOOR_NUMBER].strip()
+            door_controller = d[CONF_DOOR_CONTROLLER].strip()
 
-        entities.extend([
-            ControllerDoorDelay(u, controller, serial_no, door, door_no),
-        ])
+            if door_controller == controller:
+                entities.extend([
+                    ControllerDoorDelay(u, controller, serial_no, door, door_no),
+                ])
 
     async_add_entities(entities, update_before_add=True)
