@@ -11,6 +11,7 @@ CONF_CONTROLLERS = 'controllers'
 CONF_CONTROLLER_ID = 'controller_id'
 CONF_CONTROLLER_SERIAL_NUMBER = 'controller_serial_number'
 CONF_CONTROLLER_ADDR = 'controller_address'
+CONF_CONTROLLER_TIMEZONE = 'controller_timezone'
 
 CONF_DOORS = 'doors'
 CONF_DOOR_ID = 'door_id'

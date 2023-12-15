@@ -11,7 +11,7 @@
             },
 
             "IPv4": {
-                "title": "UHPPOTE controller configuration",
+                "title": "UHPPOTE IPv4 configuration",
                 "description": "Network settings",
                 "data": {
                     "bind_address": "bind address",
@@ -27,18 +27,30 @@
                 }
             },
 
+            "controllers": {
+                "title": "UHPPOTE controllers list",
+                "data": {
+                    "controllers": "Select the controllers to be configured"
+                },
+                "data_description": {
+                    "controllers": "Controllers on the local LAN"
+                }
+            },
+
             "controller": {
-                "title": "UHPPOTE controller configuration",
-                "description": "Controller ID, serial number and (optional) IP address",
+                "title": "Controller {serial_no} configuration",
+                "description": "Controller ID, IP address and timezone",
                 "data": {
                     "controller_id": "controller identifier",
                     "controller_serial_number": "UHPPOTE controller ID",
-                    "controller_address": "controller IPv4 address"
+                    "controller_address": "controller IPv4 address",
+                    "controller_timezone": "controller timezone"
                 },
                 "data_description": {
                     "controller_id": "Controller (human) name e.g. Alpha",
-                    "controller_serial_number": "UHPPOTE controller serial number e.g. 405419896",
-                    "controller_address": "UHPPOTE controller IPv4 address (optional) e.g. 192.168.1.100"
+                    "controller_serial_number": "Controller serial number e.g. 405419896",
+                    "controller_address": "Controller IPv4 address (optional) e.g. 192.168.1.100",
+                    "controller_timezone": "Controller timezone (optional) e.g. America/New York"
                 }
             },
 
@@ -46,7 +58,7 @@
                 "title": "UHPPOTE controller door configuration",
                 "description": "Door configuration",
                 "data": {
-                    "door_id": "door identifier",
+                    "door_id": "Door identifier",
                     "door_controller": "Door controller",
                     "door_number": "Door number (1-4)"
                 },

@@ -25,6 +25,7 @@ from .const import CONF_CONTROLLERS
 from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
+from .const import CONF_CONTROLLER_TIMEZONE
 
 from .const import CONF_DOORS
 from .const import CONF_DOOR_ID
@@ -38,6 +39,7 @@ from .config import validate_controller_serial_no
 from .config import validate_door_id
 from .config import validate_door_controller
 from .config import validate_door_number
+from .config import list_controllers
 from .config import get_all_controllers
 
 _LOGGER = logging.getLogger(__name__)
@@ -99,52 +101,74 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
             if not errors:
                 self.options.update(user_input)
                 self.controllers = get_all_controllers(self.options)
-                return await self.async_step_controller()
+                return await self.async_step_controllers()
 
         return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
 
-    async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
+    async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
         controllers = selector.SelectSelector(
             selector.SelectSelectorConfig(options=[f'{v}' for v in self.controllers],
-                                          multiple=False,
-                                          custom_value=True,
-                                          mode=selector.SelectSelectorMode.DROPDOWN))
+                                          multiple=True,
+                                          custom_value=False,
+                                          mode=selector.SelectSelectorMode.LIST))
 
         schema = vol.Schema({
-            vol.Required(CONF_CONTROLLER_SERIAL_NUMBER): controllers,
-            vol.Required(CONF_CONTROLLER_ID, default='Alpha'): str,
-            vol.Optional(CONF_CONTROLLER_ADDR, default='192.168.1.100'): str,
+            vol.Required(CONF_CONTROLLERS): controllers,
         })
 
         errors: Dict[str, str] = {}
         if user_input is not None:
-            try:
-                validate_controller_id(user_input[CONF_CONTROLLER_ID])
-            except ValueError:
-                errors["base"] = f'Invalid controller ID ({user_input[CONF_CONTROLLER_ID]})'
-
-            try:
-                validate_controller_serial_no(user_input[CONF_CONTROLLER_SERIAL_NUMBER])
-            except ValueError:
-                errors["base"] = f'Invalid controller serial number ({user_input[CONF_CONTROLLER_SERIAL_NUMBER]})'
-
             if not errors:
-                v = []
-                v.append({
-                    CONF_CONTROLLER_ID: user_input[CONF_CONTROLLER_ID],
-                    CONF_CONTROLLER_SERIAL_NUMBER: user_input[CONF_CONTROLLER_SERIAL_NUMBER],
-                    CONF_CONTROLLER_ADDR: user_input[CONF_CONTROLLER_ADDR],
-                })
+                self.controllers = user_input[CONF_CONTROLLERS]
+                self.options.update({CONF_CONTROLLERS: []})
 
-                self.options.update({CONF_CONTROLLERS: v})
+                return await self.async_step_controller()
 
-                return await self.async_step_door()
+        return self.async_show_form(step_id="controllers", data_schema=schema, errors=errors)
 
-        return self.async_show_form(step_id="controller", data_schema=schema, errors=errors)
+    async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
+        if len(self.controllers) == 0:
+            return await self.async_step_door()
+        else:
+            controller = self.controllers[0]
+
+            schema = vol.Schema({
+                vol.Required(CONF_CONTROLLER_ID, default='Alpha'): str,
+                vol.Optional(CONF_CONTROLLER_ADDR, default='192.168.1.100'): str,
+                vol.Optional(CONF_CONTROLLER_TIMEZONE, default='LOCAL'): str,
+            })
+
+            errors: Dict[str, str] = {}
+            if user_input is not None:
+                try:
+                    validate_controller_id(user_input[CONF_CONTROLLER_ID])
+                except ValueError:
+                    errors["base"] = f'Invalid controller ID ({user_input[CONF_CONTROLLER_ID]})'
+
+                if not errors:
+                    v = self.options[CONF_CONTROLLERS]
+                    v.append({
+                        CONF_CONTROLLER_ID: user_input[CONF_CONTROLLER_ID],
+                        CONF_CONTROLLER_SERIAL_NUMBER: controller,
+                        CONF_CONTROLLER_ADDR: user_input[CONF_CONTROLLER_ADDR],
+                    })
+
+                    self.options.update({CONF_CONTROLLERS: v})
+
+                    self.controllers = self.controllers[1:]
+
+                    return await self.async_step_controller()
+
+            return self.async_show_form(step_id="controller",
+                                        data_schema=schema,
+                                        errors=errors,
+                                        description_placeholders={
+                                            "serial_no": controller,
+                                        })
 
     async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
         controllers = selector.SelectSelector(
-            selector.SelectSelectorConfig(options=['Alpha', 'Beta', 'Gamma', 'Delta'],
+            selector.SelectSelectorConfig(options=list_controllers(self.options),
                                           multiple=False,
                                           mode=selector.SelectSelectorMode.DROPDOWN))
 

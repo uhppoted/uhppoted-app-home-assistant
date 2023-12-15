@@ -359,7 +359,7 @@ class ControllerDoorMode(SelectEntity):
                 response = self.uhppote.set_door_control(self.serial_no, self.door_id, mode, delay)
 
                 if response.controller == self.serial_no and response.door == self.door_id:
-                    _LOGGER.info(f'updated door {self.door} mode ({option})')
+                    _LOGGER.info(f'set door {self.door} mode  ({option})')
                     self._mode = response.mode
                     self._available = True
                 else:
@@ -433,7 +433,7 @@ class ControllerDoorDelay(NumberEntity):
                 response = self.uhppote.set_door_control(self.serial_no, self.door_id, mode, delay)
 
                 if response.controller == self.serial_no and response.door == self.door_id:
-                    _LOGGER.info(f'updated door {self.door} delay ({delay}s)')
+                    _LOGGER.info(f'set door {self.door} delay ({delay}s)')
                     self._delay = response.delay
                     self._available = True
                 else:

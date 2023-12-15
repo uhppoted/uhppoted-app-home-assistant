@@ -8,6 +8,8 @@ from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
+
+from .const import CONF_CONTROLLERS
 from .const import CONF_CONTROLLER_ID
 
 _LOGGER = logging.getLogger(__name__)
@@ -41,6 +43,10 @@ def validate_door_number(v) -> None:
     door = int(f'{v}')
     if door < 1 or door > 4:
         raise ValueError
+
+
+def list_controllers(options):
+    return [v[CONF_CONTROLLER_ID] for v in options[CONF_CONTROLLERS]]
 
 
 def get_all_controllers(options):

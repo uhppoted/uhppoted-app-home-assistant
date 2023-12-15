@@ -18,8 +18,13 @@ KeyboardInterrupt
       - [ ] Rework to configure multiple controllers, doors, etc
             - [x] Restructure configuration for list of controllers
             - [x] Restructure configuration for list of doors
-            - [ ] Flatten and validate lists
-            - [ ] Select controller/door to configure
+            - [x] Select controllers to configure
+            - [ ] Ad hoc controllers
+                  - when internal list is empty
+                  - address is required
+            - [ ] Flatten and validate controllers lists
+            - [ ] Select doors to configure
+            - [ ] Flatten and validate controllers lists
             - [ ] Loop until done
             - [ ] Use mapping for controller and door selectors
                   - https://next.home-assistant.io/docs/blueprint/selectors/#select-selector
@@ -29,6 +34,10 @@ KeyboardInterrupt
       - (?) Make bind, broadcast, etc step optional
       - [ ] PLATFORM_SCHEMA
       - https://developers.home-assistant.io/docs/dev_101_states/
+
+- [ ] Options flow
+      - [ ] show menu
+            - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu
 
 - [ ] Controller
       - [ ] Rework as Device
