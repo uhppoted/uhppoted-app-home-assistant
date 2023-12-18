@@ -55,8 +55,8 @@
             },
 
             "door": {
-                "title": "UHPPOTE controller door configuration",
-                "description": "Door configuration",
+                "title": "Controller door configuration",
+                "description": "Adds door to list of managed doors",
                 "data": {
                     "door_id": "Door identifier",
                     "door_controller": "Door controller",
@@ -66,6 +66,25 @@
                     "door_id": "Door (human) name e.g. Entrance",
                     "door_controller": "Identifier of the controller for the door e.g. Alpha",
                     "door_number": "Door number [1-4] on the controller"
+                }
+            },
+
+            "card": {
+                "title": "Configure access card",
+                "description": "Creates an access card record",
+                "data": {
+                    "card_number": "Card number",
+                    "card_name": "Card user name",
+                    "card_startdate": "Card start date",
+                    "card_enddate": "Card end date",
+                    "card_doors": "Card permissions"
+                },
+                "data_description": {
+                    "card_number": "Access card number e.g. 10058400",
+                    "card_name": "Name of person issued with card e.g. Inés",
+                    "card_startdate": "Date from which card is valid for access e.g 2024-01-01",
+                    "card_enddate": "Date after which card is no longer valid for access e.g 2024-12-31",
+                    "card_doors": "Doors to which the card has access"
                 }
             }
         },

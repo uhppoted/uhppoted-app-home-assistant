@@ -1,4 +1,6 @@
 import logging
+import datetime
+import calendar
 
 from typing import Any
 from typing import Dict
@@ -32,6 +34,13 @@ from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
 
+from .const import CONF_CARDS
+from .const import CONF_CARD_NUMBER
+from .const import CONF_CARD_NAME
+from .const import CONF_CARD_STARTDATE
+from .const import CONF_CARD_ENDDATE
+from .const import CONF_CARD_DOORS
+
 from .options_flow import UhppotedOptionsFlow
 
 from .config import validate_controller_id
@@ -39,6 +48,7 @@ from .config import validate_controller_serial_no
 from .config import validate_door_id
 from .config import validate_door_controller
 from .config import validate_door_number
+from .config import validate_card_number
 from .config import list_controllers
 from .config import get_all_controllers
 
@@ -154,7 +164,6 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                     })
 
                     self.options.update({CONF_CONTROLLERS: v})
-
                     self.controllers = self.controllers[1:]
 
                     return await self.async_step_controller()
@@ -211,6 +220,50 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
                 self.options.update({CONF_DOORS: v})
 
-                return self.async_create_entry(title="uhppoted", data=self.data, options=self.options)
+                return await self.async_step_card()
 
         return self.async_show_form(step_id="door", data_schema=schema, errors=errors)
+
+    async def async_step_card(self, user_input: Optional[Dict[str, Any]] = None):
+        today = datetime.date.today()
+        start = today
+        end = today + datetime.timedelta(days=180)
+        end = datetime.date(end.year, end.month, calendar.monthrange(end.year, end.month)[1])
+
+        doors = selector.SelectSelector(
+            selector.SelectSelectorConfig(options=[f'{v[CONF_DOOR_ID]}' for v in self.options[CONF_DOORS]],
+                                          multiple=True,
+                                          custom_value=False,
+                                          mode=selector.SelectSelectorMode.DROPDOWN))
+
+        schema = vol.Schema({
+            vol.Required(CONF_CARD_NUMBER): int,
+            vol.Optional(CONF_CARD_NAME, default=''): str,
+            vol.Required(CONF_CARD_STARTDATE, default=start): selector.DateSelector(),
+            vol.Required(CONF_CARD_ENDDATE, default=end): selector.DateSelector(),
+            vol.Optional(CONF_CARD_DOORS, default=[]): doors,
+        })
+
+        errors: Dict[str, str] = {}
+
+        if user_input is not None:
+            try:
+                validate_card_number(user_input[CONF_CARD_NUMBER])
+            except ValueError:
+                errors["base"] = f'Invalid card number ({user_input[CONF_CARD_NUMBER]})'
+
+            if not errors:
+                v = []
+                v.append({
+                    CONF_CARD_NUMBER: user_input[CONF_CARD_NUMBER],
+                    CONF_CARD_NAME: user_input[CONF_CARD_NAME],
+                    CONF_CARD_STARTDATE: user_input[CONF_CARD_STARTDATE],
+                    CONF_CARD_ENDDATE: user_input[CONF_CARD_ENDDATE],
+                    CONF_CARD_DOORS: user_input[CONF_CARD_DOORS],
+                })
+
+                self.options.update({CONF_CARDS: v})
+
+                return self.async_create_entry(title="uhppoted", data=self.data, options=self.options)
+
+        return self.async_show_form(step_id="card", data_schema=schema, errors=errors)

@@ -45,6 +45,12 @@ def validate_door_number(v) -> None:
         raise ValueError
 
 
+def validate_card_number(v: int) -> None:
+    card = int(f'{v}')
+    if card < 1:
+        raise ValueError
+
+
 def list_controllers(options):
     return [v[CONF_CONTROLLER_ID] for v in options[CONF_CONTROLLERS]]
 

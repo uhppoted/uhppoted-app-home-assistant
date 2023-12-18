@@ -18,6 +18,13 @@ CONF_DOOR_ID = 'door_id'
 CONF_DOOR_CONTROLLER = 'door_controller'
 CONF_DOOR_NUMBER = 'door_number'
 
+CONF_CARDS = 'cards'
+CONF_CARD_NUMBER = 'card_number'
+CONF_CARD_NAME = 'card_name'
+CONF_CARD_STARTDATE = 'card_startdate'
+CONF_CARD_ENDDATE = 'card_enddate'
+CONF_CARD_DOORS = 'card_doors'
+
 ATTR_ADDRESS = "address"
 ATTR_NETMASK = "netmask"
 ATTR_GATEWAY = "gateway"

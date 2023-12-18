@@ -13,6 +13,7 @@ KeyboardInterrupt
 ```
 
 - [ ] Config flow
+      - https://www.python4data.science/en/latest/clean-prep/voluptuous.html
       - [x] Rethink using controller ID for unique ID
       - [x] Find controllers with `get-all-controllers`
       - [ ] Rework to configure multiple controllers, doors, etc
