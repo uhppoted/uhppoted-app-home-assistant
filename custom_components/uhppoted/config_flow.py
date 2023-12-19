@@ -1,6 +1,7 @@
 import logging
 import datetime
 import calendar
+import re
 
 from typing import Any
 from typing import Dict
@@ -82,6 +83,8 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
             debug = defaults[CONF_DEBUG]
 
         self.data = {}
+        self.controllers = []
+        self.doors = []
 
         self.options = {
             CONF_BIND_ADDR: bind,
@@ -138,7 +141,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
         if len(self.controllers) == 0:
-            return await self.async_step_door()
+            return await self.async_step_doors()
         else:
             controller = self.controllers[0]
 
@@ -166,6 +169,29 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                     self.options.update({CONF_CONTROLLERS: v})
                     self.controllers = self.controllers[1:]
 
+                    doors = {
+                        'controller': {
+                            CONF_CONTROLLER_ID: user_input[CONF_CONTROLLER_ID],
+                            CONF_CONTROLLER_SERIAL_NUMBER: controller,
+                        },
+                        'doors': [],
+                    }
+
+                    if re.match('^[1234].*', f'{controller}'):
+                        doors['doors'].append(1)
+
+                    if re.match('^[234].*', f'{controller}'):
+                        doors['doors'].append(2)
+
+                    if re.match('^[34].*', f'{controller}'):
+                        doors['doors'].append(3)
+
+                    if re.match('^[4].*', f'{controller}'):
+                        doors['doors'].append(4)
+
+                    if len(doors['doors']) > 0:
+                        self.doors.append(doors)
+
                     return await self.async_step_controller()
 
             return self.async_show_form(step_id="controller",
@@ -174,6 +200,37 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                                         description_placeholders={
                                             "serial_no": controller,
                                         })
+
+    async def async_step_doors(self, user_input: Optional[Dict[str, Any]] = None):
+        fields = {}
+        placeholders = {}
+
+        for item in self.doors:
+            doors = [f'Door {v}' for v in item['doors']]
+            select = selector.SelectSelectorConfig(options=doors,
+                                                   multiple=True,
+                                                   custom_value=False,
+                                                   mode=selector.SelectSelectorMode.LIST)
+
+            placeholders['controller'] = f'{item["controller"][CONF_CONTROLLER_ID]}'
+            placeholders['serial_no'] = f'{item["controller"][CONF_CONTROLLER_SERIAL_NUMBER]}'
+            fields[vol.Required('doors', default=doors)] = selector.SelectSelector(select)
+            break
+
+        schema = vol.Schema(fields)
+
+        errors: Dict[str, str] = {}
+        if user_input is not None:
+            if not errors:
+                # self.doors = user_input[CONF_DOORS]
+                self.options.update({CONF_DOORS: []})
+
+                return await self.async_step_door()
+
+        return self.async_show_form(step_id="doors",
+                                    data_schema=schema,
+                                    errors=errors,
+                                    description_placeholders=placeholders)
 
     async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
         controllers = selector.SelectSelector(

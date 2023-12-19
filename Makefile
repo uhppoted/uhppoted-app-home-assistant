@@ -6,6 +6,9 @@ format:
 	yapf -ri custom_components/uhppoted
 #	yapf -ri tests
 
+translate:
+	python3 -m script.translations develop
+
 build: format
 
 build-all: format
