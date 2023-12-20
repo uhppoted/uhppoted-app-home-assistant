@@ -65,17 +65,19 @@
             },
 
             "door": {
-                "title": "Controller door configuration",
-                "description": "Adds door to list of managed doors",
+                "title": "Controller {controller} ({serial_no}) door configuration",
+                "description": "Configure the humanised door names",
                 "data": {
-                    "door_id": "Door identifier",
-                    "door_controller": "Door controller",
-                    "door_number": "Door number (1-4)"
+                    "door1_id": "Door 1 name",
+                    "door2_id": "Door 2 name",
+                    "door3_id": "Door 3 name",
+                    "door4_id": "Door 4 name"
                 },
                 "data_description": {
-                    "door_id": "Door (human) name e.g. Entrance",
-                    "door_controller": "Identifier of the controller for the door e.g. Alpha",
-                    "door_number": "Door number [1-4] on the controller"
+                    "door1_id": "Door 1 'human' name e.g. Gryffindor",
+                    "door2_id": "Door 2 'human' name e.g. Ravenclaw",
+                    "door3_id": "Door 3 'human' name e.g. Hufflepuff",
+                    "door4_id": "Door 4 'human' name e.g. Slytherin"
                 }
             },
 

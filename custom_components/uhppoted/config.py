@@ -70,6 +70,8 @@ def get_all_controllers(options):
         for v in response:
             controllers.append(v.controller)
 
+        controllers.sort(reverse=True)
+
     except Exception as e:
         _LOGGER.exception(f'error retrieving list of controllers ({e})')
 

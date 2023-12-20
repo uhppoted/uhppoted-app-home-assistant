@@ -91,11 +91,21 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
             CONF_BROADCAST_ADDR: broadcast,
             CONF_LISTEN_ADDR: listen,
             CONF_DEBUG: debug,
+            CONF_CONTROLLERS: [],
+            CONF_DOORS: [],
         }
 
         return await self.async_step_IPv4()
 
     async def async_step_IPv4(self, user_input: Optional[Dict[str, Any]] = None):
+        errors: Dict[str, str] = {}
+
+        if user_input is not None:
+            if not errors:
+                self.options.update(user_input)
+
+                return await self.async_step_controllers()
+
         bind = self.options[CONF_BIND_ADDR]
         broadcast = self.options[CONF_BROADCAST_ADDR]
         listen = self.options[CONF_LISTEN_ADDR]
@@ -108,124 +118,123 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
             vol.Optional(CONF_DEBUG, default=debug): bool,
         })
 
+        return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
+
+    async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
         errors: Dict[str, str] = {}
 
         if user_input is not None:
             if not errors:
-                self.options.update(user_input)
-                self.controllers = get_all_controllers(self.options)
-                return await self.async_step_controllers()
+                for v in user_input[CONF_CONTROLLERS]:
+                    self.controllers.append({
+                        'controller': {
+                            'name': '',
+                            'serial_no': v,
+                            'configured': False,
+                        },
+                        'doors': None,
+                    })
 
-        return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
+                return await self.async_step_controller()
 
-    async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
-        controllers = selector.SelectSelector(
-            selector.SelectSelectorConfig(options=[f'{v}' for v in self.controllers],
+        select = selector.SelectSelector(
+            selector.SelectSelectorConfig(options=[f'{v}' for v in get_all_controllers(self.options)],
                                           multiple=True,
                                           custom_value=False,
                                           mode=selector.SelectSelectorMode.LIST))
 
         schema = vol.Schema({
-            vol.Required(CONF_CONTROLLERS): controllers,
+            vol.Required(CONF_CONTROLLERS): select,
         })
-
-        errors: Dict[str, str] = {}
-        if user_input is not None:
-            if not errors:
-                self.controllers = user_input[CONF_CONTROLLERS]
-                self.options.update({CONF_CONTROLLERS: []})
-
-                return await self.async_step_controller()
 
         return self.async_show_form(step_id="controllers", data_schema=schema, errors=errors)
 
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
-        if len(self.controllers) == 0:
+        it = next((v for v in self.controllers if not v['controller']['configured']), None)
+        if it == None:
             return await self.async_step_doors()
         else:
-            controller = self.controllers[0]
+            controller = it['controller']
 
-            schema = vol.Schema({
-                vol.Required(CONF_CONTROLLER_ID, default='Alpha'): str,
-                vol.Optional(CONF_CONTROLLER_ADDR, default='192.168.1.100'): str,
-                vol.Optional(CONF_CONTROLLER_TIMEZONE, default='LOCAL'): str,
-            })
+        errors: Dict[str, str] = {}
+        if user_input is not None:
+            try:
+                validate_controller_id(user_input[CONF_CONTROLLER_ID])
+            except ValueError:
+                errors["base"] = f'Invalid controller ID ({user_input[CONF_CONTROLLER_ID]})'
 
-            errors: Dict[str, str] = {}
-            if user_input is not None:
-                try:
-                    validate_controller_id(user_input[CONF_CONTROLLER_ID])
-                except ValueError:
-                    errors["base"] = f'Invalid controller ID ({user_input[CONF_CONTROLLER_ID]})'
+            if not errors:
+                v = self.options[CONF_CONTROLLERS]
 
-                if not errors:
-                    v = self.options[CONF_CONTROLLERS]
-                    v.append({
-                        CONF_CONTROLLER_ID: user_input[CONF_CONTROLLER_ID],
-                        CONF_CONTROLLER_SERIAL_NUMBER: controller,
-                        CONF_CONTROLLER_ADDR: user_input[CONF_CONTROLLER_ADDR],
-                    })
+                v.append({
+                    CONF_CONTROLLER_ID: user_input[CONF_CONTROLLER_ID],
+                    CONF_CONTROLLER_SERIAL_NUMBER: controller,
+                    CONF_CONTROLLER_ADDR: user_input[CONF_CONTROLLER_ADDR],
+                })
 
-                    self.options.update({CONF_CONTROLLERS: v})
-                    self.controllers = self.controllers[1:]
+                self.options.update({CONF_CONTROLLERS: v})
 
-                    doors = {
-                        'controller': {
-                            CONF_CONTROLLER_ID: user_input[CONF_CONTROLLER_ID],
-                            CONF_CONTROLLER_SERIAL_NUMBER: controller,
-                        },
-                        'doors': [],
-                    }
+                controller['name'] = user_input[CONF_CONTROLLER_ID]
+                controller['configured'] = True
 
-                    if re.match('^[1234].*', f'{controller}'):
-                        doors['doors'].append(1)
+                return await self.async_step_controller()
 
-                    if re.match('^[234].*', f'{controller}'):
-                        doors['doors'].append(2)
+        schema = vol.Schema({
+            vol.Required(CONF_CONTROLLER_ID, default='Alpha'): str,
+            vol.Optional(CONF_CONTROLLER_ADDR, default='192.168.1.100'): str,
+            vol.Optional(CONF_CONTROLLER_TIMEZONE, default='LOCAL'): str,
+        })
 
-                    if re.match('^[34].*', f'{controller}'):
-                        doors['doors'].append(3)
-
-                    if re.match('^[4].*', f'{controller}'):
-                        doors['doors'].append(4)
-
-                    if len(doors['doors']) > 0:
-                        self.doors.append(doors)
-
-                    return await self.async_step_controller()
-
-            return self.async_show_form(step_id="controller",
-                                        data_schema=schema,
-                                        errors=errors,
-                                        description_placeholders={
-                                            "serial_no": controller,
-                                        })
+        return self.async_show_form(step_id="controller",
+                                    data_schema=schema,
+                                    errors=errors,
+                                    description_placeholders={
+                                        "serial_no": controller['serial_no'],
+                                    })
 
     async def async_step_doors(self, user_input: Optional[Dict[str, Any]] = None):
-        fields = {}
-        placeholders = {}
-
-        for item in self.doors:
-            doors = [f'Door {v}' for v in item['doors']]
-            select = selector.SelectSelectorConfig(options=doors,
-                                                   multiple=True,
-                                                   custom_value=False,
-                                                   mode=selector.SelectSelectorMode.LIST)
-
-            placeholders['controller'] = f'{item["controller"][CONF_CONTROLLER_ID]}'
-            placeholders['serial_no'] = f'{item["controller"][CONF_CONTROLLER_SERIAL_NUMBER]}'
-            fields[vol.Required('doors', default=doors)] = selector.SelectSelector(select)
-            break
-
-        schema = vol.Schema(fields)
+        it = next((v for v in self.controllers if not v['doors']), None)
+        if it == None:
+            return await self.async_step_door()
+        else:
+            controller = it['controller']
 
         errors: Dict[str, str] = {}
         if user_input is not None:
             if not errors:
-                # self.doors = user_input[CONF_DOORS]
-                self.options.update({CONF_DOORS: []})
+                it['doors'] = {
+                    'doors': [int(f'{v}') for v in user_input['doors']],
+                    'configured': False,
+                }
 
-                return await self.async_step_door()
+                return await self.async_step_doors()
+
+        doors = []
+        if re.match('^[1234].*', f"{controller['serial_no']}"):
+            doors.append(1)
+
+        if re.match('^[234].*', f"{controller['serial_no']}"):
+            doors.append(2)
+
+        if re.match('^[34].*', f"{controller['serial_no']}"):
+            doors.append(3)
+
+        if re.match('^[4].*', f"{controller['serial_no']}"):
+            doors.append(4)
+
+        select = selector.SelectSelectorConfig(options=[{ 'label': f'Door {v}', 'value': f'{v}' } for v in doors],
+                                               multiple=True,
+                                               custom_value=False,
+                                               mode=selector.SelectSelectorMode.LIST) # yapf: disable
+
+        schema = vol.Schema({
+            vol.Required('doors', default=[f'{v}' for v in doors]): selector.SelectSelector(select),
+        })
+
+        placeholders = {
+            'controller': f'{controller["name"]}',
+            'serial_no': f'{controller["serial_no"]}',
+        }
 
         return self.async_show_form(step_id="doors",
                                     data_schema=schema,
@@ -233,53 +242,63 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                                     description_placeholders=placeholders)
 
     async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
-        controllers = selector.SelectSelector(
-            selector.SelectSelectorConfig(options=list_controllers(self.options),
-                                          multiple=False,
-                                          mode=selector.SelectSelectorMode.DROPDOWN))
-
-        doors = selector.SelectSelector(
-            selector.SelectSelectorConfig(options=['1', '2', '3', '4'],
-                                          multiple=False,
-                                          mode=selector.SelectSelectorMode.DROPDOWN))
-
-        schema = vol.Schema({
-            vol.Required(CONF_DOOR_ID, default='Dungeon'): str,
-            vol.Required(CONF_DOOR_CONTROLLER, default='Alpha'): controllers,
-            vol.Required(CONF_DOOR_NUMBER, default='1'): doors,
-        })
+        it = next((v for v in self.controllers if not v['doors']['configured']), None)
+        if it == None:
+            return await self.async_step_card()
 
         errors: Dict[str, str] = {}
-
         if user_input is not None:
-            try:
-                validate_door_id(user_input[CONF_DOOR_ID])
-            except ValueError:
-                errors["base"] = f'Invalid door ID ({user_input[CONF_DOOR_ID]})'
-
-            try:
-                validate_door_controller(user_input[CONF_DOOR_CONTROLLER], self.options[CONF_CONTROLLERS])
-            except ValueError:
-                errors["base"] = f'Invalid door controller ({user_input[CONF_DOOR_CONTROLLER]})'
-
-            try:
-                validate_door_number(user_input[CONF_DOOR_NUMBER])
-            except ValueError:
-                errors["base"] = f'Invalid door number ({user_input[CONF_DOOR_NUMBER]})'
+            # try:
+            #     validate_door_id(user_input[CONF_DOOR_ID])
+            # except ValueError:
+            #     errors["base"] = f'Invalid door ID ({user_input[CONF_DOOR_ID]})'
+            #
+            # try:
+            #     validate_door_controller(user_input[CONF_DOOR_CONTROLLER], self.options[CONF_CONTROLLERS])
+            # except ValueError:
+            #     errors["base"] = f'Invalid door controller ({user_input[CONF_DOOR_CONTROLLER]})'
+            #
+            # try:
+            #     validate_door_number(user_input[CONF_DOOR_NUMBER])
+            # except ValueError:
+            #     errors["base"] = f'Invalid door number ({user_input[CONF_DOOR_NUMBER]})'
 
             if not errors:
-                v = []
-                v.append({
-                    CONF_DOOR_ID: user_input[CONF_DOOR_ID],
-                    CONF_DOOR_CONTROLLER: user_input[CONF_DOOR_CONTROLLER],
-                    CONF_DOOR_NUMBER: user_input[CONF_DOOR_NUMBER],
-                })
+                # v = []
+                # v.append({
+                #     CONF_DOOR_ID: user_input[CONF_DOOR_ID],
+                #     CONF_DOOR_CONTROLLER: user_input[CONF_DOOR_CONTROLLER],
+                #     CONF_DOOR_NUMBER: user_input[CONF_DOOR_NUMBER],
+                # })
+                #
+                # self.options.update({CONF_DOORS: v})
+                it['doors']['configured'] = True
 
-                self.options.update({CONF_DOORS: v})
+                return await self.async_step_door()
 
-                return await self.async_step_card()
+        schema = vol.Schema({})
 
-        return self.async_show_form(step_id="door", data_schema=schema, errors=errors)
+        if 1 in it['doors']['doors']:
+            schema = schema.extend({vol.Required('door1_id', default='Gryffindor'): str})
+
+        if 2 in it['doors']['doors']:
+            schema = schema.extend({vol.Required('door2_id', default='Ravenclaw'): str})
+
+        if 3 in it['doors']['doors']:
+            schema = schema.extend({vol.Required('door3_id', default='Hufflepuff'): str})
+
+        if 4 in it['doors']['doors']:
+            schema = schema.extend({vol.Required('door4_id', default='Slytherin'): str})
+
+        placeholders = {
+            'controller': f'{it["controller"]["name"]}',
+            'serial_no': f'{it["controller"]["serial_no"]}',
+        }
+
+        return self.async_show_form(step_id="door",
+                                    data_schema=schema,
+                                    errors=errors,
+                                    description_placeholders=placeholders)
 
     async def async_step_card(self, user_input: Optional[Dict[str, Any]] = None):
         today = datetime.date.today()
