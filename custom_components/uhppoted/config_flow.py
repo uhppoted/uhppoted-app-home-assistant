@@ -13,6 +13,9 @@ from homeassistant.config_entries import ConfigFlow
 from homeassistant.config_entries import OptionsFlow
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers import selector
+from homeassistant.helpers.selector import SelectSelector
+from homeassistant.helpers.selector import SelectSelectorConfig
+from homeassistant.helpers.selector import SelectSelectorMode
 from homeassistant.helpers import config_validation as cv
 import voluptuous as vol
 
@@ -137,14 +140,28 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
                 return await self.async_step_controller()
 
-        select = selector.SelectSelector(
-            selector.SelectSelectorConfig(options=[f'{v}' for v in get_all_controllers(self.options)],
-                                          multiple=True,
-                                          custom_value=False,
-                                          mode=selector.SelectSelectorMode.LIST))
+        controllers = get_all_controllers(self.options)
+
+        if len(controllers) < 2:
+            for v in controllers:
+                self.controllers.append({
+                    'controller': {
+                        'name': '',
+                        'serial_no': v,
+                        'configured': False,
+                    },
+                    'doors': None,
+                })
+
+            return await self.async_step_controller()
 
         schema = vol.Schema({
-            vol.Required(CONF_CONTROLLERS): select,
+            vol.Required(CONF_CONTROLLERS, default=[f'{v}' for v in controllers]):
+            SelectSelector(
+                SelectSelectorConfig(options=[f'{v}' for v in controllers],
+                                     multiple=True,
+                                     custom_value=False,
+                                     mode=SelectSelectorMode.LIST)),
         })
 
         return self.async_show_form(step_id="controllers", data_schema=schema, errors=errors)
