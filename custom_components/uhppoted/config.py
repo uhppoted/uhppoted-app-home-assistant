@@ -19,6 +19,9 @@ from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
 
 _LOGGER = logging.getLogger(__name__)
+MAX_CARDS = 25
+MAX_CARD_INDEX = 20000
+MAX_ERRORS = 5
 
 
 def validate_controller_id(v: int) -> None:
@@ -57,10 +60,6 @@ def validate_card_number(v: int) -> None:
         raise ValueError
 
 
-def list_controllers(options):
-    return [v[CONF_CONTROLLER_ID] for v in options[CONF_CONTROLLERS]]
-
-
 def get_all_controllers(options):
     controllers = []
 
@@ -82,6 +81,45 @@ def get_all_controllers(options):
         _LOGGER.exception(f'error retrieving list of controllers ({e})')
 
     return controllers
+
+
+def get_all_cards(options):
+    cards = set()
+
+    bind = options[CONF_BIND_ADDR]
+    broadcast = options[CONF_BROADCAST_ADDR]
+    listen = options[CONF_LISTEN_ADDR]
+    debug = options[CONF_DEBUG]
+    u = uhppote.Uhppote(bind, broadcast, listen, debug)
+
+    controllers = options[CONF_CONTROLLERS]
+
+    for c in controllers:
+        controller = int(f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip())
+
+        try:
+            response = u.get_cards(controller)
+            _LOGGER.info(f'{controller}: {response.cards} cards')
+
+            N = min(response.cards, MAX_CARDS)
+            ix = 1
+            count = 0
+            errors = 0
+
+            while count < N and ix < MAX_CARD_INDEX and len(cards) < MAX_CARDS and errors < MAX_ERRORS:
+                try:
+                    response = u.get_card_by_index(controller, ix)
+                    count += 1
+                    cards.add(response.card_number)
+                    ix += 1
+                except Exception as e:
+                    errors += 1
+                    _LOGGER.warning(f'{controller} error retrieving card at index {ix} ({e})')
+
+        except Exception as e:
+            _LOGGER.warning(f'{controller} error retrieving list of cards ({e})')
+
+    return sorted(cards)
 
 
 def configure_controllers(options, f):

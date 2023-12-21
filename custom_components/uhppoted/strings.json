@@ -81,6 +81,16 @@
                 }
             },
 
+            "cards": {
+                "title": "Access cards",
+                "data": {
+                    "cards": "Select the cards to be configured:"
+                },
+                "data_description": {
+                    "cards": "List of cards stored on the controllers"
+                }
+            },
+
             "card": {
                 "title": "Configure access card",
                 "description": "Creates an access card record",

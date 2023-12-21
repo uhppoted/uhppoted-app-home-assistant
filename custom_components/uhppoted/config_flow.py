@@ -53,8 +53,8 @@ from .config import validate_door_id
 from .config import validate_door_controller
 from .config import validate_door_number
 from .config import validate_card_number
-from .config import list_controllers
 from .config import get_all_controllers
+from .config import get_all_cards
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -261,7 +261,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
         it = next((v for v in self.controllers if not v['doors']['configured']), None)
         if it == None:
-            return await self.async_step_card()
+            return await self.async_step_cards()
 
         errors: Dict[str, str] = {}
         if user_input is not None:
@@ -349,6 +349,50 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                                     data_schema=schema,
                                     errors=errors,
                                     description_placeholders=placeholders)
+
+    async def async_step_cards(self, user_input: Optional[Dict[str, Any]] = None):
+        errors: Dict[str, str] = {}
+
+        if user_input is not None:
+            if not errors:
+                # for v in user_input[CONF_CONTROLLERS]:
+                #     self.controllers.append({
+                #         'controller': {
+                #             'name': '',
+                #             'serial_no': v,
+                #             'configured': False,
+                #         },
+                #         'doors': None,
+                #     })
+                #
+                # return await self.async_step_controller()
+                return self.async_create_entry(title="uhppoted", data=self.data, options=self.options)
+
+        cards = get_all_cards(self.options)
+
+        # if len(cards) < 2:
+        #     for v in controllers:
+        #         self.controllers.append({
+        #             'controller': {
+        #                 'name': '',
+        #                 'serial_no': v,
+        #                 'configured': False,
+        #             },
+        #             'doors': None,
+        #         })
+        #
+        #     return await self.async_step_card()
+
+        schema = vol.Schema({
+            vol.Required(CONF_CARDS, default=[f'{v}' for v in cards]):
+            SelectSelector(
+                SelectSelectorConfig(options=[f'{v}' for v in cards],
+                                     multiple=True,
+                                     custom_value=False,
+                                     mode=SelectSelectorMode.LIST)),
+        })
+
+        return self.async_show_form(step_id="cards", data_schema=schema, errors=errors)
 
     async def async_step_card(self, user_input: Optional[Dict[str, Any]] = None):
         today = datetime.date.today()
