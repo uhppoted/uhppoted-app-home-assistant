@@ -22,24 +22,15 @@ from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
 
-from .const import CONF_CONTROLLERS
-from .const import CONF_CONTROLLER_ID
-from .const import CONF_CONTROLLER_SERIAL_NUMBER
-from .const import CONF_CONTROLLER_ADDR
-
-from .const import CONF_DOORS
-from .const import CONF_DOOR_ID
-from .const import CONF_DOOR_CONTROLLER
-from .const import CONF_DOOR_NUMBER
-
 # Attribute constants
 from .const import ATTR_ADDRESS
 from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
 
+from .config import configure_controllers
+from .config import configure_doors
 from .controller import ControllerInfo
-
 from .door import ControllerDoor
 from .door import ControllerDoorOpen
 from .door import ControllerDoorLock
@@ -56,31 +47,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     debug = options[CONF_DEBUG]
 
     u = uhppote.Uhppote(bind, broadcast, listen, debug)
-
     entities = []
-    controllers = options[CONF_CONTROLLERS]
-    doors = options[CONF_DOORS]
 
-    for c in controllers:
-        controller = c[CONF_CONTROLLER_ID].strip()
-        serial_no = c[CONF_CONTROLLER_SERIAL_NUMBER].strip()
-        address = c[CONF_CONTROLLER_ADDR].strip()
-
+    def f(controller, serial_no, address):
         entities.extend([
             ControllerInfo(u, controller, serial_no),
         ])
 
-        for d in doors:
-            door = d[CONF_DOOR_ID].strip()
-            door_no = d[CONF_DOOR_NUMBER].strip()
-            door_controller = d[CONF_DOOR_CONTROLLER].strip()
+    def g(controller, serial_no, door, door_no):
+        entities.extend([
+            ControllerDoor(u, controller, serial_no, door, door_no),
+            ControllerDoorOpen(u, controller, serial_no, door, door_no),
+            ControllerDoorLock(u, controller, serial_no, door, door_no),
+            ControllerDoorButton(u, controller, serial_no, door, door_no),
+        ])
 
-            if door_controller == controller:
-                entities.extend([
-                    ControllerDoor(u, controller, serial_no, door, door_no),
-                    ControllerDoorOpen(u, controller, serial_no, door, door_no),
-                    ControllerDoorLock(u, controller, serial_no, door, door_no),
-                    ControllerDoorButton(u, controller, serial_no, door, door_no),
-                ])
-
+    configure_controllers(options, f)
+    configure_doors(options, g)
     async_add_entities(entities, update_before_add=True)

@@ -65,7 +65,7 @@
             },
 
             "door": {
-                "title": "Controller {controller} ({serial_no}) door configuration",
+                "title": "Controller {controller} door configuration",
                 "description": "Configure the humanised door names",
                 "data": {
                     "door1_id": "Door 1 name",

@@ -185,7 +185,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
                 v.append({
                     CONF_CONTROLLER_ID: user_input[CONF_CONTROLLER_ID],
-                    CONF_CONTROLLER_SERIAL_NUMBER: controller,
+                    CONF_CONTROLLER_SERIAL_NUMBER: controller['serial_no'],
                     CONF_CONTROLLER_ADDR: user_input[CONF_CONTROLLER_ADDR],
                 })
 
@@ -265,30 +265,63 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
         errors: Dict[str, str] = {}
         if user_input is not None:
-            # try:
-            #     validate_door_id(user_input[CONF_DOOR_ID])
-            # except ValueError:
-            #     errors["base"] = f'Invalid door ID ({user_input[CONF_DOOR_ID]})'
-            #
-            # try:
-            #     validate_door_controller(user_input[CONF_DOOR_CONTROLLER], self.options[CONF_CONTROLLERS])
-            # except ValueError:
-            #     errors["base"] = f'Invalid door controller ({user_input[CONF_DOOR_CONTROLLER]})'
-            #
-            # try:
-            #     validate_door_number(user_input[CONF_DOOR_NUMBER])
-            # except ValueError:
-            #     errors["base"] = f'Invalid door number ({user_input[CONF_DOOR_NUMBER]})'
+            try:
+                if 1 in it['doors']['doors']:
+                    validate_door_id(user_input['door1_id'])
+            except ValueError:
+                errors['base'] = f"Invalid door 1 ID ({user_input['door1_id']})"
+
+            try:
+                if 2 in it['doors']['doors']:
+                    validate_door_id(user_input['door2_id'])
+            except ValueError:
+                errors['base'] = f"Invalid door 2 ID ({user_input['door2_id']})"
+
+            try:
+                if 3 in it['doors']['doors']:
+                    validate_door_id(user_input['door3_id'])
+            except ValueError:
+                errors['base'] = f"Invalid door 3 ID ({user_input['door3_id']})"
+
+            try:
+                if 4 in it['doors']['doors']:
+                    validate_door_id(user_input['door4_id'])
+            except ValueError:
+                errors['base'] = f"Invalid door 4 ID ({user_input['door4_id']})"
 
             if not errors:
-                # v = []
-                # v.append({
-                #     CONF_DOOR_ID: user_input[CONF_DOOR_ID],
-                #     CONF_DOOR_CONTROLLER: user_input[CONF_DOOR_CONTROLLER],
-                #     CONF_DOOR_NUMBER: user_input[CONF_DOOR_NUMBER],
-                # })
-                #
-                # self.options.update({CONF_DOORS: v})
+                controller = it['controller']['name']
+                v = self.options[CONF_DOORS]
+
+                if 1 in it['doors']['doors']:
+                    v.append({
+                        CONF_DOOR_ID: user_input['door1_id'],
+                        CONF_DOOR_CONTROLLER: controller,
+                        CONF_DOOR_NUMBER: 1,
+                    })
+
+                if 2 in it['doors']['doors']:
+                    v.append({
+                        CONF_DOOR_ID: user_input['door2_id'],
+                        CONF_DOOR_CONTROLLER: controller,
+                        CONF_DOOR_NUMBER: 2,
+                    })
+
+                if 3 in it['doors']['doors']:
+                    v.append({
+                        CONF_DOOR_ID: user_input['door3_id'],
+                        CONF_DOOR_CONTROLLER: controller,
+                        CONF_DOOR_NUMBER: 3,
+                    })
+
+                if 4 in it['doors']['doors']:
+                    v.append({
+                        CONF_DOOR_ID: user_input['door4_id'],
+                        CONF_DOOR_CONTROLLER: controller,
+                        CONF_DOOR_NUMBER: 4,
+                    })
+
+                self.options.update({CONF_DOORS: v})
                 it['doors']['configured'] = True
 
                 return await self.async_step_door()

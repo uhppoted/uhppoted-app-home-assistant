@@ -11,6 +11,12 @@ from .const import CONF_DEBUG
 
 from .const import CONF_CONTROLLERS
 from .const import CONF_CONTROLLER_ID
+from .const import CONF_CONTROLLER_SERIAL_NUMBER
+from .const import CONF_CONTROLLER_ADDR
+from .const import CONF_DOORS
+from .const import CONF_DOOR_ID
+from .const import CONF_DOOR_CONTROLLER
+from .const import CONF_DOOR_NUMBER
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -76,3 +82,32 @@ def get_all_controllers(options):
         _LOGGER.exception(f'error retrieving list of controllers ({e})')
 
     return controllers
+
+
+def configure_controllers(options, f):
+    controllers = options[CONF_CONTROLLERS]
+
+    for c in controllers:
+        controller = f'{c[CONF_CONTROLLER_ID]}'.strip()
+        serial_no = f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip()
+        address = f'{c[CONF_CONTROLLER_ADDR]}'.strip()
+
+        f(controller, serial_no, address)
+
+
+def configure_doors(options, g):
+    controllers = options[CONF_CONTROLLERS]
+    doors = options[CONF_DOORS]
+
+    for c in controllers:
+        controller = f'{c[CONF_CONTROLLER_ID]}'.strip()
+        serial_no = f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip()
+        address = f'{c[CONF_CONTROLLER_ADDR]}'.strip()
+
+        for d in doors:
+            door = f'{d[CONF_DOOR_ID]}'.strip()
+            door_no = f'{d[CONF_DOOR_NUMBER]}'.strip()
+            door_controller = f'{d[CONF_DOOR_CONTROLLER]}'.strip()
+
+            if door_controller == controller:
+                g(controller, serial_no, door, door_no)

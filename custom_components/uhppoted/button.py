@@ -21,22 +21,13 @@ from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
 
-from .const import CONF_CONTROLLERS
-from .const import CONF_CONTROLLER_ID
-from .const import CONF_CONTROLLER_SERIAL_NUMBER
-from .const import CONF_CONTROLLER_ADDR
-
-from .const import CONF_DOORS
-from .const import CONF_DOOR_ID
-from .const import CONF_DOOR_CONTROLLER
-from .const import CONF_DOOR_NUMBER
-
 # Attribute constants
 from .const import ATTR_ADDRESS
 from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
 
+from .config import configure_doors
 from .door import ControllerDoorUnlock
 
 
@@ -49,23 +40,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     debug = options[CONF_DEBUG]
 
     u = uhppote.Uhppote(bind, broadcast, listen, debug)
-
     entities = []
-    controllers = options[CONF_CONTROLLERS]
-    doors = options[CONF_DOORS]
 
-    for c in controllers:
-        controller = c[CONF_CONTROLLER_ID].strip()
-        serial_no = c[CONF_CONTROLLER_SERIAL_NUMBER].strip()
+    def g(controller, serial_no, door, door_no):
+        entities.extend([
+            ControllerDoorUnlock(u, controller, serial_no, door, door_no),
+        ])
 
-        for d in doors:
-            door = d[CONF_DOOR_ID].strip()
-            door_no = d[CONF_DOOR_NUMBER].strip()
-            door_controller = d[CONF_DOOR_CONTROLLER].strip()
-
-            if door_controller == controller:
-                entities.extend([
-                    ControllerDoorUnlock(u, controller, serial_no, door, door_no),
-                ])
-
+    configure_doors(options, g)
     async_add_entities(entities, update_before_add=True)

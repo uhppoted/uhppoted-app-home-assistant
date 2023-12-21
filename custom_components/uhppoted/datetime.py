@@ -21,17 +21,13 @@ from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
 
-from .const import CONF_CONTROLLERS
-from .const import CONF_CONTROLLER_ID
-from .const import CONF_CONTROLLER_SERIAL_NUMBER
-from .const import CONF_CONTROLLER_ADDR
-
 # Attribute constants
 from .const import ATTR_ADDRESS
 from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
 
+from .config import configure_controllers
 from .controller import ControllerDateTime
 
 
@@ -45,17 +41,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     debug = options[CONF_DEBUG]
 
     u = uhppote.Uhppote(bind, broadcast, listen, debug)
-
     entities = []
-    controllers = options[CONF_CONTROLLERS]
 
-    for v in controllers:
-        controller = v[CONF_CONTROLLER_ID].strip()
-        serial_no = v[CONF_CONTROLLER_SERIAL_NUMBER].strip()
-        address = v[CONF_CONTROLLER_ADDR].strip()
-
+    def f(controller, serial_no, address):
         entities.extend([
             ControllerDateTime(u, controller, serial_no),
         ])
 
+    configure_controllers(options, f)
     async_add_entities(entities, update_before_add=True)
