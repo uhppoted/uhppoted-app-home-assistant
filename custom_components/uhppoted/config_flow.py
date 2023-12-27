@@ -47,7 +47,7 @@ from .const import CONF_CARD_DOORS
 
 from .options_flow import UhppotedOptionsFlow
 
-from .config import validate_controller_id
+from .config import validate_controller
 from .config import validate_controller_serial_no
 from .config import validate_door_id
 from .config import validate_door_controller
@@ -158,18 +158,22 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
         errors: Dict[str, str] = {}
         if user_input is not None:
+            name = user_input[CONF_CONTROLLER_ID]
+            serial_no = controller['serial_no']
+            address = user_input[CONF_CONTROLLER_ADDR]
+
             try:
-                validate_controller_id(user_input[CONF_CONTROLLER_ID])
-            except ValueError:
-                errors["base"] = f'Invalid controller ID ({user_input[CONF_CONTROLLER_ID]})'
+                validate_controller(name, serial_no, address, self.options)
+            except ValueError as err:
+                errors["base"] = f'{err}'
 
             if not errors:
                 v = self.options[CONF_CONTROLLERS]
 
                 v.append({
-                    CONF_CONTROLLER_ID: user_input[CONF_CONTROLLER_ID],
-                    CONF_CONTROLLER_SERIAL_NUMBER: controller['serial_no'],
-                    CONF_CONTROLLER_ADDR: user_input[CONF_CONTROLLER_ADDR],
+                    CONF_CONTROLLER_ID: name,
+                    CONF_CONTROLLER_SERIAL_NUMBER: serial_no,
+                    CONF_CONTROLLER_ADDR: address,
                 })
 
                 self.options.update({CONF_CONTROLLERS: v})

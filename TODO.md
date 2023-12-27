@@ -23,10 +23,10 @@ KeyboardInterrupt
             - [x] Select controllers to configure
             - [x] Loop until done
             - [x] Select doors to configure
+            - [x] Check for duplicate controller names
             - [ ] Ad hoc controllers
                   - when internal list is empty
                   - address is required
-            - [ ] Flatten and validate controllers lists
             - [ ] Flatten and validate doors lists
             - [ ] Use _self.options_ struct and _self.configured_ list
 
@@ -36,6 +36,7 @@ KeyboardInterrupt
 
 - [ ] Options flow
       - [ ] Rework to configure multiple controllers, doors, etc
+            - [x] Check for duplicate controller names
       - [ ] show menu
             - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu
 

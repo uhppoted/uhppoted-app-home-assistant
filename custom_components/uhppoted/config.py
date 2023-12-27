@@ -1,3 +1,4 @@
+import re
 import logging
 
 from typing import Any
@@ -24,9 +25,19 @@ MAX_CARD_INDEX = 20000
 MAX_ERRORS = 5
 
 
-def validate_controller_id(v: int) -> None:
-    if not v or v.strip() == '':
-        raise ValueError
+def normalise(v):
+    re.sub(r'\s+', '', f'{v}', flags=re.UNICODE).lower()
+
+
+def validate_controller(name, serial_no, address, options) -> None:
+    if not name or name.strip() == '':
+        raise ValueError('Blank controller ID')
+
+    if options and CONF_CONTROLLERS in options:
+        for v in options[CONF_CONTROLLERS]:
+            if normalise(v[CONF_CONTROLLER_ID]) == normalise(name):
+                if int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') != int(f'{serial_no}'):
+                    raise ValueError('Duplicate controller ID')
 
 
 def validate_controller_serial_no(v) -> None:
