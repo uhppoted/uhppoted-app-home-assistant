@@ -8,7 +8,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import OptionsFlow
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.helpers import selector
+from homeassistant.helpers.selector import SelectSelector
+from homeassistant.helpers.selector import SelectSelectorConfig
+from homeassistant.helpers.selector import SelectSelectorMode
 import voluptuous as vol
 
 from .const import DOMAIN
@@ -43,11 +45,20 @@ class UhppotedOptionsFlow(OptionsFlow):
         self.config_entry = entry
         self.data = dict(entry.data)
         self.options = dict(entry.options)
+        self.controllers = []
+        self.doors = []
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         return await self.async_step_IPv4()
 
     async def async_step_IPv4(self, user_input: Optional[Dict[str, Any]] = None):
+        errors: Dict[str, str] = {}
+
+        if user_input is not None:
+            if not errors:
+                self.options.update(user_input)
+                return await self.async_step_controllers()
+
         bind = self.options[CONF_BIND_ADDR]
         broadcast = self.options[CONF_BROADCAST_ADDR]
         listen = self.options[CONF_LISTEN_ADDR]
@@ -60,15 +71,57 @@ class UhppotedOptionsFlow(OptionsFlow):
             vol.Optional(CONF_DEBUG, default=debug): bool,
         })
 
+        return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
+
+    async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
         errors: Dict[str, str] = {}
 
         if user_input is not None:
             if not errors:
-                self.options.update(user_input)
-                self.controllers = get_all_controllers(self.options)
+                for v in user_input[CONF_CONTROLLERS]:
+                    self.controllers.append({
+                        'controller': {
+                            'name': '',
+                            'serial_no': v,
+                            'configured': False,
+                        },
+                        'doors': None,
+                    })
+
                 return await self.async_step_controller()
 
-        return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
+        controllers = get_all_controllers(self.options)
+
+        configured = set()
+        if self.options and CONF_CONTROLLERS in self.options:
+            for v in self.options[CONF_CONTROLLERS]:
+                configured.add(int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}'))
+
+        configured = sorted(list(configured), reverse=True)
+
+        # if len(controllers) < 2:
+        #     for v in controllers:
+        #         self.controllers.append({
+        #             'controller': {
+        #                 'name': '',
+        #                 'serial_no': v,
+        #                 'configured': False,
+        #             },
+        #             'doors': None,
+        #         })
+        #
+        #     return await self.async_step_controller()
+
+        schema = vol.Schema({
+            vol.Required(CONF_CONTROLLERS, default=[f'{v}' for v in configured]):
+            SelectSelector(
+                SelectSelectorConfig(options=[f'{v}' for v in controllers],
+                                     multiple=True,
+                                     custom_value=False,
+                                     mode=SelectSelectorMode.LIST)),
+        })
+
+        return self.async_show_form(step_id="controllers", data_schema=schema, errors=errors)
 
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
         name = ''
@@ -82,11 +135,11 @@ class UhppotedOptionsFlow(OptionsFlow):
                 address = v[CONF_CONTROLLER_ADDR]
                 break
 
-        controllers = selector.SelectSelector(
-            selector.SelectSelectorConfig(options=[f'{v}' for v in self.controllers],
-                                          multiple=False,
-                                          custom_value=True,
-                                          mode=selector.SelectSelectorMode.DROPDOWN))
+        controllers = SelectSelector(
+            SelectSelectorConfig(options=[f'{v}' for v in self.controllers],
+                                 multiple=False,
+                                 custom_value=True,
+                                 mode=SelectSelectorMode.DROPDOWN))
 
         schema = vol.Schema({
             vol.Required(CONF_CONTROLLER_ID, default=name): str,
@@ -132,15 +185,15 @@ class UhppotedOptionsFlow(OptionsFlow):
                 door_no = v[CONF_DOOR_NUMBER]
                 break
 
-        controllers = selector.SelectSelector(
-            selector.SelectSelectorConfig(options=['Alpha', 'Beta', 'Gamma', 'Delta'],
-                                          multiple=False,
-                                          mode=selector.SelectSelectorMode.DROPDOWN))
+        controllers = SelectSelector(
+            SelectSelectorConfig(options=['Alpha', 'Beta', 'Gamma', 'Delta'],
+                                 multiple=False,
+                                 mode=SelectSelectorMode.DROPDOWN))
 
-        doors = selector.SelectSelector(
-            selector.SelectSelectorConfig(options=['1', '2', '3', '4'],
-                                          multiple=False,
-                                          mode=selector.SelectSelectorMode.DROPDOWN))
+        doors = SelectSelector(
+            SelectSelectorConfig(options=['1', '2', '3', '4'],
+                                 multiple=False,
+                                 mode=selector.SelectSelectorMode.DROPDOWN))
 
         schema = vol.Schema({
             vol.Required(CONF_DOOR_ID, default=name): str,

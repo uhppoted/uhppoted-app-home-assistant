@@ -53,6 +53,7 @@ from .config import validate_door_id
 from .config import validate_door_controller
 from .config import validate_door_number
 from .config import validate_card_number
+from .config import get_IPv4
 from .config import get_all_controllers
 from .config import get_all_cards
 
@@ -68,35 +69,17 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
         defaults = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
-        bind = '0.0.0.0'
-        broadcast = '255.255.255.255:60000'
-        listen = '0.0.0.0:60001'
-        debug = False
-
-        if CONF_BIND_ADDR in defaults:
-            bind = defaults[CONF_BIND_ADDR]
-
-        if CONF_BROADCAST_ADDR in defaults:
-            broadcast = defaults[CONF_BROADCAST_ADDR]
-
-        if CONF_LISTEN_ADDR in defaults:
-            listen = defaults[CONF_LISTEN_ADDR]
-
-        if CONF_DEBUG in defaults:
-            debug = defaults[CONF_DEBUG]
 
         self.data = {}
+        self.options = {}
         self.controllers = []
         self.doors = []
 
-        self.options = {
-            CONF_BIND_ADDR: bind,
-            CONF_BROADCAST_ADDR: broadcast,
-            CONF_LISTEN_ADDR: listen,
-            CONF_DEBUG: debug,
+        self.options.update(get_IPv4(defaults))
+        self.options.update({
             CONF_CONTROLLERS: [],
             CONF_DOORS: [],
-        }
+        })
 
         return await self.async_step_IPv4()
 

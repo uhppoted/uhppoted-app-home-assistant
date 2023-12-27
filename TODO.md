@@ -16,27 +16,26 @@ KeyboardInterrupt
       - https://www.python4data.science/en/latest/clean-prep/voluptuous.html
       - [x] Rethink using controller ID for unique ID
       - [x] Find controllers with `get-all-controllers`
+      - [x] ~~Make bind, broadcast, etc step optional~~
       - [ ] Rework to configure multiple controllers, doors, etc
             - [x] Restructure configuration for list of controllers
             - [x] Restructure configuration for list of doors
             - [x] Select controllers to configure
+            - [x] Loop until done
+            - [x] Select doors to configure
             - [ ] Ad hoc controllers
                   - when internal list is empty
                   - address is required
             - [ ] Flatten and validate controllers lists
-            - [ ] Select doors to configure
-            - [ ] Flatten and validate controllers lists
-            - [ ] Loop until done
-            - [ ] Use mapping for controller and door selectors
-                  - https://next.home-assistant.io/docs/blueprint/selectors/#select-selector
+            - [ ] Flatten and validate doors lists
+            - [ ] Use _self.options_ struct and _self.configured_ list
 
       - [ ] (somehow) commonalise config-flow and options-flow
       - [ ] Integration icon
-      - (?) Make bind, broadcast, etc step optional
-      - [ ] PLATFORM_SCHEMA
       - https://developers.home-assistant.io/docs/dev_101_states/
 
 - [ ] Options flow
+      - [ ] Rework to configure multiple controllers, doors, etc
       - [ ] show menu
             - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu
 

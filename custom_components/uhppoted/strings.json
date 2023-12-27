@@ -141,6 +141,16 @@
                 }
             },
 
+            "controllers": {
+                "title": "UHPPOTE controllers list",
+                "data": {
+                    "controllers": "Select the controllers to be reconfigured:"
+                },
+                "data_description": {
+                    "controllers": "Controllers on the local LAN"
+                }
+            },
+
             "controller": {
                 "title": "UHPPOTE controller configuration",
                 "description": "Controller ID, serial number and (optional) IP address",

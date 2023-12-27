@@ -60,8 +60,37 @@ def validate_card_number(v: int) -> None:
         raise ValueError
 
 
+def get_IPv4(defaults):
+    bind = '0.0.0.0'
+    broadcast = '255.255.255.255:60000'
+    listen = '0.0.0.0:60001'
+    debug = False
+
+    if CONF_BIND_ADDR in defaults:
+        bind = defaults[CONF_BIND_ADDR]
+
+    if CONF_BROADCAST_ADDR in defaults:
+        broadcast = defaults[CONF_BROADCAST_ADDR]
+
+    if CONF_LISTEN_ADDR in defaults:
+        listen = defaults[CONF_LISTEN_ADDR]
+
+    if CONF_DEBUG in defaults:
+        debug = defaults[CONF_DEBUG]
+
+    return {
+        CONF_BIND_ADDR: bind,
+        CONF_BROADCAST_ADDR: broadcast,
+        CONF_LISTEN_ADDR: listen,
+        CONF_DEBUG: debug,
+    }
+
+
 def get_all_controllers(options):
-    controllers = []
+    controllers = set()
+    if CONF_CONTROLLERS in options:
+        for v in options[CONF_CONTROLLERS]:
+            controllers.add(int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}'))
 
     try:
         bind = options[CONF_BIND_ADDR]
@@ -73,14 +102,12 @@ def get_all_controllers(options):
         response = u.get_all_controllers()
 
         for v in response:
-            controllers.append(v.controller)
-
-        controllers.sort(reverse=True)
+            controllers.add(v.controller)
 
     except Exception as e:
         _LOGGER.exception(f'error retrieving list of controllers ({e})')
 
-    return controllers
+    return sorted(list(controllers), reverse=True)
 
 
 def get_all_cards(options):
