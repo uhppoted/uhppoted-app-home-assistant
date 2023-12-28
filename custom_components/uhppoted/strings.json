@@ -113,7 +113,10 @@
         "error": {
             "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
             "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
-            "unknown": "[%key:common::config_flow::error::unknown%]"
+            "unknown": "[%key:common::config_flow::error::unknown%]",
+
+            "invalid_controller_id": "Invalid controller ID",
+            "duplicate_controller_id": "Duplicate controller ID"
         },
         "abort": {
             "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
@@ -152,17 +155,19 @@
             },
 
             "controller": {
-                "title": "UHPPOTE controller configuration",
-                "description": "Controller ID, serial number and (optional) IP address",
+                "title": "Controller {serial_no} configuration",
+                "description": "Controller ID, IP address and timezone",
                 "data": {
                     "controller_id": "controller identifier",
                     "controller_serial_number": "UHPPOTE controller ID",
-                    "controller_address": "controller IPv4 address"
+                    "controller_address": "controller IPv4 address",
+                    "controller_timezone": "controller timezone"
                 },
                 "data_description": {
                     "controller_id": "Controller (human) name e.g. Alpha",
-                    "controller_serial_number": "UHPPOTE controller serial number e.g. 405419896",
-                    "controller_address": "UHPPOTE controller IPv4 address (optional) e.g. 192.168.1.100"
+                    "controller_serial_number": "Controller serial number e.g. 405419896",
+                    "controller_address": "Controller IPv4 address (optional) e.g. 192.168.1.100",
+                    "controller_timezone": "Controller timezone (optional) e.g. America/New York"
                 }
             },
 
@@ -184,8 +189,11 @@
         "error": {
             "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
             "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
-            "unknown": "[%key:common::config_flow::error::unknown%]"
-        },
+            "unknown": "[%key:common::config_flow::error::unknown%]",
+
+            "invalid_controller_id": "Invalid controller ID",
+            "duplicate_controller_id": "Duplicate controller ID"
+       },
         "abort": {
             "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
         }

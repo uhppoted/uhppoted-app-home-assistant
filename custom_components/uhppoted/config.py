@@ -19,6 +19,9 @@ from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
 
+from .const import ERR_INVALID_CONTROLLER_ID
+from .const import ERR_DUPLICATE_CONTROLLER_ID
+
 _LOGGER = logging.getLogger(__name__)
 MAX_CARDS = 25
 MAX_CARD_INDEX = 20000
@@ -26,18 +29,18 @@ MAX_ERRORS = 5
 
 
 def normalise(v):
-    re.sub(r'\s+', '', f'{v}', flags=re.UNICODE).lower()
+    return re.sub(r'\s+', '', f'{v}', flags=re.UNICODE).lower()
 
 
-def validate_controller(name, serial_no, address, options) -> None:
+def validate_controller_id(serial_no, name, options) -> None:
     if not name or name.strip() == '':
-        raise ValueError('Blank controller ID')
+        raise ValueError(ERR_INVALID_CONTROLLER_ID)
 
     if options and CONF_CONTROLLERS in options:
         for v in options[CONF_CONTROLLERS]:
             if normalise(v[CONF_CONTROLLER_ID]) == normalise(name):
                 if int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') != int(f'{serial_no}'):
-                    raise ValueError('Duplicate controller ID')
+                    raise ValueError(ERR_DUPLICATE_CONTROLLER_ID)
 
 
 def validate_controller_serial_no(v) -> None:

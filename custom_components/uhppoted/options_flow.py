@@ -23,13 +23,14 @@ from .const import CONF_CONTROLLERS
 from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
+from .const import CONF_CONTROLLER_TIMEZONE
 
 from .const import CONF_DOORS
 from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
 
-from .config import validate_controller
+from .config import validate_controller_id
 from .config import validate_controller_serial_no
 from .config import validate_door_id
 from .config import validate_door_controller
@@ -91,6 +92,8 @@ class UhppotedOptionsFlow(OptionsFlow):
                 return await self.async_step_controller()
 
         controllers = get_all_controllers(self.options)
+        if len(controllers) < 1:
+            return await self.async_step_door()
 
         configured = set()
         if self.options and CONF_CONTROLLERS in self.options:
@@ -98,19 +101,6 @@ class UhppotedOptionsFlow(OptionsFlow):
                 configured.add(int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}'))
 
         configured = sorted(list(configured), reverse=True)
-
-        # if len(controllers) < 2:
-        #     for v in controllers:
-        #         self.controllers.append({
-        #             'controller': {
-        #                 'name': '',
-        #                 'serial_no': v,
-        #                 'configured': False,
-        #             },
-        #             'doors': None,
-        #         })
-        #
-        #     return await self.async_step_controller()
 
         schema = vol.Schema({
             vol.Required(CONF_CONTROLLERS, default=[f'{v}' for v in configured]):
@@ -124,53 +114,80 @@ class UhppotedOptionsFlow(OptionsFlow):
         return self.async_show_form(step_id="controllers", data_schema=schema, errors=errors)
 
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
+        it = next((v for v in self.controllers if not v['controller']['configured']), None)
+        if it == None:
+            return await self.async_step_door()
+        else:
+            controller = it['controller']
+            serial_no = controller['serial_no']
+
+        errors: Dict[str, str] = {}
+
+        if user_input is not None:
+            name = user_input[CONF_CONTROLLER_ID]
+            address = user_input[CONF_CONTROLLER_ADDR]
+            timezone = user_input[CONF_CONTROLLER_TIMEZONE]
+
+            try:
+                validate_controller_id(serial_no, name, self.options)
+            except ValueError as err:
+                errors[CONF_CONTROLLER_ID] = f'{err}'
+
+            if not errors:
+                controllers = self.options[CONF_CONTROLLERS]
+
+                for v in self.options[CONF_CONTROLLERS]:
+                    if int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') == int(f'{serial_no}'):
+                        v[CONF_CONTROLLER_ID] = name
+                        v[CONF_CONTROLLER_SERIAL_NUMBER] = serial_no
+                        v[CONF_CONTROLLER_ADDR] = address
+                        v[CONF_CONTROLLER_TIMEZONE] = timezone
+                        break
+                else:
+                    controllers.append({
+                        CONF_CONTROLLER_ID: name,
+                        CONF_CONTROLLER_SERIAL_NUMBER: serial_no,
+                        CONF_CONTROLLER_ADDR: address,
+                        CONF_CONTROLLER_TIMEZONE: timezone,
+                    })
+
+                self.options.update({CONF_CONTROLLERS: controllers})
+
+                controller['name'] = user_input[CONF_CONTROLLER_ID]
+                controller['configured'] = True
+
+                return await self.async_step_controller()
+
         name = ''
-        controller = ''
         address = ''
+        timezone = 'LOCAL'
 
         if CONF_CONTROLLERS in self.options:
             for v in self.options[CONF_CONTROLLERS]:
-                name = v[CONF_CONTROLLER_ID]
-                controller = v[CONF_CONTROLLER_SERIAL_NUMBER]
-                address = v[CONF_CONTROLLER_ADDR]
-                break
+                if int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') == int(f'{serial_no}'):
+                    if CONF_CONTROLLER_ID in v:
+                        name = v[CONF_CONTROLLER_ID]
 
-        controllers = SelectSelector(
-            SelectSelectorConfig(options=[f'{v}' for v in self.controllers],
-                                 multiple=False,
-                                 custom_value=True,
-                                 mode=SelectSelectorMode.DROPDOWN))
+                    if CONF_CONTROLLER_ADDR in v:
+                        address = v[CONF_CONTROLLER_ADDR]
+
+                    if CONF_CONTROLLER_TIMEZONE in v:
+                        timezone = v[CONF_CONTROLLER_TIMEZONE]
+
+                    break
 
         schema = vol.Schema({
             vol.Required(CONF_CONTROLLER_ID, default=name): str,
-            vol.Required(CONF_CONTROLLER_SERIAL_NUMBER, default=controller): controllers,
             vol.Optional(CONF_CONTROLLER_ADDR, default=address): str,
+            vol.Optional(CONF_CONTROLLER_TIMEZONE, default=timezone): str,
         })
 
-        errors: Dict[str, str] = {}
-        if user_input is not None:
-            name = user_input[CONF_CONTROLLER_ID]
-            serial_no = user_input[CONF_CONTROLLER_SERIAL_NUMBER]
-            address = user_input[CONF_CONTROLLER_ADDR]
-
-            try:
-                validate_controller(name, serial_no, address, self.options)
-            except ValueError as err:
-                errors["base"] = f'{err}'
-
-            if not errors:
-                v = []
-                v.append({
-                    CONF_CONTROLLER_ID: name,
-                    CONF_CONTROLLER_SERIAL_NUMBER: serial_no,
-                    CONF_CONTROLLER_ADDR: address,
-                })
-
-                self.options.update({CONF_CONTROLLERS: v})
-
-                return await self.async_step_door()
-
-        return self.async_show_form(step_id="controller", data_schema=schema, errors=errors)
+        return self.async_show_form(step_id="controller",
+                                    data_schema=schema,
+                                    errors=errors,
+                                    description_placeholders={
+                                        "serial_no": serial_no,
+                                    })
 
     async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
         name = ''
@@ -190,9 +207,7 @@ class UhppotedOptionsFlow(OptionsFlow):
                                  mode=SelectSelectorMode.DROPDOWN))
 
         doors = SelectSelector(
-            SelectSelectorConfig(options=['1', '2', '3', '4'],
-                                 multiple=False,
-                                 mode=selector.SelectSelectorMode.DROPDOWN))
+            SelectSelectorConfig(options=['1', '2', '3', '4'], multiple=False, mode=SelectSelectorMode.DROPDOWN))
 
         schema = vol.Schema({
             vol.Required(CONF_DOOR_ID, default=name): str,

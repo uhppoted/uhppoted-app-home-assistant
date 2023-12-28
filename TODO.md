@@ -35,8 +35,9 @@ KeyboardInterrupt
       - https://developers.home-assistant.io/docs/dev_101_states/
 
 - [ ] Options flow
-      - [ ] Rework to configure multiple controllers, doors, etc
-            - [x] Check for duplicate controller names
+      - [x] Rework to configure multiple controllers
+      - [x] Check for duplicate controller names
+      - [ ] Rework to configure multiple doors
       - [ ] show menu
             - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu
 
