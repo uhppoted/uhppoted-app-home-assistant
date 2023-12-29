@@ -35,7 +35,9 @@ from .config import validate_controller_serial_no
 from .config import validate_door_id
 from .config import validate_door_controller
 from .config import validate_door_number
+
 from .config import get_all_controllers
+from .config import get_all_doors
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,6 +50,7 @@ class UhppotedOptionsFlow(OptionsFlow):
         self.options = dict(entry.options)
         self.controllers = []
         self.doors = []
+        self.configured = {'doors': []}
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         return await self.async_step_IPv4()
@@ -116,7 +119,7 @@ class UhppotedOptionsFlow(OptionsFlow):
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
         it = next((v for v in self.controllers if not v['controller']['configured']), None)
         if it == None:
-            return await self.async_step_door()
+            return await self.async_step_doors()
         else:
             controller = it['controller']
             serial_no = controller['serial_no']
@@ -188,6 +191,56 @@ class UhppotedOptionsFlow(OptionsFlow):
                                     description_placeholders={
                                         "serial_no": serial_no,
                                     })
+
+    async def async_step_doors(self, user_input: Optional[Dict[str, Any]] = None):
+        all_doors = get_all_doors(self.options)
+
+        it = next((v for v in all_doors if not v[CONF_CONTROLLER_ID] in self.configured['doors']), None)
+        if it == None:
+            return await self.async_step_door()
+        else:
+            controller = it[CONF_CONTROLLER_ID]
+            serial_no = it[CONF_CONTROLLER_SERIAL_NUMBER]
+            doors = it['doors']
+
+        errors: Dict[str, str] = {}
+        if user_input is not None:
+            if not errors:
+                self.configured['doors'].append(controller)
+                # it['doors'] = {
+                #     'doors': [int(f'{v}') for v in user_input['doors']],
+                #     'configured': False,
+                # }
+
+                return await self.async_step_doors()
+
+        def g(d):
+            door = d[CONF_DOOR_ID]
+            no = d[CONF_DOOR_NUMBER]
+            return {
+                'label': f'Door {no} ({door})' if door else f'Door {no}',
+                'value': f'{no}',
+            }
+
+        select = SelectSelectorConfig(options=[g(v) for v in doors],
+                                      multiple=True,
+                                      custom_value=False,
+                                      mode=SelectSelectorMode.LIST) # yapf: disable
+
+        schema = vol.Schema({
+            vol.Required('doors', default=[f'{v[CONF_DOOR_NUMBER]}' for v in doors if v[CONF_DOOR_ID]]):
+            SelectSelector(select),
+        })
+
+        placeholders = {
+            'controller': f'{controller}',
+            'serial_no': f'{serial_no}',
+        }
+
+        return self.async_show_form(step_id="doors",
+                                    data_schema=schema,
+                                    errors=errors,
+                                    description_placeholders=placeholders)
 
     async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
         name = ''

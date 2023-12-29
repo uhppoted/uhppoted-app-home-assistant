@@ -124,6 +124,54 @@ def get_all_controllers(options):
     return sorted(list(controllers), reverse=True)
 
 
+def get_all_doors(options):
+    controllers = []
+
+    def lookup(controller, door):
+        for v in options[CONF_DOORS]:
+            if v[CONF_DOOR_CONTROLLER] == controller and int(f'{v[CONF_DOOR_NUMBER]}') == int(f'{door}'):
+                return v[CONF_DOOR_ID]
+        return None
+
+    if CONF_CONTROLLERS in options:
+        for v in options[CONF_CONTROLLERS]:
+            controller = v[CONF_CONTROLLER_ID]
+            serial_no = v[CONF_CONTROLLER_SERIAL_NUMBER]
+            doors = []
+
+            if re.match('^[1234].*', f"{serial_no}"):
+                doors.append({
+                    CONF_DOOR_ID: lookup(controller, 1),
+                    CONF_DOOR_NUMBER: 1,
+                })
+
+            if re.match('^[234].*', f"{serial_no}"):
+                doors.append({
+                    CONF_DOOR_ID: lookup(controller, 2),
+                    CONF_DOOR_NUMBER: 2,
+                })
+
+            if re.match('^[34].*', f"{serial_no}"):
+                doors.append({
+                    CONF_DOOR_ID: lookup(controller, 3),
+                    CONF_DOOR_NUMBER: 3,
+                })
+
+            if re.match('^[4].*', f"{serial_no}"):
+                doors.append({
+                    CONF_DOOR_ID: lookup(controller, 4),
+                    CONF_DOOR_NUMBER: 4,
+                })
+
+            controllers.append({
+                CONF_CONTROLLER_ID: controller,
+                CONF_CONTROLLER_SERIAL_NUMBER: serial_no,
+                'doors': doors,
+            })
+
+    return sorted(list(controllers), key=lambda v: v[CONF_CONTROLLER_SERIAL_NUMBER], reverse=True)
+
+
 def get_all_cards(options):
     cards = set()
 

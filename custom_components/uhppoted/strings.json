@@ -171,6 +171,16 @@
                 }
             },
 
+            "doors": {
+                "title": "Doors for controller {controller}",
+                "data": {
+                    "doors": "Select the doors to include:"
+                },
+                "data_description": {
+                    "doors": "Doors managed by controller {serial_no}"
+                }
+            },
+
             "door": {
                 "title": "UHPPOTE controller door configuration",
                 "description": "Door configuration",

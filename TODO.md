@@ -24,10 +24,10 @@ KeyboardInterrupt
             - [x] Loop until done
             - [x] Select doors to configure
             - [x] Check for duplicate controller names
+            - [ ] Validate doors
             - [ ] Ad hoc controllers
                   - when internal list is empty
                   - address is required
-            - [ ] Flatten and validate doors lists
             - [ ] Use _self.options_ struct and _self.configured_ list
 
       - [ ] (somehow) commonalise config-flow and options-flow
