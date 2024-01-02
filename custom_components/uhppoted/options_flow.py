@@ -1,3 +1,4 @@
+import copy
 import logging
 
 from typing import Any
@@ -48,9 +49,12 @@ class UhppotedOptionsFlow(OptionsFlow):
         self.config_entry = entry
         self.data = dict(entry.data)
         self.options = dict(entry.options)
+        # self.options = copy.deepcopy(dict(entry.options))
         self.controllers = []
         self.doors = []
         self.configuration = {'doors': []}
+
+        print('>>> init/config:', self.options)
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         return await self.async_step_IPv4()
@@ -247,12 +251,14 @@ class UhppotedOptionsFlow(OptionsFlow):
                                     description_placeholders=placeholders)
 
     async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
+
         def f(v):
             return len(v['doors']) > 0 and not v['configured']
 
         it = next((v for v in self.configuration['doors'] if f(v)), None)
         if it == None:
             print('>>>>>>>>>>>>>>>>> HERE WE GO', self.options[CONF_DOORS])
+            print('>>>>>>>>>>>>>>>>> HERE WE GO/1', self.config_entry.options)
             return self.async_create_entry(title="uhppoted", data=self.options)
             # return await self.async_step_cards()
         else:
@@ -289,11 +295,9 @@ class UhppotedOptionsFlow(OptionsFlow):
             if not errors:
                 v = self.options[CONF_DOORS]
 
-                print('>>>>>>>>>>>>>>>>> BEFORE', v)
-
                 if 1 in doors:
                     for d in v:
-                        if d[CONF_DOOR_CONTROLLER] == controller and d[CONF_DOOR_NUMBER] == 1:
+                        if d[CONF_DOOR_CONTROLLER] == controller and f'{d[CONF_DOOR_NUMBER]}' == '1':
                             d[CONF_DOOR_ID] = user_input['door1_id']
                             break
                     else:
@@ -305,7 +309,7 @@ class UhppotedOptionsFlow(OptionsFlow):
 
                 if 2 in doors:
                     for d in v:
-                        if d[CONF_DOOR_CONTROLLER] == controller and d[CONF_DOOR_NUMBER] == 2:
+                        if d[CONF_DOOR_CONTROLLER] == controller and f'{d[CONF_DOOR_NUMBER]}' == '2':
                             d[CONF_DOOR_ID] = user_input['door2_id']
                             break
                     else:
@@ -317,7 +321,7 @@ class UhppotedOptionsFlow(OptionsFlow):
 
                 if 3 in doors:
                     for d in v:
-                        if d[CONF_DOOR_CONTROLLER] == controller and d[CONF_DOOR_NUMBER] == 3:
+                        if d[CONF_DOOR_CONTROLLER] == controller and f'{d[CONF_DOOR_NUMBER]}' == '3':
                             d[CONF_DOOR_ID] = user_input['door3_id']
                             break
                     else:
@@ -329,7 +333,7 @@ class UhppotedOptionsFlow(OptionsFlow):
 
                 if 4 in doors:
                     for d in v:
-                        if d[CONF_DOOR_CONTROLLER] == controller and d[CONF_DOOR_NUMBER] == 4:
+                        if d[CONF_DOOR_CONTROLLER] == controller and f'{d[CONF_DOOR_NUMBER]}' == '4':
                             d[CONF_DOOR_ID] = user_input['door4_id']
                             break
                     else:
@@ -338,8 +342,6 @@ class UhppotedOptionsFlow(OptionsFlow):
                             CONF_DOOR_CONTROLLER: controller,
                             CONF_DOOR_NUMBER: 4,
                         })
-
-                print('>>>>>>>>>>>>>>>>> AFTER', v)
 
                 self.options.update({CONF_DOORS: v})
                 it['configured'] = True

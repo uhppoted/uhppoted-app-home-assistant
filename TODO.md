@@ -1,5 +1,9 @@
 # TODO
 
+- [ ] **REWORK TO SERIAL NUMBER AS unique_id**
+- [ ] **REWORK TO USE SERIAL NUMBER + DOOR NUMBER AS unique_id**
+- [ ] **FIX BUTTON FOR options flow**
+
 - [ ] Shutdown while waiting for controller response
       - (?) asyncio maybe
       - (?) move from polled to event model
@@ -13,6 +17,7 @@ KeyboardInterrupt
 ```
 
 - [ ] Config flow
+      - [ ] Don't show door page for e.g. Beta if none selected
       - https://www.python4data.science/en/latest/clean-prep/voluptuous.html
       - [ ] Rework to configure multiple controllers, doors, etc
             - [ ] Validate doors
@@ -29,6 +34,8 @@ KeyboardInterrupt
       - [x] Rework to configure multiple controllers
       - [x] Check for duplicate controller names
       - [ ] Rework to configure multiple doors
+      - [ ] Check for duplicate door names
+      - (?) https://community.home-assistant.io/t/optionsflowhandler-does-not-work-as-expected/547622
       - [ ] show menu
             - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu
 
