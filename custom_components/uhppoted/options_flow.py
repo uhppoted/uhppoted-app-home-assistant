@@ -247,12 +247,12 @@ class UhppotedOptionsFlow(OptionsFlow):
                                     description_placeholders=placeholders)
 
     async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
-
         def f(v):
             return len(v['doors']) > 0 and not v['configured']
 
         it = next((v for v in self.configuration['doors'] if f(v)), None)
         if it == None:
+            print('>>>>>>>>>>>>>>>>> HERE WE GO', self.options[CONF_DOORS])
             return self.async_create_entry(title="uhppoted", data=self.options)
             # return await self.async_step_cards()
         else:
@@ -289,33 +289,57 @@ class UhppotedOptionsFlow(OptionsFlow):
             if not errors:
                 v = self.options[CONF_DOORS]
 
+                print('>>>>>>>>>>>>>>>>> BEFORE', v)
+
                 if 1 in doors:
-                    v.append({
-                        CONF_DOOR_ID: user_input['door1_id'],
-                        CONF_DOOR_CONTROLLER: controller,
-                        CONF_DOOR_NUMBER: 1,
-                    })
+                    for d in v:
+                        if d[CONF_DOOR_CONTROLLER] == controller and d[CONF_DOOR_NUMBER] == 1:
+                            d[CONF_DOOR_ID] = user_input['door1_id']
+                            break
+                    else:
+                        v.append({
+                            CONF_DOOR_ID: user_input['door1_id'],
+                            CONF_DOOR_CONTROLLER: controller,
+                            CONF_DOOR_NUMBER: 1,
+                        })
 
                 if 2 in doors:
-                    v.append({
-                        CONF_DOOR_ID: user_input['door2_id'],
-                        CONF_DOOR_CONTROLLER: controller,
-                        CONF_DOOR_NUMBER: 2,
-                    })
+                    for d in v:
+                        if d[CONF_DOOR_CONTROLLER] == controller and d[CONF_DOOR_NUMBER] == 2:
+                            d[CONF_DOOR_ID] = user_input['door2_id']
+                            break
+                    else:
+                        v.append({
+                            CONF_DOOR_ID: user_input['door2_id'],
+                            CONF_DOOR_CONTROLLER: controller,
+                            CONF_DOOR_NUMBER: 2,
+                        })
 
                 if 3 in doors:
-                    v.append({
-                        CONF_DOOR_ID: user_input['door3_id'],
-                        CONF_DOOR_CONTROLLER: controller,
-                        CONF_DOOR_NUMBER: 3,
-                    })
+                    for d in v:
+                        if d[CONF_DOOR_CONTROLLER] == controller and d[CONF_DOOR_NUMBER] == 3:
+                            d[CONF_DOOR_ID] = user_input['door3_id']
+                            break
+                    else:
+                        v.append({
+                            CONF_DOOR_ID: user_input['door3_id'],
+                            CONF_DOOR_CONTROLLER: controller,
+                            CONF_DOOR_NUMBER: 3,
+                        })
 
                 if 4 in doors:
-                    v.append({
-                        CONF_DOOR_ID: user_input['door4_id'],
-                        CONF_DOOR_CONTROLLER: controller,
-                        CONF_DOOR_NUMBER: 4,
-                    })
+                    for d in v:
+                        if d[CONF_DOOR_CONTROLLER] == controller and d[CONF_DOOR_NUMBER] == 4:
+                            d[CONF_DOOR_ID] = user_input['door4_id']
+                            break
+                    else:
+                        v.append({
+                            CONF_DOOR_ID: user_input['door4_id'],
+                            CONF_DOOR_CONTROLLER: controller,
+                            CONF_DOOR_NUMBER: 4,
+                        })
+
+                print('>>>>>>>>>>>>>>>>> AFTER', v)
 
                 self.options.update({CONF_DOORS: v})
                 it['configured'] = True
