@@ -50,7 +50,7 @@ class UhppotedOptionsFlow(OptionsFlow):
         self.options = dict(entry.options)
         self.controllers = []
         self.doors = []
-        self.configured = {'doors': []}
+        self.configuration = {'doors': []}
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         return await self.async_step_IPv4()
@@ -193,9 +193,20 @@ class UhppotedOptionsFlow(OptionsFlow):
                                     })
 
     async def async_step_doors(self, user_input: Optional[Dict[str, Any]] = None):
-        all_doors = get_all_doors(self.options)
 
-        it = next((v for v in all_doors if not v[CONF_CONTROLLER_ID] in self.configured['doors']), None)
+        def f(v):
+            return v[CONF_CONTROLLER_ID] in [u['controller'] for u in self.configuration['doors']]
+
+        def g(d):
+            door = d[CONF_DOOR_ID]
+            no = d[CONF_DOOR_NUMBER]
+            return {
+                'label': f'Door {no} ({door})' if door else f'Door {no}',
+                'value': f'{no}',
+            }
+
+        all_doors = get_all_doors(self.options)
+        it = next((v for v in all_doors if not f(v)), None)
         if it == None:
             return await self.async_step_door()
         else:
@@ -206,21 +217,14 @@ class UhppotedOptionsFlow(OptionsFlow):
         errors: Dict[str, str] = {}
         if user_input is not None:
             if not errors:
-                self.configured['doors'].append(controller)
-                # it['doors'] = {
-                #     'doors': [int(f'{v}') for v in user_input['doors']],
-                #     'configured': False,
-                # }
+                self.configuration['doors'].append({
+                    'controller': controller,
+                    'serial_no': serial_no,
+                    'doors': [int(f'{v}') for v in user_input['doors']],
+                    'configured': False,
+                })
 
                 return await self.async_step_doors()
-
-        def g(d):
-            door = d[CONF_DOOR_ID]
-            no = d[CONF_DOOR_NUMBER]
-            return {
-                'label': f'Door {no} ({door})' if door else f'Door {no}',
-                'value': f'{no}',
-            }
 
         select = SelectSelectorConfig(options=[g(v) for v in doors],
                                       multiple=True,
@@ -243,59 +247,159 @@ class UhppotedOptionsFlow(OptionsFlow):
                                     description_placeholders=placeholders)
 
     async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
-        name = ''
-        controller = ''
-        door_no = ''
 
-        if CONF_DOORS in self.options:
-            for v in self.options[CONF_DOORS]:
-                name = v[CONF_DOOR_ID]
-                controller = v[CONF_DOOR_CONTROLLER]
-                door_no = v[CONF_DOOR_NUMBER]
-                break
+        def f(v):
+            return len(v['doors']) > 0 and not v['configured']
 
-        controllers = SelectSelector(
-            SelectSelectorConfig(options=['Alpha', 'Beta', 'Gamma', 'Delta'],
-                                 multiple=False,
-                                 mode=SelectSelectorMode.DROPDOWN))
-
-        doors = SelectSelector(
-            SelectSelectorConfig(options=['1', '2', '3', '4'], multiple=False, mode=SelectSelectorMode.DROPDOWN))
-
-        schema = vol.Schema({
-            vol.Required(CONF_DOOR_ID, default=name): str,
-            vol.Required(CONF_DOOR_CONTROLLER, default=controller): controllers,
-            vol.Required(CONF_DOOR_NUMBER, default=door_no): doors,
-        })
+        it = next((v for v in self.configuration['doors'] if f(v)), None)
+        if it == None:
+            return self.async_create_entry(title="uhppoted", data=self.options)
+            # return await self.async_step_cards()
+        else:
+            controller = it['controller']
+            serial_no = it['serial_no']
+            doors = it['doors']
 
         errors: Dict[str, str] = {}
-
         if user_input is not None:
             try:
-                validate_door_id(user_input[CONF_DOOR_ID])
+                if 1 in doors:
+                    validate_door_id(user_input['door1_id'])
             except ValueError:
-                errors["base"] = f'Invalid door ID ({user_input[CONF_DOOR_ID]})'
+                errors['base'] = f"Invalid door 1 ID ({user_input['door1_id']})"
 
             try:
-                validate_door_controller(user_input[CONF_DOOR_CONTROLLER], self.options[CONF_CONTROLLERS])
+                if 2 in doors:
+                    validate_door_id(user_input['door2_id'])
             except ValueError:
-                errors["base"] = f'Invalid door controller ({user_input[CONF_DOOR_CONTROLLER]})'
+                errors['base'] = f"Invalid door 2 ID ({user_input['door2_id']})"
 
             try:
-                validate_door_number(user_input[CONF_DOOR_NUMBER])
+                if 3 in doors:
+                    validate_door_id(user_input['door3_id'])
             except ValueError:
-                errors["base"] = f'Invalid door number ({user_input[CONF_DOOR_NUMBER]})'
+                errors['base'] = f"Invalid door 3 ID ({user_input['door3_id']})"
+
+            try:
+                if 4 in doors:
+                    validate_door_id(user_input['door4_id'])
+            except ValueError:
+                errors['base'] = f"Invalid door 4 ID ({user_input['door4_id']})"
 
             if not errors:
-                v = []
-                v.append({
-                    CONF_DOOR_ID: user_input[CONF_DOOR_ID],
-                    CONF_DOOR_CONTROLLER: user_input[CONF_DOOR_CONTROLLER],
-                    CONF_DOOR_NUMBER: user_input[CONF_DOOR_NUMBER],
-                })
+                v = self.options[CONF_DOORS]
+
+                if 1 in doors:
+                    v.append({
+                        CONF_DOOR_ID: user_input['door1_id'],
+                        CONF_DOOR_CONTROLLER: controller,
+                        CONF_DOOR_NUMBER: 1,
+                    })
+
+                if 2 in doors:
+                    v.append({
+                        CONF_DOOR_ID: user_input['door2_id'],
+                        CONF_DOOR_CONTROLLER: controller,
+                        CONF_DOOR_NUMBER: 2,
+                    })
+
+                if 3 in doors:
+                    v.append({
+                        CONF_DOOR_ID: user_input['door3_id'],
+                        CONF_DOOR_CONTROLLER: controller,
+                        CONF_DOOR_NUMBER: 3,
+                    })
+
+                if 4 in doors:
+                    v.append({
+                        CONF_DOOR_ID: user_input['door4_id'],
+                        CONF_DOOR_CONTROLLER: controller,
+                        CONF_DOOR_NUMBER: 4,
+                    })
 
                 self.options.update({CONF_DOORS: v})
+                it['configured'] = True
 
-                return self.async_create_entry(title="uhppoted", data=self.options)
+                return await self.async_step_door()
 
-        return self.async_show_form(step_id="door", data_schema=schema, errors=errors)
+        schema = vol.Schema({})
+
+        if 1 in doors:
+            schema = schema.extend({vol.Required('door1_id', default='Gryffindor'): str})
+
+        if 2 in doors:
+            schema = schema.extend({vol.Required('door2_id', default='Ravenclaw'): str})
+
+        if 3 in doors:
+            schema = schema.extend({vol.Required('door3_id', default='Hufflepuff'): str})
+
+        if 4 in doors:
+            schema = schema.extend({vol.Required('door4_id', default='Slytherin'): str})
+
+        placeholders = {
+            'controller': f'{controller}',
+            'serial_no': f'{serial_no}',
+        }
+
+        return self.async_show_form(step_id="door",
+                                    data_schema=schema,
+                                    errors=errors,
+                                    description_placeholders=placeholders)
+
+    # async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
+    #     name = ''
+    #     controller = ''
+    #     door_no = ''
+    #
+    #     if CONF_DOORS in self.options:
+    #         for v in self.options[CONF_DOORS]:
+    #             name = v[CONF_DOOR_ID]
+    #             controller = v[CONF_DOOR_CONTROLLER]
+    #             door_no = v[CONF_DOOR_NUMBER]
+    #             break
+    #
+    #     controllers = SelectSelector(
+    #         SelectSelectorConfig(options=['Alpha', 'Beta', 'Gamma', 'Delta'],
+    #                              multiple=False,
+    #                              mode=SelectSelectorMode.DROPDOWN))
+    #
+    #     doors = SelectSelector(
+    #         SelectSelectorConfig(options=['1', '2', '3', '4'], multiple=False, mode=SelectSelectorMode.DROPDOWN))
+    #
+    #     schema = vol.Schema({
+    #         vol.Required(CONF_DOOR_ID, default=name): str,
+    #         vol.Required(CONF_DOOR_CONTROLLER, default=controller): controllers,
+    #         vol.Required(CONF_DOOR_NUMBER, default=door_no): doors,
+    #     })
+    #
+    #     errors: Dict[str, str] = {}
+    #
+    #     if user_input is not None:
+    #         try:
+    #             validate_door_id(user_input[CONF_DOOR_ID])
+    #         except ValueError:
+    #             errors["base"] = f'Invalid door ID ({user_input[CONF_DOOR_ID]})'
+    #
+    #         try:
+    #             validate_door_controller(user_input[CONF_DOOR_CONTROLLER], self.options[CONF_CONTROLLERS])
+    #         except ValueError:
+    #             errors["base"] = f'Invalid door controller ({user_input[CONF_DOOR_CONTROLLER]})'
+    #
+    #         try:
+    #             validate_door_number(user_input[CONF_DOOR_NUMBER])
+    #         except ValueError:
+    #             errors["base"] = f'Invalid door number ({user_input[CONF_DOOR_NUMBER]})'
+    #
+    #         if not errors:
+    #             v = []
+    #             v.append({
+    #                 CONF_DOOR_ID: user_input[CONF_DOOR_ID],
+    #                 CONF_DOOR_CONTROLLER: user_input[CONF_DOOR_CONTROLLER],
+    #                 CONF_DOOR_NUMBER: user_input[CONF_DOOR_NUMBER],
+    #             })
+    #
+    #             self.options.update({CONF_DOORS: v})
+    #
+    #             return self.async_create_entry(title="uhppoted", data=self.options)
+    #
+    #     return self.async_show_form(step_id="door", data_schema=schema, errors=errors)

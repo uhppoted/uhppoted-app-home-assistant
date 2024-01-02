@@ -14,16 +14,7 @@ KeyboardInterrupt
 
 - [ ] Config flow
       - https://www.python4data.science/en/latest/clean-prep/voluptuous.html
-      - [x] Rethink using controller ID for unique ID
-      - [x] Find controllers with `get-all-controllers`
-      - [x] ~~Make bind, broadcast, etc step optional~~
       - [ ] Rework to configure multiple controllers, doors, etc
-            - [x] Restructure configuration for list of controllers
-            - [x] Restructure configuration for list of doors
-            - [x] Select controllers to configure
-            - [x] Loop until done
-            - [x] Select doors to configure
-            - [x] Check for duplicate controller names
             - [ ] Validate doors
             - [ ] Ad hoc controllers
                   - when internal list is empty
@@ -49,9 +40,6 @@ KeyboardInterrupt
 
 - [ ] Doors
       - [ ] Rework open/pressed as event entities
-      - [x] mode
-      - [x] delay
-            - [x] Set unit of measurement to seconds (https://next.home-assistant.io/docs/blueprint/selectors/#number-selector)
       - [ ] unlock
             - [x] `ControllerDoorUnlock`
             - [ ] Update other entities (data coordinator)

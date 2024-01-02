@@ -30,5 +30,8 @@ ATTR_NETMASK = 'netmask'
 ATTR_GATEWAY = 'gateway'
 ATTR_FIRMWARE = 'firmware'
 
+ATTR_DOOR_CONTROLLER = 'controller'
+ATTR_DOOR_NUMBER = 'door'
+
 ERR_INVALID_CONTROLLER_ID = 'invalid_controller_id'
 ERR_DUPLICATE_CONTROLLER_ID = 'duplicate_controller_id'

@@ -174,7 +174,7 @@
             "doors": {
                 "title": "Doors for controller {controller}",
                 "data": {
-                    "doors": "Select the doors to include:"
+                    "doors": "Select the doors to be reconfigured:"
                 },
                 "data_description": {
                     "doors": "Doors managed by controller {serial_no}"
@@ -182,17 +182,19 @@
             },
 
             "door": {
-                "title": "UHPPOTE controller door configuration",
-                "description": "Door configuration",
+                "title": "Controller {controller} door configuration",
+                "description": "Configure the humanised door names",
                 "data": {
-                    "door_id": "door identifier",
-                    "door_controller": "Door controller",
-                    "door_number": "Door number (1-4)"
+                    "door1_id": "Door 1 name",
+                    "door2_id": "Door 2 name",
+                    "door3_id": "Door 3 name",
+                    "door4_id": "Door 4 name"
                 },
                 "data_description": {
-                    "door_id": "Door (human) name e.g. Entrance",
-                    "door_controller": "Identifier of the controller for the door e.g. Alpha",
-                    "door_number": "Door number [1-4] on the controller"
+                    "door1_id": "Door 1 'human' name e.g. Gryffindor",
+                    "door2_id": "Door 2 'human' name e.g. Ravenclaw",
+                    "door3_id": "Door 3 'human' name e.g. Hufflepuff",
+                    "door4_id": "Door 4 'human' name e.g. Slytherin"
                 }
             }
         },

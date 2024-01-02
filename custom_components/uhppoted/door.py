@@ -10,6 +10,9 @@ from homeassistant.const import TIME_SECONDS
 
 _LOGGER = logging.getLogger(__name__)
 
+from .const import ATTR_DOOR_CONTROLLER
+from .const import ATTR_DOOR_NUMBER
+
 
 class ControllerDoor(SensorEntity):
     _attr_icon = 'mdi:door'
@@ -31,6 +34,11 @@ class ControllerDoor(SensorEntity):
         self._open = None
         self._button = None
         self._available = False
+
+        self._attributes: Dict[str, Any] = {
+            ATTR_DOOR_CONTROLLER: f'{serial_no}',
+            ATTR_DOOR_NUMBER: f'{door_id}',
+        }
 
     @property
     def unique_id(self) -> str:
@@ -64,6 +72,10 @@ class ControllerDoor(SensorEntity):
             return ' '.join(s)
 
         return None
+
+    @property
+    def extra_state_attributes(self) -> Dict[str, Any]:
+        return self._attributes
 
     async def async_update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door} state')
