@@ -115,9 +115,12 @@
             "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
             "unknown": "[%key:common::config_flow::error::unknown%]",
 
-            "invalid_controller_id": "Invalid controller ID",
-            "duplicate_controller_id": "Duplicate controller ID"
-        },
+            "invalid_controller_id": "Invalid controller name",
+            "duplicate_controller_id": "Duplicate controller name",
+ 
+            "invalid_door_id": "Invalid door name",
+            "duplicate_door_id": "Duplicate door name"
+         },
         "abort": {
             "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
         }
@@ -203,8 +206,11 @@
             "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
             "unknown": "[%key:common::config_flow::error::unknown%]",
 
-            "invalid_controller_id": "Invalid controller ID",
-            "duplicate_controller_id": "Duplicate controller ID"
+            "invalid_controller_id": "Invalid controller name",
+            "duplicate_controller_id": "Duplicate controller name",
+ 
+            "invalid_door_id": "Invalid door name",
+            "duplicate_door_id": "Duplicate door name"
        },
         "abort": {
             "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"

@@ -53,10 +53,7 @@ from .const import DEFAULT_DOOR4
 from .options_flow import UhppotedOptionsFlow
 
 from .config import validate_controller_id
-from .config import validate_controller_serial_no
 from .config import validate_door_id
-from .config import validate_door_controller
-from .config import validate_door_number
 from .config import validate_card_number
 from .config import get_IPv4
 from .config import get_all_controllers
@@ -260,38 +257,41 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         it = next((v for v in self.controllers if f(v['doors'])), None)
         if it == None:
             return await self.async_step_cards()
+        else:
+            controller = it['controller']['name']
+            serial_no = it['controller']['serial_no']
+            doors = it['doors']['doors']
 
         errors: Dict[str, str] = {}
         if user_input is not None:
             try:
-                if 1 in it['doors']['doors']:
-                    validate_door_id(user_input['door1_id'])
-            except ValueError:
-                errors['base'] = f"Invalid door 1 ID ({user_input['door1_id']})"
+                if 1 in doors:
+                    validate_door_id(controller, 1, user_input['door1_id'], self.options)
+            except ValueError as err:
+                errors['door1_id'] = f'{err}'
 
             try:
-                if 2 in it['doors']['doors']:
-                    validate_door_id(user_input['door2_id'])
-            except ValueError:
-                errors['base'] = f"Invalid door 2 ID ({user_input['door2_id']})"
+                if 2 in doors:
+                    validate_door_id(controller, 2, user_input['door2_id'], self.options)
+            except ValueError as err:
+                errors['door2_id'] = f'{err}'
 
             try:
-                if 3 in it['doors']['doors']:
-                    validate_door_id(user_input['door3_id'])
-            except ValueError:
-                errors['base'] = f"Invalid door 3 ID ({user_input['door3_id']})"
+                if 3 in doors:
+                    validate_door_id(controller, 3, user_input['door3_id'], self.options)
+            except ValueError as err:
+                errors['door3_id'] = f'{err}'
 
             try:
-                if 4 in it['doors']['doors']:
-                    validate_door_id(user_input['door4_id'])
-            except ValueError:
-                errors['base'] = f"Invalid door 4 ID ({user_input['door4_id']})"
+                if 4 in doors:
+                    validate_door_id(controller, 4, user_input['door4_id'], self.options)
+            except ValueError as err:
+                errors['door4_id'] = f'{err}'
 
             if not errors:
-                controller = it['controller']['name']
                 v = self.options[CONF_DOORS]
 
-                if 1 in it['doors']['doors']:
+                if 1 in doors:
                     v.append({
                         CONF_DOOR_ID: user_input['door1_id'],
                         CONF_DOOR_CONTROLLER: controller,
@@ -333,16 +333,16 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
         schema = vol.Schema({})
 
-        if 1 in it['doors']['doors']:
+        if 1 in doors:
             schema = schema.extend({vol.Required('door1_id', default=defaults['door1_id']): str})
 
-        if 2 in it['doors']['doors']:
+        if 2 in doors:
             schema = schema.extend({vol.Required('door2_id', default=defaults['door2_id']): str})
 
-        if 3 in it['doors']['doors']:
+        if 3 in doors:
             schema = schema.extend({vol.Required('door3_id', default=defaults['door3_id']): str})
 
-        if 4 in it['doors']['doors']:
+        if 4 in doors:
             schema = schema.extend({vol.Required('door4_id', default=defaults['door4_id']): str})
 
         placeholders = {

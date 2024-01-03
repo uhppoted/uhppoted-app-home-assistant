@@ -40,3 +40,5 @@ DEFAULT_DOOR4 = 'Slytherin'
 
 ERR_INVALID_CONTROLLER_ID = 'invalid_controller_id'
 ERR_DUPLICATE_CONTROLLER_ID = 'duplicate_controller_id'
+ERR_INVALID_DOOR_ID = 'invalid_door_id'
+ERR_DUPLICATE_DOOR_ID = 'duplicate_door_id'

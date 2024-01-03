@@ -21,6 +21,8 @@ from .const import CONF_DOOR_NUMBER
 
 from .const import ERR_INVALID_CONTROLLER_ID
 from .const import ERR_DUPLICATE_CONTROLLER_ID
+from .const import ERR_INVALID_DOOR_ID
+from .const import ERR_DUPLICATE_DOOR_ID
 
 _LOGGER = logging.getLogger(__name__)
 MAX_CARDS = 25
@@ -43,29 +45,18 @@ def validate_controller_id(serial_no, name, options) -> None:
                     raise ValueError(ERR_DUPLICATE_CONTROLLER_ID)
 
 
-def validate_controller_serial_no(v) -> None:
-    controller = int(f'{v}')
-    if controller < 100000000:
-        raise ValueError
+def validate_door_id(controller, door, name, options) -> None:
+    if not name or name.strip() == '':
+        raise ValueError(ERR_INVALID_DOOR_ID)
 
+    if options and CONF_DOORS in options:
+        for v in options[CONF_DOORS]:
+            if normalise(v[CONF_DOOR_ID]) == normalise(name):
+                if normalise(f'{v[CONF_DOOR_CONTROLLER]}') != normalise(f'{controller}'):
+                    raise ValueError(ERR_DUPLICATE_DOOR_ID)
 
-def validate_door_id(v: int) -> None:
-    if not v or v.strip() == '':
-        raise ValueError
-
-
-def validate_door_controller(v: str, controllers: list[Any]) -> None:
-    for controller in controllers:
-        if v == controller[CONF_CONTROLLER_ID]:
-            return
-
-    raise ValueError
-
-
-def validate_door_number(v) -> None:
-    door = int(f'{v}')
-    if door < 1 or door > 4:
-        raise ValueError
+                if int(f'{v[CONF_DOOR_NUMBER]}') != int(f'{door}'):
+                    raise ValueError(ERR_DUPLICATE_DOOR_ID)
 
 
 def validate_card_number(v: int) -> None:

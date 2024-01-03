@@ -37,10 +37,7 @@ from .const import DEFAULT_DOOR3
 from .const import DEFAULT_DOOR4
 
 from .config import validate_controller_id
-from .config import validate_controller_serial_no
 from .config import validate_door_id
-from .config import validate_door_controller
-from .config import validate_door_number
 
 from .config import get_all_controllers
 from .config import get_all_doors
@@ -271,27 +268,27 @@ class UhppotedOptionsFlow(OptionsFlow):
         if user_input is not None:
             try:
                 if 1 in doors:
-                    validate_door_id(user_input['door1_id'])
-            except ValueError:
-                errors['base'] = f"Invalid door 1 ID ({user_input['door1_id']})"
+                    validate_door_id(controller, 1, user_input['door1_id'], self.options)
+            except ValueError as err:
+                errors['door1_id'] = f'{err}'
 
             try:
                 if 2 in doors:
-                    validate_door_id(user_input['door2_id'])
-            except ValueError:
-                errors['base'] = f"Invalid door 2 ID ({user_input['door2_id']})"
+                    validate_door_id(controller, 2, user_input['door2_id'], self.options)
+            except ValueError as err:
+                errors['door2_id'] = f'{err}'
 
             try:
                 if 3 in doors:
-                    validate_door_id(user_input['door3_id'])
-            except ValueError:
-                errors['base'] = f"Invalid door 3 ID ({user_input['door3_id']})"
+                    validate_door_id(controller, 3, user_input['door3_id'], self.options)
+            except ValueError as err:
+                errors['door3_id'] = f'{err}'
 
             try:
                 if 4 in doors:
-                    validate_door_id(user_input['door4_id'])
-            except ValueError:
-                errors['base'] = f"Invalid door 4 ID ({user_input['door4_id']})"
+                    validate_door_id(controller, 4, user_input['door4_id'], self.options)
+            except ValueError as err:
+                errors['door4_id'] = f'{err}'
 
             if not errors:
                 v = self.options[CONF_DOORS]
@@ -392,61 +389,3 @@ class UhppotedOptionsFlow(OptionsFlow):
                                     data_schema=schema,
                                     errors=errors,
                                     description_placeholders=placeholders)
-
-    # async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
-    #     name = ''
-    #     controller = ''
-    #     door_no = ''
-    #
-    #     if CONF_DOORS in self.options:
-    #         for v in self.options[CONF_DOORS]:
-    #             name = v[CONF_DOOR_ID]
-    #             controller = v[CONF_DOOR_CONTROLLER]
-    #             door_no = v[CONF_DOOR_NUMBER]
-    #             break
-    #
-    #     controllers = SelectSelector(
-    #         SelectSelectorConfig(options=['Alpha', 'Beta', 'Gamma', 'Delta'],
-    #                              multiple=False,
-    #                              mode=SelectSelectorMode.DROPDOWN))
-    #
-    #     doors = SelectSelector(
-    #         SelectSelectorConfig(options=['1', '2', '3', '4'], multiple=False, mode=SelectSelectorMode.DROPDOWN))
-    #
-    #     schema = vol.Schema({
-    #         vol.Required(CONF_DOOR_ID, default=name): str,
-    #         vol.Required(CONF_DOOR_CONTROLLER, default=controller): controllers,
-    #         vol.Required(CONF_DOOR_NUMBER, default=door_no): doors,
-    #     })
-    #
-    #     errors: Dict[str, str] = {}
-    #
-    #     if user_input is not None:
-    #         try:
-    #             validate_door_id(user_input[CONF_DOOR_ID])
-    #         except ValueError:
-    #             errors["base"] = f'Invalid door ID ({user_input[CONF_DOOR_ID]})'
-    #
-    #         try:
-    #             validate_door_controller(user_input[CONF_DOOR_CONTROLLER], self.options[CONF_CONTROLLERS])
-    #         except ValueError:
-    #             errors["base"] = f'Invalid door controller ({user_input[CONF_DOOR_CONTROLLER]})'
-    #
-    #         try:
-    #             validate_door_number(user_input[CONF_DOOR_NUMBER])
-    #         except ValueError:
-    #             errors["base"] = f'Invalid door number ({user_input[CONF_DOOR_NUMBER]})'
-    #
-    #         if not errors:
-    #             v = []
-    #             v.append({
-    #                 CONF_DOOR_ID: user_input[CONF_DOOR_ID],
-    #                 CONF_DOOR_CONTROLLER: user_input[CONF_DOOR_CONTROLLER],
-    #                 CONF_DOOR_NUMBER: user_input[CONF_DOOR_NUMBER],
-    #             })
-    #
-    #             self.options.update({CONF_DOORS: v})
-    #
-    #             return self.async_create_entry(title="uhppoted", data=self.options)
-    #
-    #     return self.async_show_form(step_id="door", data_schema=schema, errors=errors)
