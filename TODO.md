@@ -1,9 +1,5 @@
 # TODO
 
-- [ ] **REWORK TO SERIAL NUMBER AS unique_id**
-- [ ] **REWORK TO USE SERIAL NUMBER + DOOR NUMBER AS unique_id**
-- [ ] **FIX BUTTON FOR options flow**
-
 - [ ] Shutdown while waiting for controller response
       - (?) asyncio maybe
       - (?) move from polled to event model

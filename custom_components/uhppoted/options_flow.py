@@ -54,8 +54,6 @@ class UhppotedOptionsFlow(OptionsFlow):
         self.doors = []
         self.configuration = {'doors': []}
 
-        print('>>> init/config:', self.options)
-
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         return await self.async_step_IPv4()
 
@@ -65,7 +63,8 @@ class UhppotedOptionsFlow(OptionsFlow):
         if user_input is not None:
             if not errors:
                 self.options.update(user_input)
-                return await self.async_step_controllers()
+                return self.async_create_entry(title="uhppoted", data=self.options)
+                # return await self.async_step_controllers()
 
         bind = self.options[CONF_BIND_ADDR]
         broadcast = self.options[CONF_BROADCAST_ADDR]

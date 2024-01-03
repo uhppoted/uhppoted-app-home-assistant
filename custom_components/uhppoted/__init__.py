@@ -52,7 +52,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    platforms = [Platform.SENSOR, Platform.DATETIME, Platform.SELECT, Platform.NUMBER]
+    platforms = [
+        Platform.SENSOR,
+        Platform.DATETIME,
+        Platform.SELECT,
+        Platform.NUMBER,
+        Platform.BUTTON,
+    ]
 
     # TODO pre-unload cleanup (if any)
     ok = await hass.config_entries.async_unload_platforms(entry, platforms)
