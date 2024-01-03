@@ -29,8 +29,9 @@ KeyboardInterrupt
 - [ ] Options flow
       - [x] Rework to configure multiple controllers
       - [x] Check for duplicate controller names
-      - [ ] Rework to configure multiple doors
+      - [x] Rework to configure multiple doors
       - [ ] Check for duplicate door names
+      - [ ] Remove controller from door entity id
       - (?) https://community.home-assistant.io/t/optionsflowhandler-does-not-work-as-expected/547622
       - [ ] show menu
             - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu

@@ -31,6 +31,11 @@ from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
 
+from .const import DEFAULT_DOOR1
+from .const import DEFAULT_DOOR2
+from .const import DEFAULT_DOOR3
+from .const import DEFAULT_DOOR4
+
 from .config import validate_controller_id
 from .config import validate_controller_serial_no
 from .config import validate_door_id
@@ -48,8 +53,8 @@ class UhppotedOptionsFlow(OptionsFlow):
     def __init__(self, entry: ConfigEntry) -> None:
         self.config_entry = entry
         self.data = dict(entry.data)
-        self.options = dict(entry.options)
-        # self.options = copy.deepcopy(dict(entry.options))
+        # self.options = dict(entry.options)
+        self.options = copy.deepcopy(dict(entry.options))
         self.controllers = []
         self.doors = []
         self.configuration = {'doors': []}
@@ -63,8 +68,7 @@ class UhppotedOptionsFlow(OptionsFlow):
         if user_input is not None:
             if not errors:
                 self.options.update(user_input)
-                return self.async_create_entry(title="uhppoted", data=self.options)
-                # return await self.async_step_controllers()
+                return await self.async_step_controllers()
 
         bind = self.options[CONF_BIND_ADDR]
         broadcast = self.options[CONF_BROADCAST_ADDR]
@@ -256,8 +260,6 @@ class UhppotedOptionsFlow(OptionsFlow):
 
         it = next((v for v in self.configuration['doors'] if f(v)), None)
         if it == None:
-            print('>>>>>>>>>>>>>>>>> HERE WE GO', self.options[CONF_DOORS])
-            print('>>>>>>>>>>>>>>>>> HERE WE GO/1', self.config_entry.options)
             return self.async_create_entry(title="uhppoted", data=self.options)
             # return await self.async_step_cards()
         else:
@@ -347,19 +349,39 @@ class UhppotedOptionsFlow(OptionsFlow):
 
                 return await self.async_step_door()
 
+        defaults = {
+            'door1_id': DEFAULT_DOOR1,
+            'door2_id': DEFAULT_DOOR2,
+            'door3_id': DEFAULT_DOOR3,
+            'door4_id': DEFAULT_DOOR4,
+        }
+
+        for v in self.options[CONF_DOORS]:
+            if v[CONF_DOOR_CONTROLLER] == controller and v[CONF_DOOR_NUMBER] == 1:
+                defaults['door1_id'] = v[CONF_DOOR_ID]
+
+            if v[CONF_DOOR_CONTROLLER] == controller and v[CONF_DOOR_NUMBER] == 2:
+                defaults['door2_id'] = v[CONF_DOOR_ID]
+
+            if v[CONF_DOOR_CONTROLLER] == controller and v[CONF_DOOR_NUMBER] == 3:
+                defaults['door3_id'] = v[CONF_DOOR_ID]
+
+            if v[CONF_DOOR_CONTROLLER] == controller and v[CONF_DOOR_NUMBER] == 4:
+                defaults['door4_id'] = v[CONF_DOOR_ID]
+
         schema = vol.Schema({})
 
         if 1 in doors:
-            schema = schema.extend({vol.Required('door1_id', default='Gryffindor'): str})
+            schema = schema.extend({vol.Required('door1_id', default=defaults['door1_id']): str})
 
         if 2 in doors:
-            schema = schema.extend({vol.Required('door2_id', default='Ravenclaw'): str})
+            schema = schema.extend({vol.Required('door2_id', default=defaults['door2_id']): str})
 
         if 3 in doors:
-            schema = schema.extend({vol.Required('door3_id', default='Hufflepuff'): str})
+            schema = schema.extend({vol.Required('door3_id', default=defaults['door3_id']): str})
 
         if 4 in doors:
-            schema = schema.extend({vol.Required('door4_id', default='Slytherin'): str})
+            schema = schema.extend({vol.Required('door4_id', default=defaults['door4_id']): str})
 
         placeholders = {
             'controller': f'{controller}',

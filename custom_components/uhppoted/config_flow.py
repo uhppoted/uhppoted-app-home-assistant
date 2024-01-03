@@ -45,6 +45,11 @@ from .const import CONF_CARD_STARTDATE
 from .const import CONF_CARD_ENDDATE
 from .const import CONF_CARD_DOORS
 
+from .const import DEFAULT_DOOR1
+from .const import DEFAULT_DOOR2
+from .const import DEFAULT_DOOR3
+from .const import DEFAULT_DOOR4
+
 from .options_flow import UhppotedOptionsFlow
 
 from .config import validate_controller_id
@@ -315,19 +320,26 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
                 return await self.async_step_door()
 
+        defaults = {
+            'door1_id': DEFAULT_DOOR1,
+            'door2_id': DEFAULT_DOOR2,
+            'door3_id': DEFAULT_DOOR3,
+            'door4_id': DEFAULT_DOOR4,
+        }
+
         schema = vol.Schema({})
 
         if 1 in it['doors']['doors']:
-            schema = schema.extend({vol.Required('door1_id', default='Gryffindor'): str})
+            schema = schema.extend({vol.Required('door1_id', default=defaults['door1_id']): str})
 
         if 2 in it['doors']['doors']:
-            schema = schema.extend({vol.Required('door2_id', default='Ravenclaw'): str})
+            schema = schema.extend({vol.Required('door2_id', default=defaults['door2_id']): str})
 
         if 3 in it['doors']['doors']:
-            schema = schema.extend({vol.Required('door3_id', default='Hufflepuff'): str})
+            schema = schema.extend({vol.Required('door3_id', default=defaults['door3_id']): str})
 
         if 4 in it['doors']['doors']:
-            schema = schema.extend({vol.Required('door4_id', default='Slytherin'): str})
+            schema = schema.extend({vol.Required('door4_id', default=defaults['door4_id']): str})
 
         placeholders = {
             'controller': f'{it["controller"]["name"]}',

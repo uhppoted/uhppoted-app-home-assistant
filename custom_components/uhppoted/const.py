@@ -33,5 +33,10 @@ ATTR_FIRMWARE = 'firmware'
 ATTR_DOOR_CONTROLLER = 'controller'
 ATTR_DOOR_NUMBER = 'door'
 
+DEFAULT_DOOR1 = 'Gryffindor'
+DEFAULT_DOOR2 = 'Ravenclaw'
+DEFAULT_DOOR3 = 'Hufflepuff'
+DEFAULT_DOOR4 = 'Slytherin'
+
 ERR_INVALID_CONTROLLER_ID = 'invalid_controller_id'
 ERR_DUPLICATE_CONTROLLER_ID = 'duplicate_controller_id'
