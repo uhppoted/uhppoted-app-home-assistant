@@ -45,18 +45,21 @@ def validate_controller_id(serial_no, name, options) -> None:
                     raise ValueError(ERR_DUPLICATE_CONTROLLER_ID)
 
 
-def validate_door_id(controller, door, name, options) -> None:
+def validate_door_id(name, options) -> None:
     if not name or name.strip() == '':
         raise ValueError(ERR_INVALID_DOOR_ID)
 
     if options and CONF_DOORS in options:
         for v in options[CONF_DOORS]:
             if normalise(v[CONF_DOOR_ID]) == normalise(name):
-                if normalise(f'{v[CONF_DOOR_CONTROLLER]}') != normalise(f'{controller}'):
-                    raise ValueError(ERR_DUPLICATE_DOOR_ID)
+                raise ValueError(ERR_DUPLICATE_DOOR_ID)
 
-                if int(f'{v[CONF_DOOR_NUMBER]}') != int(f'{door}'):
-                    raise ValueError(ERR_DUPLICATE_DOOR_ID)
+
+def validate_door_duplicates(name, doors) -> None:
+    normalised = [normalise(v) for v in doors]
+
+    if normalised.count(normalise(name)) > 1:
+        raise ValueError(ERR_DUPLICATE_DOOR_ID)
 
 
 def validate_card_number(v: int) -> None:

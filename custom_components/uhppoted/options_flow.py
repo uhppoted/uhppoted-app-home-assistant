@@ -31,12 +31,17 @@ from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
 
+from .const import DEFAULT_CONTROLLER_ID
+from .const import DEFAULT_CONTROLLER_ADDR
+from .const import DEFAULT_CONTROLLER_TIMEZONE
+
 from .const import DEFAULT_DOOR1
 from .const import DEFAULT_DOOR2
 from .const import DEFAULT_DOOR3
 from .const import DEFAULT_DOOR4
 
 from .config import validate_controller_id
+from .config import validate_door_duplicates
 from .config import validate_door_id
 
 from .config import get_all_controllers
@@ -165,28 +170,29 @@ class UhppotedOptionsFlow(OptionsFlow):
 
                 return await self.async_step_controller()
 
-        name = ''
-        address = ''
-        timezone = 'LOCAL'
+        defaults = {
+            CONF_CONTROLLER_ID: DEFAULT_CONTROLLER_ID,
+            CONF_CONTROLLER_ADDR: DEFAULT_CONTROLLER_ADDR,
+            CONF_CONTROLLER_TIMEZONE: DEFAULT_CONTROLLER_TIMEZONE,
+        }
 
         if CONF_CONTROLLERS in self.options:
             for v in self.options[CONF_CONTROLLERS]:
                 if int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') == int(f'{serial_no}'):
-                    if CONF_CONTROLLER_ID in v:
-                        name = v[CONF_CONTROLLER_ID]
-
-                    if CONF_CONTROLLER_ADDR in v:
-                        address = v[CONF_CONTROLLER_ADDR]
-
-                    if CONF_CONTROLLER_TIMEZONE in v:
-                        timezone = v[CONF_CONTROLLER_TIMEZONE]
-
+                    for k in [CONF_CONTROLLER_ID, CONF_CONTROLLER_ADDR, CONF_CONTROLLER_TIMEZONE]:
+                        if k in v:
+                            defaults[k] = v[k]
                     break
 
+        if user_input is not None:
+            for k in [CONF_CONTROLLER_ID, CONF_CONTROLLER_ADDR, CONF_CONTROLLER_TIMEZONE]:
+                if k in user_input:
+                    defaults[k] = user_input[k]
+
         schema = vol.Schema({
-            vol.Required(CONF_CONTROLLER_ID, default=name): str,
-            vol.Optional(CONF_CONTROLLER_ADDR, default=address): str,
-            vol.Optional(CONF_CONTROLLER_TIMEZONE, default=timezone): str,
+            vol.Required(CONF_CONTROLLER_ID, default=defaults[CONF_CONTROLLER_ID]): str,
+            vol.Optional(CONF_CONTROLLER_ADDR, default=defaults[CONF_CONTROLLER_ADDR]): str,
+            vol.Optional(CONF_CONTROLLER_TIMEZONE, default=defaults[CONF_CONTROLLER_TIMEZONE]): str,
         })
 
         return self.async_show_form(step_id="controller",
@@ -266,29 +272,15 @@ class UhppotedOptionsFlow(OptionsFlow):
 
         errors: Dict[str, str] = {}
         if user_input is not None:
-            try:
-                if 1 in doors:
-                    validate_door_id(controller, 1, user_input['door1_id'], self.options)
-            except ValueError as err:
-                errors['door1_id'] = f'{err}'
-
-            try:
-                if 2 in doors:
-                    validate_door_id(controller, 2, user_input['door2_id'], self.options)
-            except ValueError as err:
-                errors['door2_id'] = f'{err}'
-
-            try:
-                if 3 in doors:
-                    validate_door_id(controller, 3, user_input['door3_id'], self.options)
-            except ValueError as err:
-                errors['door3_id'] = f'{err}'
-
-            try:
-                if 4 in doors:
-                    validate_door_id(controller, 4, user_input['door4_id'], self.options)
-            except ValueError as err:
-                errors['door4_id'] = f'{err}'
+            l = [user_input[f'door{v}_id'] for v in doors]
+            for d in doors:
+                try:
+                    k = f'door{d}_id'
+                    v = user_input[k]
+                    validate_door_id(v, None)
+                    validate_door_duplicates(v, l)
+                except ValueError as err:
+                    errors[k] = f'{err}'
 
             if not errors:
                 v = self.options[CONF_DOORS]
@@ -352,6 +344,11 @@ class UhppotedOptionsFlow(OptionsFlow):
             'door3_id': DEFAULT_DOOR3,
             'door4_id': DEFAULT_DOOR4,
         }
+
+        if user_input is not None:
+            for v in ['door1_id', 'door2_id', 'door3_id', 'door4_id']:
+                if k in user_input:
+                    defaults[k] = user_input[k]
 
         for v in self.options[CONF_DOORS]:
             if v[CONF_DOOR_CONTROLLER] == controller and v[CONF_DOOR_NUMBER] == 1:

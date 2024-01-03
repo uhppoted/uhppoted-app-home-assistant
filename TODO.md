@@ -14,10 +14,10 @@ KeyboardInterrupt
 
 - [ ] Config flow
       - [x] Don't show door page for e.g. Beta if none selected
-      - https://www.python4data.science/en/latest/clean-prep/voluptuous.html
       - [ ] Rework to configure multiple controllers, doors, etc
             - [x] Validate doors
-            - [ ] Check for duplicate controllers/doors at **end** of section
+            - [x] on error, keep the supplied controller names
+            - [x] on error, keep the supplied door names
             - [ ] Ad hoc controllers
                   - when internal list is empty
                   - address is required
@@ -31,9 +31,10 @@ KeyboardInterrupt
       - [x] Rework to configure multiple controllers
       - [x] Check for duplicate controller names
       - [x] Rework to configure multiple doors
-      - [x] Validate doors
+      - [ ] Validate doors
+            - [ ] on error, keep the supplied door/controller names
+            - [ ] Check for duplicate controllers/doors at **end** of section
       - [ ] Remove controller from door entity id
-      - [ ] Check for duplicate controllers/doors at **end** of section
       - [ ] show menu
             - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu
 

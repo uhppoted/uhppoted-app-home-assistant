@@ -45,6 +45,10 @@ from .const import CONF_CARD_STARTDATE
 from .const import CONF_CARD_ENDDATE
 from .const import CONF_CARD_DOORS
 
+from .const import DEFAULT_CONTROLLER_ID
+from .const import DEFAULT_CONTROLLER_ADDR
+from .const import DEFAULT_CONTROLLER_TIMEZONE
+
 from .const import DEFAULT_DOOR1
 from .const import DEFAULT_DOOR2
 from .const import DEFAULT_DOOR3
@@ -54,6 +58,7 @@ from .options_flow import UhppotedOptionsFlow
 
 from .config import validate_controller_id
 from .config import validate_door_id
+from .config import validate_door_duplicates
 from .config import validate_card_number
 from .config import get_IPv4
 from .config import get_all_controllers
@@ -187,10 +192,21 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
                 return await self.async_step_controller()
 
+        defaults = {
+            CONF_CONTROLLER_ID: DEFAULT_CONTROLLER_ID,
+            CONF_CONTROLLER_ADDR: DEFAULT_CONTROLLER_ADDR,
+            CONF_CONTROLLER_TIMEZONE: DEFAULT_CONTROLLER_TIMEZONE,
+        }
+
+        if user_input is not None:
+            for k in [CONF_CONTROLLER_ID, CONF_CONTROLLER_ADDR, CONF_CONTROLLER_TIMEZONE]:
+                if k in user_input:
+                    defaults[k] = user_input[k]
+
         schema = vol.Schema({
-            vol.Required(CONF_CONTROLLER_ID, default='Alpha'): str,
-            vol.Optional(CONF_CONTROLLER_ADDR, default='192.168.1.100'): str,
-            vol.Optional(CONF_CONTROLLER_TIMEZONE, default='LOCAL'): str,
+            vol.Required(CONF_CONTROLLER_ID, default=defaults[CONF_CONTROLLER_ID]): str,
+            vol.Optional(CONF_CONTROLLER_ADDR, default=defaults[CONF_CONTROLLER_ADDR]): str,
+            vol.Optional(CONF_CONTROLLER_TIMEZONE, default=defaults[CONF_CONTROLLER_TIMEZONE]): str,
         })
 
         return self.async_show_form(step_id="controller",
@@ -264,29 +280,15 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
         errors: Dict[str, str] = {}
         if user_input is not None:
-            try:
-                if 1 in doors:
-                    validate_door_id(controller, 1, user_input['door1_id'], self.options)
-            except ValueError as err:
-                errors['door1_id'] = f'{err}'
-
-            try:
-                if 2 in doors:
-                    validate_door_id(controller, 2, user_input['door2_id'], self.options)
-            except ValueError as err:
-                errors['door2_id'] = f'{err}'
-
-            try:
-                if 3 in doors:
-                    validate_door_id(controller, 3, user_input['door3_id'], self.options)
-            except ValueError as err:
-                errors['door3_id'] = f'{err}'
-
-            try:
-                if 4 in doors:
-                    validate_door_id(controller, 4, user_input['door4_id'], self.options)
-            except ValueError as err:
-                errors['door4_id'] = f'{err}'
+            l = [user_input[f'door{v}_id'] for v in doors]
+            for d in doors:
+                try:
+                    k = f'door{d}_id'
+                    v = user_input[k]
+                    validate_door_id(v, self.options)
+                    validate_door_duplicates(v, l)
+                except ValueError as err:
+                    errors[k] = f'{err}'
 
             if not errors:
                 v = self.options[CONF_DOORS]
@@ -330,6 +332,11 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
             'door3_id': DEFAULT_DOOR3,
             'door4_id': DEFAULT_DOOR4,
         }
+
+        if user_input is not None:
+            for k in ['door1_id', 'door2_id', 'door3_id', 'door4_id']:
+                if k in user_input:
+                    defaults[k] = user_input[k]
 
         schema = vol.Schema({})
 
