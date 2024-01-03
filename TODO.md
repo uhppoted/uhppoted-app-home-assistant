@@ -13,7 +13,7 @@ KeyboardInterrupt
 ```
 
 - [ ] Config flow
-      - [ ] Don't show door page for e.g. Beta if none selected
+      - [x] Don't show door page for e.g. Beta if none selected
       - https://www.python4data.science/en/latest/clean-prep/voluptuous.html
       - [ ] Rework to configure multiple controllers, doors, etc
             - [ ] Validate doors
@@ -32,7 +32,6 @@ KeyboardInterrupt
       - [x] Rework to configure multiple doors
       - [ ] Check for duplicate door names
       - [ ] Remove controller from door entity id
-      - (?) https://community.home-assistant.io/t/optionsflowhandler-does-not-work-as-expected/547622
       - [ ] show menu
             - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu
 

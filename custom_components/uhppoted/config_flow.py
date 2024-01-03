@@ -253,7 +253,11 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                                     description_placeholders=placeholders)
 
     async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
-        it = next((v for v in self.controllers if not v['doors']['configured']), None)
+
+        def f(v):
+            return len(v['doors']) > 0 and not v['configured']
+
+        it = next((v for v in self.controllers if f(v['doors'])), None)
         if it == None:
             return await self.async_step_cards()
 
