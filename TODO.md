@@ -16,9 +16,9 @@ KeyboardInterrupt
       - [x] Don't show door page for e.g. Beta if none selected
       - [ ] Rework to configure multiple controllers, doors, etc
             - [x] Validate doors
-            - [x] on error, keep the supplied controller names
-            - [x] on error, keep the supplied door names
-            - [ ] Ad hoc controllers
+            - [x] On error, keep the supplied controller names
+            - [x] On error, keep the supplied door names
+            - [ ] Ad hoc controller
                   - when internal list is empty
                   - address is required
             - [ ] Use _self.options_ struct and _self.configured_ list
@@ -31,10 +31,11 @@ KeyboardInterrupt
       - [x] Rework to configure multiple controllers
       - [x] Check for duplicate controller names
       - [x] Rework to configure multiple doors
+      - [x] Remove controller from door entity id
       - [ ] Validate doors
             - [ ] on error, keep the supplied door/controller names
             - [ ] Check for duplicate controllers/doors at **end** of section
-      - [ ] Remove controller from door entity id
+            - [ ] Loop back to start of doors
       - [ ] show menu
             - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu
 

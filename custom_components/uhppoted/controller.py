@@ -40,7 +40,7 @@ class ControllerInfo(SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.{self.controller}.info'.lower()
+        return f'uhppoted.controller.{self.controller}.info'.lower()
 
     @property
     def name(self) -> str:
@@ -97,7 +97,7 @@ class ControllerDateTime(DateTimeEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.{self.controller}.datetime'.lower()
+        return f'uhppoted.controller.{self.controller}.datetime'.lower()
 
     @property
     def name(self) -> str:

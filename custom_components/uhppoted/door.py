@@ -29,7 +29,7 @@ class ControllerDoor(SensorEntity):
         self.door = door
         self.door_id = int(f'{door_id}')
 
-        self._name = f'uhppoted.{controller}.door.{door}'.lower()
+        self._name = f'uhppoted.door.{door}'.lower()
         self._unlocked = None
         self._open = None
         self._button = None
@@ -42,7 +42,7 @@ class ControllerDoor(SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'{self.controller}.door.{self.door}'.lower()
+        return f'uhppoted.door.{self.door}'.lower()
 
     @property
     def name(self) -> str:
@@ -126,13 +126,13 @@ class ControllerDoorOpen(SensorEntity):
         self.door = door
         self.door_id = int(f'{door_id}')
 
-        self._name = f'uhppoted.{controller}.door.{door}.open'.lower()
+        self._name = f'uhppoted.door.{door}.open'.lower()
         self._open = None
         self._available = False
 
     @property
     def unique_id(self) -> str:
-        return f'{self.controller}.door.{self.door}.open'.lower()
+        return f'uhppoted.door.{self.door}.open'.lower()
 
     @property
     def name(self) -> str:
@@ -191,13 +191,13 @@ class ControllerDoorLock(SensorEntity):
         self.door = door
         self.door_id = int(f'{door_id}')
 
-        self._name = f'uhppoted.{controller}.door.{door}.lock'.lower()
+        self._name = f'uhppoted.door.{door}.lock'.lower()
         self._unlocked = None
         self._available = False
 
     @property
     def unique_id(self) -> str:
-        return f'{self.controller}.door.{self.door}.lock'.lower()
+        return f'uhppoted.door.{self.door}.lock'.lower()
 
     @property
     def name(self) -> str:
@@ -256,13 +256,13 @@ class ControllerDoorButton(SensorEntity):
         self.door = door
         self.door_id = int(f'{door_id}')
 
-        self._name = f'uhppoted.{controller}.door.{door}.button'.lower()
+        self._name = f'uhppoted.door.{door}.button'.lower()
         self._pressed = None
         self._available = False
 
     @property
     def unique_id(self) -> str:
-        return f'{self.controller}.door.{self.door}.button'.lower()
+        return f'uhppoted.door.{self.door}.button'.lower()
 
     @property
     def name(self) -> str:
@@ -321,13 +321,13 @@ class ControllerDoorMode(SelectEntity):
         self.door = door
         self.door_id = int(f'{door_id}')
 
-        self._name = f'uhppoted.{controller}.door.{door}.mode'.lower()
+        self._name = f'uhppoted.door.{door}.mode'.lower()
         self._mode = None
         self._available = False
 
     @property
     def unique_id(self) -> str:
-        return f'{self.controller}.door.{self.door}.mode'.lower()
+        return f'uhppoted.door.{self.door}.mode'.lower()
 
     @property
     def name(self) -> str:
@@ -416,13 +416,13 @@ class ControllerDoorDelay(NumberEntity):
         self.door = door
         self.door_id = int(f'{door_id}')
 
-        self._name = f'uhppoted.{controller}.door.{door}.delay'.lower()
+        self._name = f'uhppoted.door.{door}.delay'.lower()
         self._delay = None
         self._available = False
 
     @property
     def unique_id(self) -> str:
-        return f'{self.controller}.door.{self.door}.delay'.lower()
+        return f'uhppoted.door.{self.door}.delay'.lower()
 
     @property
     def name(self) -> str:
@@ -484,12 +484,12 @@ class ControllerDoorUnlock(ButtonEntity):
         self.door = door
         self.door_id = int(f'{door_id}')
 
-        self._name = f'uhppoted.{controller}.door.{door}.unlock'.lower()
+        self._name = f'uhppoted.door.{door}.unlock'.lower()
         self._available = True
 
     @property
     def unique_id(self) -> str:
-        return f'{self.controller}.door.{self.door}.unlock'.lower()
+        return f'uhppoted.door.{self.door}.unlock'.lower()
 
     @property
     def name(self) -> str:
