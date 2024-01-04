@@ -42,7 +42,7 @@ KeyboardInterrupt
             - [x] on error, keep the supplied door/controller names
             - [x] Check for duplicate doors at start and end of section
             - [x] Loop back to start of doors
-            - [ ] Allow controller/door to be removed
+            - [x] Allow door to be removed
 
 
 - [ ] Controller

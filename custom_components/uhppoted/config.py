@@ -58,7 +58,7 @@ def validate_door_id(name, options) -> None:
     if not name or name.strip() == '':
         raise ValueError(ERR_INVALID_DOOR_ID)
 
-    if options and CONF_DOORS in options:
+    if name.strip() != '-' and options and CONF_DOORS in options:
         for v in options[CONF_DOORS]:
             if normalise(v[CONF_DOOR_ID]) == normalise(name):
                 raise ValueError(ERR_DUPLICATE_DOOR_ID)
@@ -66,6 +66,7 @@ def validate_door_id(name, options) -> None:
 
 def validate_door_duplicates(name, doors) -> None:
     normalised = [normalise(v) for v in doors]
+    normalised = [v for v in normalised if v != '']
 
     if normalised.count(normalise(name)) > 1:
         raise ValueError(ERR_DUPLICATE_DOOR_ID)

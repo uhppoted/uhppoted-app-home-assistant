@@ -196,10 +196,10 @@
                     "door4_id": "Door 4 name"
                 },
                 "data_description": {
-                    "door1_id": "Door 1 'human' name e.g. Gryffindor",
-                    "door2_id": "Door 2 'human' name e.g. Ravenclaw",
-                    "door3_id": "Door 3 'human' name e.g. Hufflepuff",
-                    "door4_id": "Door 4 'human' name e.g. Slytherin"
+                    "door1_id": "Door 1 'human' name e.g. Gryffindor (- to remove)",
+                    "door2_id": "Door 2 'human' name e.g. Ravenclaw (- to remove)",
+                    "door3_id": "Door 3 'human' name e.g. Hufflepuff (- to remove)",
+                    "door4_id": "Door 4 'human' name e.g. Slytherin (- to remove)"
                 }
             }
         },

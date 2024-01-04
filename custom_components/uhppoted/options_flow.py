@@ -303,50 +303,67 @@ class UhppotedOptionsFlow(OptionsFlow):
                 if 1 in doors:
                     for d in v:
                         if d[CONF_DOOR_CONTROLLER] == controller and f'{d[CONF_DOOR_NUMBER]}' == '1':
-                            d[CONF_DOOR_ID] = user_input['door1_id']
+                            if user_input['door1_id'].strip() == '-':
+                                v.remove(d)
+                            else:
+                                d[CONF_DOOR_ID] = user_input['door1_id']
                             break
                     else:
-                        v.append({
-                            CONF_DOOR_ID: user_input['door1_id'],
-                            CONF_DOOR_CONTROLLER: controller,
-                            CONF_DOOR_NUMBER: 1,
-                        })
+                        if user_input['door1_id'].strip() != '-':
+                            v.append({
+                                CONF_DOOR_ID: user_input['door1_id'],
+                                CONF_DOOR_CONTROLLER: controller,
+                                CONF_DOOR_NUMBER: 1,
+                            })
 
                 if 2 in doors:
                     for d in v:
                         if d[CONF_DOOR_CONTROLLER] == controller and f'{d[CONF_DOOR_NUMBER]}' == '2':
-                            d[CONF_DOOR_ID] = user_input['door2_id']
+                            if user_input['door2_id'].strip() == '-':
+                                v.remove(d)
+                            else:
+                                d[CONF_DOOR_ID] = user_input['door2_id']
                             break
                     else:
-                        v.append({
-                            CONF_DOOR_ID: user_input['door2_id'],
-                            CONF_DOOR_CONTROLLER: controller,
-                            CONF_DOOR_NUMBER: 2,
-                        })
+                        if user_input['door2_id'].strip() != '-':
+                            v.append({
+                                CONF_DOOR_ID: user_input['door2_id'],
+                                CONF_DOOR_CONTROLLER: controller,
+                                CONF_DOOR_NUMBER: 2,
+                            })
 
                 if 3 in doors:
                     for d in v:
                         if d[CONF_DOOR_CONTROLLER] == controller and f'{d[CONF_DOOR_NUMBER]}' == '3':
-                            d[CONF_DOOR_ID] = user_input['door3_id']
+                            if user_input['door3_id'].strip() == '-':
+                                v.remove(d)
+                            else:
+                                print('>> ?? ??::4`')
+                                d[CONF_DOOR_ID] = user_input['door3_id']
                             break
                     else:
-                        v.append({
-                            CONF_DOOR_ID: user_input['door3_id'],
-                            CONF_DOOR_CONTROLLER: controller,
-                            CONF_DOOR_NUMBER: 3,
-                        })
+                        if user_input['door3_id'].strip() != '-':
+                            v.append({
+                                CONF_DOOR_ID: user_input['door3_id'],
+                                CONF_DOOR_CONTROLLER: controller,
+                                CONF_DOOR_NUMBER: 3,
+                            })
 
                 if 4 in doors:
                     for d in v:
                         if d[CONF_DOOR_CONTROLLER] == controller and f'{d[CONF_DOOR_NUMBER]}' == '4':
-                            d[CONF_DOOR_ID] = user_input['door4_id']
+                            if user_input['door4_id'].strip() == '-':
+                                v.remove(d)
+                            else:
+                                d[CONF_DOOR_ID] = user_input['door4_id']
                             break
                     else:
-                        v.append({
-                            CONF_DOOR_ID: user_input['door4_id'],
-                            CONF_DOOR_CONTROLLER: controller,
-                            CONF_DOOR_NUMBER: 4,
-                        })
+                        if user_input['door4_id'].strip() != '-':
+                            v.append({
+                                CONF_DOOR_ID: user_input['door4_id'],
+                                CONF_DOOR_CONTROLLER: controller,
+                                CONF_DOOR_NUMBER: 4,
+                            })
 
                 self.options.update({CONF_DOORS: v})
                 it['configured'] = True
@@ -381,16 +398,16 @@ class UhppotedOptionsFlow(OptionsFlow):
         schema = vol.Schema({})
 
         if 1 in doors:
-            schema = schema.extend({vol.Required('door1_id', default=defaults['door1_id']): str})
+            schema = schema.extend({vol.Optional('door1_id', default=defaults['door1_id']): str})
 
         if 2 in doors:
-            schema = schema.extend({vol.Required('door2_id', default=defaults['door2_id']): str})
+            schema = schema.extend({vol.Optional('door2_id', default=defaults['door2_id']): str})
 
         if 3 in doors:
-            schema = schema.extend({vol.Required('door3_id', default=defaults['door3_id']): str})
+            schema = schema.extend({vol.Optional('door3_id', default=defaults['door3_id']): str})
 
         if 4 in doors:
-            schema = schema.extend({vol.Required('door4_id', default=defaults['door4_id']): str})
+            schema = schema.extend({vol.Optional('door4_id', default=defaults['door4_id']): str})
 
         placeholders = {
             'controller': f'{controller}',
