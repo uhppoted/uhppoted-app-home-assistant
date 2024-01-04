@@ -21,8 +21,10 @@ from .const import CONF_DOOR_NUMBER
 
 from .const import ERR_INVALID_CONTROLLER_ID
 from .const import ERR_DUPLICATE_CONTROLLER_ID
+from .const import ERR_DUPLICATE_CONTROLLER_IDS
 from .const import ERR_INVALID_DOOR_ID
 from .const import ERR_DUPLICATE_DOOR_ID
+from .const import ERR_DUPLICATE_DOOR_IDS
 
 _LOGGER = logging.getLogger(__name__)
 MAX_CARDS = 25
@@ -45,6 +47,13 @@ def validate_controller_id(serial_no, name, options) -> None:
                     raise ValueError(ERR_DUPLICATE_CONTROLLER_ID)
 
 
+def validate_all_controllers(options) -> None:
+    if options and CONF_CONTROLLERS in options:
+        controllers = [normalise(v[CONF_CONTROLLER_ID]) for v in options[CONF_CONTROLLERS]]
+        if len(controllers) != len(set(controllers)):
+            raise ValueError(ERR_DUPLICATE_CONTROLLER_IDS)
+
+
 def validate_door_id(name, options) -> None:
     if not name or name.strip() == '':
         raise ValueError(ERR_INVALID_DOOR_ID)
@@ -60,6 +69,13 @@ def validate_door_duplicates(name, doors) -> None:
 
     if normalised.count(normalise(name)) > 1:
         raise ValueError(ERR_DUPLICATE_DOOR_ID)
+
+
+def validate_all_doors(options) -> None:
+    if options and CONF_DOORS in options:
+        doors = [normalise(v[CONF_DOOR_ID]) for v in options[CONF_DOORS]]
+        if len(doors) != len(set(doors)):
+            raise ValueError(ERR_DUPLICATE_DOOR_IDS)
 
 
 def validate_card_number(v: int) -> None:

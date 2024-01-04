@@ -28,16 +28,22 @@ KeyboardInterrupt
       - https://developers.home-assistant.io/docs/dev_101_states/
 
 - [ ] Options flow
+      - [ ] show menu
+            - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu
       - [x] Rework to configure multiple controllers
       - [x] Check for duplicate controller names
       - [x] Rework to configure multiple doors
       - [x] Remove controller from door entity id
       - [ ] Validate doors
-            - [ ] on error, keep the supplied door/controller names
-            - [ ] Check for duplicate controllers/doors at **end** of section
-            - [ ] Loop back to start of doors
-      - [ ] show menu
-            - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu
+            - [ ] Check for duplicate controllers at start and end of section
+            - [ ] Loop back to start of controllers
+            - [ ] Allow controller to be removed
+      - [ ] Validate doors
+            - [x] on error, keep the supplied door/controller names
+            - [x] Check for duplicate doors at start and end of section
+            - [x] Loop back to start of doors
+            - [ ] Allow controller/door to be removed
+
 
 - [ ] Controller
       - [ ] Rework as Device

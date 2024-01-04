@@ -43,6 +43,7 @@ from .const import DEFAULT_DOOR4
 from .config import validate_controller_id
 from .config import validate_door_duplicates
 from .config import validate_door_id
+from .config import validate_all_doors
 
 from .config import get_all_controllers
 from .config import get_all_doors
@@ -225,16 +226,20 @@ class UhppotedOptionsFlow(OptionsFlow):
             doors = it['doors']
 
         errors: Dict[str, str] = {}
-        if user_input is not None:
-            if not errors:
-                self.configuration['doors'].append({
-                    'controller': controller,
-                    'serial_no': serial_no,
-                    'doors': [int(f'{v}') for v in user_input['doors']],
-                    'configured': False,
-                })
+        try:
+            validate_all_doors(self.options)
+        except ValueError as err:
+            errors['base'] = f'{err}'
 
-                return await self.async_step_doors()
+        if user_input is not None:
+            self.configuration['doors'].append({
+                'controller': controller,
+                'serial_no': serial_no,
+                'doors': [int(f'{v}') for v in user_input['doors']],
+                'configured': False,
+            })
+
+            return await self.async_step_doors()
 
         select = SelectSelectorConfig(options=[g(v) for v in doors],
                                       multiple=True,
@@ -263,8 +268,18 @@ class UhppotedOptionsFlow(OptionsFlow):
 
         it = next((v for v in self.configuration['doors'] if f(v)), None)
         if it == None:
-            return self.async_create_entry(title="uhppoted", data=self.options)
-            # return await self.async_step_cards()
+            try:
+                validate_all_doors(self.options)
+                return self.async_create_entry(title="uhppoted", data=self.options)
+                # return await self.async_step_cards()
+            except ValueError as err:
+                # for v in self.configuration['doors']:
+                #     v['configured'] = False
+
+                self.configuration['doors'] = []
+
+                return await self.async_step_doors()
+
         else:
             controller = it['controller']
             serial_no = it['serial_no']

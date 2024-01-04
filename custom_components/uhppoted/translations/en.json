@@ -117,9 +117,11 @@
 
             "invalid_controller_id": "Invalid controller name",
             "duplicate_controller_id": "Duplicate controller name",
+            "duplicate_controller_ids": "Duplicate controller names",
  
             "invalid_door_id": "Invalid door name",
-            "duplicate_door_id": "Duplicate door name"
+            "duplicate_door_id": "Duplicate door name",
+            "duplicate_door_ids": "Duplicate door names"
          },
         "abort": {
             "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
@@ -210,7 +212,8 @@
             "duplicate_controller_id": "Duplicate controller name",
  
             "invalid_door_id": "Invalid door name",
-            "duplicate_door_id": "Duplicate door name"
+            "duplicate_door_id": "Duplicate door name",
+            "duplicate_door_ids": "Duplicate door names"
        },
         "abort": {
             "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
