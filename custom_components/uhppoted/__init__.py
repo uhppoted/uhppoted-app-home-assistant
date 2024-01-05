@@ -45,6 +45,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "select"))
     hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "number"))
     hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "button"))
+    hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "event"))
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
@@ -58,6 +59,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         Platform.SELECT,
         Platform.NUMBER,
         Platform.BUTTON,
+        Platform.EVENT,
     ]
 
     # TODO pre-unload cleanup (if any)

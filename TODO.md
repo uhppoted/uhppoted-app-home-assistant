@@ -13,7 +13,7 @@ KeyboardInterrupt
 ```
 
 - [ ] Config flow
-      - [ ] Figure out why _hass_ is using name for unique ID ?????
+      - [x] ~~Figure out why _hass_ is using name for entity ID~~
       - [x] Don't show door page for e.g. Beta if none selected
       - [x] Rework to configure multiple controllers, doors, etc
       - [ ] Cards
@@ -50,7 +50,15 @@ KeyboardInterrupt
       - [ ] Set timezone in config-flow/configuration.yaml
 
 - [ ] Doors
-      - [ ] Rework open/pressed as event entities
+      - [ ] Rework opened/pressed/unlocked as EventEntities
+            - [ ] Timestamp
+            - [ ] Translations
+```
+curl -X POST "http://127.0.0.1:8000/uhppote/simulator/405419896/door/1" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"action\":\"open\"}"
+
+curl -X POST "http://127.0.0.1:8000/uhppote/simulator/405419896/door/1" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"action\":\"close\"}"
+
+```
       - [ ] unlock
             - [x] `ControllerDoorUnlock`
             - [ ] Update other entities (data coordinator)

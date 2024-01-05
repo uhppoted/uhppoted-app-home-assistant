@@ -6,6 +6,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.button import ButtonEntity
 from homeassistant.components.number import NumberEntity
+from homeassistant.components.event import EventEntity
 from homeassistant.const import TIME_SECONDS
 
 _LOGGER = logging.getLogger(__name__)
@@ -170,6 +171,61 @@ class ControllerDoorOpen(SensorEntity):
                     self._open = None
 
                 self._available = True
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self.controller} status')
+
+
+class ControllerDoorOpened(EventEntity):
+    _attr_icon = 'mdi:door'
+    _attr_has_entity_name: True
+    _attr_event_types = ['OPEN', 'CLOSE']
+
+    def __init__(self, u, controller, serial_no, door, door_id):
+        super().__init__()
+
+        _LOGGER.debug(f'controller {controller}: door:{door} open event')
+
+        self.uhppote = u
+        self.controller = controller
+        self.serial_no = int(f'{serial_no}')
+        self.door = door
+        self.door_id = int(f'{door_id}')
+
+        self._name = f'uhppoted.door.{door}.open.event'.lower()
+        self._open = None
+
+    @property
+    def unique_id(self) -> str:
+        return f'uhppoted.door.{self.door}.open.event'.lower()
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    async def async_update(self):
+        _LOGGER.debug(f'controller:{self.controller}  update door {self.door}.open.event state')
+        try:
+            response = self.uhppote.get_status(self.serial_no)
+            last = self._open
+
+            if response.controller == self.serial_no:
+                if self.door_id == 1:
+                    self._open = response.door_1_open == True
+                elif self.door_id == 2:
+                    self._open = response.door_2_open == True
+                elif self.door_id == 3:
+                    self._open = response.door_3_open == True
+                elif self.door_id == 4:
+                    self._open = response.door_4_open == True
+                else:
+                    self._open = None
+
+                if self._open != last and self._open:
+                    self._trigger_event('OPEN')
+                elif self._open != last and not self._open:
+                    self._trigger_event('CLOSE')
 
         except (Exception):
             self._available = False
