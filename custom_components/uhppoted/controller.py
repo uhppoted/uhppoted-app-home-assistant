@@ -28,7 +28,7 @@ class ControllerInfo(SensorEntity):
         self.uhppote = u
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
-        self._name = f'uhppoted.{controller}.info'.lower()
+        self._name = f'uhppoted.controller.{controller}.info'.lower()
         self._state = None
         self._attributes: Dict[str, Any] = {
             ATTR_ADDRESS: '',
@@ -91,7 +91,7 @@ class ControllerDateTime(DateTimeEntity):
         self.uhppote = u
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
-        self._name = f'uhppoted.{controller}.datetime'.lower()
+        self._name = f'uhppoted.controller.{controller}.datetime'.lower()
         self._datetime = None
         self._available = False
 

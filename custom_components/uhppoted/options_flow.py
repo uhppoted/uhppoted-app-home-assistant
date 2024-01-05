@@ -177,18 +177,22 @@ class UhppotedOptionsFlow(OptionsFlow):
 
                 for v in self.options[CONF_CONTROLLERS]:
                     if int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') == int(f'{serial_no}'):
-                        v[CONF_CONTROLLER_ID] = name
-                        v[CONF_CONTROLLER_SERIAL_NUMBER] = serial_no
-                        v[CONF_CONTROLLER_ADDR] = address
-                        v[CONF_CONTROLLER_TIMEZONE] = timezone
+                        if user_input[CONF_CONTROLLER_ID].strip() == '-':
+                            controllers.remove(v)
+                        else:
+                            v[CONF_CONTROLLER_ID] = name
+                            v[CONF_CONTROLLER_SERIAL_NUMBER] = serial_no
+                            v[CONF_CONTROLLER_ADDR] = address
+                            v[CONF_CONTROLLER_TIMEZONE] = timezone
                         break
                 else:
-                    controllers.append({
-                        CONF_CONTROLLER_ID: name,
-                        CONF_CONTROLLER_SERIAL_NUMBER: serial_no,
-                        CONF_CONTROLLER_ADDR: address,
-                        CONF_CONTROLLER_TIMEZONE: timezone,
-                    })
+                    if user_input[CONF_CONTROLLER_ID].strip() != '-':
+                        controllers.append({
+                            CONF_CONTROLLER_ID: name,
+                            CONF_CONTROLLER_SERIAL_NUMBER: serial_no,
+                            CONF_CONTROLLER_ADDR: address,
+                            CONF_CONTROLLER_TIMEZONE: timezone,
+                        })
 
                 self.options.update({CONF_CONTROLLERS: controllers})
 

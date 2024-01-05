@@ -13,11 +13,9 @@ KeyboardInterrupt
 ```
 
 - [ ] Config flow
+      - [ ] Figure out why _hass_ is using name for unique ID ?????
       - [x] Don't show door page for e.g. Beta if none selected
       - [x] Rework to configure multiple controllers, doors, etc
-            - [x] Validate doors
-            - [x] On error, keep the supplied controller names
-            - [x] On error, keep the supplied door names
       - [ ] Cards
       - [ ] Ad hoc controller
             - when internal list is empty
@@ -34,10 +32,10 @@ KeyboardInterrupt
       - [x] Check for duplicate controller names
       - [x] Rework to configure multiple doors
       - [x] Remove controller from door entity id
-      - [ ] Validate controllers
+      - [x] Validate controllers
             - [x] Check for duplicate controllers at start and end of section
             - [x] Loop back to start of controllers
-            - [ ] Allow controller to be removed
+            - [x] Allow controller to be removed
       - [x] Validate doors
             - [x] on error, keep the supplied door/controller names
             - [x] Check for duplicate doors at start and end of section

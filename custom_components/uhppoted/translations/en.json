@@ -169,7 +169,7 @@
                     "controller_timezone": "controller timezone"
                 },
                 "data_description": {
-                    "controller_id": "Controller (human) name e.g. Main, Controller 1",
+                    "controller_id": "Controller (human) name e.g. Main, Controller #1 (- to remove)",
                     "controller_serial_number": "Controller serial number e.g. 405419896",
                     "controller_address": "Controller IPv4 address (optional) e.g. 192.168.1.100",
                     "controller_timezone": "Controller timezone (optional) e.g. Europe/Berlin"
