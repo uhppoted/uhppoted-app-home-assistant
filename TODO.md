@@ -14,15 +14,15 @@ KeyboardInterrupt
 
 - [ ] Config flow
       - [x] Don't show door page for e.g. Beta if none selected
-      - [ ] Rework to configure multiple controllers, doors, etc
+      - [x] Rework to configure multiple controllers, doors, etc
             - [x] Validate doors
             - [x] On error, keep the supplied controller names
             - [x] On error, keep the supplied door names
-            - [ ] Ad hoc controller
-                  - when internal list is empty
-                  - address is required
-            - [ ] Use _self.options_ struct and _self.configured_ list
-
+      - [ ] Cards
+      - [ ] Ad hoc controller
+            - when internal list is empty
+            - address is required
+      - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] (somehow) commonalise config-flow and options-flow
       - [ ] Integration icon
       - https://developers.home-assistant.io/docs/dev_101_states/
@@ -34,11 +34,11 @@ KeyboardInterrupt
       - [x] Check for duplicate controller names
       - [x] Rework to configure multiple doors
       - [x] Remove controller from door entity id
-      - [ ] Validate doors
-            - [ ] Check for duplicate controllers at start and end of section
-            - [ ] Loop back to start of controllers
+      - [ ] Validate controllers
+            - [x] Check for duplicate controllers at start and end of section
+            - [x] Loop back to start of controllers
             - [ ] Allow controller to be removed
-      - [ ] Validate doors
+      - [x] Validate doors
             - [x] on error, keep the supplied door/controller names
             - [x] Check for duplicate doors at start and end of section
             - [x] Loop back to start of doors

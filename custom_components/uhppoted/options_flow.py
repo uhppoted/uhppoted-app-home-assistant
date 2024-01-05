@@ -41,6 +41,7 @@ from .const import DEFAULT_DOOR3
 from .const import DEFAULT_DOOR4
 
 from .config import validate_controller_id
+from .config import validate_all_controllers
 from .config import validate_door_duplicates
 from .config import validate_door_id
 from .config import validate_all_doors
@@ -88,6 +89,22 @@ class UhppotedOptionsFlow(OptionsFlow):
         return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
 
     async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
+
+        def g(v):
+            if self.options and CONF_CONTROLLERS in self.options:
+                for c in self.options[CONF_CONTROLLERS]:
+                    if f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}' == f'{v}':
+                        if c[CONF_CONTROLLER_ID] != '':
+                            return {
+                                'label': f'{v} ({c[CONF_CONTROLLER_ID]})',
+                                'value': f'{v}',
+                            }
+                        break
+            return {
+                'label': f'{v}',
+                'value': f'{v}',
+            }
+
         errors: Dict[str, str] = {}
 
         if user_input is not None:
@@ -115,10 +132,15 @@ class UhppotedOptionsFlow(OptionsFlow):
 
         configured = sorted(list(configured), reverse=True)
 
+        try:
+            validate_all_controllers(self.options)
+        except ValueError as err:
+            errors['base'] = f'{err}'
+
         schema = vol.Schema({
             vol.Required(CONF_CONTROLLERS, default=[f'{v}' for v in configured]):
             SelectSelector(
-                SelectSelectorConfig(options=[f'{v}' for v in controllers],
+                SelectSelectorConfig(options=[g(v) for v in controllers],
                                      multiple=True,
                                      custom_value=False,
                                      mode=SelectSelectorMode.LIST)),
@@ -129,7 +151,11 @@ class UhppotedOptionsFlow(OptionsFlow):
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
         it = next((v for v in self.controllers if not v['controller']['configured']), None)
         if it == None:
-            return await self.async_step_doors()
+            try:
+                validate_all_controllers(self.options)
+                return await self.async_step_doors()
+            except ValueError as err:
+                return await self.async_step_controllers()
         else:
             controller = it['controller']
             serial_no = controller['serial_no']
@@ -142,7 +168,7 @@ class UhppotedOptionsFlow(OptionsFlow):
             timezone = user_input[CONF_CONTROLLER_TIMEZONE]
 
             try:
-                validate_controller_id(serial_no, name, self.options)
+                validate_controller_id(serial_no, name, None)
             except ValueError as err:
                 errors[CONF_CONTROLLER_ID] = f'{err}'
 
@@ -338,7 +364,6 @@ class UhppotedOptionsFlow(OptionsFlow):
                             if user_input['door3_id'].strip() == '-':
                                 v.remove(d)
                             else:
-                                print('>> ?? ??::4`')
                                 d[CONF_DOOR_ID] = user_input['door3_id']
                             break
                     else:

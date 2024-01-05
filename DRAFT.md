@@ -1,4 +1,21 @@
-### README
+![build](https://github.com/uhppoted/uhppoted-app-home-assistant/workflows/build/badge.svg)
+
+# uhppoted-app-home-assistant
+
+UHPPOTE controller HACS integration for Home Assistant.
+
+### Status
+
+(_IN DEVELOPMENT_)
+
+### Contents
+
+1. [Installation](#installation)
+    - [Alpha Release](#alpha-release)
+    - [Development version](#developmnet-version)
+
+2. [Configuration](#configuration)
+
 
 ## Installation
 
