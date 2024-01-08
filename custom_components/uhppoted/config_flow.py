@@ -2,6 +2,7 @@ import logging
 import datetime
 import calendar
 import re
+import voluptuous as vol
 
 from typing import Any
 from typing import Dict
@@ -17,7 +18,6 @@ from homeassistant.helpers.selector import SelectSelector
 from homeassistant.helpers.selector import SelectSelectorConfig
 from homeassistant.helpers.selector import SelectSelectorMode
 from homeassistant.helpers import config_validation as cv
-import voluptuous as vol
 
 from uhppoted import uhppote
 
@@ -59,7 +59,8 @@ from .options_flow import UhppotedOptionsFlow
 from .config import validate_controller_id
 from .config import validate_door_id
 from .config import validate_door_duplicates
-from .config import validate_card_number
+from .config import validate_card_id
+from .config import validate_all_cards
 from .config import get_IPv4
 from .config import get_all_controllers
 from .config import get_all_cards
@@ -81,6 +82,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         self.options = {}
         self.controllers = []
         self.doors = []
+        self.configuration = {'cards': []}
 
         self.options.update(get_IPv4(defaults))
         self.options.update({
@@ -96,7 +98,6 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             if not errors:
                 self.options.update(user_input)
-
                 return await self.async_step_controllers()
 
         bind = self.options[CONF_BIND_ADDR]
@@ -367,33 +368,22 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             if not errors:
-                # for v in user_input[CONF_CONTROLLERS]:
-                #     self.controllers.append({
-                #         'controller': {
-                #             'name': '',
-                #             'serial_no': v,
-                #             'configured': False,
-                #         },
-                #         'doors': None,
-                #     })
-                #
-                # return await self.async_step_controller()
-                return self.async_create_entry(title="uhppoted", data=self.data, options=self.options)
+                self.configuration['cards'] = [{
+                    'card': int(f'{v}'),
+                    'configured': False,
+                } for v in user_input[CONF_CARDS]]
+
+                return await self.async_step_card()
 
         cards = get_all_cards(self.options)
 
-        # if len(cards) < 2:
-        #     for v in controllers:
-        #         self.controllers.append({
-        #             'controller': {
-        #                 'name': '',
-        #                 'serial_no': v,
-        #                 'configured': False,
-        #             },
-        #             'doors': None,
-        #         })
-        #
-        #     return await self.async_step_card()
+        if len(cards) < 2:
+            self.configuration['cards'] = [{
+                'card': int(f'{v}'),
+                'configured': False,
+            } for v in cards]
+
+            return await self.async_step_card()
 
         schema = vol.Schema({
             vol.Required(CONF_CARDS, default=[f'{v}' for v in cards]):
@@ -407,10 +397,59 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(step_id="cards", data_schema=schema, errors=errors)
 
     async def async_step_card(self, user_input: Optional[Dict[str, Any]] = None):
+
+        def f(v):
+            return not v['configured']
+
+        it = next((v for v in self.configuration['cards'] if f(v)), None)
+        if it == None:
+            try:
+                validate_all_cards(self.options)
+                return self.async_create_entry(title="uhppoted", data=self.data, options=self.options)
+            except ValueError as err:
+                self.configuration['cards'] = []
+                return await self.async_step_cards()
+        else:
+            card = it['card']
+
+        errors: Dict[str, str] = {}
+        if user_input is not None:
+            try:
+                validate_card_id(user_input[CONF_CARD_NAME])
+            except ValueError as err:
+                errors[CONF_CARD_NAME] = f'{err}'
+
+            if not errors:
+                v = []
+                v.append({
+                    CONF_CARD_NUMBER: card,
+                    CONF_CARD_NAME: user_input[CONF_CARD_NAME],
+                    CONF_CARD_STARTDATE: user_input[CONF_CARD_STARTDATE],
+                    CONF_CARD_ENDDATE: user_input[CONF_CARD_ENDDATE],
+                    CONF_CARD_DOORS: user_input[CONF_CARD_DOORS],
+                })
+
+                self.options.update({CONF_CARDS: v})
+                it['configured'] = True
+
+                return await self.async_step_card()
+
         today = datetime.date.today()
         start = today
         end = today + datetime.timedelta(days=180)
         end = datetime.date(end.year, end.month, calendar.monthrange(end.year, end.month)[1])
+
+        defaults = {
+            CONF_CARD_NAME: '',
+            CONF_CARD_STARTDATE: start,
+            CONF_CARD_ENDDATE: end,
+            CONF_CARD_DOORS: [],
+        }
+
+        if user_input is not None:
+            for k in [CONF_CARD_NAME, CONF_CARD_STARTDATE, CONF_CARD_ENDDATE, CONF_CARD_DOORS]:
+                if k in user_input:
+                    defaults[k] = user_input[k]
 
         doors = selector.SelectSelector(
             selector.SelectSelectorConfig(options=[f'{v[CONF_DOOR_ID]}' for v in self.options[CONF_DOORS]],
@@ -419,33 +458,21 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                                           mode=selector.SelectSelectorMode.DROPDOWN))
 
         schema = vol.Schema({
-            vol.Required(CONF_CARD_NUMBER): int,
-            vol.Optional(CONF_CARD_NAME, default=''): str,
-            vol.Required(CONF_CARD_STARTDATE, default=start): selector.DateSelector(),
-            vol.Required(CONF_CARD_ENDDATE, default=end): selector.DateSelector(),
-            vol.Optional(CONF_CARD_DOORS, default=[]): doors,
+            vol.Required(CONF_CARD_NAME, default=defaults[CONF_CARD_NAME]):
+            str,
+            vol.Required(CONF_CARD_STARTDATE, default=defaults[CONF_CARD_STARTDATE]):
+            selector.DateSelector(),
+            vol.Required(CONF_CARD_ENDDATE, default=defaults[CONF_CARD_ENDDATE]):
+            selector.DateSelector(),
+            vol.Optional(CONF_CARD_DOORS, default=defaults[CONF_CARD_DOORS]):
+            doors,
         })
 
-        errors: Dict[str, str] = {}
+        placeholders = {
+            'card': f'{card}',
+        }
 
-        if user_input is not None:
-            try:
-                validate_card_number(user_input[CONF_CARD_NUMBER])
-            except ValueError:
-                errors["base"] = f'Invalid card number ({user_input[CONF_CARD_NUMBER]})'
-
-            if not errors:
-                v = []
-                v.append({
-                    CONF_CARD_NUMBER: user_input[CONF_CARD_NUMBER],
-                    CONF_CARD_NAME: user_input[CONF_CARD_NAME],
-                    CONF_CARD_STARTDATE: user_input[CONF_CARD_STARTDATE],
-                    CONF_CARD_ENDDATE: user_input[CONF_CARD_ENDDATE],
-                    CONF_CARD_DOORS: user_input[CONF_CARD_DOORS],
-                })
-
-                self.options.update({CONF_CARDS: v})
-
-                return self.async_create_entry(title="uhppoted", data=self.data, options=self.options)
-
-        return self.async_show_form(step_id="card", data_schema=schema, errors=errors)
+        return self.async_show_form(step_id="card",
+                                    data_schema=schema,
+                                    errors=errors,
+                                    description_placeholders=placeholders)

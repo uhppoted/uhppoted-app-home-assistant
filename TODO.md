@@ -33,26 +33,20 @@ KeyboardInterrupt
       - [x] Rework to configure multiple doors
       - [x] Remove controller from door entity id
       - [x] Validate controllers
-            - [x] Check for duplicate controllers at start and end of section
-            - [x] Loop back to start of controllers
-            - [x] Allow controller to be removed
       - [x] Validate doors
-            - [x] on error, keep the supplied door/controller names
-            - [x] Check for duplicate doors at start and end of section
-            - [x] Loop back to start of doors
-            - [x] Allow door to be removed
 
 
 - [ ] Controller
       - [ ] Rework as Device
       - [ ] device_info
       - [ ] entity_category
-      - [ ] Set timezone in config-flow/configuration.yaml
+      - [ ] Set default timezone in configuration.yaml
 
 - [ ] Doors
-      - [ ] Rework opened/pressed/unlocked as EventEntities
-            - [ ] Timestamp
-            - [ ] Translations
+      - [x] Somehow seperate from controller and then just link to controller name
+      - [x] Rework opened as EventEntity
+      - [ ] Rework button as EventEntity
+      - [ ] Rework unlocked as EventEntiy
 ```
 curl -X POST "http://127.0.0.1:8000/uhppote/simulator/405419896/door/1" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"action\":\"open\"}"
 
@@ -67,10 +61,13 @@ curl -X POST "http://127.0.0.1:8000/uhppote/simulator/405419896/door/1" -H "acce
             - https://github.com/home-assistant/core/issues/98993
             - https://developers.home-assistant.io/docs/core/entity
             - python3 -m script.hassfest
-      - [ ] Somehow seperate from controller and then just link to controller name
       - [ ] Update on event
 
 - [ ] Cards
+      - [ ] sensor:Card
+            - [ ] Card 'state'- validity, permissions
+      - [ ] unique id should allow sharing across uhppoteds
+      - [ ] initialise card from controllers
       - (?) Add card number to Person entity
             - https://community.home-assistant.io/t/request-give-the-ability-to-add-attributes-to-people-entities/297483
             - https://www.home-assistant.io/integrations/person

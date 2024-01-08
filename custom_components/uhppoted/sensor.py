@@ -30,12 +30,15 @@ from .const import ATTR_FIRMWARE
 
 from .config import configure_controllers
 from .config import configure_doors
+from .config import configure_cards
+
 from .controller import ControllerInfo
 from .door import ControllerDoor
 from .door import ControllerDoorOpen
 from .door import ControllerDoorLock
 from .door import ControllerDoorButton
 from .door import ControllerDoorMode
+from .card import Card
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
@@ -62,6 +65,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
             ControllerDoorButton(u, controller, serial_no, door, door_no),
         ])
 
+    def h(card, name, start_date, end_date, permissions):
+        entities.extend([
+            Card(u, card, name, start_date, end_date, permissions),
+        ])
+
     configure_controllers(options, f)
     configure_doors(options, g)
+    configure_cards(options, h)
     async_add_entities(entities, update_before_add=True)

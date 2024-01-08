@@ -301,11 +301,7 @@ class UhppotedOptionsFlow(OptionsFlow):
             try:
                 validate_all_doors(self.options)
                 return self.async_create_entry(title="uhppoted", data=self.options)
-                # return await self.async_step_cards()
             except ValueError as err:
-                # for v in self.configuration['doors']:
-                #     v['configured'] = False
-
                 self.configuration['doors'] = []
 
                 return await self.async_step_doors()

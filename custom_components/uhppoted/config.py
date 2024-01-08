@@ -18,6 +18,12 @@ from .const import CONF_DOORS
 from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
+from .const import CONF_CARDS
+from .const import CONF_CARD_NUMBER
+from .const import CONF_CARD_NAME
+from .const import CONF_CARD_STARTDATE
+from .const import CONF_CARD_ENDDATE
+from .const import CONF_CARD_DOORS
 
 from .const import ERR_INVALID_CONTROLLER_ID
 from .const import ERR_DUPLICATE_CONTROLLER_ID
@@ -25,6 +31,7 @@ from .const import ERR_DUPLICATE_CONTROLLER_IDS
 from .const import ERR_INVALID_DOOR_ID
 from .const import ERR_DUPLICATE_DOOR_ID
 from .const import ERR_DUPLICATE_DOOR_IDS
+from .const import ERR_INVALID_CARD_ID
 
 _LOGGER = logging.getLogger(__name__)
 MAX_CARDS = 25
@@ -36,7 +43,7 @@ def normalise(v):
     return re.sub(r'\s+', '', f'{v}', flags=re.UNICODE).lower()
 
 
-def validate_controller_id(serial_no, name, options) -> None:
+def validate_controller_id(serial_no, name, options):
     if not name or name.strip() == '':
         raise ValueError(ERR_INVALID_CONTROLLER_ID)
 
@@ -47,14 +54,14 @@ def validate_controller_id(serial_no, name, options) -> None:
                     raise ValueError(ERR_DUPLICATE_CONTROLLER_ID)
 
 
-def validate_all_controllers(options) -> None:
+def validate_all_controllers(options):
     if options and CONF_CONTROLLERS in options:
         controllers = [normalise(v[CONF_CONTROLLER_ID]) for v in options[CONF_CONTROLLERS]]
         if len(controllers) != len(set(controllers)):
             raise ValueError(ERR_DUPLICATE_CONTROLLER_IDS)
 
 
-def validate_door_id(name, options) -> None:
+def validate_door_id(name, options):
     if not name or name.strip() == '':
         raise ValueError(ERR_INVALID_DOOR_ID)
 
@@ -64,7 +71,7 @@ def validate_door_id(name, options) -> None:
                 raise ValueError(ERR_DUPLICATE_DOOR_ID)
 
 
-def validate_door_duplicates(name, doors) -> None:
+def validate_door_duplicates(name, doors):
     normalised = [normalise(v) for v in doors]
     normalised = [v for v in normalised if v != '']
 
@@ -72,17 +79,20 @@ def validate_door_duplicates(name, doors) -> None:
         raise ValueError(ERR_DUPLICATE_DOOR_ID)
 
 
-def validate_all_doors(options) -> None:
+def validate_all_doors(options):
     if options and CONF_DOORS in options:
         doors = [normalise(v[CONF_DOOR_ID]) for v in options[CONF_DOORS]]
         if len(doors) != len(set(doors)):
             raise ValueError(ERR_DUPLICATE_DOOR_IDS)
 
 
-def validate_card_number(v: int) -> None:
-    card = int(f'{v}')
-    if card < 1:
-        raise ValueError
+def validate_card_id(name):
+    if not name or name.strip() == '':
+        raise ValueError(ERR_INVALID_CARD_ID)
+
+
+def validate_all_cards(options):
+    pass
 
 
 def get_IPv4(defaults):
@@ -223,29 +233,45 @@ def get_all_cards(options):
 
 
 def configure_controllers(options, f):
-    controllers = options[CONF_CONTROLLERS]
+    if CONF_CONTROLLERS in options:
+        controllers = options[CONF_CONTROLLERS]
 
-    for c in controllers:
-        controller = f'{c[CONF_CONTROLLER_ID]}'.strip()
-        serial_no = f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip()
-        address = f'{c[CONF_CONTROLLER_ADDR]}'.strip()
+        for c in controllers:
+            controller = f'{c[CONF_CONTROLLER_ID]}'.strip()
+            serial_no = f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip()
+            address = f'{c[CONF_CONTROLLER_ADDR]}'.strip()
 
-        f(controller, serial_no, address)
+            f(controller, serial_no, address)
 
 
 def configure_doors(options, g):
-    controllers = options[CONF_CONTROLLERS]
-    doors = options[CONF_DOORS]
+    if CONF_CONTROLLERS in options and CONF_DOORS in options:
+        controllers = options[CONF_CONTROLLERS]
+        doors = options[CONF_DOORS]
 
-    for c in controllers:
-        controller = f'{c[CONF_CONTROLLER_ID]}'.strip()
-        serial_no = f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip()
-        address = f'{c[CONF_CONTROLLER_ADDR]}'.strip()
+        for c in controllers:
+            controller = f'{c[CONF_CONTROLLER_ID]}'.strip()
+            serial_no = f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip()
+            address = f'{c[CONF_CONTROLLER_ADDR]}'.strip()
 
-        for d in doors:
-            door = f'{d[CONF_DOOR_ID]}'.strip()
-            door_no = f'{d[CONF_DOOR_NUMBER]}'.strip()
-            door_controller = f'{d[CONF_DOOR_CONTROLLER]}'.strip()
+            for d in doors:
+                door = f'{d[CONF_DOOR_ID]}'.strip()
+                door_no = f'{d[CONF_DOOR_NUMBER]}'.strip()
+                door_controller = f'{d[CONF_DOOR_CONTROLLER]}'.strip()
 
-            if door_controller == controller:
-                g(controller, serial_no, door, door_no)
+                if door_controller == controller:
+                    g(controller, serial_no, door, door_no)
+
+
+def configure_cards(options, f):
+    if CONF_CARDS in options:
+        cards = options[CONF_CARDS]
+
+        for c in cards:
+            card = f'{c[CONF_CARD_NUMBER]}'.strip()
+            name = f'{c[CONF_CARD_NAME]}'.strip()
+            start_date = f'{c[CONF_CARD_STARTDATE]}'.strip()
+            end_date = f'{c[CONF_CARD_ENDDATE]}'.strip()
+            permissions = c[CONF_CARD_DOORS]
+
+            f(card, name, start_date, end_date, permissions)

@@ -92,17 +92,15 @@
             },
 
             "card": {
-                "title": "Configure access card",
+                "title": "Configure access card {card}",
                 "description": "Creates an access card record",
                 "data": {
-                    "card_number": "Card number",
                     "card_name": "Card user name",
                     "card_startdate": "Card start date",
                     "card_enddate": "Card end date",
                     "card_doors": "Card permissions"
                 },
                 "data_description": {
-                    "card_number": "Access card number e.g. 10058400",
                     "card_name": "Name of person issued with card e.g. Inés",
                     "card_startdate": "Date from which card is valid for access e.g 2024-01-01",
                     "card_enddate": "Date after which card is no longer valid for access e.g 2024-12-31",
@@ -110,6 +108,7 @@
                 }
             }
         },
+        
         "error": {
             "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
             "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
@@ -121,7 +120,9 @@
  
             "invalid_door_id": "Invalid door name",
             "duplicate_door_id": "Duplicate door name",
-            "duplicate_door_ids": "Duplicate door names"
+            "duplicate_door_ids": "Duplicate door names",
+
+            "invalid_card_id": "Invalid card name"
          },
         "abort": {
             "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
