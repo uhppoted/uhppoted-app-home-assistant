@@ -65,7 +65,9 @@ curl -X POST "http://127.0.0.1:8000/uhppote/simulator/405419896/door/1" -H "acce
 
 - [ ] Cards
       - [ ] sensor:Card
-            - [ ] Card 'state'- validity, permissions
+            - [x] Card 'state'- ok, not valid, expired, no access
+            - [ ] Update state from controllers
+      - [x] sensor:CardHolder
       - [ ] unique id should allow sharing across uhppoteds
       - [ ] initialise card from controllers
       - (?) Add card number to Person entity

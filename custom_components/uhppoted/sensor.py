@@ -38,7 +38,8 @@ from .door import ControllerDoorOpen
 from .door import ControllerDoorLock
 from .door import ControllerDoorButton
 from .door import ControllerDoorMode
-from .card import Card
+from .card import CardInfo
+from .card import CardHolder
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
@@ -67,7 +68,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     def h(card, name, start_date, end_date, permissions):
         entities.extend([
-            Card(u, card, name, start_date, end_date, permissions),
+            CardInfo(u, card, name, start_date, end_date, permissions),
+            CardHolder(u, card, name, start_date, end_date, permissions),
         ])
 
     configure_controllers(options, f)
