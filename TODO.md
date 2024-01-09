@@ -13,10 +13,9 @@ KeyboardInterrupt
 ```
 
 - [ ] Config flow
-      - [x] ~~Figure out why _hass_ is using name for entity ID~~
-      - [x] Don't show door page for e.g. Beta if none selected
-      - [x] Rework to configure multiple controllers, doors, etc
       - [ ] Cards
+            - [ ] generate unique ID
+            - [ ] set defaults from controller records
       - [ ] Ad hoc controller
             - when internal list is empty
             - address is required
@@ -26,14 +25,10 @@ KeyboardInterrupt
       - https://developers.home-assistant.io/docs/dev_101_states/
 
 - [ ] Options flow
+      - [ ] Cards
+            - [ ] Populate selector from options + controllers
       - [ ] show menu
             - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu
-      - [x] Rework to configure multiple controllers
-      - [x] Check for duplicate controller names
-      - [x] Rework to configure multiple doors
-      - [x] Remove controller from door entity id
-      - [x] Validate controllers
-      - [x] Validate doors
 
 
 - [ ] Controller
@@ -43,19 +38,13 @@ KeyboardInterrupt
       - [ ] Set default timezone in configuration.yaml
 
 - [ ] Doors
-      - [x] Somehow seperate from controller and then just link to controller name
       - [x] Rework opened as EventEntity
       - [ ] Rework button as EventEntity
       - [ ] Rework unlocked as EventEntiy
-```
-curl -X POST "http://127.0.0.1:8000/uhppote/simulator/405419896/door/1" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"action\":\"open\"}"
-
-curl -X POST "http://127.0.0.1:8000/uhppote/simulator/405419896/door/1" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"action\":\"close\"}"
-
-```
       - [ ] unlock
             - [x] `ControllerDoorUnlock`
             - [ ] Update other entities (data coordinator)
+            - [ ] service call
       - [ ] Name translation
             - https://developers.home-assistant.io/docs/core/entity
             - https://github.com/home-assistant/core/issues/98993
@@ -64,16 +53,18 @@ curl -X POST "http://127.0.0.1:8000/uhppote/simulator/405419896/door/1" -H "acce
       - [ ] Update on event
 
 - [ ] Cards
+      - [ ] set max cards in _configuration.yaml_
+      - [ ] set preferred cards in _configuration.yaml_
       - [ ] sensor:Card
             - [x] Card 'state'- ok, not valid, expired, no access
             - [ ] Update state from controllers
       - [x] sensor:CardHolder
       - [ ] unique id should allow sharing across uhppoteds
-      - [ ] initialise card from controllers
       - (?) Add card number to Person entity
             - https://community.home-assistant.io/t/request-give-the-ability-to-add-attributes-to-people-entities/297483
             - https://www.home-assistant.io/integrations/person
             - https://community.home-assistant.io/t/is-there-a-way-to-create-custom-attributes-for-entities/142875
+
 - [ ] Service
 - [ ] Custom card
 - [ ] Discovery

@@ -19,6 +19,7 @@ CONF_DOOR_CONTROLLER = 'door_controller'
 CONF_DOOR_NUMBER = 'door_number'
 
 CONF_CARDS = 'cards'
+CONF_CARD_UNIQUE_ID = 'card_unique_id'
 CONF_CARD_NUMBER = 'card_number'
 CONF_CARD_NAME = 'card_name'
 CONF_CARD_STARTDATE = 'card_startdate'

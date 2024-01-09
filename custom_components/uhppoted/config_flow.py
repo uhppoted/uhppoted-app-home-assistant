@@ -39,6 +39,7 @@ from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
 
 from .const import CONF_CARDS
+from .const import CONF_CARD_UNIQUE_ID
 from .const import CONF_CARD_NUMBER
 from .const import CONF_CARD_NAME
 from .const import CONF_CARD_STARTDATE
@@ -375,7 +376,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
                 return await self.async_step_card()
 
-        cards = get_all_cards(self.options)
+        cards = [v[CONF_CARD_NUMBER] for v in get_all_cards(self.options)]
 
         if len(cards) < 2:
             self.configuration['cards'] = [{

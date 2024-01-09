@@ -194,8 +194,9 @@ def get_all_doors(options):
 
 
 def get_all_cards(options):
-    cards = set()
+    cards = dict()
 
+    # ... get controller cards
     bind = options[CONF_BIND_ADDR]
     broadcast = options[CONF_BROADCAST_ADDR]
     listen = options[CONF_LISTEN_ADDR]
@@ -219,8 +220,14 @@ def get_all_cards(options):
             while count < N and ix < MAX_CARD_INDEX and len(cards) < MAX_CARDS and errors < MAX_ERRORS:
                 try:
                     response = u.get_card_by_index(controller, ix)
+                    cards[response.card_number] = {
+                        CONF_CARD_NUMBER: response.card_number,
+                        CONF_CARD_NAME: None,
+                        CONF_CARD_STARTDATE: None,
+                        CONF_CARD_ENDDATE: None,
+                        CONF_CARD_DOORS: [],
+                    }
                     count += 1
-                    cards.add(response.card_number)
                     ix += 1
                 except Exception as e:
                     errors += 1
@@ -229,7 +236,15 @@ def get_all_cards(options):
         except Exception as e:
             _LOGGER.warning(f'{controller} error retrieving list of cards ({e})')
 
-    return sorted(cards)
+    # ... add cards from options
+    if options and CONF_CARDS in options:
+        for v in options[CONF_CARDS]:
+            k = v[CONF_CARD_NUMBER]
+            cards[k] = v
+
+    # ... convert cards list to records
+
+    return [cards[k] for k in sorted(cards.keys())]
 
 
 def configure_controllers(options, f):

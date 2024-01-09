@@ -31,6 +31,14 @@ from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
 
+from .const import CONF_CARDS
+from .const import CONF_CARD_UNIQUE_ID
+from .const import CONF_CARD_NUMBER
+from .const import CONF_CARD_NAME
+from .const import CONF_CARD_STARTDATE
+from .const import CONF_CARD_ENDDATE
+from .const import CONF_CARD_DOORS
+
 from .const import DEFAULT_CONTROLLER_ID
 from .const import DEFAULT_CONTROLLER_ADDR
 from .const import DEFAULT_CONTROLLER_TIMEZONE
@@ -48,6 +56,7 @@ from .config import validate_all_doors
 
 from .config import get_all_controllers
 from .config import get_all_doors
+from .config import get_all_cards
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -300,7 +309,7 @@ class UhppotedOptionsFlow(OptionsFlow):
         if it == None:
             try:
                 validate_all_doors(self.options)
-                return self.async_create_entry(title="uhppoted", data=self.options)
+                return await self.async_step_cards()
             except ValueError as err:
                 self.configuration['doors'] = []
 
@@ -324,73 +333,26 @@ class UhppotedOptionsFlow(OptionsFlow):
                     errors[k] = f'{err}'
 
             if not errors:
-                v = self.options[CONF_DOORS]
+                l = self.options[CONF_DOORS]
 
-                if 1 in doors:
-                    for d in v:
-                        if d[CONF_DOOR_CONTROLLER] == controller and f'{d[CONF_DOOR_NUMBER]}' == '1':
-                            if user_input['door1_id'].strip() == '-':
-                                v.remove(d)
+                for door in doors:
+                    k = f'door{door}_id'
+                    for d in l:
+                        if d[CONF_DOOR_CONTROLLER] == controller and f'{d[CONF_DOOR_NUMBER]}' == f'{door}':
+                            if user_input[k].strip() == '-':
+                                l.remove(d)
                             else:
-                                d[CONF_DOOR_ID] = user_input['door1_id']
+                                d[CONF_DOOR_ID] = user_input[k]
                             break
                     else:
-                        if user_input['door1_id'].strip() != '-':
-                            v.append({
-                                CONF_DOOR_ID: user_input['door1_id'],
+                        if user_input[k].strip() != '-':
+                            l.append({
+                                CONF_DOOR_ID: user_input[k],
                                 CONF_DOOR_CONTROLLER: controller,
-                                CONF_DOOR_NUMBER: 1,
+                                CONF_DOOR_NUMBER: door,
                             })
 
-                if 2 in doors:
-                    for d in v:
-                        if d[CONF_DOOR_CONTROLLER] == controller and f'{d[CONF_DOOR_NUMBER]}' == '2':
-                            if user_input['door2_id'].strip() == '-':
-                                v.remove(d)
-                            else:
-                                d[CONF_DOOR_ID] = user_input['door2_id']
-                            break
-                    else:
-                        if user_input['door2_id'].strip() != '-':
-                            v.append({
-                                CONF_DOOR_ID: user_input['door2_id'],
-                                CONF_DOOR_CONTROLLER: controller,
-                                CONF_DOOR_NUMBER: 2,
-                            })
-
-                if 3 in doors:
-                    for d in v:
-                        if d[CONF_DOOR_CONTROLLER] == controller and f'{d[CONF_DOOR_NUMBER]}' == '3':
-                            if user_input['door3_id'].strip() == '-':
-                                v.remove(d)
-                            else:
-                                d[CONF_DOOR_ID] = user_input['door3_id']
-                            break
-                    else:
-                        if user_input['door3_id'].strip() != '-':
-                            v.append({
-                                CONF_DOOR_ID: user_input['door3_id'],
-                                CONF_DOOR_CONTROLLER: controller,
-                                CONF_DOOR_NUMBER: 3,
-                            })
-
-                if 4 in doors:
-                    for d in v:
-                        if d[CONF_DOOR_CONTROLLER] == controller and f'{d[CONF_DOOR_NUMBER]}' == '4':
-                            if user_input['door4_id'].strip() == '-':
-                                v.remove(d)
-                            else:
-                                d[CONF_DOOR_ID] = user_input['door4_id']
-                            break
-                    else:
-                        if user_input['door4_id'].strip() != '-':
-                            v.append({
-                                CONF_DOOR_ID: user_input['door4_id'],
-                                CONF_DOOR_CONTROLLER: controller,
-                                CONF_DOOR_NUMBER: 4,
-                            })
-
-                self.options.update({CONF_DOORS: v})
+                self.options.update({CONF_DOORS: l})
                 it['configured'] = True
 
                 return await self.async_step_door()
@@ -443,3 +405,46 @@ class UhppotedOptionsFlow(OptionsFlow):
                                     data_schema=schema,
                                     errors=errors,
                                     description_placeholders=placeholders)
+
+    async def async_step_cards(self, user_input: Optional[Dict[str, Any]] = None):
+
+        def g(c):
+            card = c[CONF_CARD_NUMBER]
+            cardholder = c[CONF_CARD_NAME]
+            return {
+                'label': f'{card} ({cardholder})' if cardholder and cardholder.strip() != '' else f'{card}',
+                'value': f'{card}',
+            }
+
+        errors: Dict[str, str] = {}
+
+        if user_input is not None:
+            if not errors:
+                self.configuration['cards'] = [{
+                    'card': v,
+                    'configured': False,
+                } for v in user_input[CONF_CARDS]]
+
+                # return await self.async_step_card()
+                return self.async_create_entry(title="uhppoted", data=self.options)
+
+        cards = get_all_cards(self.options)
+
+        # if len(cards) < 2:
+        #     self.configuration['cards'] = [{
+        #         'card': v,
+        #         'configured': False,
+        #     } for v in cards]
+        #
+        #     return await self.async_step_card()
+
+        select = SelectSelectorConfig(options=[g(v) for v in cards],
+                                      multiple=True,
+                                      custom_value=False,
+                                      mode=SelectSelectorMode.LIST) # yapf: disable
+
+        schema = vol.Schema({
+            vol.Required(CONF_CARDS, default=[f'{v}' for v in cards]): SelectSelector(select),
+        })
+
+        return self.async_show_form(step_id="cards", data_schema=schema, errors=errors)

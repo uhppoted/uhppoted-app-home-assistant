@@ -92,8 +92,8 @@
             },
 
             "card": {
-                "title": "Configure access card {card}",
-                "description": "Creates an access card record",
+                "title": "Access card {card}",
+                "description": "Sets a card validity and permissions",
                 "data": {
                     "card_name": "Card user name",
                     "card_startdate": "Card start date",
@@ -202,8 +202,35 @@
                     "door3_id": "Door 3 'human' name e.g. Hufflepuff (- to remove)",
                     "door4_id": "Door 4 'human' name e.g. Slytherin (- to remove)"
                 }
+            },
+ 
+            "cards": {
+                "title": "Access cards",
+                "data": {
+                    "cards": "Select the cards to be configured:"
+                },
+                "data_description": {
+                    "cards": "List of cards stored on the controllers"
+                }
+            },
+
+            "card": {
+                "title": "Access card {card}",
+                "description": "Sets a card validity and permissions",
+                "data": {
+                    "card_name": "Card user name",
+                    "card_startdate": "Card start date",
+                    "card_enddate": "Card end date",
+                    "card_doors": "Card permissions"
+                },
+                "data_description": {
+                    "card_name": "Name of person issued with card e.g. Inés",
+                    "card_startdate": "Date from which card is valid for access e.g 2024-01-01",
+                    "card_enddate": "Date after which card is no longer valid for access e.g 2024-12-31",
+                    "card_doors": "Doors to which the card has access"
+                }
             }
-        },
+       },
         "error": {
             "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
             "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
