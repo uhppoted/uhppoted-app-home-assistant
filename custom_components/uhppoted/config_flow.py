@@ -1,6 +1,4 @@
 import logging
-import datetime
-import calendar
 import re
 import voluptuous as vol
 
@@ -65,6 +63,8 @@ from .config import validate_all_cards
 from .config import get_IPv4
 from .config import get_all_controllers
 from .config import get_all_cards
+from .config import default_card_start_date
+from .config import default_card_end_date
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -435,15 +435,10 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
                 return await self.async_step_card()
 
-        today = datetime.date.today()
-        start = today
-        end = today + datetime.timedelta(days=180)
-        end = datetime.date(end.year, end.month, calendar.monthrange(end.year, end.month)[1])
-
         defaults = {
             CONF_CARD_NAME: '',
-            CONF_CARD_STARTDATE: start,
-            CONF_CARD_ENDDATE: end,
+            CONF_CARD_STARTDATE: default_card_start_date(),
+            CONF_CARD_ENDDATE: default_card_end_date(),
             CONF_CARD_DOORS: [],
         }
 

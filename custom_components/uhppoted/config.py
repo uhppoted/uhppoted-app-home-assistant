@@ -1,5 +1,7 @@
 import re
 import logging
+import datetime
+import calendar
 
 from typing import Any
 
@@ -290,3 +292,17 @@ def configure_cards(options, f):
             permissions = c[CONF_CARD_DOORS]
 
             f(card, name, start_date, end_date, permissions)
+
+
+def default_card_start_date():
+    return datetime.date.today()
+
+
+def default_card_end_date():
+    today = datetime.date.today()
+    end_date = today + datetime.timedelta(days=180)
+    year = end_date.year
+    month = end_date.month
+    day = calendar.monthrange(end_date.year, end_date.month)[1]
+
+    return datetime.date(year, month, day)

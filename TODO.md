@@ -59,6 +59,8 @@ KeyboardInterrupt
             - [x] Card 'state'- ok, not valid, expired, no access
             - [ ] Update state from controllers
       - [x] sensor:CardHolder
+      - [ ] datetime:StartDate
+      - [ ] datetime:EndDate
       - [ ] unique id should allow sharing across uhppoteds
       - (?) Add card number to Person entity
             - https://community.home-assistant.io/t/request-give-the-ability-to-add-attributes-to-people-entities/297483
@@ -68,9 +70,6 @@ KeyboardInterrupt
 - [ ] Service
 - [ ] Custom card
 - [ ] Discovery
-
-- [ ] README
-      - [ ] Installation
 
 - [ ] Icon
       - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/

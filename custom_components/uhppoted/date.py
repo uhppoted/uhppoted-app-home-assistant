@@ -20,14 +20,17 @@ from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
 
+from .const import CONF_CONTROLLERS
+from .const import CONF_CONTROLLER_SERIAL_NUMBER
+
 # Attribute constants
 from .const import ATTR_ADDRESS
 from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
 
-from .config import configure_controllers
-from .controller import ControllerDateTime
+from .config import configure_cards
+from .card import CardStartDate
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
@@ -39,13 +42,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     listen = options[CONF_LISTEN_ADDR]
     debug = options[CONF_DEBUG]
 
-    u = uhppote.Uhppote(bind, broadcast, listen, debug)
+    controllers = [int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}')
+                   for v in options[CONF_CONTROLLERS]] if CONF_CONTROLLERS in options else []
+
+    u = {
+        'api': uhppote.Uhppote(bind, broadcast, listen, debug),
+        'controllers': controllers,
+    }
+
     entities = []
 
-    def f(controller, serial_no, address):
+    def f(card, name, start_date, end_date, permissions):
         entities.extend([
-            ControllerDateTime(u, controller, serial_no),
+            CardStartDate(u, card, name, start_date, end_date, permissions),
         ])
 
-    configure_controllers(options, f)
+    configure_cards(options, f)
     async_add_entities(entities, update_before_add=True)

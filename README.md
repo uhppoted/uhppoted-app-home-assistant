@@ -7,7 +7,6 @@ UHPPOTE controller HACS integration for Home Assistant.
 (_IN DEVELOPMENT_)
 
 1. [Installation](#installation)
-    - [Alpha Release](#alpha-release)
     - [Development version](#developmnet-version)
 
 2. [Configuration](#configuration)
@@ -25,8 +24,8 @@ UHPPOTE controller HACS integration for Home Assistant.
 The suggested installation for the development version installs the cloned project as a symbolic link under the 
 _Home Assistant_ `config/custom_components` folder. Be warned - the development version changes almost daily and
 is completely NOT guaranteed to be any kind of stable. You could quite conceivably lock yourself out of your 
-apartment, your house, the planet or possibly the entire galaxy. At the very least expec to have to reconfigure
-your systme often. You have been warned :-). 
+apartment, your house, the planet or possibly the entire galaxy. At the very least expect to have to reconfigure
+your system often. You have been warned :-). 
 
 1. Clone the _uhppoted-app-home-assistant_ repo to a folder that is **NOT* _under_ the _Home Assistant_ folder, e.g.:
 
