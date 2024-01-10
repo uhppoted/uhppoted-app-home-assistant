@@ -417,7 +417,6 @@ class UhppotedOptionsFlow(OptionsFlow):
             }
 
         errors: Dict[str, str] = {}
-
         if user_input is not None:
             if not errors:
                 self.configuration['cards'] = [{
@@ -429,6 +428,7 @@ class UhppotedOptionsFlow(OptionsFlow):
                 return self.async_create_entry(title="uhppoted", data=self.options)
 
         cards = get_all_cards(self.options)
+        defaults = [f'{v[CONF_CARD_NUMBER]}' for v in self.options[CONF_CARDS]]
 
         # if len(cards) < 2:
         #     self.configuration['cards'] = [{
@@ -444,7 +444,7 @@ class UhppotedOptionsFlow(OptionsFlow):
                                       mode=SelectSelectorMode.LIST) # yapf: disable
 
         schema = vol.Schema({
-            vol.Required(CONF_CARDS, default=[f'{v}' for v in cards]): SelectSelector(select),
+            vol.Required(CONF_CARDS, default=defaults): SelectSelector(select),
         })
 
         return self.async_show_form(step_id="cards", data_schema=schema, errors=errors)
