@@ -27,7 +27,7 @@ KeyboardInterrupt
 
 - [ ] Options flow
       - [ ] Cards
-            - [ ] Populate selector from options + controllers
+            - [ ] configure in pages of 4 or 5 cards
       - [ ] show menu
             - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu
 

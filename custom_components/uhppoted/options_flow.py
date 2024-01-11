@@ -49,14 +49,17 @@ from .const import DEFAULT_DOOR3
 from .const import DEFAULT_DOOR4
 
 from .config import validate_controller_id
-from .config import validate_all_controllers
 from .config import validate_door_duplicates
 from .config import validate_door_id
+from .config import validate_card_id
+from .config import validate_all_controllers
 from .config import validate_all_doors
+from .config import validate_all_cards
 
 from .config import get_all_controllers
 from .config import get_all_doors
 from .config import get_all_cards
+from .config import get_card
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -420,12 +423,11 @@ class UhppotedOptionsFlow(OptionsFlow):
         if user_input is not None:
             if not errors:
                 self.configuration['cards'] = [{
-                    'card': v,
+                    'card': get_card(v, self.options),
                     'configured': False,
                 } for v in user_input[CONF_CARDS]]
 
-                # return await self.async_step_card()
-                return self.async_create_entry(title="uhppoted", data=self.options)
+                return await self.async_step_card()
 
         cards = get_all_cards(self.options)
         defaults = [f'{v[CONF_CARD_NUMBER]}' for v in self.options[CONF_CARDS]]
@@ -448,3 +450,65 @@ class UhppotedOptionsFlow(OptionsFlow):
         })
 
         return self.async_show_form(step_id="cards", data_schema=schema, errors=errors)
+
+    async def async_step_card(self, user_input: Optional[Dict[str, Any]] = None):
+        def f(v):
+            return not v['configured']
+
+        it = next((v for v in self.configuration['cards'] if f(v)), None)
+        if it == None:
+            try:
+                validate_all_cards(self.options)
+                return self.async_create_entry(title="uhppoted", data=self.options)
+            except ValueError as err:
+                self.configuration['cards'] = []
+                return await self.async_step_cards()
+
+        else:
+            card = it['card'][CONF_CARD_NUMBER]
+            cardholder = it['card'][CONF_CARD_NAME]
+            unique_id = it['card'][CONF_CARD_UNIQUE_ID]
+
+        errors: Dict[str, str] = {}
+        if user_input is not None:
+            try:
+                validate_card_id(user_input[CONF_CARD_NAME])
+            except ValueError as err:
+                errors[CONF_CARD_NAME] = f'{err}'
+
+            if not errors:
+                v = []
+                v.append({
+                    CONF_CARD_NUMBER: card,
+                    CONF_CARD_NAME: user_input[CONF_CARD_NAME],
+                    CONF_CARD_UNIQUE_ID: unique_id,
+                })
+
+                self.options.update({CONF_CARDS: v})
+                it['configured'] = True
+
+                return await self.async_step_card()
+
+        defaults = {
+            CONF_CARD_NAME: f'{cardholder}',
+        }
+
+        if user_input is not None:
+            for v in [CONF_CARD_NAME]:
+                if k in user_input:
+                    defaults[k] = user_input[k]
+
+        schema = vol.Schema({
+            vol.Required(CONF_CARD_NAME, default=defaults[CONF_CARD_NAME]): str,
+        })
+
+        placeholders = {
+            'card': f'{card}',
+            'cardholder': f'{cardholder}',
+        }
+
+        return self.async_show_form(step_id="card",
+                                    data_schema=schema,
+                                    errors=errors,
+                                    description_placeholders=placeholders)
+

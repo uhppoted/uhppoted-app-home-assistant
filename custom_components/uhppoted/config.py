@@ -2,6 +2,7 @@ import re
 import logging
 import datetime
 import calendar
+import uuid
 
 from typing import Any
 
@@ -225,6 +226,7 @@ def get_all_cards(options):
                     response = u.get_card_by_index(controller, ix)
                     cards[response.card_number] = {
                         CONF_CARD_NUMBER: response.card_number,
+                        CONF_CARD_UNIQUE_ID: uuid.uuid4(),
                         CONF_CARD_NAME: None,
                         CONF_CARD_STARTDATE: None,
                         CONF_CARD_ENDDATE: None,
@@ -249,6 +251,17 @@ def get_all_cards(options):
 
     return [cards[k] for k in sorted(cards.keys())]
 
+def get_card(card_number, options):
+    if options and CONF_CARDS in options:
+        for v in options[CONF_CARDS]:
+            if int(f'{v[CONF_CARD_NUMBER]}') == int(f'{card_number}'):
+                return v
+
+    return {
+        CONF_CARD_NUMBER: card_number,
+        CONF_CARD_UNIQUE_ID: uuid.uuid4(),
+        CONF_CARD_NAME: f'{card_number}',
+    }
 
 def configure_controllers(options, f):
     if CONF_CONTROLLERS in options:
