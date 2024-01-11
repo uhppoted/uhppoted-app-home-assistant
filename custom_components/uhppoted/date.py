@@ -29,32 +29,22 @@ from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
 
+from .config import configure_driver
 from .config import configure_cards
 from .card import CardStartDate
+from .card import CardEndDate
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     config = entry.data
     options = entry.options
-
-    bind = options[CONF_BIND_ADDR]
-    broadcast = options[CONF_BROADCAST_ADDR]
-    listen = options[CONF_LISTEN_ADDR]
-    debug = options[CONF_DEBUG]
-
-    controllers = [int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}')
-                   for v in options[CONF_CONTROLLERS]] if CONF_CONTROLLERS in options else []
-
-    u = {
-        'api': uhppote.Uhppote(bind, broadcast, listen, debug),
-        'controllers': controllers,
-    }
-
+    u = configure_driver(options)
     entities = []
 
     def f(card, name, start_date, end_date, permissions):
         entities.extend([
             CardStartDate(u, card, name, start_date, end_date, permissions),
+            CardEndDate(u, card, name, start_date, end_date, permissions),
         ])
 
     configure_cards(options, f)

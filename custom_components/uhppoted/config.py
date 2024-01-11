@@ -294,6 +294,23 @@ def configure_cards(options, f):
             f(card, name, start_date, end_date, permissions)
 
 
+def configure_driver(options):
+    bind = options[CONF_BIND_ADDR]
+    broadcast = options[CONF_BROADCAST_ADDR]
+    listen = options[CONF_LISTEN_ADDR]
+    debug = options[CONF_DEBUG]
+
+    if CONF_CONTROLLERS in options:
+        controllers = [int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') for v in options[CONF_CONTROLLERS]]
+    else:
+        controllers = []
+
+    return {
+        'api': uhppote.Uhppote(bind, broadcast, listen, debug),
+        'controllers': controllers,
+    }
+
+
 def default_card_start_date():
     return datetime.date.today()
 

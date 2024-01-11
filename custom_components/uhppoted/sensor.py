@@ -31,6 +31,7 @@ from .const import ATTR_FIRMWARE
 from .config import configure_controllers
 from .config import configure_doors
 from .config import configure_cards
+from .config import configure_driver
 
 from .controller import ControllerInfo
 from .door import ControllerDoor
@@ -43,27 +44,22 @@ from .card import CardHolder
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
+    config = entry.data
     options = entry.options
-
-    bind = options[CONF_BIND_ADDR]
-    broadcast = options[CONF_BROADCAST_ADDR]
-    listen = options[CONF_LISTEN_ADDR]
-    debug = options[CONF_DEBUG]
-
-    u = uhppote.Uhppote(bind, broadcast, listen, debug)
+    u = configure_driver(options)
     entities = []
 
     def f(controller, serial_no, address):
         entities.extend([
-            ControllerInfo(u, controller, serial_no),
+            ControllerInfo(u['api'], controller, serial_no),
         ])
 
     def g(controller, serial_no, door, door_no):
         entities.extend([
-            ControllerDoor(u, controller, serial_no, door, door_no),
-            ControllerDoorOpen(u, controller, serial_no, door, door_no),
-            ControllerDoorLock(u, controller, serial_no, door, door_no),
-            ControllerDoorButton(u, controller, serial_no, door, door_no),
+            ControllerDoor(u['api'], controller, serial_no, door, door_no),
+            ControllerDoorOpen(u['api'], controller, serial_no, door, door_no),
+            ControllerDoorLock(u['api'], controller, serial_no, door, door_no),
+            ControllerDoorButton(u['api'], controller, serial_no, door, door_no),
         ])
 
     def h(card, name, start_date, end_date, permissions):

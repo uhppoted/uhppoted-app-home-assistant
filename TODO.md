@@ -15,10 +15,10 @@ KeyboardInterrupt
 - [ ] Config flow
       - [ ] Cards
             - [ ] generate unique ID
-            - [ ] set defaults from controller records
-      - [ ] Ad hoc controller
-            - when internal list is empty
-            - address is required
+            - [ ] defer start/end dates and permissions to UI
+      - [ ] Ad hoc controllers
+            - [ ] From configuration.yaml
+            - (?) when internal list is empty
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] (somehow) commonalise config-flow and options-flow
       - [ ] Integration icon
@@ -55,13 +55,18 @@ KeyboardInterrupt
 - [ ] Cards
       - [ ] set max cards in _configuration.yaml_
       - [ ] set preferred cards in _configuration.yaml_
-      - [ ] sensor:Card
-            - [x] Card 'state'- ok, not valid, expired, no access
-            - [ ] Update state from controllers
+      - [x] sensor:CardInfo
+            - [x] Card 'state'- ok, not valid, expired, no access, inconsistent
+            - [x] Update state from controllers
       - [x] sensor:CardHolder
-      - [ ] datetime:StartDate
-      - [ ] datetime:EndDate
+      - [x] datetime:StartDate
+      - [x] datetime:EndDate
+      - [ ] permissions
+      - [ ] PIN
       - [ ] unique id should allow sharing across uhppoteds
+      - [ ] Only set cardholder in config-flow
+      - [ ] Only set cardholder and (maybe) PIN in options-flow
+      - [ ] Enable PIN in configuration.yaml
       - (?) Add card number to Person entity
             - https://community.home-assistant.io/t/request-give-the-ability-to-add-attributes-to-people-entities/297483
             - https://www.home-assistant.io/integrations/person
@@ -70,6 +75,7 @@ KeyboardInterrupt
 - [ ] Service
 - [ ] Custom card
 - [ ] Discovery
+- (?) ACL SceneEntity
 
 - [ ] Icon
       - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/
