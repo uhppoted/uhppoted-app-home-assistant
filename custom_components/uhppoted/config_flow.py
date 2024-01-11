@@ -1,5 +1,6 @@
 import logging
 import re
+import uuid
 import voluptuous as vol
 
 from typing import Any
@@ -412,6 +413,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_cards()
         else:
             card = it['card']
+            unique_id = uuid.uuid4()
 
         errors: Dict[str, str] = {}
         if user_input is not None:
@@ -424,6 +426,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 v = []
                 v.append({
                     CONF_CARD_NUMBER: card,
+                    CONF_CARD_UNIQUE_ID: unique_id,
                     CONF_CARD_NAME: user_input[CONF_CARD_NAME],
                     CONF_CARD_STARTDATE: user_input[CONF_CARD_STARTDATE],
                     CONF_CARD_ENDDATE: user_input[CONF_CARD_ENDDATE],

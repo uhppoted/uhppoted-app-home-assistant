@@ -41,10 +41,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     u = configure_driver(options)
     entities = []
 
-    def f(card, name, start_date, end_date, permissions):
+    def f(card, name, unique_id):
         entities.extend([
-            CardStartDate(u, card, name, start_date, end_date, permissions),
-            CardEndDate(u, card, name, start_date, end_date, permissions),
+            CardStartDate(u, card, name, unique_id),
+            CardEndDate(u, card, name, unique_id),
         ])
 
     configure_cards(options, f)

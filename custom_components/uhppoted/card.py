@@ -22,24 +22,25 @@ class CardInfo(SensorEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
-    def __init__(self, u, card, name, start_date, end_date, permissions):
+    def __init__(self, u, card, name, unique_id):
         super().__init__()
 
         _LOGGER.debug(f'card {card}')
 
         self.driver = u
         self.card = int(f'{card}')
-        self.cardholder = name
-        self.permissions = permissions
 
+        self._unique_id = unique_id
         self._name = f'uhppoted.card.{card}.info'.lower()
+        self._cardholder = name
         self._start_date = None
         self._end_date = None
+        self._permissions = None
         self._available = False
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.card.{self.card}.info'.lower()
+        return f'uhppoted.card.{self._unique_id}.info'.lower()
 
     @property
     def name(self) -> str:
@@ -55,8 +56,8 @@ class CardInfo(SensorEntity):
             today = date.today()
             state = []
 
-            if self.cardholder.strip() != '':
-                state.append(self.cardholder)
+            if self._cardholder.strip() != '':
+                state.append(self._cardholder)
 
             if self._start_date and self._start_date <= today and self._end_date and self._end_date >= today:
                 state.append('VALID')
@@ -65,7 +66,7 @@ class CardInfo(SensorEntity):
             elif self._end_date and self._end_date < today:
                 state.append('EXPIRED')
 
-            if len(self.permissions) < 1:
+            if self._permissions and len(self._permissions) < 1:
                 state.append('NO ACCESS')
 
             return ', '.join(state)
@@ -74,11 +75,12 @@ class CardInfo(SensorEntity):
 
     @property
     def extra_state_attributes(self) -> Dict[str, Any]:
+        permissions = f"','.join(self._permissions)" if self._permissions else None
         return {
-            ATTR_CARD_HOLDER: f'{self.cardholder}',
-            ATTR_CARD_STARTDATE: f'{self._start_date}',
-            ATTR_CARD_ENDDATE: f'{self._end_date}',
-            ATTR_CARD_PERMISSIONS: f"{','.join(self.permissions)}",
+            ATTR_CARD_HOLDER: self._cardholder,
+            ATTR_CARD_STARTDATE: self._start_date,
+            ATTR_CARD_ENDDATE: self._end_date,
+            ATTR_CARD_PERMISSIONS: permissions,
         }
 
     async def async_update(self):
@@ -109,22 +111,23 @@ class CardHolder(SensorEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
-    def __init__(self, u, card, name, start_date, end_date, permissions):
+    def __init__(self, u, card, name, unique_id):
         super().__init__()
 
         _LOGGER.debug(f'card {card}')
 
         self.driver = u
         self.card = int(f'{card}')
-        self.cardholder = name
 
+        self._unique_id = unique_id
         self._name = f'uhppoted.card.{card}.cardholder'.lower()
+        self._cardholder = name
         self._available = True
         self._attributes: Dict[str, Any] = {}
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.card.{self.card}.cardholder'.lower()
+        return f'uhppoted.card.{self._unique_id}.cardholder'.lower()
 
     @property
     def name(self) -> str:
@@ -137,7 +140,7 @@ class CardHolder(SensorEntity):
     @property
     def state(self) -> Optional[str]:
         if self._available:
-            return self.cardholder
+            return self._cardholder
 
         return None
 
@@ -154,7 +157,7 @@ class CardStartDate(DateEntity):
     _attr_icon = 'mdi:calendar-clock-outline'
     _attr_has_entity_name: True
 
-    def __init__(self, u, card, name, start_date, end_date, permissions):
+    def __init__(self, u, card, name, unique_id):
         super().__init__()
 
         _LOGGER.debug(f'card {card} start date')
@@ -162,14 +165,15 @@ class CardStartDate(DateEntity):
         self.driver = u
         self.card = int(f'{card}')
 
+        self._unique_id = unique_id
         self._name = f'uhppoted.card.{card}.start-date'.lower()
-        self._date = datetime.strptime(f'{start_date}', '%Y-%m-%d').date()
+        self._date = None
         self._available = False
         self._attributes: Dict[str, Any] = {}
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.card.{self.card}.start-date'.lower()
+        return f'uhppoted.card.{self._unique_id}.start-date'.lower()
 
     @property
     def name(self) -> str:
@@ -239,7 +243,7 @@ class CardEndDate(DateEntity):
     _attr_icon = 'mdi:calendar-clock-outline'
     _attr_has_entity_name: True
 
-    def __init__(self, u, card, name, start_date, end_date, permissions):
+    def __init__(self, u, card, name, unique_id):
         super().__init__()
 
         _LOGGER.debug(f'card {card} end date')
@@ -247,14 +251,15 @@ class CardEndDate(DateEntity):
         self.driver = u
         self.card = int(f'{card}')
 
+        self._unique_id = unique_id
         self._name = f'uhppoted.card.{card}.end-date'.lower()
-        self._date = datetime.strptime(f'{end_date}', '%Y-%m-%d').date()
+        self._date = None
         self._available = False
         self._attributes: Dict[str, Any] = {}
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.card.{self.card}.end-date'.lower()
+        return f'uhppoted.card.{self._unique_id}.end-date'.lower()
 
     @property
     def name(self) -> str:

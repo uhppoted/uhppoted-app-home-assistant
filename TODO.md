@@ -14,7 +14,7 @@ KeyboardInterrupt
 
 - [ ] Config flow
       - [ ] Cards
-            - [ ] generate unique ID
+            - [x] generate unique ID
             - [ ] defer start/end dates and permissions to UI
       - [ ] Ad hoc controllers
             - [ ] From configuration.yaml
@@ -53,6 +53,7 @@ KeyboardInterrupt
       - [ ] Update on event
 
 - [ ] Cards
+      - [x] unique id should allow sharing across uhppoteds
       - [ ] set max cards in _configuration.yaml_
       - [ ] set preferred cards in _configuration.yaml_
       - [x] sensor:CardInfo
@@ -63,7 +64,6 @@ KeyboardInterrupt
       - [x] datetime:EndDate
       - [ ] permissions
       - [ ] PIN
-      - [ ] unique id should allow sharing across uhppoteds
       - [ ] Only set cardholder in config-flow
       - [ ] Only set cardholder and (maybe) PIN in options-flow
       - [ ] Enable PIN in configuration.yaml

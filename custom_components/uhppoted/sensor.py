@@ -62,10 +62,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
             ControllerDoorButton(u['api'], controller, serial_no, door, door_no),
         ])
 
-    def h(card, name, start_date, end_date, permissions):
+    def h(card, name, unique_id):
         entities.extend([
-            CardInfo(u, card, name, start_date, end_date, permissions),
-            CardHolder(u, card, name, start_date, end_date, permissions),
+            CardInfo(u, card, name, unique_id),
+            CardHolder(u, card, name, unique_id),
         ])
 
     configure_controllers(options, f)

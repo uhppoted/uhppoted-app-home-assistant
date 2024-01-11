@@ -21,6 +21,7 @@ from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
 from .const import CONF_CARDS
+from .const import CONF_CARD_UNIQUE_ID
 from .const import CONF_CARD_NUMBER
 from .const import CONF_CARD_NAME
 from .const import CONF_CARD_STARTDATE
@@ -287,11 +288,9 @@ def configure_cards(options, f):
         for c in cards:
             card = f'{c[CONF_CARD_NUMBER]}'.strip()
             name = f'{c[CONF_CARD_NAME]}'.strip()
-            start_date = f'{c[CONF_CARD_STARTDATE]}'.strip()
-            end_date = f'{c[CONF_CARD_ENDDATE]}'.strip()
-            permissions = c[CONF_CARD_DOORS]
+            unique_id = f'{c[CONF_CARD_UNIQUE_ID]}'.strip()
 
-            f(card, name, start_date, end_date, permissions)
+            f(card, name, unique_id)
 
 
 def configure_driver(options):
