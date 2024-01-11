@@ -15,7 +15,8 @@ KeyboardInterrupt
 - [ ] Config flow
       - [ ] Cards
             - [x] generate unique ID
-            - [ ] defer start/end dates and permissions to UI
+            - [x] defer start/end dates and permissions to UI
+            - [ ] configure in pages of 4 or 5 cards
       - [ ] Ad hoc controllers
             - [ ] From configuration.yaml
             - (?) when internal list is empty
@@ -64,7 +65,7 @@ KeyboardInterrupt
       - [x] datetime:EndDate
       - [ ] permissions
       - [ ] PIN
-      - [ ] Only set cardholder in config-flow
+      - [x] Only set cardholder in config-flow
       - [ ] Only set cardholder and (maybe) PIN in options-flow
       - [ ] Enable PIN in configuration.yaml
       - (?) Add card number to Person entity

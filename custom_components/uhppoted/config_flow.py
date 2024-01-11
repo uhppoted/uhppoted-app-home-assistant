@@ -426,11 +426,8 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 v = []
                 v.append({
                     CONF_CARD_NUMBER: card,
-                    CONF_CARD_UNIQUE_ID: unique_id,
                     CONF_CARD_NAME: user_input[CONF_CARD_NAME],
-                    CONF_CARD_STARTDATE: user_input[CONF_CARD_STARTDATE],
-                    CONF_CARD_ENDDATE: user_input[CONF_CARD_ENDDATE],
-                    CONF_CARD_DOORS: user_input[CONF_CARD_DOORS],
+                    CONF_CARD_UNIQUE_ID: unique_id,
                 })
 
                 self.options.update({CONF_CARDS: v})
@@ -439,32 +436,16 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_card()
 
         defaults = {
-            CONF_CARD_NAME: '',
-            CONF_CARD_STARTDATE: default_card_start_date(),
-            CONF_CARD_ENDDATE: default_card_end_date(),
-            CONF_CARD_DOORS: [],
+            CONF_CARD_NAME: f'{card}',
         }
 
         if user_input is not None:
-            for k in [CONF_CARD_NAME, CONF_CARD_STARTDATE, CONF_CARD_ENDDATE, CONF_CARD_DOORS]:
+            for k in [CONF_CARD_NAME]:
                 if k in user_input:
                     defaults[k] = user_input[k]
 
-        doors = selector.SelectSelector(
-            selector.SelectSelectorConfig(options=[f'{v[CONF_DOOR_ID]}' for v in self.options[CONF_DOORS]],
-                                          multiple=True,
-                                          custom_value=False,
-                                          mode=selector.SelectSelectorMode.DROPDOWN))
-
         schema = vol.Schema({
-            vol.Required(CONF_CARD_NAME, default=defaults[CONF_CARD_NAME]):
-            str,
-            vol.Required(CONF_CARD_STARTDATE, default=defaults[CONF_CARD_STARTDATE]):
-            selector.DateSelector(),
-            vol.Required(CONF_CARD_ENDDATE, default=defaults[CONF_CARD_ENDDATE]):
-            selector.DateSelector(),
-            vol.Optional(CONF_CARD_DOORS, default=defaults[CONF_CARD_DOORS]):
-            doors,
+            vol.Required(CONF_CARD_NAME, default=defaults[CONF_CARD_NAME]): str,
         })
 
         placeholders = {
