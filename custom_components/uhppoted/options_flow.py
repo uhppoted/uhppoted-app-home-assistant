@@ -430,7 +430,7 @@ class UhppotedOptionsFlow(OptionsFlow):
                 return await self.async_step_card()
 
         cards = get_all_cards(self.options)
-        defaults = [f'{v[CONF_CARD_NUMBER]}' for v in self.options[CONF_CARDS]]
+        defaults = [f'{v[CONF_CARD_NUMBER]}' for v in self.options[CONF_CARDS]] if CONF_CARDS in self.options else []
 
         # if len(cards) < 2:
         #     self.configuration['cards'] = [{
@@ -452,6 +452,7 @@ class UhppotedOptionsFlow(OptionsFlow):
         return self.async_show_form(step_id="cards", data_schema=schema, errors=errors)
 
     async def async_step_card(self, user_input: Optional[Dict[str, Any]] = None):
+
         def f(v):
             return not v['configured']
 
@@ -477,12 +478,18 @@ class UhppotedOptionsFlow(OptionsFlow):
                 errors[CONF_CARD_NAME] = f'{err}'
 
             if not errors:
-                v = []
-                v.append({
-                    CONF_CARD_NUMBER: card,
-                    CONF_CARD_NAME: user_input[CONF_CARD_NAME],
-                    CONF_CARD_UNIQUE_ID: unique_id,
-                })
+                v = self.options[CONF_CARDS] if CONF_CARDS in self.options else []
+
+                for c in v:
+                    if int(f'{c[CONF_CARD_NUMBER]}') == int(f'{card}'):
+                        c[CONF_CARD_NAME] = user_input[CONF_CARD_NAME]
+                        break
+                else:
+                    v.append({
+                        CONF_CARD_NUMBER: card,
+                        CONF_CARD_NAME: user_input[CONF_CARD_NAME],
+                        CONF_CARD_UNIQUE_ID: unique_id,
+                    })
 
                 self.options.update({CONF_CARDS: v})
                 it['configured'] = True
@@ -511,4 +518,3 @@ class UhppotedOptionsFlow(OptionsFlow):
                                     data_schema=schema,
                                     errors=errors,
                                     description_placeholders=placeholders)
-

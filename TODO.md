@@ -14,8 +14,6 @@ KeyboardInterrupt
 
 - [ ] Config flow
       - [ ] Cards
-            - [x] generate unique ID
-            - [x] defer start/end dates and permissions to UI
             - [ ] configure in pages of 4 or 5 cards
       - [ ] Ad hoc controllers
             - [ ] From configuration.yaml
@@ -33,12 +31,14 @@ KeyboardInterrupt
 
 
 - [ ] Controller
+      - [ ] generate unique id in config-/option-flow
       - [ ] Rework as Device
       - [ ] device_info
       - [ ] entity_category
       - [ ] Set default timezone in configuration.yaml
 
 - [ ] Doors
+      - [ ] generate unique id in config-/option-flow
       - [x] Rework opened as EventEntity
       - [ ] Rework button as EventEntity
       - [ ] Rework unlocked as EventEntiy
@@ -55,15 +55,13 @@ KeyboardInterrupt
 
 - [ ] Cards
       - [x] unique id should allow sharing across uhppoteds
-      - [ ] set max cards in _configuration.yaml_
-      - [ ] set preferred cards in _configuration.yaml_
       - [x] sensor:CardInfo
-            - [x] Card 'state'- ok, not valid, expired, no access, inconsistent
-            - [x] Update state from controllers
       - [x] sensor:CardHolder
       - [x] datetime:StartDate
       - [x] datetime:EndDate
-      - [ ] permissions
+      - [x] permissions
+      - [ ] set max cards in _configuration.yaml_
+      - [ ] set preferred cards in _configuration.yaml_
       - [ ] PIN
       - [x] Only set cardholder in config-flow
       - [ ] Only set cardholder and (maybe) PIN in options-flow

@@ -423,7 +423,8 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors[CONF_CARD_NAME] = f'{err}'
 
             if not errors:
-                v = []
+                v = self.options[CONF_CARDS] if CONF_CARDS in self.options else []
+
                 v.append({
                     CONF_CARD_NUMBER: card,
                     CONF_CARD_NAME: user_input[CONF_CARD_NAME],

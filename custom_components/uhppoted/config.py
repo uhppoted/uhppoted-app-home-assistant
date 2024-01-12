@@ -244,12 +244,13 @@ def get_all_cards(options):
     # ... add cards from options
     if options and CONF_CARDS in options:
         for v in options[CONF_CARDS]:
-            k = v[CONF_CARD_NUMBER]
+            k = int(f'{v[CONF_CARD_NUMBER]}')
             cards[k] = v
 
     # ... convert cards list to records
 
     return [cards[k] for k in sorted(cards.keys())]
+
 
 def get_card(card_number, options):
     if options and CONF_CARDS in options:
@@ -262,6 +263,7 @@ def get_card(card_number, options):
         CONF_CARD_UNIQUE_ID: uuid.uuid4(),
         CONF_CARD_NAME: f'{card_number}',
     }
+
 
 def configure_controllers(options, f):
     if CONF_CONTROLLERS in options:
@@ -297,7 +299,6 @@ def configure_doors(options, g):
 def configure_cards(options, f):
     if CONF_CARDS in options:
         cards = options[CONF_CARDS]
-
         for c in cards:
             card = f'{c[CONF_CARD_NUMBER]}'.strip()
             name = f'{c[CONF_CARD_NAME]}'.strip()
