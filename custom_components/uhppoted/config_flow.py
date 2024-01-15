@@ -296,32 +296,11 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
             if not errors:
                 v = self.options[CONF_DOORS]
 
-                if 1 in doors:
+                for d in doors:
                     v.append({
-                        CONF_DOOR_ID: user_input['door1_id'],
+                        CONF_DOOR_ID: user_input[f'door{d}_id'],
                         CONF_DOOR_CONTROLLER: controller,
-                        CONF_DOOR_NUMBER: 1,
-                    })
-
-                if 2 in it['doors']['doors']:
-                    v.append({
-                        CONF_DOOR_ID: user_input['door2_id'],
-                        CONF_DOOR_CONTROLLER: controller,
-                        CONF_DOOR_NUMBER: 2,
-                    })
-
-                if 3 in it['doors']['doors']:
-                    v.append({
-                        CONF_DOOR_ID: user_input['door3_id'],
-                        CONF_DOOR_CONTROLLER: controller,
-                        CONF_DOOR_NUMBER: 3,
-                    })
-
-                if 4 in it['doors']['doors']:
-                    v.append({
-                        CONF_DOOR_ID: user_input['door4_id'],
-                        CONF_DOOR_CONTROLLER: controller,
-                        CONF_DOOR_NUMBER: 4,
+                        CONF_DOOR_NUMBER: int(f'{d}'),
                     })
 
                 self.options.update({CONF_DOORS: v})
@@ -372,6 +351,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
             if not errors:
                 self.configuration['cards'] = [{
                     'card': int(f'{v}'),
+                    'unique_id': uuid.uuid4(),
                     'configured': False,
                 } for v in user_input[CONF_CARDS]]
 
@@ -382,6 +362,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         if len(cards) < 2:
             self.configuration['cards'] = [{
                 'card': int(f'{v}'),
+                'unique_id': uuid.uuid4(),
                 'configured': False,
             } for v in cards]
 
@@ -403,55 +384,66 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         def f(v):
             return not v['configured']
 
-        it = next((v for v in self.configuration['cards'] if f(v)), None)
-        if it == None:
+        it = (v for v in self.configuration['cards'] if f(v))
+        card = next(it, None)
+        if card == None:
             try:
                 validate_all_cards(self.options)
                 return self.async_create_entry(title="uhppoted", data=self.data, options=self.options)
             except ValueError as err:
                 self.configuration['cards'] = []
                 return await self.async_step_cards()
-        else:
-            card = it['card']
-            unique_id = uuid.uuid4()
+
+        cards = []
+        while card != None and len(cards) < 4:
+            cards.append(card)
+            card = next(it, None)
 
         errors: Dict[str, str] = {}
         if user_input is not None:
-            try:
-                validate_card_id(user_input[CONF_CARD_NAME])
-            except ValueError as err:
-                errors[CONF_CARD_NAME] = f'{err}'
+            for ix, card in enumerate(cards):
+                k = f'card{ix+1}_name'
+                try:
+                    validate_card_id(user_input[k])
+                except ValueError as err:
+                    errors[k] = f'{err}'
 
             if not errors:
                 v = self.options[CONF_CARDS] if CONF_CARDS in self.options else []
 
-                v.append({
-                    CONF_CARD_NUMBER: card,
-                    CONF_CARD_NAME: user_input[CONF_CARD_NAME],
-                    CONF_CARD_UNIQUE_ID: unique_id,
-                })
+                for ix, card in enumerate(cards):
+                    k = f'card{ix+1}_name'
+                    name = user_input[k]
+                    v.append({
+                        CONF_CARD_UNIQUE_ID: card['unique_id'],
+                        CONF_CARD_NUMBER: card['card'],
+                        CONF_CARD_NAME: name,
+                    })
+
+                    card['configured'] = True
 
                 self.options.update({CONF_CARDS: v})
-                it['configured'] = True
 
                 return await self.async_step_card()
 
-        defaults = {
-            CONF_CARD_NAME: f'{card}',
-        }
+        defaults = {}
+        for ix, card in enumerate(cards):
+            defaults[f'card{ix+1}_name'] = f"{card['card']}"
 
         if user_input is not None:
-            for k in [CONF_CARD_NAME]:
+            for ix, card in enumerate(cards):
+                k = f'card{ix+1}_name'
                 if k in user_input:
                     defaults[k] = user_input[k]
 
-        schema = vol.Schema({
-            vol.Required(CONF_CARD_NAME, default=defaults[CONF_CARD_NAME]): str,
-        })
+        placeholders = {}
+        for ix, card in enumerate(cards):
+            placeholders[f'card{ix+1}'] = f"{card['card']}"
 
-        placeholders = {
-            'card': f'{card}',
-        }
+        schema = vol.Schema({})
+        for ix, card in enumerate(cards):
+            k = f'card{ix+1}_name'
+            schema = schema.extend({vol.Required(k, default=defaults[k]): str})
 
         return self.async_show_form(step_id="card",
                                     data_schema=schema,

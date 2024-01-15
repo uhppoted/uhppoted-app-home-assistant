@@ -92,19 +92,19 @@
             },
 
             "card": {
-                "title": "Access card {card}",
-                "description": "Sets a card validity and permissions",
+                "title": "Access card {card1}",
+                "description": "Assigns a card to a card holder",
                 "data": {
-                    "card_name": "Card user name",
-                    "card_startdate": "Card start date",
-                    "card_enddate": "Card end date",
-                    "card_doors": "Card permissions"
+                    "card1_name": "Card holder name",
+                    "card2_name": "Card holder name",
+                    "card3_name": "Card holder name",
+                    "card4_name": "Card holder name"
                 },
                 "data_description": {
-                    "card_name": "Name of person issued with card e.g. Inés",
-                    "card_startdate": "Date from which card is valid for access e.g 2024-01-01",
-                    "card_enddate": "Date after which card is no longer valid for access e.g 2024-12-31",
-                    "card_doors": "Doors to which the card has access"
+                    "card1_name": "Name of person issued with card e.g. Inés",
+                    "card2_name": "Name of person issued with card e.g. Inés",
+                    "card3_name": "Name of person issued with card e.g. Inés",
+                    "card4_name": "Name of person issued with card e.g. Inés"
                 }
             }
         },

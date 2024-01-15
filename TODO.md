@@ -13,8 +13,8 @@ KeyboardInterrupt
 ```
 
 - [ ] Config flow
-      - [ ] Cards
-            - [ ] configure in pages of 4 or 5 cards
+      - [x] Cards
+            - [x] configure in pages of 4 or 5 cards
       - [ ] Ad hoc controllers
             - [ ] From configuration.yaml
             - (?) when internal list is empty
@@ -66,10 +66,6 @@ KeyboardInterrupt
       - [ ] set preferred cards in _configuration.yaml_
       - [ ] Only set cardholder and (maybe) PIN in options-flow
       - [ ] Enable PIN in configuration.yaml
-      - (?) Add card number to Person entity
-            - https://community.home-assistant.io/t/request-give-the-ability-to-add-attributes-to-people-entities/297483
-            - https://www.home-assistant.io/integrations/person
-            - https://community.home-assistant.io/t/is-there-a-way-to-create-custom-attributes-for-entities/142875
 
 - [ ] Service
 - [ ] Custom card
@@ -97,4 +93,8 @@ KeyboardInterrupt
 8.  https://community.home-assistant.io/t/how-do-you-modify-configuration-of-integrations-its-impossible/445070/6
 9.  https://community.home-assistant.io/t/config-flow-how-to-update-an-existing-entity/522442/5
 10. https://community.home-assistant.io/t/configflowhandler-and-optionsflowhandler-managing-the-same-parameter/365582/10
+11. Add card number to Person entity
+    - https://community.home-assistant.io/t/request-give-the-ability-to-add-attributes-to-people-entities/297483
+    - https://www.home-assistant.io/integrations/person
+    - https://community.home-assistant.io/t/is-there-a-way-to-create-custom-attributes-for-entities/142875
 
