@@ -54,16 +54,16 @@ KeyboardInterrupt
       - [ ] Update on event
 
 - [ ] Cards
+      - [x] Only set cardholder in config-flow
       - [x] unique id should allow sharing across uhppoteds
       - [x] sensor:CardInfo
       - [x] sensor:CardHolder
       - [x] datetime:StartDate
       - [x] datetime:EndDate
       - [x] permissions
+      - [x] PIN
       - [ ] set max cards in _configuration.yaml_
       - [ ] set preferred cards in _configuration.yaml_
-      - [ ] PIN
-      - [x] Only set cardholder in config-flow
       - [ ] Only set cardholder and (maybe) PIN in options-flow
       - [ ] Enable PIN in configuration.yaml
       - (?) Add card number to Person entity
@@ -74,7 +74,7 @@ KeyboardInterrupt
 - [ ] Service
 - [ ] Custom card
 - [ ] Discovery
-- (?) ACL SceneEntity
+- [ ] ACL
 
 - [ ] Icon
       - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/

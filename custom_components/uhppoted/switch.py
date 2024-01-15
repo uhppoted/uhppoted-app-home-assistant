@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import datetime
 import logging
 
 from homeassistant.core import HomeAssistant
@@ -23,12 +22,6 @@ from .const import CONF_DOORS
 from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_NUMBER
 from .const import CONF_DOOR_CONTROLLER
-
-# Attribute constants
-from .const import ATTR_ADDRESS
-from .const import ATTR_NETMASK
-from .const import ATTR_GATEWAY
-from .const import ATTR_FIRMWARE
 
 from .config import configure_driver
 from .config import configure_cards
@@ -67,5 +60,4 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
             ])
 
     configure_cards(options, h)
-
     async_add_entities(entities, update_before_add=True)

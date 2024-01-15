@@ -7,6 +7,7 @@ import logging
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.date import DateEntity
 from homeassistant.components.switch import SwitchEntity
+from homeassistant.components.text import TextEntity
 
 from .const import ATTR_CONTROLLER_SERIAL_NUMBER
 from .const import ATTR_DOOR_CONTROLLER
@@ -211,7 +212,9 @@ class CardStartDate(DateEntity):
                 PIN = 0
 
                 if response.controller == controller and response.card_number == self.card:
-                    end = response.end_date
+                    if response.end_date:
+                        end = response.end_date
+
                     door1 = response.door_1
                     door2 = response.door_2
                     door3 = response.door_3
@@ -298,7 +301,9 @@ class CardEndDate(DateEntity):
                 PIN = 0
 
                 if response.controller == controller and response.card_number == self.card:
-                    start = response.start_date
+                    if response.start_date:
+                        start = response.start_date
+
                     door1 = response.door_1
                     door2 = response.door_2
                     door3 = response.door_3
@@ -399,8 +404,12 @@ class CardPermission(SwitchEntity):
 
             response = self.driver['api'].get_card(controller, self.card)
             if response.controller == controller and response.card_number == self.card:
-                start = response.start_date
-                end = response.start_date
+                if response.start_date:
+                    start = response.start_date
+
+                if response.end_date:
+                    end = response.start_date
+
                 door1 = 1 if door == 1 else response.door_1
                 door2 = 1 if door == 2 else response.door_2
                 door3 = 1 if door == 3 else response.door_3
@@ -439,8 +448,12 @@ class CardPermission(SwitchEntity):
 
             response = self.driver['api'].get_card(controller, self.card)
             if response.controller == controller and response.card_number == self.card:
-                start = response.start_date
-                end = response.start_date
+                if response.start_date:
+                    start = response.start_date
+
+                if response.end_date:
+                    end = response.start_date
+
                 door1 = 0 if door == 1 else response.door_1
                 door2 = 0 if door == 2 else response.door_2
                 door3 = 0 if door == 3 else response.door_3
@@ -486,3 +499,102 @@ class CardPermission(SwitchEntity):
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error updating card {self.card} access for door {self.door}')
+
+
+class CardPIN(TextEntity):
+    _attr_icon = 'mdi:card-account-details'
+    _attr_has_entity_name: True
+
+    _attr_mode = 'password'
+    _attr_pattern = '[0-9]{0,6}'
+    _attr_native_max_value = 6
+    _attr_native_min_value = 0
+
+    def __init__(self, u, card, name, unique_id):
+        super().__init__()
+
+        _LOGGER.debug(f'card {card} PIN code')
+
+        self.driver = u
+        self.card = int(f'{card}')
+
+        self._unique_id = unique_id
+        self._name = f'uhppoted.card.{card}.PIN'.lower()
+        self._pin = None
+        self._allowed = None
+        self._available = False
+        self._attributes: Dict[str, Any] = {}
+
+    @property
+    def unique_id(self) -> str:
+        return f'uhppoted.card.{self._unique_id}.PIN'.lower()
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def available(self) -> bool:
+        return self._available
+
+    @property
+    def native_value(self) -> Optional[float]:
+        if self._pin and int(f'{self._pin}') > 0:
+            return f'{self._pin}'
+        else:
+            return ''
+
+    async def async_set_value(self, value):
+        try:
+            for controller in self.driver['controllers']:
+                response = self.driver['api'].get_card(controller, self.card)
+
+                card = self.card
+                start = default_card_start_date()
+                end = default_card_end_date()
+                door1 = 0
+                door2 = 0
+                door3 = 0
+                door4 = 0
+                PIN = int(f'{value}')
+
+                if response.controller == controller and response.card_number == self.card:
+                    if response.start_date:
+                        start = response.start_date
+
+                    if response.end_date:
+                        end = response.end_date
+
+                    door1 = response.door_1
+                    door2 = response.door_2
+                    door3 = response.door_3
+                    door4 = response.door_4
+
+                response = self.driver['api'].put_card(controller, card, start, end, door1, door2, door3, door4, PIN)
+                if response.stored:
+                    _LOGGER.info(f'controller {controller}: card {self.card} PIN updated')
+                else:
+                    _LOGGER.warning(f'controller {controller}: card {self.card} PIN not updated')
+                    self._available = False
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error updating card {self.card} PIN')
+
+    async def async_update(self):
+        _LOGGER.debug(f'card:{self.card} update PIN')
+        try:
+            PIN = None
+            for controller in self.driver['controllers']:
+                response = self.driver['api'].get_card(controller, self.card)
+
+                if response.controller == controller and response.card_number == self.card:
+                    if not PIN and response.pin > 0:
+                        PIN = response.pin
+
+            self._pin = PIN
+            self._available = True
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving card {self.card} PIN')
