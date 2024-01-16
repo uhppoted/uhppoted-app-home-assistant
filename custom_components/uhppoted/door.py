@@ -362,6 +362,61 @@ class ControllerDoorButton(SensorEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} status')
 
 
+class ControllerDoorButtonPressed(EventEntity):
+    _attr_icon = 'mdi:door'
+    _attr_has_entity_name: True
+    _attr_event_types = ['PRESSED', 'RELEASED']
+
+    def __init__(self, u, controller, serial_no, door, door_id):
+        super().__init__()
+
+        _LOGGER.debug(f'controller {controller}: door:{door} button pressed event')
+
+        self.uhppote = u
+        self.controller = controller
+        self.serial_no = int(f'{serial_no}')
+        self.door = door
+        self.door_id = int(f'{door_id}')
+
+        self._name = f'uhppoted.door.{door}.button.event'.lower()
+        self._pressed = None
+
+    @property
+    def unique_id(self) -> str:
+        return f'uhppoted.door.{self.door}.button.event'.lower()
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    async def async_update(self):
+        _LOGGER.debug(f'controller:{self.controller} update door {self.door}.button.event state')
+        try:
+            response = self.uhppote.get_status(self.serial_no)
+            last = self._pressed
+
+            if response.controller == self.serial_no:
+                if self.door_id == 1:
+                    self._pressed = response.door_1_button == True
+                elif self.door_id == 2:
+                    self._pressed = response.door_2_button == True
+                elif self.door_id == 3:
+                    self._pressed = response.door_3_button == True
+                elif self.door_id == 4:
+                    self._pressed = response.door_4_button == True
+                else:
+                    self._pressed = None
+
+                if self._pressed != last and self._pressed:
+                    self._trigger_event('PRESSED')
+                elif self._pressed != last and not self._pressed:
+                    self._trigger_event('RELEASED')
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self.controller} status')
+
+
 class ControllerDoorMode(SelectEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True

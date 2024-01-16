@@ -32,6 +32,7 @@ from .config import configure_controllers
 from .config import configure_doors
 from .controller import ControllerInfo
 from .door import ControllerDoorOpened
+from .door import ControllerDoorButtonPressed
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
@@ -48,8 +49,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     def g(controller, serial_no, door, door_no):
         entities.extend([
             ControllerDoorOpened(u, controller, serial_no, door, door_no),
-            # ControllerDoorLock(u, controller, serial_no, door, door_no),
-            # ControllerDoorButton(u, controller, serial_no, door, door_no),
+            ControllerDoorButtonPressed(u, controller, serial_no, door, door_no),
         ])
 
     configure_doors(options, g)

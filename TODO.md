@@ -38,7 +38,7 @@ KeyboardInterrupt
 - [ ] Doors
       - [ ] generate unique id in config-/option-flow
       - [x] Rework opened as EventEntity
-      - [ ] Rework button as EventEntity
+      - [x] Rework button as EventEntity
       - [ ] Rework unlocked as EventEntiy
       - [ ] unlock
             - [x] `ControllerDoorUnlock`
