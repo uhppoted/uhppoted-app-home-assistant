@@ -13,8 +13,6 @@ KeyboardInterrupt
 ```
 
 - [ ] Config flow
-      - [x] Cards
-            - [x] configure in pages of 4 or 5 cards
       - [ ] Ad hoc controllers
             - [ ] From configuration.yaml
             - (?) when internal list is empty
@@ -24,8 +22,8 @@ KeyboardInterrupt
       - https://developers.home-assistant.io/docs/dev_101_states/
 
 - [ ] Options flow
-      - [ ] Cards
-            - [ ] configure in pages of 4 or 5 cards
+      - [x] Cards
+            - [x] configure in pages of 4 or 5 cards
       - [ ] show menu
             - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu
 

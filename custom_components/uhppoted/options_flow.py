@@ -432,14 +432,6 @@ class UhppotedOptionsFlow(OptionsFlow):
         cards = get_all_cards(self.options)
         defaults = [f'{v[CONF_CARD_NUMBER]}' for v in self.options[CONF_CARDS]] if CONF_CARDS in self.options else []
 
-        # if len(cards) < 2:
-        #     self.configuration['cards'] = [{
-        #         'card': v,
-        #         'configured': False,
-        #     } for v in cards]
-        #
-        #     return await self.async_step_card()
-
         select = SelectSelectorConfig(options=[g(v) for v in cards],
                                       multiple=True,
                                       custom_value=False,
@@ -456,8 +448,9 @@ class UhppotedOptionsFlow(OptionsFlow):
         def f(v):
             return not v['configured']
 
-        it = next((v for v in self.configuration['cards'] if f(v)), None)
-        if it == None:
+        it = (v for v in self.configuration['cards'] if f(v))
+        item = next(it, None)
+        if item == None:
             try:
                 validate_all_cards(self.options)
                 return self.async_create_entry(title="uhppoted", data=self.options)
@@ -465,54 +458,67 @@ class UhppotedOptionsFlow(OptionsFlow):
                 self.configuration['cards'] = []
                 return await self.async_step_cards()
 
-        else:
-            card = it['card'][CONF_CARD_NUMBER]
-            cardholder = it['card'][CONF_CARD_NAME]
-            unique_id = it['card'][CONF_CARD_UNIQUE_ID]
+        cards = []
+        while item != None and len(cards) < 4:
+            cards.append(item)
+            item = next(it, None)
 
         errors: Dict[str, str] = {}
         if user_input is not None:
-            try:
-                validate_card_id(user_input[CONF_CARD_NAME])
-            except ValueError as err:
-                errors[CONF_CARD_NAME] = f'{err}'
+            for ix, item in enumerate(cards):
+                k = f'card{ix+1}_name'
+                try:
+                    validate_card_id(user_input[k])
+                except ValueError as err:
+                    errors[k] = f'{err}'
 
             if not errors:
                 v = self.options[CONF_CARDS] if CONF_CARDS in self.options else []
 
-                for c in v:
-                    if int(f'{c[CONF_CARD_NUMBER]}') == int(f'{card}'):
-                        c[CONF_CARD_NAME] = user_input[CONF_CARD_NAME]
-                        break
-                else:
-                    v.append({
-                        CONF_CARD_NUMBER: card,
-                        CONF_CARD_NAME: user_input[CONF_CARD_NAME],
-                        CONF_CARD_UNIQUE_ID: unique_id,
-                    })
+                for ix, item in enumerate(cards):
+                    k = f'card{ix+1}_name'
+                    card = item['card']
+                    name = user_input[k]
+                    for c in v:
+                        if int(f'{c[CONF_CARD_NUMBER]}') == int(f'{card[CONF_CARD_NUMBER]}'):
+                            c[CONF_CARD_NAME] = name
+                            break
+                    else:
+                        v.append({
+                            CONF_CARD_UNIQUE_ID: card[CONF_CARD_UNIQUE_ID],
+                            CONF_CARD_NUMBER: card[CONF_CARD_NUMBER],
+                            CONF_CARD_NAME: name,
+                        })
+
+                    item['configured'] = True
 
                 self.options.update({CONF_CARDS: v})
-                it['configured'] = True
 
                 return await self.async_step_card()
 
-        defaults = {
-            CONF_CARD_NAME: f'{cardholder}',
-        }
+        defaults = {}
+        for ix, item in enumerate(cards):
+            card = item['card']
+            defaults[f'card{ix+1}_name'] = f'{card[CONF_CARD_NAME]}'
 
         if user_input is not None:
-            for v in [CONF_CARD_NAME]:
+            for ix, items in enumerate(cards):
+                card = item['card']
+                k = f'card{ix+1}_name'
                 if k in user_input:
                     defaults[k] = user_input[k]
 
-        schema = vol.Schema({
-            vol.Required(CONF_CARD_NAME, default=defaults[CONF_CARD_NAME]): str,
-        })
+        placeholders = {}
+        for ix, item in enumerate(cards):
+            card = item['card']
+            placeholders[f'card{ix+1}'] = f'{card[CONF_CARD_NUMBER]}'
+            placeholders[f'cardholder{ix+1}'] = f"{card[CONF_CARD_NAME]}"
 
-        placeholders = {
-            'card': f'{card}',
-            'cardholder': f'{cardholder}',
-        }
+        schema = vol.Schema({})
+        for ix, item in enumerate(cards):
+            k = f'card{ix+1}_name'
+            card = item['card']
+            schema = schema.extend({vol.Required(k, default=defaults[k]): str})
 
         return self.async_show_form(step_id="card",
                                     data_schema=schema,
