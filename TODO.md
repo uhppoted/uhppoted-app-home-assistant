@@ -39,7 +39,7 @@ KeyboardInterrupt
       - [ ] generate unique id in config-/option-flow
       - [x] Rework opened as EventEntity
       - [x] Rework button as EventEntity
-      - [ ] Rework unlocked as EventEntiy
+      - [x] Rework unlocked as EventEntiy
       - [ ] unlock
             - [x] `ControllerDoorUnlock`
             - [ ] Update other entities (data coordinator)
