@@ -28,7 +28,7 @@ KeyboardInterrupt
 
 
 - [ ] Controller
-      - [ ] generate unique id in config-/option-flow
+      - [x] generate unique id in config-/option-flow
       - [ ] Rework as Device
       - [ ] device_info
       - [ ] entity_category
@@ -36,6 +36,7 @@ KeyboardInterrupt
 
 - [ ] Doors
       - [ ] generate unique id in config-/option-flow
+      - [ ] Delete door with '-' for name
       - [x] Rework opened as EventEntity
       - [x] Rework button as EventEntity
       - [x] Rework unlocked as EventEntiy
@@ -52,6 +53,7 @@ KeyboardInterrupt
 
 - [ ] Cards
       - [x] Only set cardholder and (maybe) PIN in options-flow
+      - [ ] Delete card with '-' for name
       - [ ] set max cards in _configuration.yaml_
       - [ ] set preferred cards in _configuration.yaml_
       - [ ] Enable PIN in configuration.yaml

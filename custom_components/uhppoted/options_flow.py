@@ -1,5 +1,7 @@
 import copy
 import logging
+import uuid
+import voluptuous as vol
 
 from typing import Any
 from typing import Dict
@@ -12,7 +14,6 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.selector import SelectSelector
 from homeassistant.helpers.selector import SelectSelectorConfig
 from homeassistant.helpers.selector import SelectSelectorMode
-import voluptuous as vol
 
 from .const import DOMAIN
 from .const import CONF_BIND_ADDR
@@ -21,6 +22,7 @@ from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
 
 from .const import CONF_CONTROLLERS
+from .const import CONF_CONTROLLER_UNIQUE_ID
 from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
@@ -124,8 +126,9 @@ class UhppotedOptionsFlow(OptionsFlow):
                 for v in user_input[CONF_CONTROLLERS]:
                     self.controllers.append({
                         'controller': {
-                            'name': '',
+                            'unique_id': uuid.uuid4(),
                             'serial_no': v,
+                            'name': '',
                             'configured': False,
                         },
                         'doors': None,
@@ -170,6 +173,7 @@ class UhppotedOptionsFlow(OptionsFlow):
                 return await self.async_step_controllers()
         else:
             controller = it['controller']
+            unique_id = controller['unique_id']
             serial_no = controller['serial_no']
 
         errors: Dict[str, str] = {}
@@ -193,22 +197,22 @@ class UhppotedOptionsFlow(OptionsFlow):
                             controllers.remove(v)
                         else:
                             v[CONF_CONTROLLER_ID] = name
-                            v[CONF_CONTROLLER_SERIAL_NUMBER] = serial_no
                             v[CONF_CONTROLLER_ADDR] = address
                             v[CONF_CONTROLLER_TIMEZONE] = timezone
                         break
                 else:
                     if user_input[CONF_CONTROLLER_ID].strip() != '-':
                         controllers.append({
-                            CONF_CONTROLLER_ID: name,
+                            CONF_CONTROLLER_UNIQUE_ID: unique_id,
                             CONF_CONTROLLER_SERIAL_NUMBER: serial_no,
+                            CONF_CONTROLLER_ID: name,
                             CONF_CONTROLLER_ADDR: address,
                             CONF_CONTROLLER_TIMEZONE: timezone,
                         })
 
                 self.options.update({CONF_CONTROLLERS: controllers})
 
-                controller['name'] = user_input[CONF_CONTROLLER_ID]
+                # controller['name'] = user_input[CONF_CONTROLLER_ID]
                 controller['configured'] = True
 
                 return await self.async_step_controller()
