@@ -23,7 +23,6 @@ KeyboardInterrupt
 
 - [ ] Options flow
       - [x] Cards
-            - [x] configure in pages of 4 or 5 cards
       - [ ] show menu
             - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu
 
@@ -52,17 +51,9 @@ KeyboardInterrupt
       - [ ] Update on event
 
 - [ ] Cards
-      - [x] Only set cardholder in config-flow
-      - [x] unique id should allow sharing across uhppoteds
-      - [x] sensor:CardInfo
-      - [x] sensor:CardHolder
-      - [x] datetime:StartDate
-      - [x] datetime:EndDate
-      - [x] permissions
-      - [x] PIN
+      - [x] Only set cardholder and (maybe) PIN in options-flow
       - [ ] set max cards in _configuration.yaml_
       - [ ] set preferred cards in _configuration.yaml_
-      - [ ] Only set cardholder and (maybe) PIN in options-flow
       - [ ] Enable PIN in configuration.yaml
 
 - [ ] Service

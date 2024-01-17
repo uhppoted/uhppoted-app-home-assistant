@@ -49,9 +49,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     u = configure_driver(options)
     entities = []
 
-    def f(controller, serial_no, address):
+    def f(unique_id, controller, serial_no, address):
         entities.extend([
-            ControllerInfo(u['api'], controller, serial_no),
+            ControllerInfo(u['api'], unique_id, controller, serial_no),
         ])
 
     def g(controller, serial_no, door, door_no):

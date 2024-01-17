@@ -20,12 +20,13 @@ class ControllerInfo(SensorEntity):
     _attr_has_entity_name: True
     _attr_translation_key = 'controller_id'
 
-    def __init__(self, u, controller, serial_no):
+    def __init__(self, u, unique_id, controller, serial_no):
         super().__init__()
 
         _LOGGER.debug(f'controller {controller} {serial_no}')
 
         self.uhppote = u
+        self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self._name = f'uhppoted.controller.{controller}.info'.lower()
@@ -40,7 +41,7 @@ class ControllerInfo(SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.controller.{self.controller}.info'.lower()
+        return f'uhppoted.controller.{self._unique_id}.info'.lower()
 
     @property
     def name(self) -> str:
@@ -83,12 +84,13 @@ class ControllerDateTime(DateTimeEntity):
     _attr_icon = 'mdi:calendar-clock-outline'
     _attr_has_entity_name: True
 
-    def __init__(self, u, controller, serial_no):
+    def __init__(self, u, unique_id, controller, serial_no):
         super().__init__()
 
         _LOGGER.debug(f'controller datetime:{controller}')
 
         self.uhppote = u
+        self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self._name = f'uhppoted.controller.{controller}.datetime'.lower()
@@ -97,7 +99,7 @@ class ControllerDateTime(DateTimeEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.controller.{self.controller}.datetime'.lower()
+        return f'uhppoted.controller.{self._unique_id}.datetime'.lower()
 
     @property
     def name(self) -> str:

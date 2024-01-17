@@ -8,6 +8,7 @@ CONF_LISTEN_ADDR = 'listen_address'
 CONF_DEBUG = 'debug'
 
 CONF_CONTROLLERS = 'controllers'
+CONF_CONTROLLER_UNIQUE_ID = 'controller_unique_id'
 CONF_CONTROLLER_ID = 'controller_id'
 CONF_CONTROLLER_SERIAL_NUMBER = 'controller_serial_number'
 CONF_CONTROLLER_ADDR = 'controller_address'

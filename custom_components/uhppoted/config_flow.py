@@ -27,6 +27,7 @@ from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
 
 from .const import CONF_CONTROLLERS
+from .const import CONF_CONTROLLER_UNIQUE_ID
 from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
@@ -124,6 +125,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 for v in user_input[CONF_CONTROLLERS]:
                     self.controllers.append({
                         'controller': {
+                            'unique_id': uuid.uuid4(),
                             'name': '',
                             'serial_no': v,
                             'configured': False,
@@ -139,6 +141,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
             for v in controllers:
                 self.controllers.append({
                     'controller': {
+                        'unique_id': uuid.uuid4(),
                         'name': '',
                         'serial_no': v,
                         'configured': False,
@@ -168,8 +171,9 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
         errors: Dict[str, str] = {}
         if user_input is not None:
-            name = user_input[CONF_CONTROLLER_ID]
+            unique_id = controller['unique_id']
             serial_no = controller['serial_no']
+            name = user_input[CONF_CONTROLLER_ID]
             address = user_input[CONF_CONTROLLER_ADDR]
             timezone = user_input[CONF_CONTROLLER_TIMEZONE]
 
@@ -182,8 +186,9 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 v = self.options[CONF_CONTROLLERS]
 
                 v.append({
-                    CONF_CONTROLLER_ID: name,
+                    CONF_CONTROLLER_UNIQUE_ID: unique_id,
                     CONF_CONTROLLER_SERIAL_NUMBER: serial_no,
+                    CONF_CONTROLLER_ID: name,
                     CONF_CONTROLLER_ADDR: address,
                     CONF_CONTROLLER_TIMEZONE: timezone,
                 })

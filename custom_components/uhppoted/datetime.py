@@ -42,9 +42,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     u = uhppote.Uhppote(bind, broadcast, listen, debug)
     entities = []
 
-    def f(controller, serial_no, address):
+    def f(unique_id, controller, serial_no, address):
         entities.extend([
-            ControllerDateTime(u, controller, serial_no),
+            ControllerDateTime(u, unique_id, controller, serial_no),
         ])
 
     configure_controllers(options, f)

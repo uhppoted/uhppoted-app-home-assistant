@@ -30,7 +30,6 @@ from .const import ATTR_FIRMWARE
 
 from .config import configure_controllers
 from .config import configure_doors
-from .controller import ControllerInfo
 from .door import ControllerDoorUnlocked
 from .door import ControllerDoorOpened
 from .door import ControllerDoorButtonPressed

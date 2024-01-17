@@ -14,6 +14,7 @@ from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
 
 from .const import CONF_CONTROLLERS
+from .const import CONF_CONTROLLER_UNIQUE_ID
 from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
@@ -270,11 +271,12 @@ def configure_controllers(options, f):
         controllers = options[CONF_CONTROLLERS]
 
         for c in controllers:
+            unique_id = f'{c[CONF_CONTROLLER_UNIQUE_ID]}'.strip()
             controller = f'{c[CONF_CONTROLLER_ID]}'.strip()
             serial_no = f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip()
             address = f'{c[CONF_CONTROLLER_ADDR]}'.strip()
 
-            f(controller, serial_no, address)
+            f(unique_id, controller, serial_no, address)
 
 
 def configure_doors(options, g):
