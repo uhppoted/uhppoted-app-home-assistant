@@ -3,8 +3,10 @@ from __future__ import annotations
 import datetime
 import logging
 
+from homeassistant.core import callback
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.datetime import DateTimeEntity
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -15,13 +17,13 @@ from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
 
 
-class ControllerInfo(SensorEntity):
+class ControllerInfo(CoordinatorEntity, SensorEntity):
     _attr_icon = 'mdi:identifier'
     _attr_has_entity_name: True
     _attr_translation_key = 'controller_id'
 
-    def __init__(self, u, unique_id, controller, serial_no):
-        super().__init__()
+    def __init__(self, coordinator, u, unique_id, controller, serial_no):
+        super().__init__(coordinator)
 
         _LOGGER.debug(f'controller {controller} {serial_no}')
 
@@ -62,18 +64,29 @@ class ControllerInfo(SensorEntity):
     def extra_state_attributes(self) -> Dict[str, Any]:
         return self._attributes
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        # self._attr_is_on = self.coordinator.data[self.idx]["state"]
+        # self.async_write_ha_state()
+        pass
+
     async def async_update(self):
         _LOGGER.debug(f'controller:{self.controller}  update info')
-        try:
-            response = self.uhppote.get_controller(self.serial_no)
 
-            if response.controller == self.serial_no:
-                self._state = response.controller
-                self._available = True
-                self._attributes[ATTR_ADDRESS] = f'{response.ip_address}'
-                self._attributes[ATTR_NETMASK] = f'{response.subnet_mask}'
-                self._attributes[ATTR_GATEWAY] = f'{response.gateway}'
-                self._attributes[ATTR_FIRMWARE] = f'{response.version} {response.date:%Y-%m-%d}'
+        try:
+            controllers = self.coordinator.controllers
+            serial_no = self.serial_no
+
+            if serial_no in controllers:
+                state = controllers[serial_no]
+                self._available = state['available']
+                self._state = serial_no
+                self._attributes[ATTR_ADDRESS] = state[ATTR_ADDRESS]
+                self._attributes[ATTR_NETMASK] = state[ATTR_NETMASK]
+                self._attributes[ATTR_GATEWAY] = state[ATTR_GATEWAY]
+                self._attributes[ATTR_FIRMWARE] = state[ATTR_FIRMWARE]
+            else:
+                self._available = False
 
         except (Exception):
             self._available = False

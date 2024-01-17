@@ -26,6 +26,19 @@ KeyboardInterrupt
             - [x] sort list by card number
       - [x] show menu
 
+- [ ] DataCoordinator
+      - [ ] async_write_ha_state
+            - https://developers.home-assistant.io/docs/integration_fetching_data/
+      - [x] ControllerInfo
+      - [ ] ControllerDateTime
+      - [ ] ControllerDoor
+      - [ ] ControllerDoorOpen
+      - [ ] ControllerDoorLock
+      - [ ] ControllerDoorButton
+      - [ ] CardInfo
+      - [ ] CardHolder
+      - [ ] etc.
+
 - [ ] Controller
       - [x] generate unique id in config-/option-flow
       - [ ] Rework as Device
