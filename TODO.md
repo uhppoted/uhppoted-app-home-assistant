@@ -23,7 +23,7 @@ KeyboardInterrupt
 
 - [ ] Options flow
       - [x] Cards
-            - [ ] sort list by card number
+            - [x] sort list by card number
       - [x] show menu
 
 - [ ] Controller

@@ -429,10 +429,12 @@ class UhppotedOptionsFlow(OptionsFlow):
         errors: Dict[str, str] = {}
         if user_input is not None:
             if not errors:
-                self.configuration['cards'] = [{
+                l = [{
                     'card': get_card(v, self.options),
                     'configured': False,
                 } for v in user_input[CONF_CARDS]]
+
+                self.configuration['cards'] = sorted(l, key=lambda v: v['card'][CONF_CARD_NUMBER])
 
                 return await self.async_step_card()
 
