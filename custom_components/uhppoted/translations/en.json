@@ -132,7 +132,16 @@
     "options": {
         "step": {
             "init": {
+                "title": "UHPPOTE configuration",
+                "description": "Select items to configure",
+                "menu_options": {
+                    "IPv4": "Network settings",
+                    "controllers": "Controllers",
+                    "doors": "Doors",
+                    "cards": "Access cards"
+                }
             },
+
             "IPv4": {
                 "title": "UHPPOTE controller configuration",
                 "description": "Network settings",

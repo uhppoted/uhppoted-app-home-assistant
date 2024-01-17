@@ -23,9 +23,8 @@ KeyboardInterrupt
 
 - [ ] Options flow
       - [x] Cards
-      - [ ] show menu
-            - https://developers.home-assistant.io/docs/data_entry_flow_index/#show-menu
-
+            - [ ] sort list by card number
+      - [x] show menu
 
 - [ ] Controller
       - [x] generate unique id in config-/option-flow
@@ -52,15 +51,17 @@ KeyboardInterrupt
       - [ ] Update on event
 
 - [ ] Cards
-      - [x] Only set cardholder and (maybe) PIN in options-flow
+      - [x] Only set cardholder 
       - [ ] Delete card with '-' for name
       - [ ] set max cards in _configuration.yaml_
       - [ ] set preferred cards in _configuration.yaml_
+      - (?) Set PIN in options-flow
       - [ ] Enable PIN in configuration.yaml
 
 - [ ] Service
 - [ ] Custom card
 - [ ] Discovery
+      - https://developers.home-assistant.io/docs/data_entry_flow_index/#initializing-a-config-flow-from-an-external-source
 - [ ] ACL
 
 - [ ] Icon

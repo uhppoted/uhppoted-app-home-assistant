@@ -78,7 +78,10 @@ class UhppotedOptionsFlow(OptionsFlow):
         self.configuration = {'doors': []}
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        return await self.async_step_IPv4()
+        return self.async_show_menu(step_id="init",
+                                    menu_options=['IPv4', 'controllers', 'doors', 'cards'],
+                                    description_placeholders={})
+        # return await self.async_step_IPv4()
 
     async def async_step_IPv4(self, user_input: Optional[Dict[str, Any]] = None):
         errors: Dict[str, str] = {}
