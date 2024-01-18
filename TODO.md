@@ -46,8 +46,8 @@ KeyboardInterrupt
       - [ ] Set default timezone in configuration.yaml
 
 - [ ] Doors
-      - [ ] generate unique id in config-/option-flow
-      - [ ] Delete door with '-' for name
+      - [x] generate unique id in config-/option-flow
+      - [x] Delete door with '-' for name
       - [x] Rework opened as EventEntity
       - [x] Rework button as EventEntity
       - [x] Rework unlocked as EventEntity

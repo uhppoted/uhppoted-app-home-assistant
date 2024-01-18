@@ -108,7 +108,7 @@ class ControllerCoordinator(DataUpdateCoordinator):
     async def _get_controllers(self):
         api = self.uhppote['api']
         for controller in self.uhppote['controllers']:
-            _LOGGER.info(f'update controller {controller} info')
+            _LOGGER.debug(f'update controller {controller} info')
 
             info = {
                 'available': False,

@@ -358,6 +358,7 @@ class UhppotedOptionsFlow(OptionsFlow):
                     else:
                         if user_input[k].strip() != '-':
                             l.append({
+                                CONF_DOOR_UNIQUE_ID: uuid.uuid4(),
                                 CONF_DOOR_ID: user_input[k],
                                 CONF_DOOR_CONTROLLER: controller,
                                 CONF_DOOR_NUMBER: door,
@@ -381,31 +382,16 @@ class UhppotedOptionsFlow(OptionsFlow):
                     defaults[k] = user_input[k]
 
         for v in self.options[CONF_DOORS]:
-            if v[CONF_DOOR_CONTROLLER] == controller and v[CONF_DOOR_NUMBER] == 1:
-                defaults['door1_id'] = v[CONF_DOOR_ID]
-
-            if v[CONF_DOOR_CONTROLLER] == controller and v[CONF_DOOR_NUMBER] == 2:
-                defaults['door2_id'] = v[CONF_DOOR_ID]
-
-            if v[CONF_DOOR_CONTROLLER] == controller and v[CONF_DOOR_NUMBER] == 3:
-                defaults['door3_id'] = v[CONF_DOOR_ID]
-
-            if v[CONF_DOOR_CONTROLLER] == controller and v[CONF_DOOR_NUMBER] == 4:
-                defaults['door4_id'] = v[CONF_DOOR_ID]
+            for d in [1, 2, 3, 4]:
+                if v[CONF_DOOR_CONTROLLER] == controller and int(f'{v[CONF_DOOR_NUMBER]}') == d:
+                    defaults[f'door{d}_id'] = v[CONF_DOOR_ID]
 
         schema = vol.Schema({})
 
-        if 1 in doors:
-            schema = schema.extend({vol.Optional('door1_id', default=defaults['door1_id']): str})
-
-        if 2 in doors:
-            schema = schema.extend({vol.Optional('door2_id', default=defaults['door2_id']): str})
-
-        if 3 in doors:
-            schema = schema.extend({vol.Optional('door3_id', default=defaults['door3_id']): str})
-
-        if 4 in doors:
-            schema = schema.extend({vol.Optional('door4_id', default=defaults['door4_id']): str})
+        for d in [1, 2, 3, 4]:
+            if d in doors:
+                key = f'door{d}_id'
+                schema = schema.extend({vol.Optional(key, default=defaults[key]): str})
 
         placeholders = {
             'controller': f'{controller}',

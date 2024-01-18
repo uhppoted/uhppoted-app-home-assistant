@@ -236,10 +236,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             if not errors:
                 it['doors'] = {
-                    'doors': [{
-                        'door': int(f'{v}'),
-                        'unique_id': uuid.uuid4(),
-                    } for v in user_input['doors']],
+                    'doors': [int(f'{v}') for v in user_input['doors']],
                     'configured': False,
                 }
 
@@ -292,11 +289,10 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
         errors: Dict[str, str] = {}
         if user_input is not None:
-            l = [user_input[f"door{v['door']}_id"] for v in doors]
+            l = [user_input[f"door{v}_id"] for v in doors]
             for d in doors:
-                door = d['door']
                 try:
-                    k = f'door{door}_id'
+                    k = f'door{d}_id'
                     v = user_input[k]
                     validate_door_id(v, self.options)
                     validate_door_duplicates(v, l)
@@ -307,13 +303,11 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 v = self.options[CONF_DOORS]
 
                 for d in doors:
-                    door = d['door']
-                    unique_id = d['unique_id']
                     v.append({
-                        CONF_DOOR_UNIQUE_ID: unique_id,
-                        CONF_DOOR_ID: user_input[f'door{door}_id'],
+                        CONF_DOOR_UNIQUE_ID: uuid.uuid4(),
+                        CONF_DOOR_ID: user_input[f'door{d}_id'],
                         CONF_DOOR_CONTROLLER: controller,
-                        CONF_DOOR_NUMBER: int(f'{door}'),
+                        CONF_DOOR_NUMBER: int(f'{d}'),
                     })
 
                 self.options.update({CONF_DOORS: v})
@@ -336,7 +330,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         schema = vol.Schema({})
 
         for d in [1, 2, 3, 4]:
-            if d in [int(f"{v['door']}") for v in doors]:
+            if d in doors:
                 key = f'door{d}_id'
                 schema = schema.extend({vol.Required(key, default=defaults[key]): str})
 
