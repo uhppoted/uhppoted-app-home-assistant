@@ -56,7 +56,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     def h(card, name, unique_id):
         for d in doors:
             entities.extend([
-                CardPermission(u, card, name, d, unique_id),
+                CardPermission(u, unique_id, card, name, d),
             ])
 
     configure_cards(options, h)

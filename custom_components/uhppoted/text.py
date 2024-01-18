@@ -29,7 +29,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     def h(card, name, unique_id):
         entities.extend([
-            CardPIN(u, card, name, unique_id),
+            CardPIN(u, unique_id, card, name),
         ])
 
     configure_cards(options, h)

@@ -43,8 +43,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     def f(card, name, unique_id):
         entities.extend([
-            CardStartDate(u, card, name, unique_id),
-            CardEndDate(u, card, name, unique_id),
+            CardStartDate(u, unique_id, card, name),
+            CardEndDate(u, unique_id, card, name),
         ])
 
     configure_cards(options, f)

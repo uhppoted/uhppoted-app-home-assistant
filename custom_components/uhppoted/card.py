@@ -32,7 +32,7 @@ class CardInfo(SensorEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
-    def __init__(self, u, card, name, unique_id):
+    def __init__(self, u, unique_id, card, name):
         super().__init__()
 
         _LOGGER.debug(f'card {card}')
@@ -121,7 +121,7 @@ class CardHolder(SensorEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
-    def __init__(self, u, card, name, unique_id):
+    def __init__(self, u, unique_id, card, name):
         super().__init__()
 
         _LOGGER.debug(f'card {card}')
@@ -167,7 +167,7 @@ class CardStartDate(DateEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
-    def __init__(self, u, card, name, unique_id):
+    def __init__(self, u, unique_id, card, name):
         super().__init__()
 
         _LOGGER.debug(f'card {card} start date')
@@ -256,7 +256,7 @@ class CardEndDate(DateEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
-    def __init__(self, u, card, name, unique_id):
+    def __init__(self, u, unique_id, card, name):
         super().__init__()
 
         _LOGGER.debug(f'card {card} end date')
@@ -345,7 +345,7 @@ class CardPermission(SwitchEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
-    def __init__(self, u, card, name, door, unique_id):
+    def __init__(self, u, unique_id, card, name, door):
         super().__init__()
 
         _LOGGER.debug(f'card {card} permission for door {door[CONF_DOOR_ID]}')
@@ -510,7 +510,7 @@ class CardPIN(TextEntity):
     _attr_native_max_value = 6
     _attr_native_min_value = 0
 
-    def __init__(self, u, card, name, unique_id):
+    def __init__(self, u, unique_id, card, name):
         super().__init__()
 
         _LOGGER.debug(f'card {card} PIN code')
