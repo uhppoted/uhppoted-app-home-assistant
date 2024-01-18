@@ -19,12 +19,13 @@ class ControllerDoor(SensorEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
-    def __init__(self, u, controller, serial_no, door, door_id):
+    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
         super().__init__()
 
         _LOGGER.debug(f'controller {controller}: door:{door}')
 
         self.uhppote = u
+        self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self.door = door
@@ -43,7 +44,7 @@ class ControllerDoor(SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.door.{self.door}'.lower()
+        return f'uhppoted.door.{self._unique_id}'.lower()
 
     @property
     def name(self) -> str:
@@ -116,12 +117,13 @@ class ControllerDoorOpen(SensorEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
-    def __init__(self, u, controller, serial_no, door, door_id):
+    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
         super().__init__()
 
         _LOGGER.debug(f'controller {controller}: door:{door} open')
 
         self.uhppote = u
+        self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self.door = door
@@ -133,7 +135,7 @@ class ControllerDoorOpen(SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.door.{self.door}.open'.lower()
+        return f'uhppoted.door.{self._unique_id}.open'.lower()
 
     @property
     def name(self) -> str:
@@ -182,12 +184,13 @@ class ControllerDoorOpened(EventEntity):
     _attr_has_entity_name: True
     _attr_event_types = ['OPEN', 'CLOSE']
 
-    def __init__(self, u, controller, serial_no, door, door_id):
+    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
         super().__init__()
 
         _LOGGER.debug(f'controller {controller}: door:{door} open event')
 
         self.uhppote = u
+        self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self.door = door
@@ -198,7 +201,7 @@ class ControllerDoorOpened(EventEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.door.{self.door}.open.event'.lower()
+        return f'uhppoted.door.{self._unique_id}.open.event'.lower()
 
     @property
     def name(self) -> str:
@@ -236,12 +239,13 @@ class ControllerDoorLock(SensorEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
-    def __init__(self, u, controller, serial_no, door, door_id):
+    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
         super().__init__()
 
         _LOGGER.debug(f'controller {controller}: door:{door} lock')
 
         self.uhppote = u
+        self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self.door = door
@@ -253,7 +257,7 @@ class ControllerDoorLock(SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.door.{self.door}.lock'.lower()
+        return f'uhppoted.door.{self._unique_id}.lock'.lower()
 
     @property
     def name(self) -> str:
@@ -302,12 +306,13 @@ class ControllerDoorUnlocked(EventEntity):
     _attr_has_entity_name: True
     _attr_event_types = ['LOCKED', 'UNLOCKED']
 
-    def __init__(self, u, controller, serial_no, door, door_id):
+    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
         super().__init__()
 
         _LOGGER.debug(f'controller {controller}: door:{door} unlocked event')
 
         self.uhppote = u
+        self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self.door = door
@@ -318,7 +323,7 @@ class ControllerDoorUnlocked(EventEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.door.{self.door}.unlocked.event'.lower()
+        return f'uhppoted.door.{self._unique_id}.unlocked.event'.lower()
 
     @property
     def name(self) -> str:
@@ -356,12 +361,13 @@ class ControllerDoorButton(SensorEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
-    def __init__(self, u, controller, serial_no, door, door_id):
+    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
         super().__init__()
 
         _LOGGER.debug(f'controller {controller}: door:{door} button')
 
         self.uhppote = u
+        self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self.door = door
@@ -373,7 +379,7 @@ class ControllerDoorButton(SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.door.{self.door}.button'.lower()
+        return f'uhppoted.door.{self._unique_id}.button'.lower()
 
     @property
     def name(self) -> str:
@@ -422,12 +428,13 @@ class ControllerDoorButtonPressed(EventEntity):
     _attr_has_entity_name: True
     _attr_event_types = ['PRESSED', 'RELEASED']
 
-    def __init__(self, u, controller, serial_no, door, door_id):
+    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
         super().__init__()
 
         _LOGGER.debug(f'controller {controller}: door:{door} button pressed event')
 
         self.uhppote = u
+        self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self.door = door
@@ -438,7 +445,7 @@ class ControllerDoorButtonPressed(EventEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.door.{self.door}.button.event'.lower()
+        return f'uhppoted.door.{self._unique_id}.button.event'.lower()
 
     @property
     def name(self) -> str:
@@ -476,12 +483,13 @@ class ControllerDoorMode(SelectEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
-    def __init__(self, u, controller, serial_no, door, door_id):
+    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
         super().__init__()
 
         _LOGGER.debug(f'controller {controller}: door:{door} mode')
 
         self.uhppote = u
+        self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self.door = door
@@ -493,7 +501,7 @@ class ControllerDoorMode(SelectEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.door.{self.door}.mode'.lower()
+        return f'uhppoted.door.{self._unique_id}.mode'.lower()
 
     @property
     def name(self) -> str:
@@ -571,12 +579,13 @@ class ControllerDoorDelay(NumberEntity):
     _attr_native_step = 1
     _attr_native_unit_of_measurement = TIME_SECONDS
 
-    def __init__(self, u, controller, serial_no, door, door_id):
+    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
         super().__init__()
 
         _LOGGER.debug(f'controller {controller}: door:{door} delay')
 
         self.uhppote = u
+        self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self.door = door
@@ -588,7 +597,7 @@ class ControllerDoorDelay(NumberEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.door.{self.door}.delay'.lower()
+        return f'uhppoted.door.{self._unique_id}.delay'.lower()
 
     @property
     def name(self) -> str:
@@ -639,12 +648,13 @@ class ControllerDoorUnlock(ButtonEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
-    def __init__(self, u, controller, serial_no, door, door_id):
+    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
         super().__init__()
 
         _LOGGER.debug(f'controller {controller}: door:{door} unlock')
 
         self.uhppote = u
+        self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self.door = door
@@ -655,7 +665,7 @@ class ControllerDoorUnlock(ButtonEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.door.{self.door}.unlock'.lower()
+        return f'uhppoted.door.{self._unique_id}.unlock'.lower()
 
     @property
     def name(self) -> str:

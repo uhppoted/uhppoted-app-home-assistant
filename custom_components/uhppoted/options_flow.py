@@ -29,6 +29,7 @@ from .const import CONF_CONTROLLER_ADDR
 from .const import CONF_CONTROLLER_TIMEZONE
 
 from .const import CONF_DOORS
+from .const import CONF_DOOR_UNIQUE_ID
 from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER

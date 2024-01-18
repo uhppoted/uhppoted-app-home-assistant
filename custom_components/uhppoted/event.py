@@ -46,11 +46,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     u = uhppote.Uhppote(bind, broadcast, listen, debug)
     entities = []
 
-    def g(controller, serial_no, door, door_no):
+    def g(unique_id, controller, serial_no, door, door_no):
         entities.extend([
-            ControllerDoorOpened(u, controller, serial_no, door, door_no),
-            ControllerDoorButtonPressed(u, controller, serial_no, door, door_no),
-            ControllerDoorUnlocked(u, controller, serial_no, door, door_no),
+            ControllerDoorOpened(u, unique_id, controller, serial_no, door, door_no),
+            ControllerDoorButtonPressed(u, unique_id, controller, serial_no, door, door_no),
+            ControllerDoorUnlocked(u, unique_id, controller, serial_no, door, door_no),
         ])
 
     configure_doors(options, g)

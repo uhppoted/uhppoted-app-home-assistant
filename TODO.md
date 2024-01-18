@@ -23,7 +23,6 @@ KeyboardInterrupt
 
 - [ ] Options flow
       - [x] Cards
-            - [x] sort list by card number
       - [x] show menu
 
 - [ ] DataCoordinator
@@ -51,7 +50,7 @@ KeyboardInterrupt
       - [ ] Delete door with '-' for name
       - [x] Rework opened as EventEntity
       - [x] Rework button as EventEntity
-      - [x] Rework unlocked as EventEntiy
+      - [x] Rework unlocked as EventEntity
       - [ ] unlock
             - [x] `ControllerDoorUnlock`
             - [ ] Update other entities (data coordinator)
@@ -68,8 +67,8 @@ KeyboardInterrupt
       - [ ] Delete card with '-' for name
       - [ ] set max cards in _configuration.yaml_
       - [ ] set preferred cards in _configuration.yaml_
-      - (?) Set PIN in options-flow
       - [ ] Enable PIN in configuration.yaml
+      - (?) Set PIN in options-flow
 
 - [ ] Service
 - [ ] Custom card

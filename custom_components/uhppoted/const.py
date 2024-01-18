@@ -15,6 +15,7 @@ CONF_CONTROLLER_ADDR = 'controller_address'
 CONF_CONTROLLER_TIMEZONE = 'controller_timezone'
 
 CONF_DOORS = 'doors'
+CONF_DOOR_UNIQUE_ID = 'door_unique_id'
 CONF_DOOR_ID = 'door_id'
 CONF_DOOR_CONTROLLER = 'door_controller'
 CONF_DOOR_NUMBER = 'door_number'

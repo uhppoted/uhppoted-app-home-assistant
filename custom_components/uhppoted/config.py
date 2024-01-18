@@ -18,7 +18,9 @@ from .const import CONF_CONTROLLER_UNIQUE_ID
 from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
+
 from .const import CONF_DOORS
+from .const import CONF_DOOR_UNIQUE_ID
 from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
@@ -290,12 +292,13 @@ def configure_doors(options, g):
             address = f'{c[CONF_CONTROLLER_ADDR]}'.strip()
 
             for d in doors:
+                unique_id = f'{d[CONF_DOOR_UNIQUE_ID]}'.strip()
                 door = f'{d[CONF_DOOR_ID]}'.strip()
                 door_no = f'{d[CONF_DOOR_NUMBER]}'.strip()
                 door_controller = f'{d[CONF_DOOR_CONTROLLER]}'.strip()
 
                 if door_controller == controller:
-                    g(controller, serial_no, door, door_no)
+                    g(unique_id, controller, serial_no, door, door_no)
 
 
 def configure_cards(options, f):
