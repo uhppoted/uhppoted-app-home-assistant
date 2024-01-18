@@ -24,12 +24,15 @@ KeyboardInterrupt
 - [ ] Options flow
       - [x] Cards
       - [x] show menu
+      - [ ] Delete card with '-' for name
 
 - [ ] DataCoordinator
       - [ ] async_write_ha_state
             - https://developers.home-assistant.io/docs/integration_fetching_data/
       - [x] ControllerInfo
       - [ ] ControllerDateTime
+            - [x] get
+            - [ ] set
       - [ ] ControllerDoor
       - [ ] ControllerDoorOpen
       - [ ] ControllerDoorLock
@@ -64,7 +67,6 @@ KeyboardInterrupt
 
 - [ ] Cards
       - [x] Only set cardholder 
-      - [ ] Delete card with '-' for name
       - [ ] set max cards in _configuration.yaml_
       - [ ] set preferred cards in _configuration.yaml_
       - [ ] Enable PIN in configuration.yaml

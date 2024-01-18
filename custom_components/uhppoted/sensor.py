@@ -59,7 +59,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     def f(unique_id, controller, serial_no, address):
         entities.extend([
-            ControllerInfo(coordinator, u['api'], unique_id, controller, serial_no),
+            ControllerInfo(coordinator, unique_id, controller, serial_no),
         ])
 
     def g(unique_id, controller, serial_no, door, door_no):
@@ -127,11 +127,11 @@ class ControllerCoordinator(DataUpdateCoordinator):
 
                 response = self.uhppote['api'].get_controller(controller)
                 if response.controller == controller:
-                    info['available'] = True
                     info[ATTR_ADDRESS] = f'{response.ip_address}'
                     info[ATTR_NETMASK] = f'{response.subnet_mask}'
                     info[ATTR_GATEWAY] = f'{response.gateway}'
                     info[ATTR_FIRMWARE] = f'{response.version} {response.date:%Y-%m-%d}'
+                    info['available'] = True
 
             except (Exception):
                 _LOGGER.exception(f'error retrieving controller {controller} information')

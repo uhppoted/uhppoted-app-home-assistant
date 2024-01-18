@@ -15,6 +15,7 @@ from .const import ATTR_ADDRESS
 from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
+from .const import ATTR_CONTROLLER_DATETIME
 
 
 class ControllerInfo(CoordinatorEntity, SensorEntity):
@@ -22,12 +23,11 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
     _attr_has_entity_name: True
     _attr_translation_key = 'controller_id'
 
-    def __init__(self, coordinator, u, unique_id, controller, serial_no):
+    def __init__(self, coordinator, unique_id, controller, serial_no):
         super().__init__(coordinator)
 
         _LOGGER.debug(f'controller {controller} {serial_no}')
 
-        self.uhppote = u
         self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
@@ -66,11 +66,13 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
 
     @callback
     def _handle_coordinator_update(self) -> None:
-        # self._attr_is_on = self.coordinator.data[self.idx]["state"]
-        # self.async_write_ha_state()
-        pass
+        self._update()
+        self.async_write_ha_state()
 
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update info')
 
         try:
@@ -93,12 +95,12 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} information')
 
 
-class ControllerDateTime(DateTimeEntity):
+class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
     _attr_icon = 'mdi:calendar-clock-outline'
     _attr_has_entity_name: True
 
-    def __init__(self, u, unique_id, controller, serial_no):
-        super().__init__()
+    def __init__(self, coordinator, u, unique_id, controller, serial_no):
+        super().__init__(coordinator)
 
         _LOGGER.debug(f'controller datetime:{controller}')
 
@@ -146,22 +148,26 @@ class ControllerDateTime(DateTimeEntity):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self.controller} date/time')
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update datetime')
         try:
-            response = self.uhppote.get_time(self.serial_no)
+            controllers = self.coordinator.controllers
+            serial_no = self.serial_no
 
-            if response.controller == self.serial_no:
-                year = response.datetime.year
-                month = response.datetime.month
-                day = response.datetime.day
-                hour = response.datetime.hour
-                minute = response.datetime.minute
-                second = response.datetime.second
-                tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
-
-                self._datetime = datetime.datetime(year, month, day, hour, minute, second, 0, tz)
-                self._available = True
+            if serial_no in controllers:
+                state = controllers[serial_no]
+                self._available = state['available']
+                self._datetime = state[ATTR_CONTROLLER_DATETIME]
+            else:
+                self._available = False
 
         except (Exception):
             self._available = False
