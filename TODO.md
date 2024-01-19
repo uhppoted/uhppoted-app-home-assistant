@@ -13,22 +13,23 @@ KeyboardInterrupt
 ```
 
 - [ ] Config flow
-      - [ ] Ad hoc controllers
-            - [ ] From configuration.yaml
-            - (?) when internal list is empty
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] (somehow) commonalise config-flow and options-flow
       - [ ] Integration icon
       - https://developers.home-assistant.io/docs/dev_101_states/
 
 - [ ] Options flow
-      - [x] Cards
-      - [x] show menu
-      - [ ] Delete card with '-' for name
+      - [x] Delete card with '-' for name
+      - [ ] Use unique_id to delete controller
+      - [ ] Use unique_id to delete door
 
 - [ ] DataCoordinator
-      - [ ] async_write_ha_state
+      - [ ] store data in self.data
+            - (?) idx
+            - coordinator.async_set_updated_data(data)
             - https://developers.home-assistant.io/docs/integration_fetching_data/
+
+      - [x] async_write_ha_state
       - [x] ControllerInfo
       - [ ] ControllerDateTime
             - [x] get
@@ -42,18 +43,12 @@ KeyboardInterrupt
       - [ ] etc.
 
 - [ ] Controller
-      - [x] generate unique id in config-/option-flow
       - [ ] Rework as Device
       - [ ] device_info
       - [ ] entity_category
       - [ ] Set default timezone in configuration.yaml
 
 - [ ] Doors
-      - [x] generate unique id in config-/option-flow
-      - [x] Delete door with '-' for name
-      - [x] Rework opened as EventEntity
-      - [x] Rework button as EventEntity
-      - [x] Rework unlocked as EventEntity
       - [ ] unlock
             - [x] `ControllerDoorUnlock`
             - [ ] Update other entities (data coordinator)
@@ -66,7 +61,6 @@ KeyboardInterrupt
       - [ ] Update on event
 
 - [ ] Cards
-      - [x] Only set cardholder 
       - [ ] set max cards in _configuration.yaml_
       - [ ] set preferred cards in _configuration.yaml_
       - [ ] Enable PIN in configuration.yaml
@@ -86,6 +80,10 @@ KeyboardInterrupt
 - [ ] HACS
       - Python wheel repo (https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations)
       - Icon (https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations)
+
+- [ ] Ad hoc controllers
+      - [ ] From configuration.yaml
+      - (?) when internal list is empty
 
 ## Notes
 

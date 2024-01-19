@@ -475,16 +475,21 @@ class UhppotedOptionsFlow(OptionsFlow):
                     k = f'card{ix+1}_name'
                     card = item['card']
                     name = user_input[k]
-                    for c in v:
-                        if int(f'{c[CONF_CARD_NUMBER]}') == int(f'{card[CONF_CARD_NUMBER]}'):
-                            c[CONF_CARD_NAME] = name
-                            break
+                    if name == '-':
+                        for c in v:
+                            if c[CONF_CARD_UNIQUE_ID] == card[CONF_CARD_UNIQUE_ID]:
+                                v.remove(c)
                     else:
-                        v.append({
-                            CONF_CARD_UNIQUE_ID: card[CONF_CARD_UNIQUE_ID],
-                            CONF_CARD_NUMBER: card[CONF_CARD_NUMBER],
-                            CONF_CARD_NAME: name,
-                        })
+                        for c in v:
+                            if int(f'{c[CONF_CARD_NUMBER]}') == int(f'{card[CONF_CARD_NUMBER]}'):
+                                c[CONF_CARD_NAME] = name
+                                break
+                        else:
+                            v.append({
+                                CONF_CARD_UNIQUE_ID: uuid.uuid4(),
+                                CONF_CARD_NUMBER: card[CONF_CARD_NUMBER],
+                                CONF_CARD_NAME: name,
+                            })
 
                     item['configured'] = True
 

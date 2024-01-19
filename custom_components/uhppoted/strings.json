@@ -233,10 +233,10 @@
                     "card4_name": "Card holder name"
                 },
                 "data_description": {
-                    "card1_name": "Name of person issued with card e.g. Inés",
-                    "card2_name": "Name of person issued with card e.g. Martina",
-                    "card3_name": "Name of person issued with card e.g. Rodri",
-                    "card4_name": "Name of person issued with card e.g. Andy"
+                    "card1_name": "Name of person issued with card e.g. Inés (- to remove)",
+                    "card2_name": "Name of person issued with card e.g. Martina (- to remove)",
+                    "card3_name": "Name of person issued with card e.g. Rodri (- to remove)",
+                    "card4_name": "Name of person issued with card e.g. Andy (- to remove)"
                 }
            }
        },
