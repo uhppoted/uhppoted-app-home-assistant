@@ -26,7 +26,7 @@ KeyboardInterrupt
 - [ ] DataCoordinator
       - [ ] parallelize requests
       - [ ] store data in self.data
-            - (?) idx
+            - [x] contexts + idx
             - coordinator.async_set_updated_data(data)
             - https://developers.home-assistant.io/docs/integration_fetching_data/
 
@@ -35,7 +35,8 @@ KeyboardInterrupt
       - [ ] ControllerDateTime
             - [x] get
             - [ ] set
-      - [ ] Door
+                  - await self.coordinator.async_request_refresh()
+      - [x] Door
       - [ ] DoorOpen
       - [ ] DoorLock
       - [ ] DoorButton
@@ -53,6 +54,8 @@ KeyboardInterrupt
       - [ ] unlock
             - [x] `ControllerDoorUnlock`
             - [ ] Update other entities (data coordinator)
+                  - await self.coordinator.async_request_refresh()
+                  - https://developers.home-assistant.io/docs/integration_fetching_data
             - [ ] service call
       - [ ] Name translation
             - https://developers.home-assistant.io/docs/core/entity

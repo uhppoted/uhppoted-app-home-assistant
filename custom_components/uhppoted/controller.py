@@ -26,7 +26,7 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
     _attr_translation_key = 'controller_id'
 
     def __init__(self, coordinator, unique_id, controller, serial_no):
-        super().__init__(coordinator)
+        super().__init__(coordinator, context=int(f'{serial_no}'))
 
         _LOGGER.debug(f'controller {controller} {serial_no}')
 
@@ -101,7 +101,7 @@ class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
     _attr_has_entity_name: True
 
     def __init__(self, coordinator, u, unique_id, controller, serial_no):
-        super().__init__(coordinator)
+        super().__init__(coordinator, context=int(f'{serial_no}'))
 
         _LOGGER.debug(f'controller datetime:{controller}')
 

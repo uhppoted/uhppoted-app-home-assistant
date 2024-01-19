@@ -64,14 +64,15 @@ class ControllerDateTimeCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         try:
+            contexts = set(self.async_contexts())
             async with async_timeout.timeout(10):
-                return await self._get_controllers()
+                return await self._get_controllers(contexts)
         except Exception as err:
             raise UpdateFailed(f"uhppoted API error {err}")
 
-    async def _get_controllers(self):
+    async def _get_controllers(self, contexts):
         api = self.uhppote['api']
-        for controller in self.uhppote['controllers']:
+        for controller in contexts:
             _LOGGER.debug(f'update controller {controller} date/time')
 
             info = {
