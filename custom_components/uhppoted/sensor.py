@@ -40,11 +40,11 @@ from .config import configure_cards
 from .config import configure_driver
 
 from .controller import ControllerInfo
-from .door import ControllerDoor
-from .door import ControllerDoorOpen
-from .door import ControllerDoorLock
-from .door import ControllerDoorButton
-from .door import ControllerDoorMode
+from .door import Door
+from .door import DoorOpen
+from .door import DoorLock
+from .door import DoorButton
+from .door import DoorMode
 from .card import CardInfo
 from .card import CardHolder
 
@@ -64,10 +64,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     def g(unique_id, controller, serial_no, door, door_no):
         entities.extend([
-            ControllerDoor(u['api'], unique_id, controller, serial_no, door, door_no),
-            ControllerDoorOpen(u['api'], unique_id, controller, serial_no, door, door_no),
-            ControllerDoorLock(u['api'], unique_id, controller, serial_no, door, door_no),
-            ControllerDoorButton(u['api'], unique_id, controller, serial_no, door, door_no),
+            Door(u['api'], unique_id, controller, serial_no, door, door_no),
+            DoorOpen(u['api'], unique_id, controller, serial_no, door, door_no),
+            DoorLock(u['api'], unique_id, controller, serial_no, door, door_no),
+            DoorButton(u['api'], unique_id, controller, serial_no, door, door_no),
         ])
 
     def h(card, name, unique_id):

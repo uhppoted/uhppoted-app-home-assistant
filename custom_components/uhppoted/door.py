@@ -15,7 +15,7 @@ from .const import ATTR_DOOR_CONTROLLER
 from .const import ATTR_DOOR_NUMBER
 
 
-class ControllerDoor(SensorEntity):
+class Door(SensorEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
@@ -113,7 +113,7 @@ class ControllerDoor(SensorEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} status')
 
 
-class ControllerDoorOpen(SensorEntity):
+class DoorOpen(SensorEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
@@ -179,7 +179,7 @@ class ControllerDoorOpen(SensorEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} status')
 
 
-class ControllerDoorOpened(EventEntity):
+class DoorOpened(EventEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
     _attr_event_types = ['OPEN', 'CLOSE']
@@ -235,7 +235,7 @@ class ControllerDoorOpened(EventEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} status')
 
 
-class ControllerDoorLock(SensorEntity):
+class DoorLock(SensorEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
@@ -301,7 +301,7 @@ class ControllerDoorLock(SensorEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} status')
 
 
-class ControllerDoorUnlocked(EventEntity):
+class DoorUnlocked(EventEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
     _attr_event_types = ['LOCKED', 'UNLOCKED']
@@ -357,7 +357,7 @@ class ControllerDoorUnlocked(EventEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} status')
 
 
-class ControllerDoorButton(SensorEntity):
+class DoorButton(SensorEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
@@ -423,7 +423,7 @@ class ControllerDoorButton(SensorEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} status')
 
 
-class ControllerDoorButtonPressed(EventEntity):
+class DoorButtonPressed(EventEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
     _attr_event_types = ['PRESSED', 'RELEASED']
@@ -479,7 +479,7 @@ class ControllerDoorButtonPressed(EventEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} status')
 
 
-class ControllerDoorMode(SelectEntity):
+class DoorMode(SelectEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
@@ -569,7 +569,7 @@ class ControllerDoorMode(SelectEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door} mode')
 
 
-class ControllerDoorDelay(NumberEntity):
+class DoorDelay(NumberEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
@@ -644,7 +644,7 @@ class ControllerDoorDelay(NumberEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door} delay')
 
 
-class ControllerDoorUnlock(ButtonEntity):
+class DoorUnlock(ButtonEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 

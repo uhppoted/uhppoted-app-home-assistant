@@ -28,7 +28,7 @@ from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
 
 from .config import configure_doors
-from .door import ControllerDoorUnlock
+from .door import DoorUnlock
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
@@ -44,7 +44,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     def g(unique_id, controller, serial_no, door, door_no):
         entities.extend([
-            ControllerDoorUnlock(u, unique_id, controller, serial_no, door, door_no),
+            DoorUnlock(u, unique_id, controller, serial_no, door, door_no),
         ])
 
     configure_doors(options, g)
