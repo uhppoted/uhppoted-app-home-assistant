@@ -34,6 +34,7 @@ ATTR_NETMASK = 'netmask'
 ATTR_GATEWAY = 'gateway'
 ATTR_FIRMWARE = 'firmware'
 
+ATTR_CONTROLLER = 'controller'
 ATTR_CONTROLLER_SERIAL_NUMBER = 'serial_no'
 ATTR_CONTROLLER_DATETIME = 'date-time'
 

@@ -10,11 +10,13 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 _LOGGER = logging.getLogger(__name__)
 
-# Attribute constants
 from .const import ATTR_ADDRESS
 from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
+
+from .const import ATTR_AVAILABLE
+from .const import ATTR_CONTROLLER
 from .const import ATTR_CONTROLLER_DATETIME
 
 
@@ -32,12 +34,12 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self._name = f'uhppoted.controller.{controller}.info'.lower()
-        self._state = None
+        self._state = serial_no
         self._attributes: Dict[str, Any] = {
-            ATTR_ADDRESS: '',
-            ATTR_NETMASK: '',
-            ATTR_GATEWAY: '',
-            ATTR_FIRMWARE: '',
+            ATTR_ADDRESS: None,
+            ATTR_NETMASK: None,
+            ATTR_GATEWAY: None,
+            ATTR_FIRMWARE: None,
         }
         self._available = False
 
@@ -79,14 +81,13 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
             controllers = self.coordinator.controllers
             serial_no = self.serial_no
 
-            if serial_no in controllers:
-                state = controllers[serial_no]
-                self._available = state['available']
-                self._state = serial_no
+            if serial_no in controllers and ATTR_CONTROLLER in controllers[serial_no]:
+                state = controllers[serial_no][ATTR_CONTROLLER]
                 self._attributes[ATTR_ADDRESS] = state[ATTR_ADDRESS]
                 self._attributes[ATTR_NETMASK] = state[ATTR_NETMASK]
                 self._attributes[ATTR_GATEWAY] = state[ATTR_GATEWAY]
                 self._attributes[ATTR_FIRMWARE] = state[ATTR_FIRMWARE]
+                self._available = state[ATTR_AVAILABLE]
             else:
                 self._available = False
 

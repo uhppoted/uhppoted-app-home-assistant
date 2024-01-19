@@ -30,6 +30,7 @@ from .const import CONF_DEBUG
 
 # Attribute constants
 from .const import ATTR_AVAILABLE
+from .const import ATTR_CONTROLLER
 from .const import ATTR_ADDRESS
 from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
@@ -117,29 +118,28 @@ class ControllerCoordinator(DataUpdateCoordinator):
             _LOGGER.debug(f'update controller {controller} info')
 
             info = {
-                ATTR_AVAILABLE: False,
-                ATTR_ADDRESS: '',
-                ATTR_NETMASK: '',
-                ATTR_GATEWAY: '',
-                ATTR_FIRMWARE: '',
+                ATTR_CONTROLLER: {
+                    ATTR_AVAILABLE: False,
+                    ATTR_ADDRESS: None,
+                    ATTR_NETMASK: None,
+                    ATTR_GATEWAY: None,
+                    ATTR_FIRMWARE: None,
+                },
                 ATTR_DOORS: {
                     ATTR_AVAILABLE: False,
                 }
             }
 
-            if controller in self._state['controllers']:
-                for attr in [ATTR_ADDRESS, ATTR_NETMASK, ATTR_GATEWAY, ATTR_FIRMWARE]:
-                    if attr in self._state['controllers']:
-                        info[attr] = self._state['controllers'][attr]
-
             try:
                 response = api.get_controller(controller)
                 if response.controller == controller:
-                    info[ATTR_ADDRESS] = f'{response.ip_address}'
-                    info[ATTR_NETMASK] = f'{response.subnet_mask}'
-                    info[ATTR_GATEWAY] = f'{response.gateway}'
-                    info[ATTR_FIRMWARE] = f'{response.version} {response.date:%Y-%m-%d}'
-                    info[ATTR_AVAILABLE] = True
+                    info[ATTR_CONTROLLER] = {
+                        ATTR_ADDRESS: f'{response.ip_address}',
+                        ATTR_NETMASK: f'{response.subnet_mask}',
+                        ATTR_GATEWAY: f'{response.gateway}',
+                        ATTR_FIRMWARE: f'{response.version} {response.date:%Y-%m-%d}',
+                        ATTR_AVAILABLE: True,
+                    }
 
                 response = api.get_status(controller)
                 if response.controller == controller:
