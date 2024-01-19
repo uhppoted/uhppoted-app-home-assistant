@@ -100,6 +100,7 @@ class ControllerCoordinator(DataUpdateCoordinator):
             'controllers': {},
         }
 
+    # FIXME remove and use data attribute
     @property
     def controllers(self):
         return self._state['controllers']
@@ -172,3 +173,5 @@ class ControllerCoordinator(DataUpdateCoordinator):
                 _LOGGER.exception(f'error retrieving controller {controller} information')
 
             self._state['controllers'][controller] = info
+
+        return self._state['controllers']

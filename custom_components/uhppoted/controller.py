@@ -78,18 +78,19 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
         _LOGGER.debug(f'controller:{self.controller}  update info')
 
         try:
-            controllers = self.coordinator.controllers
-            serial_no = self.serial_no
+            idx = self.serial_no
 
-            if serial_no in controllers and ATTR_CONTROLLER in controllers[serial_no]:
-                state = controllers[serial_no][ATTR_CONTROLLER]
+            if idx not in self.coordinator.data:
+                self._available = False
+            elif ATTR_CONTROLLER not in self.coordinator.data[idx]:
+                self._available = False
+            else:
+                state = self.coordinator.data[idx][ATTR_CONTROLLER]
                 self._attributes[ATTR_ADDRESS] = state[ATTR_ADDRESS]
                 self._attributes[ATTR_NETMASK] = state[ATTR_NETMASK]
                 self._attributes[ATTR_GATEWAY] = state[ATTR_GATEWAY]
                 self._attributes[ATTR_FIRMWARE] = state[ATTR_FIRMWARE]
                 self._available = state[ATTR_AVAILABLE]
-            else:
-                self._available = False
 
         except (Exception):
             self._available = False

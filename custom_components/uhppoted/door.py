@@ -96,25 +96,20 @@ class Door(CoordinatorEntity, SensorEntity):
     def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door} state')
         try:
-            controllers = self.coordinator.controllers
-            serial_no = self.serial_no
-            state = None
+            idx = self.serial_no
 
-            if serial_no in controllers:
-                if ATTR_DOORS in controllers[serial_no]:
-                    if self.door_id in controllers[serial_no][ATTR_DOORS]:
-                        state = controllers[serial_no][ATTR_DOORS][self.door_id]
-
-            if state:
-                self._open = state[ATTR_DOOR_OPEN]
-                self._button = state[ATTR_DOOR_BUTTON]
-                self._locked = state[ATTR_DOOR_LOCK]
-                self._available = controllers[serial_no][ATTR_DOORS][ATTR_AVAILABLE]
-            else:
-                self._open = None
-                self._button = None
-                self._locked = None
+            if idx not in self.coordinator.data:
                 self._available = False
+            elif ATTR_DOORS not in self.coordinator.data[idx]:
+                self._available = False
+            elif self.door_id not in self.coordinator.data[idx][ATTR_DOORS]:
+                self._available = False
+            else:
+                doors = self.coordinator.data[idx][ATTR_DOORS]
+                self._open = doors[self.door_id][ATTR_DOOR_OPEN]
+                self._button = doors[self.door_id][ATTR_DOOR_BUTTON]
+                self._locked = doors[self.door_id][ATTR_DOOR_LOCK]
+                self._available = doors[ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False
