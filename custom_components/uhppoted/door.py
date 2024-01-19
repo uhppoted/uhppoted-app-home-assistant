@@ -2,29 +2,35 @@ from __future__ import annotations
 
 import logging
 
+from homeassistant.core import callback
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.select import SelectEntity
 from homeassistant.components.button import ButtonEntity
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.event import EventEntity
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.const import TIME_SECONDS
 
 _LOGGER = logging.getLogger(__name__)
 
+from .const import ATTR_AVAILABLE
 from .const import ATTR_DOOR_CONTROLLER
 from .const import ATTR_DOOR_NUMBER
+from .const import ATTR_DOORS
+from .const import ATTR_DOOR_OPEN
+from .const import ATTR_DOOR_BUTTON
+from .const import ATTR_DOOR_LOCK
 
 
-class Door(SensorEntity):
+class Door(CoordinatorEntity, SensorEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
-    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
-        super().__init__()
+    def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
+        super().__init__(coordinator)
 
         _LOGGER.debug(f'controller {controller}: door:{door}')
 
-        self.uhppote = u
         self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
@@ -32,7 +38,7 @@ class Door(SensorEntity):
         self.door_id = int(f'{door_id}')
 
         self._name = f'uhppoted.door.{door}'.lower()
-        self._unlocked = None
+        self._locked = None
         self._open = None
         self._button = None
         self._available = False
@@ -61,10 +67,10 @@ class Door(SensorEntity):
             if self._button == True:
                 s.append('PRESSED')
 
-            if self._unlocked == False:
-                s.append('LOCKED')
-            elif self._unlocked == True:
+            if self._locked == False:
                 s.append('UNLOCKED')
+            elif self._locked == True:
+                s.append('LOCKED')
 
             if self._open == False:
                 s.append('CLOSED')
@@ -79,38 +85,40 @@ class Door(SensorEntity):
     def extra_state_attributes(self) -> Dict[str, Any]:
         return self._attributes
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door} state')
         try:
-            response = self.uhppote.get_status(self.serial_no)
+            controllers = self.coordinator.controllers
+            serial_no = self.serial_no
+            state = None
 
-            if response.controller == self.serial_no:
-                if self.door_id == 1:
-                    self._open = response.door_1_open == True
-                    self._button = response.door_1_button == True
-                    self._unlocked = response.relays & 0x01 == 0x01
-                elif self.door_id == 2:
-                    self._open = response.door_2_open == True
-                    self._button = response.door_2_button == True
-                    self._unlocked = response.relays & 0x02 == 0x02
-                elif self.door_id == 3:
-                    self._open = response.door_3_open == True
-                    self._button = response.door_3_button == True
-                    self._unlocked = response.relays & 0x04 == 0x04
-                elif self.door_id == 4:
-                    self._open = response.door_4_open == True
-                    self._button = response.door_4_button == True
-                    self._unlocked = response.relays & 0x08 == 0x08
-                else:
-                    self._open = None
-                    self._button = None
-                    self._unlocked = None
+            if serial_no in controllers:
+                if ATTR_DOORS in controllers[serial_no]:
+                    if self.door_id in controllers[serial_no][ATTR_DOORS]:
+                        state = controllers[serial_no][ATTR_DOORS][self.door_id]
 
-                self._available = True
+            if state:
+                self._open = state[ATTR_DOOR_OPEN]
+                self._button = state[ATTR_DOOR_BUTTON]
+                self._locked = state[ATTR_DOOR_LOCK]
+                self._available = controllers[serial_no][ATTR_DOORS][ATTR_AVAILABLE]
+            else:
+                self._open = None
+                self._button = None
+                self._locked = None
+                self._available = False
 
         except (Exception):
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.controller} status')
+            _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door} status')
 
 
 class DoorOpen(SensorEntity):

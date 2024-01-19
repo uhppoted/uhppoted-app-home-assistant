@@ -29,10 +29,15 @@ from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
 
 # Attribute constants
+from .const import ATTR_AVAILABLE
 from .const import ATTR_ADDRESS
 from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
+from .const import ATTR_DOORS
+from .const import ATTR_DOOR_OPEN
+from .const import ATTR_DOOR_BUTTON
+from .const import ATTR_DOOR_LOCK
 
 from .config import configure_controllers
 from .config import configure_doors
@@ -64,7 +69,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     def g(unique_id, controller, serial_no, door, door_no):
         entities.extend([
-            Door(u['api'], unique_id, controller, serial_no, door, door_no),
+            Door(coordinator, unique_id, controller, serial_no, door, door_no),
             DoorOpen(u['api'], unique_id, controller, serial_no, door, door_no),
             DoorLock(u['api'], unique_id, controller, serial_no, door, door_no),
             DoorButton(u['api'], unique_id, controller, serial_no, door, door_no),
@@ -107,15 +112,19 @@ class ControllerCoordinator(DataUpdateCoordinator):
 
     async def _get_controllers(self):
         api = self.uhppote['api']
+
         for controller in self.uhppote['controllers']:
             _LOGGER.debug(f'update controller {controller} info')
 
             info = {
-                'available': False,
+                ATTR_AVAILABLE: False,
                 ATTR_ADDRESS: '',
                 ATTR_NETMASK: '',
                 ATTR_GATEWAY: '',
                 ATTR_FIRMWARE: '',
+                ATTR_DOORS: {
+                    ATTR_AVAILABLE: False,
+                }
             }
 
             if controller in self._state['controllers']:
@@ -124,14 +133,39 @@ class ControllerCoordinator(DataUpdateCoordinator):
                         info[attr] = self._state['controllers'][attr]
 
             try:
-
-                response = self.uhppote['api'].get_controller(controller)
+                response = api.get_controller(controller)
                 if response.controller == controller:
                     info[ATTR_ADDRESS] = f'{response.ip_address}'
                     info[ATTR_NETMASK] = f'{response.subnet_mask}'
                     info[ATTR_GATEWAY] = f'{response.gateway}'
                     info[ATTR_FIRMWARE] = f'{response.version} {response.date:%Y-%m-%d}'
-                    info['available'] = True
+                    info[ATTR_AVAILABLE] = True
+
+                response = api.get_status(controller)
+                if response.controller == controller:
+                    info[ATTR_DOORS] = {
+                        ATTR_AVAILABLE: True,
+                        1: {
+                            ATTR_DOOR_OPEN: response.door_1_open == True,
+                            ATTR_DOOR_BUTTON: response.door_1_button == True,
+                            ATTR_DOOR_LOCK: response.relays & 0x01 == 0x00,
+                        },
+                        2: {
+                            ATTR_DOOR_OPEN: response.door_2_open == True,
+                            ATTR_DOOR_BUTTON: response.door_2_button == True,
+                            ATTR_DOOR_LOCK: response.relays & 0x02 == 0x00,
+                        },
+                        3: {
+                            ATTR_DOOR_OPEN: response.door_3_open == True,
+                            ATTR_DOOR_BUTTON: response.door_3_button == True,
+                            ATTR_DOOR_LOCK: response.relays & 0x04 == 0x00,
+                        },
+                        4: {
+                            ATTR_DOOR_OPEN: response.door_4_open == True,
+                            ATTR_DOOR_BUTTON: response.door_4_button == True,
+                            ATTR_DOOR_LOCK: response.relays & 0x08 == 0x00,
+                        },
+                    }
 
             except (Exception):
                 _LOGGER.exception(f'error retrieving controller {controller} information')

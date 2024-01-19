@@ -24,6 +24,7 @@ KeyboardInterrupt
       - [ ] Use unique_id to delete door
 
 - [ ] DataCoordinator
+      - [ ] parallelize requests
       - [ ] store data in self.data
             - (?) idx
             - coordinator.async_set_updated_data(data)
@@ -34,10 +35,10 @@ KeyboardInterrupt
       - [ ] ControllerDateTime
             - [x] get
             - [ ] set
-      - [ ] ControllerDoor
-      - [ ] ControllerDoorOpen
-      - [ ] ControllerDoorLock
-      - [ ] ControllerDoorButton
+      - [ ] Door
+      - [ ] DoorOpen
+      - [ ] DoorLock
+      - [ ] DoorButton
       - [ ] CardInfo
       - [ ] CardHolder
       - [ ] etc.
