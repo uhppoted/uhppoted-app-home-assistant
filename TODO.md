@@ -19,7 +19,6 @@ KeyboardInterrupt
       - https://developers.home-assistant.io/docs/dev_101_states/
 
 - [ ] Options flow
-      - [x] Delete card with '-' for name
       - [ ] Use unique_id to delete controller
       - [ ] Use unique_id to delete door
 
@@ -47,12 +46,14 @@ KeyboardInterrupt
       - [ ] CardInfo
       - [ ] CardHolder
       - [ ] etc.
+      - [ ] events
 
 - [ ] Controller
       - [ ] Rework as Device
       - [ ] device_info
       - [ ] entity_category
       - [ ] Set default timezone in configuration.yaml
+      - [ ] Name translation
 
 - [ ] Doors
       - [ ] unlock
@@ -72,6 +73,7 @@ KeyboardInterrupt
       - [ ] set max cards in _configuration.yaml_
       - [ ] set preferred cards in _configuration.yaml_
       - [ ] Enable PIN in configuration.yaml
+      - [ ] Name translation
       - (?) Set PIN in options-flow
 
 - [ ] Service

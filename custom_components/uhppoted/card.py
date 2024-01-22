@@ -249,7 +249,7 @@ class CardStartDate(DateEntity):
 
         except (Exception):
             self._available = False
-            _LOGGER.exception(f'error retrieving card {self.cared} start date')
+            _LOGGER.exception(f'error retrieving card {self.card} start date')
 
 
 class CardEndDate(DateEntity):
@@ -338,7 +338,7 @@ class CardEndDate(DateEntity):
 
         except (Exception):
             self._available = False
-            _LOGGER.exception(f'error retrieving card {self.cared} end date')
+            _LOGGER.exception(f'error retrieving card {self.card} end date')
 
 
 class CardPermission(SwitchEntity):
