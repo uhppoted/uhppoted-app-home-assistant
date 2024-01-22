@@ -96,18 +96,19 @@ class ControllerCoordinator(DataUpdateCoordinator):
     def __init__(self, hass, u):
         super().__init__(hass, _LOGGER, name="coordinator", update_interval=_INTERVAL)
         self.uhppote = u
+        self._initialised = False
         self._state = {
             'controllers': {},
         }
 
-    # FIXME remove and use data attribute
-    @property
-    def controllers(self):
-        return self._state['controllers']
-
     async def _async_update_data(self):
         try:
             contexts = set(self.async_contexts())
+            if not self._initialised:
+                for v in self.uhppote['controllers']:
+                    contexts.add(v)
+                self._initialised = True
+
             async with async_timeout.timeout(5):
                 return await self._get_controllers(contexts)
         except Exception as err:

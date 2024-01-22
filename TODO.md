@@ -23,10 +23,7 @@ KeyboardInterrupt
       - [ ] Use unique_id to delete door
 
 - [ ] DataCoordinator
-      - [ ] Fetch data on initialisation
-            - (?) implement `coordinator.async_config_entry_first_refresh()`
-            - (?) maybe just swap order of `coordinator.async_config_entry_first_refresh()` and  `async_add_entities`
-
+      - [x] Fetch data on initialisation
       - [ ] parallelize requests
       - [ ] store data in self.data
             - [x] contexts + idx
