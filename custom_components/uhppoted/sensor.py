@@ -71,9 +71,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     def g(unique_id, controller, serial_no, door, door_no):
         entities.extend([
             Door(coordinator, unique_id, controller, serial_no, door, door_no),
-            DoorOpen(u['api'], unique_id, controller, serial_no, door, door_no),
-            DoorLock(u['api'], unique_id, controller, serial_no, door, door_no),
-            DoorButton(u['api'], unique_id, controller, serial_no, door, door_no),
+            DoorOpen(coordinator, unique_id, controller, serial_no, door, door_no),
+            DoorLock(coordinator, unique_id, controller, serial_no, door, door_no),
+            DoorButton(coordinator, unique_id, controller, serial_no, door, door_no),
         ])
 
     def h(card, name, unique_id):

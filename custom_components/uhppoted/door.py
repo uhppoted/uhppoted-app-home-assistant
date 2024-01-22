@@ -116,16 +116,15 @@ class Door(CoordinatorEntity, SensorEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door} status')
 
 
-class DoorOpen(SensorEntity):
+class DoorOpen(CoordinatorEntity, SensorEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
-    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
-        super().__init__()
+    def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
+        super().__init__(coordinator, context=int(f'{serial_no}'))
 
         _LOGGER.debug(f'controller {controller}: door:{door} open')
 
-        self.uhppote = u
         self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
@@ -158,28 +157,33 @@ class DoorOpen(SensorEntity):
 
         return None
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door}.open state')
         try:
-            response = self.uhppote.get_status(self.serial_no)
+            idx = self.serial_no
 
-            if response.controller == self.serial_no:
-                if self.door_id == 1:
-                    self._open = response.door_1_open == True
-                elif self.door_id == 2:
-                    self._open = response.door_2_open == True
-                elif self.door_id == 3:
-                    self._open = response.door_3_open == True
-                elif self.door_id == 4:
-                    self._open = response.door_4_open == True
-                else:
-                    self._open = None
-
-                self._available = True
+            if idx not in self.coordinator.data:
+                self._available = False
+            elif ATTR_DOORS not in self.coordinator.data[idx]:
+                self._available = False
+            elif self.door_id not in self.coordinator.data[idx][ATTR_DOORS]:
+                self._available = False
+            else:
+                doors = self.coordinator.data[idx][ATTR_DOORS]
+                self._open = doors[self.door_id][ATTR_DOOR_OPEN]
+                self._available = doors[ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.controller} status')
+            _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door}.open state')
 
 
 class DoorOpened(EventEntity):
@@ -238,16 +242,15 @@ class DoorOpened(EventEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} status')
 
 
-class DoorLock(SensorEntity):
+class DoorLock(CoordinatorEntity, SensorEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
-    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
-        super().__init__()
+    def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
+        super().__init__(coordinator, context=int(f'{serial_no}'))
 
         _LOGGER.debug(f'controller {controller}: door:{door} lock')
 
-        self.uhppote = u
         self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
@@ -255,7 +258,7 @@ class DoorLock(SensorEntity):
         self.door_id = int(f'{door_id}')
 
         self._name = f'uhppoted.door.{door}.lock'.lower()
-        self._unlocked = None
+        self._locked = None
         self._available = False
 
     @property
@@ -273,35 +276,40 @@ class DoorLock(SensorEntity):
     @property
     def state(self) -> Optional[str]:
         if self._available:
-            if self._unlocked == False:
+            if self._locked == True:
                 return 'LOCKED'
-            elif self._unlocked == True:
+            elif self._locked == False:
                 return 'UNLOCKED'
 
         return None
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door}.lock state')
         try:
-            response = self.uhppote.get_status(self.serial_no)
+            idx = self.serial_no
 
-            if response.controller == self.serial_no:
-                if self.door_id == 1:
-                    self._unlocked = response.relays & 0x01 == 0x01
-                elif self.door_id == 2:
-                    self._unlocked = response.relays & 0x02 == 0x02
-                elif self.door_id == 3:
-                    self._unlocked = response.relays & 0x04 == 0x04
-                elif self.door_id == 4:
-                    self._unlocked = response.relays & 0x08 == 0x08
-                else:
-                    self._unlocked = None
-
-                self._available = True
+            if idx not in self.coordinator.data:
+                self._available = False
+            elif ATTR_DOORS not in self.coordinator.data[idx]:
+                self._available = False
+            elif self.door_id not in self.coordinator.data[idx][ATTR_DOORS]:
+                self._available = False
+            else:
+                doors = self.coordinator.data[idx][ATTR_DOORS]
+                self._locked = doors[self.door_id][ATTR_DOOR_LOCK]
+                self._available = doors[ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.controller} status')
+            _LOGGER.exception(f'error retrieving controller {self.controller} {self.door}.lock state')
 
 
 class DoorUnlocked(EventEntity):
@@ -360,16 +368,15 @@ class DoorUnlocked(EventEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} status')
 
 
-class DoorButton(SensorEntity):
+class DoorButton(CoordinatorEntity, SensorEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
-    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
-        super().__init__()
+    def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
+        super().__init__(coordinator, context=int(f'{serial_no}'))
 
         _LOGGER.debug(f'controller {controller}: door:{door} button')
 
-        self.uhppote = u
         self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
@@ -402,28 +409,33 @@ class DoorButton(SensorEntity):
 
         return None
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door} button state')
         try:
-            response = self.uhppote.get_status(self.serial_no)
+            idx = self.serial_no
 
-            if response.controller == self.serial_no:
-                if self.door_id == 1:
-                    self._pressed = response.door_1_button == True
-                elif self.door_id == 2:
-                    self._pressed = response.door_2_button == True
-                elif self.door_id == 3:
-                    self._pressed = response.door_3_button == True
-                elif self.door_id == 4:
-                    self._pressed = response.door_4_button == True
-                else:
-                    self._pressed = None
-
-                self._available = True
+            if idx not in self.coordinator.data:
+                self._available = False
+            elif ATTR_DOORS not in self.coordinator.data[idx]:
+                self._available = False
+            elif self.door_id not in self.coordinator.data[idx][ATTR_DOORS]:
+                self._available = False
+            else:
+                doors = self.coordinator.data[idx][ATTR_DOORS]
+                self._pressed = doors[self.door_id][ATTR_DOOR_BUTTON]
+                self._available = doors[ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.controller} status')
+            _LOGGER.exception(f'error retrieving controller {self.controller} {self.door} button state')
 
 
 class DoorButtonPressed(EventEntity):

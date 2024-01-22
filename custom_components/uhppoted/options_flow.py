@@ -72,7 +72,6 @@ class UhppotedOptionsFlow(OptionsFlow):
     def __init__(self, entry: ConfigEntry) -> None:
         self.config_entry = entry
         self.data = dict(entry.data)
-        # self.options = dict(entry.options)
         self.options = copy.deepcopy(dict(entry.options))
         self.controllers = []
         self.doors = []
@@ -130,9 +129,7 @@ class UhppotedOptionsFlow(OptionsFlow):
                 for v in user_input[CONF_CONTROLLERS]:
                     self.controllers.append({
                         'controller': {
-                            'unique_id': uuid.uuid4(),
                             'serial_no': v,
-                            'name': '',
                             'configured': False,
                         },
                         'doors': None,
@@ -177,7 +174,6 @@ class UhppotedOptionsFlow(OptionsFlow):
                 return await self.async_step_controllers()
         else:
             controller = it['controller']
-            unique_id = controller['unique_id']
             serial_no = controller['serial_no']
 
         errors: Dict[str, str] = {}
@@ -207,7 +203,7 @@ class UhppotedOptionsFlow(OptionsFlow):
                 else:
                     if user_input[CONF_CONTROLLER_ID].strip() != '-':
                         controllers.append({
-                            CONF_CONTROLLER_UNIQUE_ID: unique_id,
+                            CONF_CONTROLLER_UNIQUE_ID: uuid.uuid4(),
                             CONF_CONTROLLER_SERIAL_NUMBER: serial_no,
                             CONF_CONTROLLER_ID: name,
                             CONF_CONTROLLER_ADDR: address,
@@ -216,7 +212,6 @@ class UhppotedOptionsFlow(OptionsFlow):
 
                 self.options.update({CONF_CONTROLLERS: controllers})
 
-                # controller['name'] = user_input[CONF_CONTROLLER_ID]
                 controller['configured'] = True
 
                 return await self.async_step_controller()

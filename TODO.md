@@ -19,7 +19,7 @@ KeyboardInterrupt
       - https://developers.home-assistant.io/docs/dev_101_states/
 
 - [ ] Options flow
-      - [ ] Use unique_id to delete controller
+      - [x] ~~Use unique_id to delete controller~~
       - [ ] Use unique_id to delete door
 
 - [ ] DataCoordinator
@@ -40,9 +40,9 @@ KeyboardInterrupt
             - [ ] set
                   - await self.coordinator.async_request_refresh()
       - [x] Door
-      - [ ] DoorOpen
-      - [ ] DoorLock
-      - [ ] DoorButton
+      - [x] DoorOpen
+      - [x] DoorLock
+      - [x] DoorButton
       - [ ] CardInfo
       - [ ] CardHolder
       - [ ] etc.
