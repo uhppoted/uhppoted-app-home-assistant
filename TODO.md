@@ -18,18 +18,15 @@ KeyboardInterrupt
       - [ ] Integration icon
       - https://developers.home-assistant.io/docs/dev_101_states/
 
-- [ ] Options flow
+- [x] Options flow
       - [x] ~~Use unique_id to delete controller~~
-      - [ ] Use unique_id to delete door
+      - [x] ~~Use unique_id to delete door~~
 
 - [ ] DataCoordinator
-      - [x] Fetch data on initialisation
       - [ ] parallelize requests
-      - [ ] store data in self.data
-            - [x] contexts + idx
-            - coordinator.async_set_updated_data(data)
-            - https://developers.home-assistant.io/docs/integration_fetching_data/
-
+      - [x] Fetch data on initialisation
+            - [ ] get controllers from ConfigEntry
+      - [x] store data in self.data
       - [x] async_write_ha_state
       - [x] ControllerInfo
       - [ ] ControllerDateTime
@@ -40,9 +37,12 @@ KeyboardInterrupt
       - [x] DoorOpen
       - [x] DoorLock
       - [x] DoorButton
-      - [ ] CardInfo
+      - [x] CardInfo
       - [ ] CardHolder
-      - [ ] etc.
+      - [ ] CardStartDate
+      - [ ] CardEndDate
+      - [ ] CardPermission
+      - [ ] CardPIN
       - [ ] events
 
 - [ ] Controller

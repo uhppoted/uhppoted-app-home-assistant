@@ -45,6 +45,7 @@ ATTR_DOOR_OPEN = 'door_open'
 ATTR_DOOR_BUTTON = 'door_button'
 ATTR_DOOR_LOCK = 'door_lock'
 
+ATTR_CARD = 'card'
 ATTR_CARD_HOLDER = 'cardholder'
 ATTR_CARD_STARTDATE = 'start_date'
 ATTR_CARD_ENDDATE = 'end_date'

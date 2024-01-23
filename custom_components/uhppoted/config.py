@@ -24,6 +24,7 @@ from .const import CONF_DOOR_UNIQUE_ID
 from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
+
 from .const import CONF_CARDS
 from .const import CONF_CARD_UNIQUE_ID
 from .const import CONF_CARD_NUMBER
@@ -341,3 +342,21 @@ def default_card_end_date():
     day = calendar.monthrange(end_date.year, end_date.month)[1]
 
     return datetime.date(year, month, day)
+
+
+def resolve(options, acl):
+    controllers = options[CONF_CONTROLLERS]
+    doors = options[CONF_DOORS]
+    permissions = set()
+
+    for u in controllers:
+        controller = u[CONF_CONTROLLER_ID]
+        serial_no = int(f'{u[CONF_CONTROLLER_SERIAL_NUMBER]}')
+        if serial_no in acl:
+            for d in doors:
+                door = d[CONF_DOOR_ID]
+                door_no = int(f'{d[CONF_DOOR_NUMBER]}')
+                if d[CONF_DOOR_CONTROLLER] == controller and door_no in acl[serial_no]:
+                    permissions.add(door)
+
+    return sorted(list(permissions))

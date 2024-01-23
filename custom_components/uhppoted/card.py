@@ -4,11 +4,14 @@ from datetime import datetime
 from datetime import date
 import logging
 
+from homeassistant.core import callback
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.date import DateEntity
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.components.text import TextEntity
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .const import ATTR_AVAILABLE
 from .const import ATTR_CONTROLLER_SERIAL_NUMBER
 from .const import ATTR_DOOR_CONTROLLER
 from .const import ATTR_DOOR_NUMBER
@@ -28,16 +31,15 @@ from .config import default_card_end_date
 _LOGGER = logging.getLogger(__name__)
 
 
-class CardInfo(SensorEntity):
+class CardInfo(CoordinatorEntity, SensorEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
-    def __init__(self, u, unique_id, card, name):
-        super().__init__()
+    def __init__(self, coordinator, unique_id, card, name):
+        super().__init__(coordinator, context=int(f'{card}'))
 
         _LOGGER.debug(f'card {card}')
 
-        self.driver = u
         self.card = int(f'{card}')
 
         self._unique_id = unique_id
@@ -85,7 +87,7 @@ class CardInfo(SensorEntity):
 
     @property
     def extra_state_attributes(self) -> Dict[str, Any]:
-        permissions = f"','.join(self._permissions)" if self._permissions else None
+        permissions = ','.join(self._permissions) if self._permissions else None
         return {
             ATTR_CARD_HOLDER: self._cardholder,
             ATTR_CARD_STARTDATE: self._start_date,
@@ -93,24 +95,27 @@ class CardInfo(SensorEntity):
             ATTR_CARD_PERMISSIONS: permissions,
         }
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         _LOGGER.debug(f'card:{self.card} state')
         try:
-            start_date = None
-            end_date = None
-            for controller in self.driver['controllers']:
-                response = self.driver['api'].get_card(controller, self.card)
+            idx = self.card
 
-                if response.controller == controller and response.card_number == self.card:
-                    if not start_date or response.start_date < start_date:
-                        start_date = response.start_date
-
-                    if not end_date or response.end_date > end_date:
-                        end_date = response.end_date
-
-            self._start_date = start_date
-            self._end_date = end_date
-            self._available = True
+            if idx not in self.coordinator.data:
+                self._available = False
+            else:
+                state = self.coordinator.data[idx]
+                self._start_date = state[ATTR_CARD_STARTDATE]
+                self._end_date = state[ATTR_CARD_ENDDATE]
+                self._permissions = state[ATTR_CARD_PERMISSIONS]
+                self._available = state[ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False

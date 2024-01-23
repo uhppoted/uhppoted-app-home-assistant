@@ -186,62 +186,6 @@ class DoorOpen(CoordinatorEntity, SensorEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door}.open state')
 
 
-class DoorOpened(EventEntity):
-    _attr_icon = 'mdi:door'
-    _attr_has_entity_name: True
-    _attr_event_types = ['OPEN', 'CLOSE']
-
-    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
-        super().__init__()
-
-        _LOGGER.debug(f'controller {controller}: door:{door} open event')
-
-        self.uhppote = u
-        self._unique_id = unique_id
-        self.controller = controller
-        self.serial_no = int(f'{serial_no}')
-        self.door = door
-        self.door_id = int(f'{door_id}')
-
-        self._name = f'uhppoted.door.{door}.open.event'.lower()
-        self._open = None
-
-    @property
-    def unique_id(self) -> str:
-        return f'uhppoted.door.{self._unique_id}.open.event'.lower()
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    async def async_update(self):
-        _LOGGER.debug(f'controller:{self.controller}  update door {self.door}.open.event state')
-        try:
-            response = self.uhppote.get_status(self.serial_no)
-            last = self._open
-
-            if response.controller == self.serial_no:
-                if self.door_id == 1:
-                    self._open = response.door_1_open == True
-                elif self.door_id == 2:
-                    self._open = response.door_2_open == True
-                elif self.door_id == 3:
-                    self._open = response.door_3_open == True
-                elif self.door_id == 4:
-                    self._open = response.door_4_open == True
-                else:
-                    self._open = None
-
-                if self._open != last and self._open:
-                    self._trigger_event('OPEN')
-                elif self._open != last and not self._open:
-                    self._trigger_event('CLOSE')
-
-        except (Exception):
-            self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.controller} status')
-
-
 class DoorLock(CoordinatorEntity, SensorEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
@@ -312,62 +256,6 @@ class DoorLock(CoordinatorEntity, SensorEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} {self.door}.lock state')
 
 
-class DoorUnlocked(EventEntity):
-    _attr_icon = 'mdi:door'
-    _attr_has_entity_name: True
-    _attr_event_types = ['LOCKED', 'UNLOCKED']
-
-    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
-        super().__init__()
-
-        _LOGGER.debug(f'controller {controller}: door:{door} unlocked event')
-
-        self.uhppote = u
-        self._unique_id = unique_id
-        self.controller = controller
-        self.serial_no = int(f'{serial_no}')
-        self.door = door
-        self.door_id = int(f'{door_id}')
-
-        self._name = f'uhppoted.door.{door}.unlocked.event'.lower()
-        self._unlocked = None
-
-    @property
-    def unique_id(self) -> str:
-        return f'uhppoted.door.{self._unique_id}.unlocked.event'.lower()
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    async def async_update(self):
-        _LOGGER.debug(f'controller:{self.controller} update door {self.door}.unlocked.event state')
-        try:
-            response = self.uhppote.get_status(self.serial_no)
-            last = self._unlocked
-
-            if response.controller == self.serial_no:
-                if self.door_id == 1:
-                    self._unlocked = response.relays & 0x01 == 0x01
-                elif self.door_id == 2:
-                    self._unlocked = response.relays & 0x02 == 0x02
-                elif self.door_id == 3:
-                    self._unlocked = response.relays & 0x04 == 0x04
-                elif self.door_id == 4:
-                    self._unlocked = response.relays & 0x08 == 0x08
-                else:
-                    self._unlocked = None
-
-                if self._unlocked != last and self._unlocked:
-                    self._trigger_event('UNLOCKED')
-                elif self._unlocked != last and not self._unlocked:
-                    self._trigger_event('LOCKED')
-
-        except (Exception):
-            self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.controller} status')
-
-
 class DoorButton(CoordinatorEntity, SensorEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
@@ -436,6 +324,118 @@ class DoorButton(CoordinatorEntity, SensorEntity):
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self.controller} {self.door} button state')
+
+
+class DoorOpened(EventEntity):
+    _attr_icon = 'mdi:door'
+    _attr_has_entity_name: True
+    _attr_event_types = ['OPEN', 'CLOSE']
+
+    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
+        super().__init__()
+
+        _LOGGER.debug(f'controller {controller}: door:{door} open event')
+
+        self.uhppote = u
+        self._unique_id = unique_id
+        self.controller = controller
+        self.serial_no = int(f'{serial_no}')
+        self.door = door
+        self.door_id = int(f'{door_id}')
+
+        self._name = f'uhppoted.door.{door}.open.event'.lower()
+        self._open = None
+
+    @property
+    def unique_id(self) -> str:
+        return f'uhppoted.door.{self._unique_id}.open.event'.lower()
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    async def async_update(self):
+        _LOGGER.debug(f'controller:{self.controller}  update door {self.door}.open.event state')
+        try:
+            response = self.uhppote.get_status(self.serial_no)
+            last = self._open
+
+            if response.controller == self.serial_no:
+                if self.door_id == 1:
+                    self._open = response.door_1_open == True
+                elif self.door_id == 2:
+                    self._open = response.door_2_open == True
+                elif self.door_id == 3:
+                    self._open = response.door_3_open == True
+                elif self.door_id == 4:
+                    self._open = response.door_4_open == True
+                else:
+                    self._open = None
+
+                if self._open != last and self._open:
+                    self._trigger_event('OPEN')
+                elif self._open != last and not self._open:
+                    self._trigger_event('CLOSE')
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self.controller} status')
+
+
+class DoorUnlocked(EventEntity):
+    _attr_icon = 'mdi:door'
+    _attr_has_entity_name: True
+    _attr_event_types = ['LOCKED', 'UNLOCKED']
+
+    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
+        super().__init__()
+
+        _LOGGER.debug(f'controller {controller}: door:{door} unlocked event')
+
+        self.uhppote = u
+        self._unique_id = unique_id
+        self.controller = controller
+        self.serial_no = int(f'{serial_no}')
+        self.door = door
+        self.door_id = int(f'{door_id}')
+
+        self._name = f'uhppoted.door.{door}.unlocked.event'.lower()
+        self._unlocked = None
+
+    @property
+    def unique_id(self) -> str:
+        return f'uhppoted.door.{self._unique_id}.unlocked.event'.lower()
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    async def async_update(self):
+        _LOGGER.debug(f'controller:{self.controller} update door {self.door}.unlocked.event state')
+        try:
+            response = self.uhppote.get_status(self.serial_no)
+            last = self._unlocked
+
+            if response.controller == self.serial_no:
+                if self.door_id == 1:
+                    self._unlocked = response.relays & 0x01 == 0x01
+                elif self.door_id == 2:
+                    self._unlocked = response.relays & 0x02 == 0x02
+                elif self.door_id == 3:
+                    self._unlocked = response.relays & 0x04 == 0x04
+                elif self.door_id == 4:
+                    self._unlocked = response.relays & 0x08 == 0x08
+                else:
+                    self._unlocked = None
+
+                if self._unlocked != last and self._unlocked:
+                    self._trigger_event('UNLOCKED')
+                elif self._unlocked != last and not self._unlocked:
+                    self._trigger_event('LOCKED')
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self.controller} status')
 
 
 class DoorButtonPressed(EventEntity):

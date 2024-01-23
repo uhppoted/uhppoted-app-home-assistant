@@ -30,20 +30,29 @@ from .const import CONF_DEBUG
 
 # Attribute constants
 from .const import ATTR_AVAILABLE
+
 from .const import ATTR_CONTROLLER
 from .const import ATTR_ADDRESS
 from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
+
 from .const import ATTR_DOORS
 from .const import ATTR_DOOR_OPEN
 from .const import ATTR_DOOR_BUTTON
 from .const import ATTR_DOOR_LOCK
 
+from .const import ATTR_CARD
+from .const import ATTR_CARD_HOLDER
+from .const import ATTR_CARD_STARTDATE
+from .const import ATTR_CARD_ENDDATE
+from .const import ATTR_CARD_PERMISSIONS
+
 from .config import configure_controllers
 from .config import configure_doors
 from .config import configure_cards
 from .config import configure_driver
+from .config import resolve
 
 from .controller import ControllerInfo
 from .door import Door
@@ -61,24 +70,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     u = configure_driver(options)
     entities = []
 
-    coordinator = ControllerCoordinator(hass, u)
+    controllers = ControllerCoordinator(hass, options, u)
+    cards = CardsCoordinator(hass, options, u)
 
     def f(unique_id, controller, serial_no, address):
         entities.extend([
-            ControllerInfo(coordinator, unique_id, controller, serial_no),
+            ControllerInfo(controllers, unique_id, controller, serial_no),
         ])
 
     def g(unique_id, controller, serial_no, door, door_no):
         entities.extend([
-            Door(coordinator, unique_id, controller, serial_no, door, door_no),
-            DoorOpen(coordinator, unique_id, controller, serial_no, door, door_no),
-            DoorLock(coordinator, unique_id, controller, serial_no, door, door_no),
-            DoorButton(coordinator, unique_id, controller, serial_no, door, door_no),
+            Door(controllers, unique_id, controller, serial_no, door, door_no),
+            DoorOpen(controllers, unique_id, controller, serial_no, door, door_no),
+            DoorLock(controllers, unique_id, controller, serial_no, door, door_no),
+            DoorButton(controllers, unique_id, controller, serial_no, door, door_no),
         ])
 
     def h(card, name, unique_id):
         entities.extend([
-            CardInfo(u, unique_id, card, name),
+            CardInfo(cards, unique_id, card, name),
             CardHolder(u, unique_id, card, name),
         ])
 
@@ -86,14 +96,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     configure_doors(options, g)
     configure_cards(options, h)
 
-    await coordinator.async_config_entry_first_refresh()
+    await controllers.async_config_entry_first_refresh()
+    await cards.async_config_entry_first_refresh()
 
     async_add_entities(entities, update_before_add=True)
 
 
 class ControllerCoordinator(DataUpdateCoordinator):
 
-    def __init__(self, hass, u):
+    def __init__(self, hass, options, u):
         super().__init__(hass, _LOGGER, name="coordinator", update_interval=_INTERVAL)
         self.uhppote = u
         self._initialised = False
@@ -176,3 +187,85 @@ class ControllerCoordinator(DataUpdateCoordinator):
             self._state['controllers'][controller] = info
 
         return self._state['controllers']
+
+
+class CardsCoordinator(DataUpdateCoordinator):
+
+    def __init__(self, hass, options, u):
+        super().__init__(hass, _LOGGER, name="coordinator", update_interval=_INTERVAL)
+        self.uhppote = u
+        self._options = options
+        self._initialised = False
+        self._state = {
+            'cards': {},
+        }
+
+    async def _async_update_data(self):
+        try:
+            contexts = set(self.async_contexts())
+            if not self._initialised:
+                # for v in self.uhppote['controllers']:
+                #     contexts.add(v)
+                self._initialised = True
+
+            async with async_timeout.timeout(5):
+                return await self._get_cards(contexts)
+        except Exception as err:
+            raise UpdateFailed(f"uhppoted API error {err}")
+
+    async def _get_cards(self, contexts):
+        api = self.uhppote['api']
+        controllers = self.uhppote['controllers']
+
+        for card in contexts:
+            _LOGGER.debug(f'update card {card}')
+
+            info = {
+                ATTR_AVAILABLE: False,
+                ATTR_CARD_STARTDATE: None,
+                ATTR_CARD_ENDDATE: None,
+                ATTR_CARD_PERMISSIONS: None,
+            }
+
+            try:
+                start_date = None
+                end_date = None
+                permissions = {}
+
+                for controller in controllers:
+                    response = api.get_card(controller, card)
+
+                    if response.controller == controller and response.card_number == card:
+                        if response.start_date and (not start_date or response.start_date < start_date):
+                            start_date = response.start_date
+
+                        if response.end_date != None and (not end_date or response.end_date > end_date):
+                            end_date = response.end_date
+
+                        permissions[controller] = []
+
+                        if response.door_1 > 0:
+                            permissions[controller].append(1)
+
+                        if response.door_2 > 0:
+                            permissions[controller].append(2)
+
+                        if response.door_3 > 0:
+                            permissions[controller].append(3)
+
+                        if response.door_4 > 0:
+                            permissions[controller].append(4)
+
+                info = {
+                    ATTR_CARD_STARTDATE: start_date,
+                    ATTR_CARD_ENDDATE: end_date,
+                    ATTR_CARD_PERMISSIONS: resolve(self._options, permissions),
+                    ATTR_AVAILABLE: True,
+                }
+
+            except (Exception):
+                _LOGGER.exception(f'error retrieving card {card} information')
+
+            self._state['cards'][card] = info
+
+        return self._state['cards']
