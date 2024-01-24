@@ -122,16 +122,15 @@ class CardInfo(CoordinatorEntity, SensorEntity):
             _LOGGER.exception(f'error retrieving card {self.card} state')
 
 
-class CardHolder(SensorEntity):
+class CardHolder(CoordinatorEntity, SensorEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
-    def __init__(self, u, unique_id, card, name):
-        super().__init__()
+    def __init__(self, coordinator, unique_id, card, name):
+        super().__init__(coordinator, context=int(f'{card}'))
 
         _LOGGER.debug(f'card {card}')
 
-        self.driver = u
         self.card = int(f'{card}')
 
         self._unique_id = unique_id
@@ -163,7 +162,15 @@ class CardHolder(SensorEntity):
     def extra_state_attributes(self) -> Dict[str, Any]:
         return self._attributes
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         _LOGGER.debug(f'card:{self.card} cardholder')
         self._available = True
 
