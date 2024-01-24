@@ -62,11 +62,10 @@ from .card import CardHolder
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     config = entry.data
     options = entry.options
-    u = configure_driver(options)
     entities = []
 
-    controllers = ControllerCoordinator(hass, options, u)
-    cards = CardsCoordinator(hass, options, u)
+    controllers = ControllerCoordinator(hass, options)
+    cards = CardsCoordinator(hass, options)
 
     def f(unique_id, controller, serial_no, address):
         entities.extend([
@@ -99,9 +98,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
 class ControllerCoordinator(DataUpdateCoordinator):
 
-    def __init__(self, hass, options, u):
+    def __init__(self, hass, options):
         super().__init__(hass, _LOGGER, name="coordinator", update_interval=_INTERVAL)
-        self._uhppote = u
+        self._uhppote = configure_driver(options)
         self._options = options
         self._initialised = False
         self._state = {
@@ -188,9 +187,9 @@ class ControllerCoordinator(DataUpdateCoordinator):
 
 class CardsCoordinator(DataUpdateCoordinator):
 
-    def __init__(self, hass, options, u):
+    def __init__(self, hass, options):
         super().__init__(hass, _LOGGER, name="coordinator", update_interval=_INTERVAL)
-        self._uhppote = u
+        self._uhppote = configure_driver(options)
         self._options = options
         self._initialised = False
         self._state = {

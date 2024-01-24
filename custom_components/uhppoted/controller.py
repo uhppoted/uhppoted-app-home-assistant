@@ -10,12 +10,11 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 _LOGGER = logging.getLogger(__name__)
 
+from .const import ATTR_AVAILABLE
 from .const import ATTR_ADDRESS
 from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
-
-from .const import ATTR_AVAILABLE
 from .const import ATTR_CONTROLLER
 from .const import ATTR_CONTROLLER_DATETIME
 
@@ -80,7 +79,7 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
         try:
             idx = self.serial_no
 
-            if idx not in self.coordinator.data:
+            if not self.coordinator.data or idx not in self.coordinator.data:
                 self._available = False
             elif ATTR_CONTROLLER not in self.coordinator.data[idx]:
                 self._available = False
@@ -161,15 +160,16 @@ class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
     def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update datetime')
         try:
-            controllers = self.coordinator.controllers
-            serial_no = self.serial_no
+            idx = self.serial_no
 
-            if serial_no in controllers:
-                state = controllers[serial_no]
-                self._available = state['available']
-                self._datetime = state[ATTR_CONTROLLER_DATETIME]
-            else:
+            if not self.coordinator.data or idx not in self.coordinator.data:
                 self._available = False
+            elif ATTR_CONTROLLER_DATETIME not in self.coordinator.data[idx]:
+                self._available = False
+            else:
+                state = self.coordinator.data[idx]
+                self._available = state[ATTR_AVAILABLE]
+                self._datetime = state[ATTR_CONTROLLER_DATETIME]
 
         except (Exception):
             self._available = False

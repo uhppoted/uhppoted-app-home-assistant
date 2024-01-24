@@ -37,9 +37,9 @@ KeyboardInterrupt
       - [x] DoorLock
       - [x] DoorButton
       - [x] CardInfo
-      - [ ] CardHolder
-      - [ ] CardStartDate
-      - [ ] CardEndDate
+      - [x] CardHolder
+      - [x] CardStartDate
+      - [x] CardEndDate
       - [ ] CardPermission
       - [ ] CardPIN
       - [ ] events

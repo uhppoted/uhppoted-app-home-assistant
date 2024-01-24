@@ -108,7 +108,7 @@ class CardInfo(CoordinatorEntity, SensorEntity):
         try:
             idx = self.card
 
-            if idx not in self.coordinator.data:
+            if not self.coordinator.data or idx not in self.coordinator.data:
                 self._available = False
             else:
                 state = self.coordinator.data[idx]
@@ -175,12 +175,12 @@ class CardHolder(CoordinatorEntity, SensorEntity):
         self._available = True
 
 
-class CardStartDate(DateEntity):
+class CardStartDate(CoordinatorEntity, DateEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
-    def __init__(self, u, unique_id, card, name):
-        super().__init__()
+    def __init__(self, coordinator, u, unique_id, card, name):
+        super().__init__(coordinator, context=int(f'{card}'))
 
         _LOGGER.debug(f'card {card} start date')
 
@@ -244,32 +244,39 @@ class CardStartDate(DateEntity):
             self._available = False
             _LOGGER.exception(f'error updating card {self.card} start date')
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         _LOGGER.debug(f'card:{self.card}  update start date')
 
         try:
-            start_date = None
-            for controller in self.driver['controllers']:
-                response = self.driver['api'].get_card(controller, self.card)
+            idx = self.card
 
-                if response.controller == controller and response.card_number == self.card:
-                    if not start_date or response.start_date < start_date:
-                        start_date = response.start_date
-
-            self._date = start_date
-            self._available = True
-
+            if not self.coordinator.data or idx not in self.coordinator.data:
+                self._available = False
+            elif ATTR_CARD_STARTDATE not in self.coordinator.data[idx]:
+                self._available = False
+            else:
+                state = self.coordinator.data[idx]
+                self._date = state[ATTR_CARD_STARTDATE]
+                self._available = state[ATTR_AVAILABLE]
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving card {self.card} start date')
 
 
-class CardEndDate(DateEntity):
+class CardEndDate(CoordinatorEntity, DateEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
-    def __init__(self, u, unique_id, card, name):
-        super().__init__()
+    def __init__(self, coordinator, u, unique_id, card, name):
+        super().__init__(coordinator, context=int(f'{card}'))
 
         _LOGGER.debug(f'card {card} end date')
 
@@ -333,20 +340,28 @@ class CardEndDate(DateEntity):
             self._available = False
             _LOGGER.exception(f'error updating card {self.card} end date')
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         _LOGGER.debug(f'card:{self.card}  update end date')
 
         try:
-            end_date = None
-            for controller in self.driver['controllers']:
-                response = self.driver['api'].get_card(controller, self.card)
+            idx = self.card
 
-                if response.controller == controller and response.card_number == self.card:
-                    if not end_date or response.end_date > end_date:
-                        end_date = response.end_date
-
-            self._date = end_date
-            self._available = True
+            if not self.coordinator.data or idx not in self.coordinator.data:
+                self._available = False
+            elif ATTR_CARD_ENDDATE not in self.coordinator.data[idx]:
+                self._available = False
+            else:
+                state = self.coordinator.data[idx]
+                self._date = state[ATTR_CARD_ENDDATE]
+                self._available = state[ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False

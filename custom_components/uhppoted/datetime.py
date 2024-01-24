@@ -10,7 +10,6 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers.typing import DiscoveryInfoType
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from uhppoted import uhppote
@@ -31,10 +30,10 @@ from .controller import ControllerDateTime
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     config = entry.data
     options = entry.options
-    u = configure_driver(options)
     entities = []
 
-    coordinator = ControllerDateTimeCoordinator(hass, options, u)
+    coordinator = ControllerDateTimeCoordinator(hass, options)
+    u = configure_driver(options)
 
     def f(unique_id, controller, serial_no, address):
         entities.extend([
@@ -42,26 +41,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         ])
 
     configure_controllers(options, f)
-
     await coordinator.async_config_entry_first_refresh()
-
     async_add_entities(entities, update_before_add=True)
 
 
 class ControllerDateTimeCoordinator(DataUpdateCoordinator):
 
-    def __init__(self, hass, options, u):
+    def __init__(self, hass, options):
         super().__init__(hass, _LOGGER, name="coordinator", update_interval=_INTERVAL)
-        self._uhppote = u
+        self._uhppote = configure_driver(options)
         self._options = options
         self._initialised = False
         self._state = {
             'controllers': {},
         }
-
-    @property
-    def controllers(self):
-        return self._state['controllers']
 
     async def _async_update_data(self):
         try:
@@ -110,3 +103,5 @@ class ControllerDateTimeCoordinator(DataUpdateCoordinator):
                 _LOGGER.exception(f'error retrieving controller {controller} date/time')
 
             self._state['controllers'][controller] = info
+
+        return self._state['controllers']
