@@ -369,12 +369,12 @@ class CardEndDate(CoordinatorEntity, DateEntity):
             _LOGGER.exception(f'error retrieving card {self.card} end date')
 
 
-class CardPermission(SwitchEntity):
+class CardPermission(CoordinatorEntity, SwitchEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
-    def __init__(self, u, unique_id, card, name, door):
-        super().__init__()
+    def __init__(self, coordinator, u, unique_id, card, name, door):
+        super().__init__(coordinator, context=int(f'{card}'))
 
         _LOGGER.debug(f'card {card} permission for door {door[CONF_DOOR_ID]}')
 
@@ -503,27 +503,28 @@ class CardPermission(SwitchEntity):
             self._available = False
             _LOGGER.exception(f'error updating card {self.card} access for door {self.door[CONF_DOOR_ID]}')
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         _LOGGER.debug(f'card:{self.card} update door {self.door[CONF_DOOR_ID]} access')
         try:
-            controller = int(f'{self.door[CONF_CONTROLLER_SERIAL_NUMBER]}')
-            door = int(f'{self.door[CONF_DOOR_NUMBER]}')
-            response = self.driver['api'].get_card(controller, self.card)
+            idx = self.card
+            door = self.door[CONF_DOOR_ID]
 
-            if response.controller == controller and response.card_number == self.card:
-                if door == 1:
-                    self._allowed = response.door_1 != 0
-                elif door == 2:
-                    self._allowed = response.door_2 != 0
-                elif door == 3:
-                    self._allowed = response.door_3 != 0
-                elif door == 4:
-                    self._allowed = response.door_4 != 0
+            if not self.coordinator.data or idx not in self.coordinator.data:
+                self._available = False
+            elif ATTR_CARD_PERMISSIONS not in self.coordinator.data[idx]:
+                self._available = False
             else:
-                self._allowed = False
-
-            self._available = True
-
+                state = self.coordinator.data[idx]
+                self._allowed = door in state[ATTR_CARD_PERMISSIONS]
+                self._available = state[ATTR_AVAILABLE]
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error updating card {self.card} access for door {self.door}')

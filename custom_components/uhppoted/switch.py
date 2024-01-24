@@ -4,9 +4,6 @@ import logging
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.typing import ConfigType
-from homeassistant.helpers.typing import DiscoveryInfoType
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from uhppoted import uhppote
@@ -14,7 +11,6 @@ from uhppoted import uhppote
 _LOGGER = logging.getLogger(__name__)
 
 # Configuration constants
-from .const import DOMAIN
 from .const import CONF_CONTROLLERS
 from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
@@ -23,6 +19,7 @@ from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_NUMBER
 from .const import CONF_DOOR_CONTROLLER
 
+from .coordinators import CardsCoordinator
 from .config import configure_driver
 from .config import configure_cards
 from .card import CardPermission
@@ -31,8 +28,10 @@ from .card import CardPermission
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     config = entry.data
     options = entry.options
-    u = configure_driver(options)
     entities = []
+
+    cards = CardsCoordinator(hass, options)
+    u = configure_driver(options)
 
     doors = []
     if CONF_CONTROLLERS in options and CONF_DOORS in options:
@@ -56,8 +55,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     def h(card, name, unique_id):
         for d in doors:
             entities.extend([
-                CardPermission(u, unique_id, card, name, d),
+                CardPermission(cards, u, unique_id, card, name, d),
             ])
 
     configure_cards(options, h)
+    await cards.async_config_entry_first_refresh()
     async_add_entities(entities, update_before_add=True)

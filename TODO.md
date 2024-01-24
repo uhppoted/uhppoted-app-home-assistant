@@ -27,21 +27,31 @@ KeyboardInterrupt
             - [x] get controllers from ConfigEntry
       - [x] store data in self.data
       - [x] async_write_ha_state
-      - [x] ControllerInfo
-      - [ ] ControllerDateTime
-            - [x] get
-            - [ ] set
-                  - await self.coordinator.async_request_refresh()
-      - [x] Door
-      - [x] DoorOpen
-      - [x] DoorLock
-      - [x] DoorButton
-      - [x] CardInfo
-      - [x] CardHolder
-      - [x] CardStartDate
-      - [x] CardEndDate
-      - [ ] CardPermission
-      - [x] CardPIN
+      - [ ] getters
+            - [x] ControllerInfo
+            - [x] ControllerDateTime
+            - [x] Door
+            - [x] DoorOpen
+            - [x] DoorLock
+            - [x] DoorButton
+            - [ ] DoorDelay
+            - [ ] DoorMode
+            - [x] CardInfo
+            - [x] CardHolder
+            - [x] CardStartDate
+            - [x] CardEndDate
+            - [x] CardPermission
+            - [x] CardPIN
+      - [ ] setters
+            - await self.coordinator.async_request_refresh()
+            - [ ] ControllerDateTime
+            - [ ] DoorDelay
+            - [ ] DoorMode
+            - [ ] DoorUnlock
+            - [ ] CardStartDate
+            - [ ] CardEndDate
+            - [ ] CardPin
+            - [ ] CardPermission
       - [ ] events
 
 - [ ] Controller
