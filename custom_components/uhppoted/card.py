@@ -19,6 +19,7 @@ from .const import ATTR_CARD_HOLDER
 from .const import ATTR_CARD_STARTDATE
 from .const import ATTR_CARD_ENDDATE
 from .const import ATTR_CARD_PERMISSIONS
+from .const import ATTR_CARD_PIN
 
 from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_NUMBER
@@ -528,7 +529,7 @@ class CardPermission(SwitchEntity):
             _LOGGER.exception(f'error updating card {self.card} access for door {self.door}')
 
 
-class CardPIN(TextEntity):
+class CardPIN(CoordinatorEntity, TextEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
@@ -537,8 +538,8 @@ class CardPIN(TextEntity):
     _attr_native_max_value = 6
     _attr_native_min_value = 0
 
-    def __init__(self, u, unique_id, card, name):
-        super().__init__()
+    def __init__(self, coordinator, u, unique_id, card, name):
+        super().__init__(coordinator, context=int(f'{card}'))
 
         _LOGGER.debug(f'card {card} PIN code')
 
@@ -608,20 +609,27 @@ class CardPIN(TextEntity):
             self._available = False
             _LOGGER.exception(f'error updating card {self.card} PIN')
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         _LOGGER.debug(f'card:{self.card} update PIN')
         try:
-            PIN = None
-            for controller in self.driver['controllers']:
-                response = self.driver['api'].get_card(controller, self.card)
+            idx = self.card
 
-                if response.controller == controller and response.card_number == self.card:
-                    if not PIN and response.pin > 0:
-                        PIN = response.pin
-
-            self._pin = PIN
-            self._available = True
-
+            if not self.coordinator.data or idx not in self.coordinator.data:
+                self._available = False
+            elif ATTR_CARD_PIN not in self.coordinator.data[idx]:
+                self._available = False
+            else:
+                state = self.coordinator.data[idx]
+                self._pin = state[ATTR_CARD_PIN]
+                self._available = state[ATTR_AVAILABLE]
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving card {self.card} PIN')

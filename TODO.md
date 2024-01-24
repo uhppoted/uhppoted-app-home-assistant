@@ -41,7 +41,7 @@ KeyboardInterrupt
       - [x] CardStartDate
       - [x] CardEndDate
       - [ ] CardPermission
-      - [ ] CardPIN
+      - [x] CardPIN
       - [ ] events
 
 - [ ] Controller

@@ -17,6 +17,7 @@ from .const import ATTR_AVAILABLE
 from .const import ATTR_CARD_STARTDATE
 from .const import ATTR_CARD_ENDDATE
 from .const import ATTR_CARD_PERMISSIONS
+from .const import ATTR_CARD_PIN
 
 from .config import configure_driver
 from .config import configure_cards
@@ -68,6 +69,7 @@ class CardsCoordinator(DataUpdateCoordinator):
                 start_date = None
                 end_date = None
                 permissions = {}
+                PIN = None
 
                 for controller in controllers:
                     response = api.get_card(controller, card)
@@ -93,10 +95,14 @@ class CardsCoordinator(DataUpdateCoordinator):
                         if response.door_4 > 0:
                             permissions[controller].append(4)
 
+                        if response.pin > 0:
+                            PIN = response.pin
+
                 info = {
                     ATTR_CARD_STARTDATE: start_date,
                     ATTR_CARD_ENDDATE: end_date,
                     ATTR_CARD_PERMISSIONS: resolve(self._options, permissions),
+                    ATTR_CARD_PIN: PIN,
                     ATTR_AVAILABLE: True,
                 }
 
