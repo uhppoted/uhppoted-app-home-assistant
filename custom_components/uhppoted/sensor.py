@@ -21,13 +21,6 @@ from uhppoted import uhppote
 _LOGGER = logging.getLogger(__name__)
 _INTERVAL = datetime.timedelta(seconds=30)
 
-# Configuration constants
-from .const import DOMAIN
-from .const import CONF_BIND_ADDR
-from .const import CONF_BROADCAST_ADDR
-from .const import CONF_LISTEN_ADDR
-from .const import CONF_DEBUG
-
 # Attribute constants
 from .const import ATTR_AVAILABLE
 
@@ -53,6 +46,8 @@ from .config import configure_doors
 from .config import configure_cards
 from .config import configure_driver
 from .config import resolve
+from .config import get_configured_controllers
+from .config import get_configured_cards
 
 from .controller import ControllerInfo
 from .door import Door
@@ -106,7 +101,8 @@ class ControllerCoordinator(DataUpdateCoordinator):
 
     def __init__(self, hass, options, u):
         super().__init__(hass, _LOGGER, name="coordinator", update_interval=_INTERVAL)
-        self.uhppote = u
+        self._uhppote = u
+        self._options = options
         self._initialised = False
         self._state = {
             'controllers': {},
@@ -115,9 +111,10 @@ class ControllerCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         try:
             contexts = set(self.async_contexts())
+            controllers = get_configured_controllers(self._options)
+
             if not self._initialised:
-                for v in self.uhppote['controllers']:
-                    contexts.add(v)
+                contexts.update(controllers)
                 self._initialised = True
 
             async with async_timeout.timeout(5):
@@ -126,7 +123,7 @@ class ControllerCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"uhppoted API error {err}")
 
     async def _get_controllers(self, contexts):
-        api = self.uhppote['api']
+        api = self._uhppote['api']
 
         for controller in contexts:
             _LOGGER.debug(f'update controller {controller}')
@@ -193,7 +190,7 @@ class CardsCoordinator(DataUpdateCoordinator):
 
     def __init__(self, hass, options, u):
         super().__init__(hass, _LOGGER, name="coordinator", update_interval=_INTERVAL)
-        self.uhppote = u
+        self._uhppote = u
         self._options = options
         self._initialised = False
         self._state = {
@@ -203,9 +200,10 @@ class CardsCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         try:
             contexts = set(self.async_contexts())
+            cards = get_configured_cards(self._options)
+
             if not self._initialised:
-                # for v in self.uhppote['controllers']:
-                #     contexts.add(v)
+                contexts.update(cards)
                 self._initialised = True
 
             async with async_timeout.timeout(5):
@@ -214,8 +212,8 @@ class CardsCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"uhppoted API error {err}")
 
     async def _get_cards(self, contexts):
-        api = self.uhppote['api']
-        controllers = self.uhppote['controllers']
+        api = self._uhppote['api']
+        controllers = self._uhppote['controllers']
 
         for card in contexts:
             _LOGGER.debug(f'update card {card}')

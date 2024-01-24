@@ -11,9 +11,7 @@ from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers.typing import DiscoveryInfoType
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-# from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-# from homeassistant.helpers.update_coordinator import UpdateFailed
 
 from uhppoted import uhppote
 
@@ -25,6 +23,7 @@ from .const import ATTR_CONTROLLER_DATETIME
 
 from .config import configure_controllers
 from .config import configure_driver
+from .config import get_configured_controllers
 
 from .controller import ControllerDateTime
 
@@ -35,7 +34,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     u = configure_driver(options)
     entities = []
 
-    coordinator = ControllerDateTimeCoordinator(hass, u)
+    coordinator = ControllerDateTimeCoordinator(hass, options, u)
 
     def f(unique_id, controller, serial_no, address):
         entities.extend([
@@ -51,9 +50,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
 class ControllerDateTimeCoordinator(DataUpdateCoordinator):
 
-    def __init__(self, hass, u):
+    def __init__(self, hass, options, u):
         super().__init__(hass, _LOGGER, name="coordinator", update_interval=_INTERVAL)
-        self.uhppote = u
+        self._uhppote = u
+        self._options = options
         self._initialised = False
         self._state = {
             'controllers': {},
@@ -66,9 +66,10 @@ class ControllerDateTimeCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         try:
             contexts = set(self.async_contexts())
+            controllers = get_configured_controllers(self._options)
+
             if not self._initialised:
-                for v in self.uhppote['controllers']:
-                    contexts.add(v)
+                contexts.update(controllers)
                 self._initialised = True
 
             async with async_timeout.timeout(10):
@@ -77,7 +78,7 @@ class ControllerDateTimeCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"uhppoted API error {err}")
 
     async def _get_controllers(self, contexts):
-        api = self.uhppote['api']
+        api = self._uhppote['api']
         for controller in contexts:
             _LOGGER.debug(f'update controller {controller} date/time')
 
@@ -92,7 +93,7 @@ class ControllerDateTimeCoordinator(DataUpdateCoordinator):
                         info[attr] = self._state['controllers'][attr]
 
             try:
-                response = self.uhppote['api'].get_time(controller)
+                response = api.get_time(controller)
                 if response.controller == controller:
                     year = response.datetime.year
                     month = response.datetime.month

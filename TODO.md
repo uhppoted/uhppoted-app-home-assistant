@@ -1,6 +1,7 @@
 # TODO
 
 - [ ] Shutdown while waiting for controller response
+      - e.g. if simulator is off
       - (?) asyncio maybe
       - (?) move from polled to event model
       - https://community.home-assistant.io/t/hass-async-create-task/428301
@@ -12,20 +13,18 @@ KeyboardInterrupt
 
 ```
 
-- [ ] Config flow
+- [ ] _config-flow_
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] (somehow) commonalise config-flow and options-flow
       - [ ] Integration icon
       - https://developers.home-assistant.io/docs/dev_101_states/
 
-- [x] Options flow
-      - [x] ~~Use unique_id to delete controller~~
-      - [x] ~~Use unique_id to delete door~~
+- [x] _options-flow_
 
 - [ ] DataCoordinator
       - [ ] parallelize requests
       - [x] Fetch data on initialisation
-            - [ ] get controllers from ConfigEntry
+            - [x] get controllers from ConfigEntry
       - [x] store data in self.data
       - [x] async_write_ha_state
       - [x] ControllerInfo
@@ -71,23 +70,23 @@ KeyboardInterrupt
       - [ ] set preferred cards in _configuration.yaml_
       - [ ] Enable PIN in configuration.yaml
       - [ ] Name translation
-      - (?) Set PIN in options-flow
+      - (?) Only set PIN in _options-flow_
 
 - [ ] Service
+
+## ToDo
+
 - [ ] Custom card
 - [ ] Discovery
       - https://developers.home-assistant.io/docs/data_entry_flow_index/#initializing-a-config-flow-from-an-external-source
-- [ ] ACL
-
 - [ ] Icon
       - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/
       - https://smarthomescene.com/guides/how-to-add-custom-icons-in-home-assistant
       - https://www.reddit.com/r/homeassistant/comments/lqoxoy/how_can_i_use_custom_images_for_icons/
-
+- [ ] ACL
 - [ ] HACS
       - Python wheel repo (https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations)
       - Icon (https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations)
-
 - [ ] Ad hoc controllers
       - [ ] From configuration.yaml
       - (?) when internal list is empty

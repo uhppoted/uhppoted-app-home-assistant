@@ -360,3 +360,17 @@ def resolve(options, acl):
                     permissions.add(door)
 
     return sorted(list(permissions))
+
+
+def get_configured_controllers(options):
+    if CONF_CONTROLLERS in options:
+        return [int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') for v in options[CONF_CONTROLLERS]]
+    else:
+        return []
+
+
+def get_configured_cards(options):
+    if CONF_CARDS in options:
+        return [int(f'{v[CONF_CARD_NUMBER]}') for v in options[CONF_CARDS]]
+    else:
+        return []
