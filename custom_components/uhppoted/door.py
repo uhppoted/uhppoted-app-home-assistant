@@ -496,12 +496,12 @@ class DoorButtonPressed(EventEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} status')
 
 
-class DoorMode(SelectEntity):
+class DoorMode(CoordinatorEntity, SelectEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
-    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
-        super().__init__()
+    def __init__(self, coordinator, u, unique_id, controller, serial_no, door, door_id):
+        super().__init__(coordinator, context=unique_id)
 
         _LOGGER.debug(f'controller {controller}: door:{door} mode')
 
@@ -572,14 +572,32 @@ class DoorMode(SelectEntity):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door} mode')
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door} mode')
         try:
-            response = self.uhppote.get_door_control(self.serial_no, self.door_id)
+            idx = self._unique_id
 
-            if response.controller == self.serial_no and response.door == self.door_id:
-                self._mode = response.mode
-                self._available = True
+            if not self.coordinator.data or idx not in self.coordinator.data:
+                self._available = False
+            elif ATTR_DOOR_DELAY not in self.coordinator.data[idx]:
+                self._available = False
+            else:
+                state = self.coordinator.data[idx]
+                self._mode = state[ATTR_DOOR_MODE]
+                self._available = state[ATTR_AVAILABLE]
+
+            # response = self.uhppote.get_door_control(self.serial_no, self.door_id)
+            # if response.controller == self.serial_no and response.door == self.door_id:
+            #     self._mode = response.mode
+            #     self._available = True
 
         except (Exception):
             self._available = False

@@ -3,23 +3,15 @@ from __future__ import annotations
 import datetime
 import logging
 
+_LOGGER = logging.getLogger(__name__)
+
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from uhppoted import uhppote
 
-_LOGGER = logging.getLogger(__name__)
-
-# Configuration constants
-from .const import DOMAIN
-from .const import CONF_BIND_ADDR
-from .const import CONF_BROADCAST_ADDR
-from .const import CONF_LISTEN_ADDR
-from .const import CONF_DEBUG
-
 from .coordinators.doors import DoorsCoordinator
-
 from .config import configure_doors
 from .config import configure_driver
 from .door import DoorDelay
