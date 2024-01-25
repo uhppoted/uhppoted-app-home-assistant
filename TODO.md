@@ -34,7 +34,7 @@ KeyboardInterrupt
             - [x] DoorOpen
             - [x] DoorLock
             - [x] DoorButton
-            - [ ] DoorDelay
+            - [x] DoorDelay
             - [ ] DoorMode
             - [x] CardInfo
             - [x] CardHolder

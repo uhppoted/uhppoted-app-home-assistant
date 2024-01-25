@@ -10,7 +10,8 @@ from uhppoted import uhppote
 
 _LOGGER = logging.getLogger(__name__)
 
-from .coordinators import CardsCoordinator
+from .coordinators.cards import CardsCoordinator
+
 from .config import configure_cards
 from .config import configure_driver
 from .card import CardPIN

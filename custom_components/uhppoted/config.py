@@ -344,7 +344,28 @@ def default_card_end_date():
     return datetime.date(year, month, day)
 
 
-def resolve(options, acl):
+def get_configured_controllers(options):
+    if CONF_CONTROLLERS in options:
+        return [int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') for v in options[CONF_CONTROLLERS]]
+    else:
+        return []
+
+
+def get_configured_doors(options):
+    if CONF_DOORS in options:
+        return [v[CONF_DOOR_UNIQUE_ID] for v in options[CONF_DOORS]]
+    else:
+        return []
+
+
+def get_configured_cards(options):
+    if CONF_CARDS in options:
+        return [int(f'{v[CONF_CARD_NUMBER]}') for v in options[CONF_CARDS]]
+    else:
+        return []
+
+
+def resolve_permissions(options, acl):
     controllers = options[CONF_CONTROLLERS]
     doors = options[CONF_DOORS]
     permissions = set()
@@ -362,15 +383,19 @@ def resolve(options, acl):
     return sorted(list(permissions))
 
 
-def get_configured_controllers(options):
-    if CONF_CONTROLLERS in options:
-        return [int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') for v in options[CONF_CONTROLLERS]]
-    else:
-        return []
+def resolve_door(options, unique_id):
+    if CONF_CONTROLLERS in options and CONF_DOORS in options:
+        controllers = options[CONF_CONTROLLERS]
+        doors = options[CONF_DOORS]
 
+        for door in doors:
+            if door[CONF_DOOR_UNIQUE_ID] == unique_id:
+                for controller in controllers:
+                    if controller[CONF_CONTROLLER_ID] == door[CONF_DOOR_CONTROLLER]:
+                        return {
+                            CONF_DOOR_ID: door[CONF_DOOR_ID],
+                            CONF_CONTROLLER_SERIAL_NUMBER: int(f'{controller[CONF_CONTROLLER_SERIAL_NUMBER]}'),
+                            CONF_DOOR_NUMBER: door[CONF_DOOR_NUMBER],
+                        }
 
-def get_configured_cards(options):
-    if CONF_CARDS in options:
-        return [int(f'{v[CONF_CARD_NUMBER]}') for v in options[CONF_CARDS]]
-    else:
-        return []
+    return None

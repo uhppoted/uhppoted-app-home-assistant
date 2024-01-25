@@ -41,15 +41,43 @@ from .const import ATTR_CARD_STARTDATE
 from .const import ATTR_CARD_ENDDATE
 from .const import ATTR_CARD_PERMISSIONS
 
+from .coordinators.controllers import ControllerCoordinator
+from .coordinators.cards import CardsCoordinator
+
+from .config import configure_cards
+from .config import configure_driver
+from .card import CardStartDate
+from .card import CardEndDate
+
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
+    config = entry.data
+    options = entry.options
+    entities = []
+
+    cards = CardsCoordinator(hass, options)
+    u = configure_driver(options)
+
+    def f(card, name, unique_id):
+        entities.extend([
+            CardStartDate(cards, u, unique_id, card, name),
+            CardEndDate(cards, u, unique_id, card, name),
+        ])
+
+    configure_cards(options, f)
+    await cards.async_config_entry_first_refresh()
+    async_add_entities(entities, update_before_add=True)
+
+
 from .config import configure_controllers
 from .config import configure_doors
 from .config import configure_cards
 from .config import configure_driver
-from .config import resolve
 from .config import get_configured_controllers
 from .config import get_configured_cards
 
 from .controller import ControllerInfo
+
 from .door import Door
 from .door import DoorOpen
 from .door import DoorLock
@@ -94,175 +122,3 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     await cards.async_config_entry_first_refresh()
 
     async_add_entities(entities, update_before_add=True)
-
-
-class ControllerCoordinator(DataUpdateCoordinator):
-
-    def __init__(self, hass, options):
-        super().__init__(hass, _LOGGER, name="coordinator", update_interval=_INTERVAL)
-        self._uhppote = configure_driver(options)
-        self._options = options
-        self._initialised = False
-        self._state = {
-            'controllers': {},
-        }
-
-    async def _async_update_data(self):
-        try:
-            contexts = set(self.async_contexts())
-            controllers = get_configured_controllers(self._options)
-
-            if not self._initialised:
-                contexts.update(controllers)
-                self._initialised = True
-
-            async with async_timeout.timeout(5):
-                return await self._get_controllers(contexts)
-        except Exception as err:
-            raise UpdateFailed(f"uhppoted API error {err}")
-
-    async def _get_controllers(self, contexts):
-        api = self._uhppote['api']
-
-        for controller in contexts:
-            _LOGGER.debug(f'update controller {controller}')
-
-            info = {
-                ATTR_CONTROLLER: {
-                    ATTR_AVAILABLE: False,
-                    ATTR_ADDRESS: None,
-                    ATTR_NETMASK: None,
-                    ATTR_GATEWAY: None,
-                    ATTR_FIRMWARE: None,
-                },
-                ATTR_DOORS: {
-                    ATTR_AVAILABLE: False,
-                }
-            }
-
-            try:
-                response = api.get_controller(controller)
-                if response.controller == controller:
-                    info[ATTR_CONTROLLER] = {
-                        ATTR_ADDRESS: f'{response.ip_address}',
-                        ATTR_NETMASK: f'{response.subnet_mask}',
-                        ATTR_GATEWAY: f'{response.gateway}',
-                        ATTR_FIRMWARE: f'{response.version} {response.date:%Y-%m-%d}',
-                        ATTR_AVAILABLE: True,
-                    }
-
-                response = api.get_status(controller)
-                if response.controller == controller:
-                    info[ATTR_DOORS] = {
-                        ATTR_AVAILABLE: True,
-                        1: {
-                            ATTR_DOOR_OPEN: response.door_1_open == True,
-                            ATTR_DOOR_BUTTON: response.door_1_button == True,
-                            ATTR_DOOR_LOCK: response.relays & 0x01 == 0x00,
-                        },
-                        2: {
-                            ATTR_DOOR_OPEN: response.door_2_open == True,
-                            ATTR_DOOR_BUTTON: response.door_2_button == True,
-                            ATTR_DOOR_LOCK: response.relays & 0x02 == 0x00,
-                        },
-                        3: {
-                            ATTR_DOOR_OPEN: response.door_3_open == True,
-                            ATTR_DOOR_BUTTON: response.door_3_button == True,
-                            ATTR_DOOR_LOCK: response.relays & 0x04 == 0x00,
-                        },
-                        4: {
-                            ATTR_DOOR_OPEN: response.door_4_open == True,
-                            ATTR_DOOR_BUTTON: response.door_4_button == True,
-                            ATTR_DOOR_LOCK: response.relays & 0x08 == 0x00,
-                        },
-                    }
-
-            except (Exception):
-                _LOGGER.exception(f'error retrieving controller {controller} information')
-
-            self._state['controllers'][controller] = info
-
-        return self._state['controllers']
-
-
-class CardsCoordinator(DataUpdateCoordinator):
-
-    def __init__(self, hass, options):
-        super().__init__(hass, _LOGGER, name="coordinator", update_interval=_INTERVAL)
-        self._uhppote = configure_driver(options)
-        self._options = options
-        self._initialised = False
-        self._state = {
-            'cards': {},
-        }
-
-    async def _async_update_data(self):
-        try:
-            contexts = set(self.async_contexts())
-            cards = get_configured_cards(self._options)
-
-            if not self._initialised:
-                contexts.update(cards)
-                self._initialised = True
-
-            async with async_timeout.timeout(5):
-                return await self._get_cards(contexts)
-        except Exception as err:
-            raise UpdateFailed(f"uhppoted API error {err}")
-
-    async def _get_cards(self, contexts):
-        api = self._uhppote['api']
-        controllers = self._uhppote['controllers']
-
-        for card in contexts:
-            _LOGGER.debug(f'update card {card}')
-
-            info = {
-                ATTR_AVAILABLE: False,
-                ATTR_CARD_STARTDATE: None,
-                ATTR_CARD_ENDDATE: None,
-                ATTR_CARD_PERMISSIONS: None,
-            }
-
-            try:
-                start_date = None
-                end_date = None
-                permissions = {}
-
-                for controller in controllers:
-                    response = api.get_card(controller, card)
-
-                    if response.controller == controller and response.card_number == card:
-                        if response.start_date and (not start_date or response.start_date < start_date):
-                            start_date = response.start_date
-
-                        if response.end_date != None and (not end_date or response.end_date > end_date):
-                            end_date = response.end_date
-
-                        permissions[controller] = []
-
-                        if response.door_1 > 0:
-                            permissions[controller].append(1)
-
-                        if response.door_2 > 0:
-                            permissions[controller].append(2)
-
-                        if response.door_3 > 0:
-                            permissions[controller].append(3)
-
-                        if response.door_4 > 0:
-                            permissions[controller].append(4)
-
-                info = {
-                    ATTR_CARD_STARTDATE: start_date,
-                    ATTR_CARD_ENDDATE: end_date,
-                    ATTR_CARD_PERMISSIONS: resolve(self._options, permissions),
-                    ATTR_AVAILABLE: True,
-                }
-
-            except (Exception):
-                _LOGGER.exception(f'error retrieving card {card} information')
-
-            self._state['cards'][card] = info
-
-        return self._state['cards']

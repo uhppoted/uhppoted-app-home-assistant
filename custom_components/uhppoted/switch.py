@@ -19,7 +19,7 @@ from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_NUMBER
 from .const import CONF_DOOR_CONTROLLER
 
-from .coordinators import CardsCoordinator
+from .coordinators.cards import CardsCoordinator
 from .config import configure_driver
 from .config import configure_cards
 from .card import CardPermission

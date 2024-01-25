@@ -20,6 +20,8 @@ from .const import ATTR_DOORS
 from .const import ATTR_DOOR_OPEN
 from .const import ATTR_DOOR_BUTTON
 from .const import ATTR_DOOR_LOCK
+from .const import ATTR_DOOR_MODE
+from .const import ATTR_DOOR_DELAY
 
 
 class Door(CoordinatorEntity, SensorEntity):
@@ -584,7 +586,7 @@ class DoorMode(SelectEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door} mode')
 
 
-class DoorDelay(NumberEntity):
+class DoorDelay(CoordinatorEntity, NumberEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
@@ -594,8 +596,8 @@ class DoorDelay(NumberEntity):
     _attr_native_step = 1
     _attr_native_unit_of_measurement = TIME_SECONDS
 
-    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
-        super().__init__()
+    def __init__(self, coordinator, u, unique_id, controller, serial_no, door, door_id):
+        super().__init__(coordinator, context=unique_id)
 
         _LOGGER.debug(f'controller {controller}: door:{door} delay')
 
@@ -645,15 +647,27 @@ class DoorDelay(NumberEntity):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door} delay')
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door} delay')
         try:
-            response = self.uhppote.get_door_control(self.serial_no, self.door_id)
+            idx = self._unique_id
 
-            if response.controller == self.serial_no and response.door == self.door_id:
-                self._delay = response.delay
-                self._available = True
-
+            if not self.coordinator.data or idx not in self.coordinator.data:
+                self._available = False
+            elif ATTR_DOOR_DELAY not in self.coordinator.data[idx]:
+                self._available = False
+            else:
+                state = self.coordinator.data[idx]
+                self._delay = state[ATTR_DOOR_DELAY]
+                self._available = state[ATTR_AVAILABLE]
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door} delay')
