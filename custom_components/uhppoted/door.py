@@ -24,7 +24,7 @@ from .const import ATTR_DOOR_MODE
 from .const import ATTR_DOOR_DELAY
 
 
-class Door(CoordinatorEntity, SensorEntity):
+class DoorInfo(CoordinatorEntity, SensorEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
@@ -39,7 +39,7 @@ class Door(CoordinatorEntity, SensorEntity):
         self.door = door
         self.door_id = int(f'{door_id}')
 
-        self._name = f'uhppoted.door.{door}'.lower()
+        self._name = f'uhppoted.door.{door}.info'.lower()
         self._locked = None
         self._open = None
         self._button = None
@@ -52,7 +52,7 @@ class Door(CoordinatorEntity, SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.door.{self._unique_id}'.lower()
+        return f'uhppoted.door.{self._unique_id}.info'.lower()
 
     @property
     def name(self) -> str:
@@ -96,7 +96,7 @@ class Door(CoordinatorEntity, SensorEntity):
         self._update()
 
     def _update(self):
-        _LOGGER.debug(f'controller:{self.controller}  update door {self.door} state')
+        _LOGGER.debug(f'controller:{self.controller}  update door {self.door} info')
         try:
             idx = self.serial_no
 
@@ -115,7 +115,7 @@ class Door(CoordinatorEntity, SensorEntity):
 
         except (Exception):
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door} status')
+            _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door} info')
 
 
 class DoorOpen(CoordinatorEntity, SensorEntity):
