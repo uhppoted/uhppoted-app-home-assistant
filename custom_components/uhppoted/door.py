@@ -2,6 +2,11 @@ from __future__ import annotations
 
 import logging
 
+_LOGGER = logging.getLogger(__name__)
+
+_REASON_DOOR_OPEN = 23
+_REASON_DOOR_CLOSED = 24
+
 from homeassistant.core import callback
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.select import SelectEntity
@@ -10,8 +15,6 @@ from homeassistant.components.number import NumberEntity
 from homeassistant.components.event import EventEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.const import TIME_SECONDS
-
-_LOGGER = logging.getLogger(__name__)
 
 from .const import ATTR_AVAILABLE
 from .const import ATTR_DOOR_CONTROLLER
@@ -22,6 +25,7 @@ from .const import ATTR_DOOR_BUTTON
 from .const import ATTR_DOOR_LOCK
 from .const import ATTR_DOOR_MODE
 from .const import ATTR_DOOR_DELAY
+from .const import ATTR_EVENTS
 
 
 class DoorInfo(CoordinatorEntity, SensorEntity):
@@ -328,22 +332,21 @@ class DoorButton(CoordinatorEntity, SensorEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} {self.door} button state')
 
 
-class DoorOpened(EventEntity):
+class DoorOpened(CoordinatorEntity, EventEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
-    _attr_event_types = ['OPEN', 'CLOSE']
+    _attr_event_types = ['OPENED', 'CLOSED']
 
-    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
-        super().__init__()
+    def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
+        super().__init__(coordinator, context=int(f'{serial_no}'))
 
         _LOGGER.debug(f'controller {controller}: door:{door} open event')
 
-        self.uhppote = u
         self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self.door = door
-        self.door_id = int(f'{door_id}')
+        self._door_id = int(f'{door_id}')
 
         self._name = f'uhppoted.door.{door}.open.event'.lower()
         self._open = None
@@ -356,32 +359,37 @@ class DoorOpened(EventEntity):
     def name(self) -> str:
         return self._name
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
-        _LOGGER.debug(f'controller:{self.controller}  update door {self.door}.open.event state')
+        self._update()
+
+    def _update(self):
+        _LOGGER.debug(f'controller:{self.controller}  update door {self.door}.open.event')
         try:
-            response = self.uhppote.get_status(self.serial_no)
-            last = self._open
+            idx = self.serial_no
+            door = self._door_id
 
-            if response.controller == self.serial_no:
-                if self.door_id == 1:
-                    self._open = response.door_1_open == True
-                elif self.door_id == 2:
-                    self._open = response.door_2_open == True
-                elif self.door_id == 3:
-                    self._open = response.door_3_open == True
-                elif self.door_id == 4:
-                    self._open = response.door_4_open == True
-                else:
-                    self._open = None
-
-                if self._open != last and self._open:
-                    self._trigger_event('OPEN')
-                elif self._open != last and not self._open:
-                    self._trigger_event('CLOSE')
+            if idx not in self.coordinator.data:
+                pass
+            elif ATTR_EVENTS not in self.coordinator.data[idx]:
+                pass
+            elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
+                pass
+            else:
+                events = self.coordinator.data[idx][ATTR_EVENTS]
+                for e in events:
+                    if e.door == door and e.reason == _REASON_DOOR_OPEN:
+                        self._trigger_event('OPENED')
+                    if e.door == door and e.reason == _REASON_DOOR_CLOSED:
+                        self._trigger_event('CLOSED')
 
         except (Exception):
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.controller} status')
+            _LOGGER.exception(f'error retrieving controller {self.controller} events')
 
 
 class DoorUnlocked(EventEntity):

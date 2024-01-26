@@ -47,12 +47,15 @@ ATTR_DOOR_LOCK = 'door_lock'
 ATTR_DOOR_MODE = 'door_mode'
 ATTR_DOOR_DELAY = 'door_delay'
 
+ATTR_CARDS = 'cards'
 ATTR_CARD = 'card'
 ATTR_CARD_HOLDER = 'cardholder'
 ATTR_CARD_STARTDATE = 'start_date'
 ATTR_CARD_ENDDATE = 'end_date'
 ATTR_CARD_PERMISSIONS = 'permissions'
 ATTR_CARD_PIN = 'PIN'
+
+ATTR_EVENTS = 'events'
 
 DEFAULT_CONTROLLER_ID = 'Alpha'
 DEFAULT_CONTROLLER_ADDR = '192.168.1.100'

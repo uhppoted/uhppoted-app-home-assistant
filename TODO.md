@@ -23,25 +23,14 @@ KeyboardInterrupt
 
 - [ ] DataCoordinator
       - [ ] parallelize requests
-      - [x] Fetch data on initialisation
-            - [x] get controllers from ConfigEntry
-      - [x] store data in self.data
-      - [x] async_write_ha_state
-      - [ ] getters
-            - [x] ControllerInfo
-            - [x] ControllerDateTime
-            - [x] Door
-            - [x] DoorOpen
-            - [x] DoorLock
-            - [x] DoorButton
-            - [x] DoorDelay
-            - [x] DoorMode
-            - [x] CardInfo
-            - [x] CardHolder
-            - [x] CardStartDate
-            - [x] CardEndDate
-            - [x] CardPermission
-            - [x] CardPIN
+      - [ ] communalize coordinators/data
+      - [x] getters
+      - [ ] events
+            - [x] DoorOpened
+            - [ ] DoorUnlocked
+            - [ ] DoorButtonPressed
+            - [ ] CardSwipeEvent
+            - [ ] AccessEvent
       - [ ] setters
             - await self.coordinator.async_request_refresh()
             - [ ] ControllerDateTime
@@ -52,7 +41,6 @@ KeyboardInterrupt
             - [ ] CardEndDate
             - [ ] CardPin
             - [ ] CardPermission
-      - [ ] events
 
 - [ ] Controller
       - [ ] Rework as Device

@@ -8,10 +8,6 @@ _LOGGER = logging.getLogger(__name__)
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.typing import ConfigType
-from homeassistant.helpers.typing import DiscoveryInfoType
-from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -20,7 +16,7 @@ from homeassistant.helpers.update_coordinator import UpdateFailed
 
 from uhppoted import uhppote
 
-from .coordinators.controllers import ControllerCoordinator
+from .coordinators.controllers import ControllersCoordinator
 from .coordinators.cards import CardsCoordinator
 
 from .config import configure_controllers
@@ -42,7 +38,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     options = entry.options
     entities = []
 
-    controllers = ControllerCoordinator(hass, options)
+    controllers = ControllersCoordinator(hass, options)
     cards = CardsCoordinator(hass, options)
 
     def f(unique_id, controller, serial_no, address):

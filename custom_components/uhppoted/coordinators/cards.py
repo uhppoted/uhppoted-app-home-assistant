@@ -29,7 +29,7 @@ from ..config import resolve_permissions
 class CardsCoordinator(DataUpdateCoordinator):
 
     def __init__(self, hass, options):
-        super().__init__(hass, _LOGGER, name="coordinator", update_interval=_INTERVAL)
+        super().__init__(hass, _LOGGER, name="cards", update_interval=_INTERVAL)
         self._uhppote = configure_driver(options)
         self._options = options
         self._initialised = False
