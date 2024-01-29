@@ -5,6 +5,7 @@ import logging
 
 _LOGGER = logging.getLogger(__name__)
 
+_REASON_BUTTON_PRESSED = 20
 _REASON_DOOR_OPEN = 23
 _REASON_DOOR_CLOSED = 24
 
@@ -349,9 +350,8 @@ class DoorOpened(CoordinatorEntity, EventEntity):
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self.door = door
-        self._door_id = int(f'{door_id}')
-
         self._name = f'uhppoted.door.{door}.open.event'.lower()
+        self._door_id = int(f'{door_id}')
         self._events = deque([], 16)
 
     @property
@@ -400,25 +400,24 @@ class DoorOpened(CoordinatorEntity, EventEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} events')
 
 
-class DoorButtonPressed(EventEntity):
+class DoorButtonPressed(CoordinatorEntity, EventEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
     _attr_event_types = ['PRESSED', 'RELEASED']
 
-    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
-        super().__init__()
+    def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
+        super().__init__(coordinator, context=int(f'{serial_no}'))
 
         _LOGGER.debug(f'controller {controller}: door:{door} button pressed event')
 
-        self.uhppote = u
         self._unique_id = unique_id
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self.door = door
-        self.door_id = int(f'{door_id}')
-
         self._name = f'uhppoted.door.{door}.button.event'.lower()
+        self._door_id = int(f'{door_id}')
         self._pressed = None
+        self._events = deque([], 16)
 
     @property
     def unique_id(self) -> str:
@@ -428,32 +427,93 @@ class DoorButtonPressed(EventEntity):
     def name(self) -> str:
         return self._name
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         _LOGGER.debug(f'controller:{self.controller} update door {self.door}.button.event state')
         try:
-            response = self.uhppote.get_status(self.serial_no)
-            last = self._pressed
+            idx = self.serial_no
+            door = self._door_id
 
-            if response.controller == self.serial_no:
-                if self.door_id == 1:
-                    self._pressed = response.door_1_button == True
-                elif self.door_id == 2:
-                    self._pressed = response.door_2_button == True
-                elif self.door_id == 3:
-                    self._pressed = response.door_3_button == True
-                elif self.door_id == 4:
-                    self._pressed = response.door_4_button == True
-                else:
-                    self._pressed = None
+            if idx not in self.coordinator.data:
+                pass
+            elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
+                pass
+            else:
+                if ATTR_EVENTS in self.coordinator.data[idx]:
+                    last = self._pressed
+                    events = self.coordinator.data[idx][ATTR_EVENTS]
+                    for e in events:
+                        if e.door == door and e.reason == _REASON_BUTTON_PRESSED:
+                            self._pressed = True
+                            self._events.appendleft('PRESSED')
+                        elif door == 1 and hasattr(e, 'door_1_button'):
+                            self._pressed = response.door_1_button == True
+                        elif door == 2 and hasattr(e, 'door_2_button'):
+                            self._pressed = response.door_2_button == True
+                        elif door == 3 and hasattr(e, 'door_3_button'):
+                            self._pressed = response.door_3_button == True
+                        elif door == 4 and hasattr(e, 'door_4_button'):
+                            self._pressed = response.door_4_button == True
 
-                if self._pressed != last and self._pressed:
-                    self._trigger_event('PRESSED')
-                elif self._pressed != last and not self._pressed:
-                    self._trigger_event('RELEASED')
+                        if self._pressed != last and self._pressed:
+                            self._events.appendleft('PRESSED')
+                        elif self._pressed != last and not self._pressed:
+                            self._events.appendleft('RELEASED')
+
+                if ATTR_STATUS in self.coordinator.data[idx]:
+                    state = self.coordinator.data[idx][ATTR_STATUS]
+                    last = self._pressed
+                    if door == 1:
+                        self._pressed = state.door_1_button == True
+                    elif door == 2:
+                        self._pressed = state.door_2_button == True
+                    elif door == 3:
+                        self._pressed = state.door_3_button == True
+                    elif door == 4:
+                        self._pressed = state.door_4_button == True
+                    else:
+                        self._pressed = None
+
+                    if self._pressed != last and self._pressed:
+                        self._events.appendleft('PRESSED')
+                    elif self._pressed != last and not self._pressed:
+                        self._events.appendleft('RELEASED')
+
+            # ... because Home Assistant coalesces multiple events in an update cycle
+            if len(self._events) > 0:
+                event = self._events.pop()
+                self._trigger_event(event)
+
+            # response = self.uhppote.get_status(self.serial_no)
+            # last = self._pressed
+
+            # if response.controller == self.serial_no:
+            #     if self.door_id == 1:
+            #         self._pressed = response.door_1_button == True
+            #     elif self.door_id == 2:
+            #         self._pressed = response.door_2_button == True
+            #     elif self.door_id == 3:
+            #         self._pressed = response.door_3_button == True
+            #     elif self.door_id == 4:
+            #         self._pressed = response.door_4_button == True
+            #     else:
+            #         self._pressed = None
+
+            #     if self._pressed != last and self._pressed:
+            #         self._trigger_event('PRESSED')
+            #     elif self._pressed != last and not self._pressed:
+            #         self._trigger_event('RELEASED')
 
         except (Exception):
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.controller} status')
+            _LOGGER.exception(f'error retrieving controller {self.controller} events')
 
 
 class DoorUnlocked(CoordinatorEntity, EventEntity):
@@ -470,9 +530,8 @@ class DoorUnlocked(CoordinatorEntity, EventEntity):
         self.controller = controller
         self.serial_no = int(f'{serial_no}')
         self.door = door
-        self._door_id = int(f'{door_id}')
-
         self._name = f'uhppoted.door.{door}.unlocked.event'.lower()
+        self._door_id = int(f'{door_id}')
         self._unlocked = None
         self._events = deque([], 16)
 
@@ -540,10 +599,8 @@ class DoorUnlocked(CoordinatorEntity, EventEntity):
                         self._unlocked = None
 
                     if self._unlocked != last and self._unlocked:
-                        print('>>>>>> unlocked/2')
                         self._events.appendleft('UNLOCKED')
                     elif self._unlocked != last and not self._unlocked:
-                        print('>>>>>> locked/2')
                         self._events.appendleft('LOCKED')
 
             # ... because Home Assistant coalesces multiple events in an update cycle

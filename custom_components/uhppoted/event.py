@@ -26,12 +26,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     entities = []
 
     events = EventsCoordinator(hass, options)
-    u = configure_driver(options)
 
     def g(unique_id, controller, serial_no, door, door_no):
         entities.extend([
             DoorOpened(events, unique_id, controller, serial_no, door, door_no),
-            DoorButtonPressed(u['api'], unique_id, controller, serial_no, door, door_no),
+            DoorButtonPressed(events, unique_id, controller, serial_no, door, door_no),
             DoorUnlocked(events, unique_id, controller, serial_no, door, door_no),
         ])
 
