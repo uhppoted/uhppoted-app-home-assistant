@@ -27,7 +27,7 @@ KeyboardInterrupt
       - [x] getters
       - [ ] events
             - [x] DoorOpened
-            - [ ] DoorUnlocked
+            - [x] DoorUnlocked
             - [ ] DoorButtonPressed
             - [ ] CardSwipeEvent
             - [ ] AccessEvent

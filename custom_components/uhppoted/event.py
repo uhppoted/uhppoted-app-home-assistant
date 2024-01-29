@@ -32,7 +32,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         entities.extend([
             DoorOpened(events, unique_id, controller, serial_no, door, door_no),
             DoorButtonPressed(u['api'], unique_id, controller, serial_no, door, door_no),
-            DoorUnlocked(u['api'], unique_id, controller, serial_no, door, door_no),
+            DoorUnlocked(events, unique_id, controller, serial_no, door, door_no),
         ])
 
     configure_doors(options, g)

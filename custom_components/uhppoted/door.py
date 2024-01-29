@@ -1,4 +1,5 @@
 from __future__ import annotations
+from collections import deque
 
 import logging
 
@@ -25,7 +26,9 @@ from .const import ATTR_DOOR_BUTTON
 from .const import ATTR_DOOR_LOCK
 from .const import ATTR_DOOR_MODE
 from .const import ATTR_DOOR_DELAY
+
 from .const import ATTR_EVENTS
+from .const import ATTR_STATUS
 
 
 class DoorInfo(CoordinatorEntity, SensorEntity):
@@ -349,7 +352,7 @@ class DoorOpened(CoordinatorEntity, EventEntity):
         self._door_id = int(f'{door_id}')
 
         self._name = f'uhppoted.door.{door}.open.event'.lower()
-        self._open = None
+        self._events = deque([], 16)
 
     @property
     def unique_id(self) -> str:
@@ -383,69 +386,18 @@ class DoorOpened(CoordinatorEntity, EventEntity):
                 events = self.coordinator.data[idx][ATTR_EVENTS]
                 for e in events:
                     if e.door == door and e.reason == _REASON_DOOR_OPEN:
-                        self._trigger_event('OPENED')
+                        self._events.appendleft('OPENED')
                     if e.door == door and e.reason == _REASON_DOOR_CLOSED:
-                        self._trigger_event('CLOSED')
+                        self._events.appendleft('CLOSED')
+
+            # ... because Home Assistant coalesces multiple events in an update cycle
+            if len(self._events) > 0:
+                event = self._events.pop()
+                self._trigger_event(event)
 
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self.controller} events')
-
-
-class DoorUnlocked(EventEntity):
-    _attr_icon = 'mdi:door'
-    _attr_has_entity_name: True
-    _attr_event_types = ['LOCKED', 'UNLOCKED']
-
-    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
-        super().__init__()
-
-        _LOGGER.debug(f'controller {controller}: door:{door} unlocked event')
-
-        self.uhppote = u
-        self._unique_id = unique_id
-        self.controller = controller
-        self.serial_no = int(f'{serial_no}')
-        self.door = door
-        self.door_id = int(f'{door_id}')
-
-        self._name = f'uhppoted.door.{door}.unlocked.event'.lower()
-        self._unlocked = None
-
-    @property
-    def unique_id(self) -> str:
-        return f'uhppoted.door.{self._unique_id}.unlocked.event'.lower()
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    async def async_update(self):
-        _LOGGER.debug(f'controller:{self.controller} update door {self.door}.unlocked.event state')
-        try:
-            response = self.uhppote.get_status(self.serial_no)
-            last = self._unlocked
-
-            if response.controller == self.serial_no:
-                if self.door_id == 1:
-                    self._unlocked = response.relays & 0x01 == 0x01
-                elif self.door_id == 2:
-                    self._unlocked = response.relays & 0x02 == 0x02
-                elif self.door_id == 3:
-                    self._unlocked = response.relays & 0x04 == 0x04
-                elif self.door_id == 4:
-                    self._unlocked = response.relays & 0x08 == 0x08
-                else:
-                    self._unlocked = None
-
-                if self._unlocked != last and self._unlocked:
-                    self._trigger_event('UNLOCKED')
-                elif self._unlocked != last and not self._unlocked:
-                    self._trigger_event('LOCKED')
-
-        except (Exception):
-            self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.controller} status')
 
 
 class DoorButtonPressed(EventEntity):
@@ -498,6 +450,106 @@ class DoorButtonPressed(EventEntity):
                     self._trigger_event('PRESSED')
                 elif self._pressed != last and not self._pressed:
                     self._trigger_event('RELEASED')
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self.controller} status')
+
+
+class DoorUnlocked(CoordinatorEntity, EventEntity):
+    _attr_icon = 'mdi:door'
+    _attr_has_entity_name: True
+    _attr_event_types = ['LOCKED', 'UNLOCKED']
+
+    def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
+        super().__init__(coordinator, context=int(f'{serial_no}'))
+
+        _LOGGER.debug(f'controller {controller}: door:{door} unlocked event')
+
+        self._unique_id = unique_id
+        self.controller = controller
+        self.serial_no = int(f'{serial_no}')
+        self.door = door
+        self._door_id = int(f'{door_id}')
+
+        self._name = f'uhppoted.door.{door}.unlocked.event'.lower()
+        self._unlocked = None
+        self._events = deque([], 16)
+
+    @property
+    def unique_id(self) -> str:
+        return f'uhppoted.door.{self._unique_id}.unlocked.event'.lower()
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
+    async def async_update(self):
+        self._update()
+
+    def _update(self):
+        _LOGGER.debug(f'controller:{self.controller} update door {self.door}.unlocked.event state')
+        try:
+            idx = self.serial_no
+            door = self._door_id
+
+            if idx not in self.coordinator.data:
+                pass
+            elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
+                pass
+            else:
+                if ATTR_EVENTS in self.coordinator.data[idx]:
+                    events = self.coordinator.data[idx][ATTR_EVENTS]
+                    for e in events:
+                        if hasattr(e, 'relays'):
+                            last = self._unlocked
+
+                            if door == 1:
+                                self._unlocked = e.relays & 0x01 == 0x01
+                            elif door == 2:
+                                self._unlocked = e.relays & 0x02 == 0x02
+                            elif door == 3:
+                                self._unlocked = e.relays & 0x04 == 0x04
+                            elif door == 4:
+                                self._unlocked = e.relays & 0x08 == 0x08
+                            else:
+                                self._unlocked = None
+
+                            if self._unlocked != last and self._unlocked:
+                                self._events.appendleft('UNLOCKED')
+                            elif self._unlocked != last and not self._unlocked:
+                                self._events.appendleft('LOCKED')
+
+                if ATTR_STATUS in self.coordinator.data[idx]:
+                    state = self.coordinator.data[idx][ATTR_STATUS]
+                    last = self._unlocked
+                    if door == 1:
+                        self._unlocked = state.relays & 0x01 == 0x01
+                    elif door == 2:
+                        self._unlocked = state.relays & 0x02 == 0x02
+                    elif door == 3:
+                        self._unlocked = state.relays & 0x04 == 0x04
+                    elif door == 4:
+                        self._unlocked = state.relays & 0x08 == 0x08
+                    else:
+                        self._unlocked = None
+
+                    if self._unlocked != last and self._unlocked:
+                        print('>>>>>> unlocked/2')
+                        self._events.appendleft('UNLOCKED')
+                    elif self._unlocked != last and not self._unlocked:
+                        print('>>>>>> locked/2')
+                        self._events.appendleft('LOCKED')
+
+            # ... because Home Assistant coalesces multiple events in an update cycle
+            if len(self._events) > 0:
+                event = self._events.pop()
+                self._trigger_event(event)
 
         except (Exception):
             self._available = False

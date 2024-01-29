@@ -15,6 +15,7 @@ from uhppoted import uhppote
 
 from ..const import ATTR_AVAILABLE
 from ..const import ATTR_EVENTS
+from ..const import ATTR_STATUS
 
 from ..config import configure_driver
 from ..config import configure_cards
@@ -62,6 +63,7 @@ class EventsCoordinator(DataUpdateCoordinator):
             try:
                 response = api.get_status(controller)
                 if response.controller == controller:
+                    info[ATTR_STATUS] = response
                     index = response.event_index
                     if not controller in self._state['index']:
                         self._state['index'][controller] = index
