@@ -634,3 +634,67 @@ class CardPIN(CoordinatorEntity, TextEntity):
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving card {self.card} PIN')
+
+
+# class CardSwiped(CoordinatorEntity, EventEntity):
+#     _attr_icon = 'mdi:card-account-details'
+#     _attr_has_entity_name: True
+#     _attr_event_types = ['SWIPED','-']
+#
+#     def __init__(self, coordinator, unique_id, card, name):
+#         super().__init__(coordinator)
+#
+#         _LOGGER.debug(f'card {card} swipe event')
+#
+#         self.card = int(f'{card}')
+#
+#         self._unique_id = unique_id
+#         self._name = f'uhppoted.card.{card}.swipe.event'.lower()
+#         self._available = False
+#         self._attributes: Dict[str, Any] = {}
+#
+#     @property
+#     def unique_id(self) -> str:
+#         return f'uhppoted.card.{self._unique_id}.swipe.event'.lower()
+#
+#     @property
+#     def name(self) -> str:
+#         return self._name
+#
+#     @callback
+#     def _handle_coordinator_update(self) -> None:
+#         self._update()
+#         self.async_write_ha_state()
+#
+#     async def async_update(self):
+#         self._update()
+#
+#     def _update(self):
+#         _LOGGER.debug(f'card:{self.card} swipe event')
+#         try:
+#             pass
+#             # idx = self.serial_no
+#             # door = self._door_id
+#             #
+#             # if idx not in self.coordinator.data:
+#             #     pass
+#             # elif ATTR_EVENTS not in self.coordinator.data[idx]:
+#             #     pass
+#             # elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
+#             #     pass
+#             # else:
+#             #     events = self.coordinator.data[idx][ATTR_EVENTS]
+#             #     for e in events:
+#             #         if e.door == door and e.reason == _REASON_DOOR_OPEN:
+#             #             self._events.appendleft('OPENED')
+#             #         if e.door == door and e.reason == _REASON_DOOR_CLOSED:
+#             #             self._events.appendleft('CLOSED')
+#             #
+#             # # ... because Home Assistant coalesces multiple events in an update cycle
+#             # if len(self._events) > 0:
+#             #     event = self._events.pop()
+#             #     self._trigger_event(event)
+#
+#         except (Exception):
+#             self._available = False
+#             _LOGGER.exception(f'error retrieving card {self.card} swipe event')

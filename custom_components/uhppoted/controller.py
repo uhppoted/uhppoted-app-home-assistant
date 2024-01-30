@@ -1,4 +1,5 @@
 from __future__ import annotations
+from collections import deque
 
 import datetime
 import logging
@@ -6,6 +7,7 @@ import logging
 from homeassistant.core import callback
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.datetime import DateTimeEntity
+from homeassistant.components.event import EventEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -17,6 +19,8 @@ from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
 from .const import ATTR_CONTROLLER
 from .const import ATTR_CONTROLLER_DATETIME
+from .const import ATTR_EVENTS
+from .const import EVENTS
 
 
 class ControllerInfo(CoordinatorEntity, SensorEntity):
@@ -174,3 +178,67 @@ class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self.controller} date/time')
+
+
+class ControllerEvent(CoordinatorEntity, EventEntity):
+    _attr_icon = 'mdi:lock-alert'
+    _attr_has_entity_name: True
+    _attr_event_types = list(EVENTS.values())
+
+    def __init__(self, coordinator, unique_id, controller, serial_no):
+        super().__init__(coordinator, context=int(f'{serial_no}'))
+
+        _LOGGER.debug(f'controller {controller} event')
+
+        self._unique_id = unique_id
+        self.controller = controller
+        self.serial_no = int(f'{serial_no}')
+        self._name = f'uhppoted.controller.{controller}.event'.lower()
+        self._events = deque([], 16)
+        self._available = False
+
+    @property
+    def unique_id(self) -> str:
+        return f'uhppoted.controller.{self._unique_id}.event'.lower()
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def available(self) -> bool:
+        return self._available
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
+    async def async_update(self):
+        self._update()
+
+    def _update(self):
+        _LOGGER.debug(f'controller:{self.controller} update event')
+        try:
+            idx = self.serial_no
+
+            if not self.coordinator.data or idx not in self.coordinator.data:
+                self._available = False
+            elif ATTR_EVENTS not in self.coordinator.data[idx]:
+                self._available = False
+            else:
+                events = self.coordinator.data[idx][ATTR_EVENTS]
+                for e in events:
+                    if e.reason in EVENTS:
+                        self._events.appendleft(EVENTS[e.reason])
+
+                self._available = True
+
+            # ... because Home Assistant coalesces multiple events in an update cycle
+            if len(self._events) > 0:
+                event = self._events.pop()
+                self._trigger_event(event)
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self.controller} events')

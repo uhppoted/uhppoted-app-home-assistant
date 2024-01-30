@@ -353,6 +353,7 @@ class DoorOpened(CoordinatorEntity, EventEntity):
         self._name = f'uhppoted.door.{door}.open.event'.lower()
         self._door_id = int(f'{door_id}')
         self._events = deque([], 16)
+        self._available = False
 
     @property
     def unique_id(self) -> str:
@@ -361,6 +362,10 @@ class DoorOpened(CoordinatorEntity, EventEntity):
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def available(self) -> bool:
+        return self._available
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -377,11 +382,11 @@ class DoorOpened(CoordinatorEntity, EventEntity):
             door = self._door_id
 
             if idx not in self.coordinator.data:
-                pass
+                self._available = False
             elif ATTR_EVENTS not in self.coordinator.data[idx]:
-                pass
+                self._available = False
             elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
-                pass
+                self._available = False
             else:
                 events = self.coordinator.data[idx][ATTR_EVENTS]
                 for e in events:
@@ -389,6 +394,8 @@ class DoorOpened(CoordinatorEntity, EventEntity):
                         self._events.appendleft('OPENED')
                     if e.door == door and e.reason == _REASON_DOOR_CLOSED:
                         self._events.appendleft('CLOSED')
+
+                self._available = True
 
             # ... because Home Assistant coalesces multiple events in an update cycle
             if len(self._events) > 0:
@@ -418,6 +425,7 @@ class DoorButtonPressed(CoordinatorEntity, EventEntity):
         self._door_id = int(f'{door_id}')
         self._pressed = None
         self._events = deque([], 16)
+        self._available = False
 
     @property
     def unique_id(self) -> str:
@@ -426,6 +434,10 @@ class DoorButtonPressed(CoordinatorEntity, EventEntity):
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def available(self) -> bool:
+        return self._available
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -442,9 +454,9 @@ class DoorButtonPressed(CoordinatorEntity, EventEntity):
             door = self._door_id
 
             if idx not in self.coordinator.data:
-                pass
+                self._available = False
             elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
-                pass
+                self._available = False
             else:
                 if ATTR_EVENTS in self.coordinator.data[idx]:
                     last = self._pressed
@@ -486,30 +498,12 @@ class DoorButtonPressed(CoordinatorEntity, EventEntity):
                     elif self._pressed != last and not self._pressed:
                         self._events.appendleft('RELEASED')
 
+            self._available = True
+
             # ... because Home Assistant coalesces multiple events in an update cycle
             if len(self._events) > 0:
                 event = self._events.pop()
                 self._trigger_event(event)
-
-            # response = self.uhppote.get_status(self.serial_no)
-            # last = self._pressed
-
-            # if response.controller == self.serial_no:
-            #     if self.door_id == 1:
-            #         self._pressed = response.door_1_button == True
-            #     elif self.door_id == 2:
-            #         self._pressed = response.door_2_button == True
-            #     elif self.door_id == 3:
-            #         self._pressed = response.door_3_button == True
-            #     elif self.door_id == 4:
-            #         self._pressed = response.door_4_button == True
-            #     else:
-            #         self._pressed = None
-
-            #     if self._pressed != last and self._pressed:
-            #         self._trigger_event('PRESSED')
-            #     elif self._pressed != last and not self._pressed:
-            #         self._trigger_event('RELEASED')
 
         except (Exception):
             self._available = False
@@ -534,6 +528,7 @@ class DoorUnlocked(CoordinatorEntity, EventEntity):
         self._door_id = int(f'{door_id}')
         self._unlocked = None
         self._events = deque([], 16)
+        self._available = False
 
     @property
     def unique_id(self) -> str:
@@ -542,6 +537,10 @@ class DoorUnlocked(CoordinatorEntity, EventEntity):
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def available(self) -> bool:
+        return self._available
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -558,9 +557,9 @@ class DoorUnlocked(CoordinatorEntity, EventEntity):
             door = self._door_id
 
             if idx not in self.coordinator.data:
-                pass
+                self._available = False
             elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
-                pass
+                self._available = False
             else:
                 if ATTR_EVENTS in self.coordinator.data[idx]:
                     events = self.coordinator.data[idx][ATTR_EVENTS]
@@ -602,6 +601,8 @@ class DoorUnlocked(CoordinatorEntity, EventEntity):
                         self._events.appendleft('UNLOCKED')
                     elif self._unlocked != last and not self._unlocked:
                         self._events.appendleft('LOCKED')
+
+                self._available = True
 
             # ... because Home Assistant coalesces multiple events in an update cycle
             if len(self._events) > 0:
