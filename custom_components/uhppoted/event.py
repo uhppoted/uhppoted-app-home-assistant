@@ -15,12 +15,14 @@ from .coordinators.events import EventsCoordinator
 
 from .config import configure_controllers
 from .config import configure_doors
+from .config import configure_cards
 from .config import configure_driver
 
 from .controller import ControllerEvent
 from .door import DoorUnlocked
 from .door import DoorOpened
 from .door import DoorButtonPressed
+from .card import CardSwiped
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
@@ -42,7 +44,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
             DoorUnlocked(events, unique_id, controller, serial_no, door, door_no),
         ])
 
+    def h(card, name, unique_id):
+        entities.extend([
+            CardSwiped(events, unique_id, card, name),
+        ])
+
     configure_controllers(options, f)
     configure_doors(options, g)
+    configure_cards(options, h)
     await events.async_config_entry_first_refresh()
     async_add_entities(entities, update_before_add=True)

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from collections import deque
 
 from datetime import datetime
 from datetime import date
@@ -9,6 +10,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.date import DateEntity
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.components.text import TextEntity
+from homeassistant.components.event import EventEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import ATTR_AVAILABLE
@@ -20,11 +22,13 @@ from .const import ATTR_CARD_STARTDATE
 from .const import ATTR_CARD_ENDDATE
 from .const import ATTR_CARD_PERMISSIONS
 from .const import ATTR_CARD_PIN
+from .const import ATTR_EVENTS
 
 from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_NUMBER
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
+from .const import CARD_EVENTS
 
 from .config import default_card_start_date
 from .config import default_card_end_date
@@ -636,65 +640,64 @@ class CardPIN(CoordinatorEntity, TextEntity):
             _LOGGER.exception(f'error retrieving card {self.card} PIN')
 
 
-# class CardSwiped(CoordinatorEntity, EventEntity):
-#     _attr_icon = 'mdi:card-account-details'
-#     _attr_has_entity_name: True
-#     _attr_event_types = ['SWIPED','-']
-#
-#     def __init__(self, coordinator, unique_id, card, name):
-#         super().__init__(coordinator)
-#
-#         _LOGGER.debug(f'card {card} swipe event')
-#
-#         self.card = int(f'{card}')
-#
-#         self._unique_id = unique_id
-#         self._name = f'uhppoted.card.{card}.swipe.event'.lower()
-#         self._available = False
-#         self._attributes: Dict[str, Any] = {}
-#
-#     @property
-#     def unique_id(self) -> str:
-#         return f'uhppoted.card.{self._unique_id}.swipe.event'.lower()
-#
-#     @property
-#     def name(self) -> str:
-#         return self._name
-#
-#     @callback
-#     def _handle_coordinator_update(self) -> None:
-#         self._update()
-#         self.async_write_ha_state()
-#
-#     async def async_update(self):
-#         self._update()
-#
-#     def _update(self):
-#         _LOGGER.debug(f'card:{self.card} swipe event')
-#         try:
-#             pass
-#             # idx = self.serial_no
-#             # door = self._door_id
-#             #
-#             # if idx not in self.coordinator.data:
-#             #     pass
-#             # elif ATTR_EVENTS not in self.coordinator.data[idx]:
-#             #     pass
-#             # elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
-#             #     pass
-#             # else:
-#             #     events = self.coordinator.data[idx][ATTR_EVENTS]
-#             #     for e in events:
-#             #         if e.door == door and e.reason == _REASON_DOOR_OPEN:
-#             #             self._events.appendleft('OPENED')
-#             #         if e.door == door and e.reason == _REASON_DOOR_CLOSED:
-#             #             self._events.appendleft('CLOSED')
-#             #
-#             # # ... because Home Assistant coalesces multiple events in an update cycle
-#             # if len(self._events) > 0:
-#             #     event = self._events.pop()
-#             #     self._trigger_event(event)
-#
-#         except (Exception):
-#             self._available = False
-#             _LOGGER.exception(f'error retrieving card {self.card} swipe event')
+class CardSwiped(CoordinatorEntity, EventEntity):
+    _attr_icon = 'mdi:card-account-details'
+    _attr_has_entity_name: True
+    _attr_event_types = list(CARD_EVENTS.values())
+
+    def __init__(self, coordinator, unique_id, card, name):
+        super().__init__(coordinator)
+
+        _LOGGER.debug(f'card {card} swipe event')
+
+        self.card = int(f'{card}')
+
+        self._unique_id = unique_id
+        self._name = f'uhppoted.card.{card}.swipe.event'.lower()
+        self._events = deque([], 16)
+        self._available = False
+
+    @property
+    def unique_id(self) -> str:
+        return f'uhppoted.card.{self._unique_id}.swipe.event'.lower()
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def available(self) -> bool:
+        return self._available
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
+    async def async_update(self):
+        self._update()
+
+    def _update(self):
+        _LOGGER.debug(f'card:{self.card} swipe event')
+        try:
+            for idx in self.coordinator.data:
+                if ATTR_EVENTS not in self.coordinator.data[idx]:
+                    pass
+                elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
+                    pass
+                else:
+                    events = self.coordinator.data[idx][ATTR_EVENTS]
+                    for e in events:
+                        if e.card == self.card and e.reason in CARD_EVENTS:
+                            self._events.appendleft(CARD_EVENTS[e.reason])
+
+            # ... because Home Assistant coalesces multiple events in an update cycle
+            if len(self._events) > 0:
+                event = self._events.pop()
+                self._trigger_event(event)
+
+            self._available = True
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving card {self.card} swipe event')

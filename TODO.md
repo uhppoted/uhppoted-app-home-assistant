@@ -29,8 +29,9 @@ KeyboardInterrupt
             - [x] DoorOpened
             - [x] DoorUnlocked
             - [x] DoorButtonPressed
-            - [ ] CardSwipeEvent
+            - [x] CardSwipeEvent
             - [x] ControllerEvent
+            - [ ] async listen
       - [ ] setters
             - await self.coordinator.async_request_refresh()
             - [ ] ControllerDateTime
