@@ -1,5 +1,7 @@
 import logging
 
+_LOGGER = logging.getLogger(__name__)
+
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
@@ -10,7 +12,7 @@ from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
 
-_LOGGER = logging.getLogger(__name__)
+from .coordinators.coordinators import Coordinators
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
@@ -40,6 +42,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
 
+    Coordinators.initialise(hass, entry.options)
+
     hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "sensor"))
     hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "datetime"))
     hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "select"))
@@ -51,6 +55,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "text"))
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
+
+    print('>>>>>>>>>>>>>>>>>>>>> POST LOAD', Coordinators.COORDINATORS)
 
     return True
 
@@ -70,7 +76,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # TODO pre-unload cleanup (if any)
     ok = await hass.config_entries.async_unload_platforms(entry, platforms)
-    # TODO post-unload cleanup (if any)
+
+    # ... post-unload cleanup (if any)
+    Coordinators.unload()
 
     return ok
 

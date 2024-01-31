@@ -24,15 +24,10 @@ KeyboardInterrupt
       - [ ] communalize coordinators/data
       - [x] getters
       - [ ] events
-            - [x] DoorOpened
-            - [x] DoorUnlocked
-            - [x] DoorButtonPressed
-            - [x] CardSwipeEvent
-            - [x] ControllerEvent
             - [ ] async listen
       - [ ] setters
             - [x] await self.coordinator.async_request_refresh()
-            - [ ] ControllerDateTime
+            - [x] ControllerDateTime
             - [ ] DoorDelay
             - [ ] DoorMode
             - [ ] DoorUnlock
