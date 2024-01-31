@@ -142,14 +142,7 @@ class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
             response = self.coordinator.set_datetime(controller, localtime)
 
             if response:
-                year = response.datetime.year
-                month = response.datetime.month
-                day = response.datetime.day
-                hour = response.datetime.hour
-                minute = response.datetime.minute
-                second = response.datetime.second
-                self._datetime = datetime.datetime(year, month, day, hour, minute, second, 0, tz)
-                self._available = True
+                await self.coordinator.async_request_refresh()
 
         except (Exception):
             self._available = False

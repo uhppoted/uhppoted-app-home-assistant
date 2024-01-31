@@ -31,7 +31,7 @@ KeyboardInterrupt
             - [x] ControllerEvent
             - [ ] async listen
       - [ ] setters
-            - await self.coordinator.async_request_refresh()
+            - [x] await self.coordinator.async_request_refresh()
             - [ ] ControllerDateTime
             - [ ] DoorDelay
             - [ ] DoorMode
