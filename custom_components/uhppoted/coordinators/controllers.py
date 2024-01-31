@@ -41,6 +41,15 @@ class ControllersCoordinator(DataUpdateCoordinator):
             'controllers': {},
         }
 
+    def set_datetime(self, controller, time):
+        api = self._uhppote['api']
+        response = api.set_time(controller, time)
+
+        if response.controller == controller:
+            return response
+
+        return None
+
     async def _async_update_data(self):
         try:
             contexts = set(self.async_contexts())

@@ -19,8 +19,6 @@ KeyboardInterrupt
       - [ ] Integration icon
       - https://developers.home-assistant.io/docs/dev_101_states/
 
-- [x] _options-flow_
-
 - [ ] DataCoordinator
       - [ ] parallelize requests
       - [ ] communalize coordinators/data
