@@ -29,7 +29,7 @@ CONF_CARD_ENDDATE = 'card_enddate'
 CONF_CARD_DOORS = 'card_doors'
 
 ATTR_AVAILABLE = 'available'
-ATTR_ADDRESS = 'address'
+ATTR_CONTROLLER_ADDRESS = 'address'
 ATTR_NETMASK = 'netmask'
 ATTR_GATEWAY = 'gateway'
 ATTR_FIRMWARE = 'firmware'

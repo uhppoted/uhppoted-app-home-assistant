@@ -15,10 +15,11 @@ _INTERVAL = datetime.timedelta(seconds=30)
 # Attribute constants
 from ..const import ATTR_AVAILABLE
 from ..const import ATTR_CONTROLLER
-from ..const import ATTR_ADDRESS
+from ..const import ATTR_CONTROLLER_ADDRESS
 from ..const import ATTR_NETMASK
 from ..const import ATTR_GATEWAY
 from ..const import ATTR_FIRMWARE
+from ..const import ATTR_CONTROLLER_DATETIME
 from ..const import ATTR_DOOR_BUTTON
 from ..const import ATTR_DOOR_LOCK
 from ..const import ATTR_DOOR_OPEN
@@ -45,10 +46,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         api = self._uhppote['api']
         response = api.set_time(controller, time)
 
-        if response.controller == controller:
-            return response
-
-        return None
+        return response if response.controller == controller else None
 
     async def _async_update_data(self):
         try:
@@ -71,33 +69,30 @@ class ControllersCoordinator(DataUpdateCoordinator):
             _LOGGER.debug(f'update controller {controller}')
 
             info = {
+                ATTR_AVAILABLE: False,
                 ATTR_CONTROLLER: {
-                    ATTR_AVAILABLE: False,
-                    ATTR_ADDRESS: None,
+                    ATTR_CONTROLLER_ADDRESS: None,
                     ATTR_NETMASK: None,
                     ATTR_GATEWAY: None,
                     ATTR_FIRMWARE: None,
                 },
-                ATTR_DOORS: {
-                    ATTR_AVAILABLE: False,
-                }
+                ATTR_CONTROLLER_DATETIME: None,
+                ATTR_DOORS: {},
             }
 
             try:
                 response = api.get_controller(controller)
                 if response.controller == controller:
                     info[ATTR_CONTROLLER] = {
-                        ATTR_ADDRESS: f'{response.ip_address}',
+                        ATTR_CONTROLLER_ADDRESS: f'{response.ip_address}',
                         ATTR_NETMASK: f'{response.subnet_mask}',
                         ATTR_GATEWAY: f'{response.gateway}',
                         ATTR_FIRMWARE: f'{response.version} {response.date:%Y-%m-%d}',
-                        ATTR_AVAILABLE: True,
                     }
 
                 response = api.get_status(controller)
                 if response.controller == controller:
                     info[ATTR_DOORS] = {
-                        ATTR_AVAILABLE: True,
                         1: {
                             ATTR_DOOR_OPEN: response.door_1_open == True,
                             ATTR_DOOR_BUTTON: response.door_1_button == True,
@@ -119,6 +114,20 @@ class ControllersCoordinator(DataUpdateCoordinator):
                             ATTR_DOOR_LOCK: response.relays & 0x08 == 0x00,
                         },
                     }
+
+                response = api.get_time(controller)
+                if response.controller == controller:
+                    year = response.datetime.year
+                    month = response.datetime.month
+                    day = response.datetime.day
+                    hour = response.datetime.hour
+                    minute = response.datetime.minute
+                    second = response.datetime.second
+                    tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
+
+                    info[ATTR_CONTROLLER_DATETIME] = datetime.datetime(year, month, day, hour, minute, second, 0, tz)
+
+                info[ATTR_AVAILABLE] = True
 
             except (Exception):
                 _LOGGER.exception(f'error retrieving controller {controller} information')

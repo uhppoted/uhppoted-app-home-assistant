@@ -4,16 +4,16 @@ from collections import deque
 import datetime
 import logging
 
+_LOGGER = logging.getLogger(__name__)
+
 from homeassistant.core import callback
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.datetime import DateTimeEntity
 from homeassistant.components.event import EventEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-_LOGGER = logging.getLogger(__name__)
-
 from .const import ATTR_AVAILABLE
-from .const import ATTR_ADDRESS
+from .const import ATTR_CONTROLLER_ADDRESS
 from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
@@ -39,7 +39,7 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
         self._name = f'uhppoted.controller.{controller}.info'.lower()
         self._state = serial_no
         self._attributes: Dict[str, Any] = {
-            ATTR_ADDRESS: None,
+            ATTR_CONTROLLER_ADDRESS: None,
             ATTR_NETMASK: None,
             ATTR_GATEWAY: None,
             ATTR_FIRMWARE: None,
@@ -87,13 +87,15 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
                 self._available = False
             elif ATTR_CONTROLLER not in self.coordinator.data[idx]:
                 self._available = False
+            elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
+                self._available = False
             else:
                 state = self.coordinator.data[idx][ATTR_CONTROLLER]
-                self._attributes[ATTR_ADDRESS] = state[ATTR_ADDRESS]
+                self._attributes[ATTR_CONTROLLER_ADDRESS] = state[ATTR_CONTROLLER_ADDRESS]
                 self._attributes[ATTR_NETMASK] = state[ATTR_NETMASK]
                 self._attributes[ATTR_GATEWAY] = state[ATTR_GATEWAY]
                 self._attributes[ATTR_FIRMWARE] = state[ATTR_FIRMWARE]
-                self._available = state[ATTR_AVAILABLE]
+                self._available = self.coordinator.data[idx][ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False

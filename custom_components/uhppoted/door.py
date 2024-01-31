@@ -110,6 +110,8 @@ class DoorInfo(CoordinatorEntity, SensorEntity):
 
             if idx not in self.coordinator.data:
                 self._available = False
+            elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
+                self._available = False
             elif ATTR_DOORS not in self.coordinator.data[idx]:
                 self._available = False
             elif self.door_id not in self.coordinator.data[idx][ATTR_DOORS]:
@@ -119,7 +121,7 @@ class DoorInfo(CoordinatorEntity, SensorEntity):
                 self._open = doors[self.door_id][ATTR_DOOR_OPEN]
                 self._button = doors[self.door_id][ATTR_DOOR_BUTTON]
                 self._locked = doors[self.door_id][ATTR_DOOR_LOCK]
-                self._available = doors[ATTR_AVAILABLE]
+                self._available = self.coordinator.data[idx][ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False
@@ -182,6 +184,8 @@ class DoorOpen(CoordinatorEntity, SensorEntity):
 
             if idx not in self.coordinator.data:
                 self._available = False
+            elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
+                self._available = False
             elif ATTR_DOORS not in self.coordinator.data[idx]:
                 self._available = False
             elif self.door_id not in self.coordinator.data[idx][ATTR_DOORS]:
@@ -189,7 +193,7 @@ class DoorOpen(CoordinatorEntity, SensorEntity):
             else:
                 doors = self.coordinator.data[idx][ATTR_DOORS]
                 self._open = doors[self.door_id][ATTR_DOOR_OPEN]
-                self._available = doors[ATTR_AVAILABLE]
+                self._available = self.coordinator.data[idx][ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False
@@ -252,6 +256,8 @@ class DoorLock(CoordinatorEntity, SensorEntity):
 
             if idx not in self.coordinator.data:
                 self._available = False
+            elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
+                self._available = False
             elif ATTR_DOORS not in self.coordinator.data[idx]:
                 self._available = False
             elif self.door_id not in self.coordinator.data[idx][ATTR_DOORS]:
@@ -259,7 +265,7 @@ class DoorLock(CoordinatorEntity, SensorEntity):
             else:
                 doors = self.coordinator.data[idx][ATTR_DOORS]
                 self._locked = doors[self.door_id][ATTR_DOOR_LOCK]
-                self._available = doors[ATTR_AVAILABLE]
+                self._available = self.coordinator.data[idx][ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False
@@ -322,6 +328,8 @@ class DoorButton(CoordinatorEntity, SensorEntity):
 
             if idx not in self.coordinator.data:
                 self._available = False
+            elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
+                self._available = False
             elif ATTR_DOORS not in self.coordinator.data[idx]:
                 self._available = False
             elif self.door_id not in self.coordinator.data[idx][ATTR_DOORS]:
@@ -329,7 +337,7 @@ class DoorButton(CoordinatorEntity, SensorEntity):
             else:
                 doors = self.coordinator.data[idx][ATTR_DOORS]
                 self._pressed = doors[self.door_id][ATTR_DOOR_BUTTON]
-                self._available = doors[ATTR_AVAILABLE]
+                self._available = self.coordinator.data[idx][ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False

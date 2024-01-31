@@ -15,7 +15,7 @@ from uhppoted import uhppote
 from .config import configure_controllers
 from .config import configure_driver
 
-from .coordinators.datetime import ControllerDateTimeCoordinator
+from .coordinators.controllers import ControllersCoordinator
 from .controller import ControllerDateTime
 
 
@@ -24,7 +24,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     options = entry.options
     entities = []
 
-    controllers = ControllerDateTimeCoordinator(hass, options)
+    controllers = ControllersCoordinator(hass, options)
 
     def f(unique_id, controller, serial_no, address):
         entities.extend([
