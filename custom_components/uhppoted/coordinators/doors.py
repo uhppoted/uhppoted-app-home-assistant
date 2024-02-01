@@ -19,6 +19,9 @@ from ..const import CONF_DOOR_NUMBER
 from ..const import ATTR_AVAILABLE
 from ..const import ATTR_DOOR_DELAY
 from ..const import ATTR_DOOR_MODE
+from ..const import ATTR_DOOR_BUTTON
+from ..const import ATTR_DOOR_LOCK
+from ..const import ATTR_DOOR_OPEN
 
 from ..config import configure_driver
 from ..config import get_configured_doors
@@ -83,16 +86,54 @@ class DoorsCoordinator(DataUpdateCoordinator):
     async def _get_doors(self, contexts):
         api = self._uhppote['api']
 
+        controllers = set()
+        doors = {}
+        for idx in contexts:
+            door = resolve_door(self._options, idx)
+            if door:
+                controllers.add(door[CONF_CONTROLLER_SERIAL_NUMBER])
+                doors[idx] = door
+
+        state = {}
+        for controller in controllers:
+            response = api.get_status(controller)
+            if response.controller == controller:
+                state[controller] = {
+                    1: {
+                        'open': response.door_1_open == True,
+                        'button': response.door_1_button == True,
+                        'locked': response.relays & 0x01 == 0x00,
+                    },
+                    2: {
+                        'open': response.door_2_open == True,
+                        'button': response.door_2_button == True,
+                        'locked': response.relays & 0x02 == 0x00,
+                    },
+                    3: {
+                        'open': response.door_3_open == True,
+                        'button': response.door_3_button == True,
+                        'locked': response.relays & 0x04 == 0x00,
+                    },
+                    4: {
+                        'open': response.door_4_open == True,
+                        'button': response.door_4_button == True,
+                        'locked': response.relays & 0x08 == 0x00,
+                    }
+                }
+
         for idx in contexts:
             info = {
                 ATTR_AVAILABLE: False,
                 ATTR_DOOR_MODE: None,
                 ATTR_DOOR_DELAY: None,
+                ATTR_DOOR_OPEN: None,
+                ATTR_DOOR_BUTTON: None,
+                ATTR_DOOR_LOCK: None,
             }
 
             try:
-                door = resolve_door(self._options, idx)
-                if door:
+                if idx in doors:
+                    door = doors[idx]
                     name = door[CONF_DOOR_ID]
                     controller = door[CONF_CONTROLLER_SERIAL_NUMBER]
                     door_id = door[CONF_DOOR_NUMBER]
@@ -103,13 +144,16 @@ class DoorsCoordinator(DataUpdateCoordinator):
                     delay = None
 
                     response = api.get_door_control(controller, door_id)
-                    if response.controller == controller and response.door == door_id:
+                    if response.controller == controller and response.door == door_id and controller in state:
                         mode = response.mode
                         delay = response.delay
 
                         info = {
                             ATTR_DOOR_MODE: mode,
                             ATTR_DOOR_DELAY: delay,
+                            ATTR_DOOR_OPEN: state[controller][door_id]['open'],
+                            ATTR_DOOR_BUTTON: state[controller][door_id]['button'],
+                            ATTR_DOOR_LOCK: state[controller][door_id]['locked'],
                             ATTR_AVAILABLE: True,
                         }
 

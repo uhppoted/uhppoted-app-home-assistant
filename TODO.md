@@ -45,10 +45,7 @@ KeyboardInterrupt
 
 - [ ] Doors
       - [ ] unlock
-            - [x] `ControllerDoorUnlock`
             - [ ] Update other entities (data coordinator)
-                  - await self.coordinator.async_request_refresh()
-                  - https://developers.home-assistant.io/docs/integration_fetching_data
             - [ ] service call
       - [ ] Name translation
             - https://developers.home-assistant.io/docs/core/entity
