@@ -56,8 +56,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
-    print('>>>>>>>>>>>>>>>>>>>>> POST LOAD', Coordinators.COORDINATORS)
-
     return True
 
 

@@ -28,7 +28,7 @@ KeyboardInterrupt
       - [ ] setters
             - [x] await self.coordinator.async_request_refresh()
             - [x] ControllerDateTime
-            - [ ] DoorDelay
+            - [x] DoorDelay
             - [ ] DoorMode
             - [ ] DoorUnlock
             - [ ] CardStartDate

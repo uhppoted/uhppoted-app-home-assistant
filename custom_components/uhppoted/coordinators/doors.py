@@ -36,6 +36,21 @@ class DoorsCoordinator(DataUpdateCoordinator):
             'doors': {},
         }
 
+    def set_door_delay(self, controller, door, delay):
+        api = self._uhppote['api']
+
+        response = api.get_door_control(controller, door)
+        if response.controller == controller and response.door == door:
+            mode = response.mode
+            response = api.set_door_control(controller, door, mode, delay)
+
+            if response.controller != controller or response.door != door:
+                raise ValueError(f'failed to set controller {controller} door {door} delay')
+
+            return response
+
+        return None
+
     async def _async_update_data(self):
         try:
             contexts = set(self.async_contexts())

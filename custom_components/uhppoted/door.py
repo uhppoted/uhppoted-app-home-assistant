@@ -720,11 +720,6 @@ class DoorMode(CoordinatorEntity, SelectEntity):
                 self._mode = state[ATTR_DOOR_MODE]
                 self._available = state[ATTR_AVAILABLE]
 
-            # response = self.uhppote.get_door_control(self.serial_no, self.door_id)
-            # if response.controller == self.serial_no and response.door == self.door_id:
-            #     self._mode = response.mode
-            #     self._available = True
-
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door} mode')
@@ -748,9 +743,9 @@ class DoorDelay(CoordinatorEntity, NumberEntity):
         self.uhppote = u
         self._unique_id = unique_id
         self.controller = controller
-        self.serial_no = int(f'{serial_no}')
+        self._serial_no = int(f'{serial_no}')
         self.door = door
-        self.door_id = int(f'{door_id}')
+        self._door_id = int(f'{door_id}')
 
         self._name = f'uhppoted.door.{door}.delay'.lower()
         self._delay = None
@@ -774,22 +769,17 @@ class DoorDelay(CoordinatorEntity, NumberEntity):
 
     async def async_set_native_value(self, value):
         try:
-            response = self.uhppote.get_door_control(self.serial_no, self.door_id)
-            if response.controller == self.serial_no and response.door == self.door_id:
-                mode = response.mode
-                delay = int(value)
-                response = self.uhppote.set_door_control(self.serial_no, self.door_id, mode, delay)
+            controller = self._serial_no
+            door = self._door_id
+            delay = int(value)
+            response = self.coordinator.set_door_delay(controller, door, delay)
 
-                if response.controller == self.serial_no and response.door == self.door_id:
-                    _LOGGER.info(f'set door {self.door} delay ({delay}s)')
-                    self._delay = response.delay
-                    self._available = True
-                else:
-                    raise ValueError(f'failed to set controller {self.controller} door {self.door} delay')
+            if response:
+                await self.coordinator.async_request_refresh()
 
         except (Exception):
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door} delay')
+            _LOGGER.exception(f'error setting controller {self.controller} door {self.door} delay')
 
     @callback
     def _handle_coordinator_update(self) -> None:
