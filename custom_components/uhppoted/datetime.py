@@ -12,10 +12,8 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from uhppoted import uhppote
 
-from .config import configure_controllers
-from .config import configure_driver
-
 from .coordinators.coordinators import Coordinators
+from .config import configure_controllers
 from .controller import ControllerDateTime
 
 

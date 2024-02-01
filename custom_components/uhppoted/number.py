@@ -11,9 +11,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from uhppoted import uhppote
 
-from .coordinators.doors import DoorsCoordinator
+from .coordinators.coordinators import Coordinators
 from .config import configure_doors
-from .config import configure_driver
 from .door import DoorDelay
 
 
@@ -22,12 +21,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     options = entry.options
     entities = []
 
-    doors = DoorsCoordinator(hass, options)
-    u = configure_driver(options)
+    doors = Coordinators.doors()
 
     def g(unique_id, controller, serial_no, door, door_no):
         entities.extend([
-            DoorDelay(doors, u['api'], unique_id, controller, serial_no, door, door_no),
+            DoorDelay(doors, unique_id, controller, serial_no, door, door_no),
         ])
 
     configure_doors(options, g)

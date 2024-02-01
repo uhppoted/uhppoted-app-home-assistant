@@ -1,4 +1,5 @@
 from .controllers import ControllersCoordinator
+from .doors import DoorsCoordinator
 
 
 class Coordinators():
@@ -20,5 +21,14 @@ class Coordinators():
 
         return None
 
+    @classmethod
+    def doors(clazz):
+        coordinators = Coordinators.COORDINATORS
+        if coordinators:
+            return coordinators._doors
+
+        return None
+
     def __init__(self, hass, options):
         self._controllers = ControllersCoordinator(hass, options)
+        self._doors = DoorsCoordinator(hass, options)

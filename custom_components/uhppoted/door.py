@@ -735,12 +735,11 @@ class DoorDelay(CoordinatorEntity, NumberEntity):
     _attr_native_step = 1
     _attr_native_unit_of_measurement = TIME_SECONDS
 
-    def __init__(self, coordinator, u, unique_id, controller, serial_no, door, door_id):
+    def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
         super().__init__(coordinator, context=unique_id)
 
         _LOGGER.debug(f'controller {controller}: door:{door} delay')
 
-        self.uhppote = u
         self._unique_id = unique_id
         self.controller = controller
         self._serial_no = int(f'{serial_no}')
