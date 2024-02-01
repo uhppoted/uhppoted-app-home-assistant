@@ -13,7 +13,6 @@ from uhppoted import uhppote
 
 from .coordinators.coordinators import Coordinators
 from .config import configure_doors
-from .config import configure_driver
 from .door import DoorMode
 
 
@@ -23,11 +22,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     entities = []
 
     doors = Coordinators.doors()
-    u = configure_driver(options)
 
     def g(unique_id, controller, serial_no, door, door_no):
         entities.extend([
-            DoorMode(doors, u['api'], unique_id, controller, serial_no, door, door_no),
+            DoorMode(doors, unique_id, controller, serial_no, door, door_no),
         ])
 
     configure_doors(options, g)

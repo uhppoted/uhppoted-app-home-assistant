@@ -626,17 +626,16 @@ class DoorMode(CoordinatorEntity, SelectEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
-    def __init__(self, coordinator, u, unique_id, controller, serial_no, door, door_id):
+    def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
         super().__init__(coordinator, context=unique_id)
 
         _LOGGER.debug(f'controller {controller}: door:{door} mode')
 
-        self.uhppote = u
         self._unique_id = unique_id
         self.controller = controller
-        self.serial_no = int(f'{serial_no}')
         self.door = door
-        self.door_id = int(f'{door_id}')
+        self._serial_no = int(f'{serial_no}')
+        self._door_id = int(f'{door_id}')
 
         self._name = f'uhppoted.door.{door}.mode'.lower()
         self._mode = None
@@ -681,18 +680,13 @@ class DoorMode(CoordinatorEntity, SelectEntity):
             self._mode = 3
 
         try:
-            response = self.uhppote.get_door_control(self.serial_no, self.door_id)
-            if response.controller == self.serial_no and response.door == self.door_id:
-                mode = self._mode
-                delay = response.delay
-                response = self.uhppote.set_door_control(self.serial_no, self.door_id, mode, delay)
+            controller = self._serial_no
+            door = self._door_id
+            mode = self._mode
+            response = self.coordinator.set_door_mode(controller, door, mode)
 
-                if response.controller == self.serial_no and response.door == self.door_id:
-                    _LOGGER.info(f'set door {self.door} mode  ({option})')
-                    self._mode = response.mode
-                    self._available = True
-                else:
-                    raise ValueError(f'failed to set controller {self.controller} door {self.door} mode')
+            if response:
+                await self.coordinator.async_request_refresh()
 
         except (Exception):
             self._available = False
@@ -742,8 +736,8 @@ class DoorDelay(CoordinatorEntity, NumberEntity):
 
         self._unique_id = unique_id
         self.controller = controller
-        self._serial_no = int(f'{serial_no}')
         self.door = door
+        self._serial_no = int(f'{serial_no}')
         self._door_id = int(f'{door_id}')
 
         self._name = f'uhppoted.door.{door}.delay'.lower()

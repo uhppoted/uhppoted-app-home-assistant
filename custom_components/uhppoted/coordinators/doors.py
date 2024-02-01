@@ -36,6 +36,21 @@ class DoorsCoordinator(DataUpdateCoordinator):
             'doors': {},
         }
 
+    def set_door_mode(self, controller, door, mode):
+        api = self._uhppote['api']
+
+        response = api.get_door_control(controller, door)
+        if response.controller == controller and response.door == door:
+            delay = response.delay
+            response = api.set_door_control(controller, door, mode, delay)
+
+            if response.controller != controller or response.door != door:
+                raise ValueError(f'invalid response to set-door-control')
+            else:
+                return response
+
+        return None
+
     def set_door_delay(self, controller, door, delay):
         api = self._uhppote['api']
 
@@ -45,9 +60,9 @@ class DoorsCoordinator(DataUpdateCoordinator):
             response = api.set_door_control(controller, door, mode, delay)
 
             if response.controller != controller or response.door != door:
-                raise ValueError(f'failed to set controller {controller} door {door} delay')
-
-            return response
+                raise ValueError(f'invalid response to set-door-control')
+            else:
+                return response
 
         return None
 
