@@ -97,7 +97,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
                     info[ATTR_CONTROLLER_DATETIME] = datetime.datetime(year, month, day, hour, minute, second, 0, tz)
 
-                response = api.record_special_events(controller,True)
+                response = api.record_special_events(controller, True)
                 if response.controller == controller:
                     if not response.updated:
                         _LOGGER.warning('record special events not enabled for {controller}')

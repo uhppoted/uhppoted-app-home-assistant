@@ -32,7 +32,7 @@ KeyboardInterrupt
             - [x] DoorDelay
             - [x] DoorMode
             - [x] DoorUnlock
-            - [ ] CardStartDate
+            - [x] CardStartDate
             - [ ] CardEndDate
             - [ ] CardPin
             - [ ] CardPermission

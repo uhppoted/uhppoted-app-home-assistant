@@ -184,14 +184,12 @@ class CardStartDate(CoordinatorEntity, DateEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
-    def __init__(self, coordinator, u, unique_id, card, name):
+    def __init__(self, coordinator, unique_id, card, name):
         super().__init__(coordinator, context=int(f'{card}'))
 
         _LOGGER.debug(f'card {card} start date')
 
-        self.driver = u
         self.card = int(f'{card}')
-
         self._unique_id = unique_id
         self._name = f'uhppoted.card.{card}.start-date'.lower()
         self._date = None
@@ -216,34 +214,13 @@ class CardStartDate(CoordinatorEntity, DateEntity):
 
     async def async_set_value(self, v: datetime.date) -> None:
         try:
-            for controller in self.driver['controllers']:
-                response = self.driver['api'].get_card(controller, self.card)
+            if self.coordinator.set_card_start_date(self.card, v):
+                _LOGGER.info(f'card {self.card} start date updated')
+            else:
+                _LOGGER.warning(f' card {self.card} start date not updated')
+                self._available = False
 
-                card = self.card
-                start = v
-                end = default_card_end_date()
-                door1 = 0
-                door2 = 0
-                door3 = 0
-                door4 = 0
-                PIN = 0
-
-                if response.controller == controller and response.card_number == self.card:
-                    if response.end_date:
-                        end = response.end_date
-
-                    door1 = response.door_1
-                    door2 = response.door_2
-                    door3 = response.door_3
-                    door4 = response.door_4
-                    PIN = response.pin
-
-                response = self.driver['api'].put_card(controller, card, start, end, door1, door2, door3, door4, PIN)
-                if response.stored:
-                    _LOGGER.info(f'controller {controller}: card {self.card} start date updated')
-                else:
-                    _LOGGER.warning(f'controller {controller}: card {self.card} start date not updated')
-                    self._available = False
+            await self.coordinator.async_request_refresh()
 
         except (Exception):
             self._available = False

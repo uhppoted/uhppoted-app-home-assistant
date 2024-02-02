@@ -24,6 +24,8 @@ from ..config import configure_cards
 from ..config import get_configured_controllers
 from ..config import get_configured_cards
 from ..config import resolve_permissions
+from ..config import default_card_start_date
+from ..config import default_card_end_date
 
 
 class CardsCoordinator(DataUpdateCoordinator):
@@ -36,6 +38,47 @@ class CardsCoordinator(DataUpdateCoordinator):
         self._state = {
             'cards': {},
         }
+
+    def set_card_start_date(self, card, start_date) -> None:
+        api = self._uhppote['api']
+        controllers = get_configured_controllers(self._options)
+        errors = []
+
+        for controller in controllers:
+            try:
+                end_date = default_card_end_date()
+                door1 = 0
+                door2 = 0
+                door3 = 0
+                door4 = 0
+                PIN = 0
+
+                response = api.get_card(controller, card)
+                if response.controller == controller and response.card_number == card:
+                    end_date = response.end_date if response.end_date else default_card_end_date
+                    door1 = response.door_1
+                    door2 = response.door_2
+                    door3 = response.door_3
+                    door4 = response.door_4
+                    PIN = response.pin
+
+                response = api.put_card(controller, card, start_date, end_date, door1, door2, door3, door4, PIN)
+                if not response.stored:
+                    errors.append(f'{controller}')
+
+            except Exception as e:
+                errors.append(f'{controller}')
+                _LOGGER.exception(f'error updating card {card} start date on controllers {e}')
+
+        if errors and len(errors) > 1:
+            _LOGGER.exception(f'error updating card {card} start date on controllers {",".join(errors)}')
+            return False
+
+        if errors and len(errors) > 0:
+            _LOGGER.exception(f'error updating card {card} start date on controller {errors[0]}')
+            return False
+
+        return True
 
     async def _async_update_data(self):
         try:
