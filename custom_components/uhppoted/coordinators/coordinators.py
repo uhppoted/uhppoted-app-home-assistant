@@ -1,5 +1,6 @@
 from .controllers import ControllersCoordinator
 from .doors import DoorsCoordinator
+from .cards import CardsCoordinator
 
 
 class Coordinators():
@@ -29,6 +30,15 @@ class Coordinators():
 
         return None
 
+    @classmethod
+    def cards(clazz):
+        coordinators = Coordinators.COORDINATORS
+        if coordinators:
+            return coordinators._cards
+
+        return None
+
     def __init__(self, hass, options):
         self._controllers = ControllersCoordinator(hass, options)
         self._doors = DoorsCoordinator(hass, options)
+        self._cards = CardsCoordinator(hass, options)

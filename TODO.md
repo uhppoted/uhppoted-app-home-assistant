@@ -21,7 +21,11 @@ KeyboardInterrupt
 
 - [ ] DataCoordinator
       - [ ] parallelize requests
-      - [ ] communalize coordinators/data
+      - [ ] communalize coordinators
+            - [x] controllers
+            - [x] doors
+            - [ ] cards
+      - [ ] communalize data
       - [x] getters
       - [ ] events
             - [ ] async listen

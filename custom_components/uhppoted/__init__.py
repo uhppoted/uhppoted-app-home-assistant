@@ -76,7 +76,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     ok = await hass.config_entries.async_unload_platforms(entry, platforms)
 
     # ... post-unload cleanup (if any)
-    Coordinators.unload()
+    Coordinators.unload(hass, entry.options)
 
     return ok
 
