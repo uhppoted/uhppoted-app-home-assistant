@@ -25,6 +25,7 @@ KeyboardInterrupt
       - [x] getters
       - [ ] events
             - [ ] async listen
+            - [ ] door open event not registering
       - [ ] setters
             - [x] await self.coordinator.async_request_refresh()
             - [x] ControllerDateTime
@@ -45,7 +46,7 @@ KeyboardInterrupt
 
 - [ ] Doors
       - [ ] unlock
-            - [ ] Update other entities (data coordinator)
+            - [x] Update other entities (data coordinator)
             - [ ] service call
       - [ ] Name translation
             - https://developers.home-assistant.io/docs/core/entity

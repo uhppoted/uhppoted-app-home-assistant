@@ -20,10 +20,6 @@ from ..const import ATTR_NETMASK
 from ..const import ATTR_GATEWAY
 from ..const import ATTR_FIRMWARE
 from ..const import ATTR_CONTROLLER_DATETIME
-from ..const import ATTR_DOOR_BUTTON
-from ..const import ATTR_DOOR_LOCK
-from ..const import ATTR_DOOR_OPEN
-from ..const import ATTR_DOORS
 
 from ..config import configure_driver
 from ..config import configure_cards
@@ -77,7 +73,6 @@ class ControllersCoordinator(DataUpdateCoordinator):
                     ATTR_FIRMWARE: None,
                 },
                 ATTR_CONTROLLER_DATETIME: None,
-                ATTR_DOORS: {},
             }
 
             try:
@@ -88,31 +83,6 @@ class ControllersCoordinator(DataUpdateCoordinator):
                         ATTR_NETMASK: f'{response.subnet_mask}',
                         ATTR_GATEWAY: f'{response.gateway}',
                         ATTR_FIRMWARE: f'{response.version} {response.date:%Y-%m-%d}',
-                    }
-
-                response = api.get_status(controller)
-                if response.controller == controller:
-                    info[ATTR_DOORS] = {
-                        1: {
-                            ATTR_DOOR_OPEN: response.door_1_open == True,
-                            ATTR_DOOR_BUTTON: response.door_1_button == True,
-                            ATTR_DOOR_LOCK: response.relays & 0x01 == 0x00,
-                        },
-                        2: {
-                            ATTR_DOOR_OPEN: response.door_2_open == True,
-                            ATTR_DOOR_BUTTON: response.door_2_button == True,
-                            ATTR_DOOR_LOCK: response.relays & 0x02 == 0x00,
-                        },
-                        3: {
-                            ATTR_DOOR_OPEN: response.door_3_open == True,
-                            ATTR_DOOR_BUTTON: response.door_3_button == True,
-                            ATTR_DOOR_LOCK: response.relays & 0x04 == 0x00,
-                        },
-                        4: {
-                            ATTR_DOOR_OPEN: response.door_4_open == True,
-                            ATTR_DOOR_BUTTON: response.door_4_button == True,
-                            ATTR_DOOR_LOCK: response.relays & 0x08 == 0x00,
-                        },
                     }
 
                 response = api.get_time(controller)

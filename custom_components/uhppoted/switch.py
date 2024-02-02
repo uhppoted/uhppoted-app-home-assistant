@@ -26,10 +26,8 @@ from .card import CardPermission
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
-    config = entry.data
     options = entry.options
     entities = []
-
     cards = CardsCoordinator(hass, options)
     u = configure_driver(options)
 

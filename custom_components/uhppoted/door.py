@@ -37,16 +37,15 @@ class DoorInfo(CoordinatorEntity, SensorEntity):
     _attr_has_entity_name: True
 
     def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
-        super().__init__(coordinator, context=int(f'{serial_no}'))
+        super().__init__(coordinator, context=unique_id)
 
         _LOGGER.debug(f'controller {controller}: door:{door}')
 
         self._unique_id = unique_id
         self.controller = controller
-        self.serial_no = int(f'{serial_no}')
         self.door = door
-        self.door_id = int(f'{door_id}')
-
+        self._serial_no = int(f'{serial_no}')
+        self._door_id = int(f'{door_id}')
         self._name = f'uhppoted.door.{door}.info'.lower()
         self._locked = None
         self._open = None
@@ -106,22 +105,18 @@ class DoorInfo(CoordinatorEntity, SensorEntity):
     def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door} info')
         try:
-            idx = self.serial_no
+            idx = self._unique_id
 
             if idx not in self.coordinator.data:
                 self._available = False
             elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
                 self._available = False
-            elif ATTR_DOORS not in self.coordinator.data[idx]:
-                self._available = False
-            elif self.door_id not in self.coordinator.data[idx][ATTR_DOORS]:
-                self._available = False
             else:
-                doors = self.coordinator.data[idx][ATTR_DOORS]
-                self._open = doors[self.door_id][ATTR_DOOR_OPEN]
-                self._button = doors[self.door_id][ATTR_DOOR_BUTTON]
-                self._locked = doors[self.door_id][ATTR_DOOR_LOCK]
-                self._available = self.coordinator.data[idx][ATTR_AVAILABLE]
+                state = self.coordinator.data[idx]
+                self._open = state[ATTR_DOOR_OPEN]
+                self._button = state[ATTR_DOOR_BUTTON]
+                self._locked = state[ATTR_DOOR_LOCK]
+                self._available = state[ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False
@@ -133,16 +128,15 @@ class DoorOpen(CoordinatorEntity, SensorEntity):
     _attr_has_entity_name: True
 
     def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
-        super().__init__(coordinator, context=int(f'{serial_no}'))
+        super().__init__(coordinator, context=unique_id)
 
         _LOGGER.debug(f'controller {controller}: door:{door} open')
 
         self._unique_id = unique_id
         self.controller = controller
-        self.serial_no = int(f'{serial_no}')
         self.door = door
-        self.door_id = int(f'{door_id}')
-
+        self._serial_no = int(f'{serial_no}')
+        self._door_id = int(f'{door_id}')
         self._name = f'uhppoted.door.{door}.open'.lower()
         self._open = None
         self._available = False
@@ -180,20 +174,18 @@ class DoorOpen(CoordinatorEntity, SensorEntity):
     def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door}.open state')
         try:
-            idx = self.serial_no
+            idx = self._unique_id
 
             if idx not in self.coordinator.data:
                 self._available = False
             elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
                 self._available = False
-            elif ATTR_DOORS not in self.coordinator.data[idx]:
-                self._available = False
-            elif self.door_id not in self.coordinator.data[idx][ATTR_DOORS]:
+            elif ATTR_DOOR_OPEN not in self.coordinator.data[idx]:
                 self._available = False
             else:
-                doors = self.coordinator.data[idx][ATTR_DOORS]
-                self._open = doors[self.door_id][ATTR_DOOR_OPEN]
-                self._available = self.coordinator.data[idx][ATTR_AVAILABLE]
+                state = self.coordinator.data[idx]
+                self._open = state[ATTR_DOOR_OPEN]
+                self._available = state[ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False
@@ -205,16 +197,15 @@ class DoorLock(CoordinatorEntity, SensorEntity):
     _attr_has_entity_name: True
 
     def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
-        super().__init__(coordinator, context=int(f'{serial_no}'))
+        super().__init__(coordinator, context=unique_id)
 
         _LOGGER.debug(f'controller {controller}: door:{door} lock')
 
         self._unique_id = unique_id
         self.controller = controller
-        self.serial_no = int(f'{serial_no}')
         self.door = door
-        self.door_id = int(f'{door_id}')
-
+        self._serial_no = int(f'{serial_no}')
+        self._door_id = int(f'{door_id}')
         self._name = f'uhppoted.door.{door}.lock'.lower()
         self._locked = None
         self._available = False
@@ -252,20 +243,18 @@ class DoorLock(CoordinatorEntity, SensorEntity):
     def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door}.lock state')
         try:
-            idx = self.serial_no
+            idx = self._unique_id
 
             if idx not in self.coordinator.data:
                 self._available = False
             elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
                 self._available = False
-            elif ATTR_DOORS not in self.coordinator.data[idx]:
-                self._available = False
-            elif self.door_id not in self.coordinator.data[idx][ATTR_DOORS]:
+            elif ATTR_DOOR_LOCK not in self.coordinator.data[idx]:
                 self._available = False
             else:
-                doors = self.coordinator.data[idx][ATTR_DOORS]
-                self._locked = doors[self.door_id][ATTR_DOOR_LOCK]
-                self._available = self.coordinator.data[idx][ATTR_AVAILABLE]
+                state = self.coordinator.data[idx]
+                self._locked = state[ATTR_DOOR_LOCK]
+                self._available = state[ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False
@@ -277,15 +266,15 @@ class DoorButton(CoordinatorEntity, SensorEntity):
     _attr_has_entity_name: True
 
     def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
-        super().__init__(coordinator, context=int(f'{serial_no}'))
+        super().__init__(coordinator, context=unique_id)
 
         _LOGGER.debug(f'controller {controller}: door:{door} button')
 
         self._unique_id = unique_id
         self.controller = controller
-        self.serial_no = int(f'{serial_no}')
         self.door = door
-        self.door_id = int(f'{door_id}')
+        self._serial_no = int(f'{serial_no}')
+        self._door_id = int(f'{door_id}')
 
         self._name = f'uhppoted.door.{door}.button'.lower()
         self._pressed = None
@@ -324,20 +313,18 @@ class DoorButton(CoordinatorEntity, SensorEntity):
     def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door} button state')
         try:
-            idx = self.serial_no
+            idx = self._unique_id
 
             if idx not in self.coordinator.data:
                 self._available = False
             elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
                 self._available = False
-            elif ATTR_DOORS not in self.coordinator.data[idx]:
-                self._available = False
-            elif self.door_id not in self.coordinator.data[idx][ATTR_DOORS]:
+            elif ATTR_DOOR_BUTTON not in self.coordinator.data[idx]:
                 self._available = False
             else:
-                doors = self.coordinator.data[idx][ATTR_DOORS]
-                self._pressed = doors[self.door_id][ATTR_DOOR_BUTTON]
-                self._available = self.coordinator.data[idx][ATTR_AVAILABLE]
+                state = self.coordinator.data[idx]
+                self._pressed = state[ATTR_DOOR_BUTTON]
+                self._available = state[ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False
