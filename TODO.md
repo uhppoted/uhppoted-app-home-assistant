@@ -25,7 +25,7 @@ KeyboardInterrupt
       - [x] getters
       - [ ] events
             - [ ] async listen
-            - [ ] door open event not registering
+            - [x] enable record-special-events
       - [ ] setters
             - [x] await self.coordinator.async_request_refresh()
             - [x] ControllerDateTime
