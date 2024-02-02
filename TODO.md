@@ -37,7 +37,7 @@ KeyboardInterrupt
             - [x] DoorMode
             - [x] DoorUnlock
             - [x] CardStartDate
-            - [ ] CardEndDate
+            - [x] CardEndDate
             - [ ] CardPin
             - [ ] CardPermission
 

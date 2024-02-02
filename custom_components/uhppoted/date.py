@@ -12,7 +12,6 @@ from uhppoted import uhppote
 
 from .coordinators.coordinators import Coordinators
 from .config import configure_cards
-from .config import configure_driver
 from .card import CardStartDate
 from .card import CardEndDate
 
@@ -22,12 +21,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     entities = []
     cards = Coordinators.cards()
 
-    u = configure_driver(options)
-
     def f(card, name, unique_id):
         entities.extend([
             CardStartDate(cards, unique_id, card, name),
-            CardEndDate(cards, u, unique_id, card, name),
+            CardEndDate(cards, unique_id, card, name),
         ])
 
     configure_cards(options, f)
