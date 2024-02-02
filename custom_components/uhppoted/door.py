@@ -800,22 +800,20 @@ class DoorDelay(CoordinatorEntity, NumberEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} door {self.door} delay')
 
 
-class DoorUnlock(ButtonEntity):
+class DoorUnlock(CoordinatorEntity, ButtonEntity):
     _attr_icon = 'mdi:door'
     _attr_has_entity_name: True
 
-    def __init__(self, u, unique_id, controller, serial_no, door, door_id):
-        super().__init__()
+    def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
+        super().__init__(coordinator, context=unique_id)
 
         _LOGGER.debug(f'controller {controller}: door:{door} unlock')
 
-        self.uhppote = u
         self._unique_id = unique_id
         self.controller = controller
-        self.serial_no = int(f'{serial_no}')
         self.door = door
-        self.door_id = int(f'{door_id}')
-
+        self._serial_no = int(f'{serial_no}')
+        self._door_id = int(f'{door_id}')
         self._name = f'uhppoted.door.{door}.unlock'.lower()
         self._available = True
 
@@ -833,15 +831,35 @@ class DoorUnlock(ButtonEntity):
 
     async def async_press(self) -> None:
         try:
-            response = self.uhppote.open_door(self.serial_no, self.door_id)
-            if response.controller == self.serial_no:
+            controller = self._serial_no
+            door = self._door_id
+            response = self.coordinator.unlock_door(controller, door)
+
+            if response:
                 if response.opened:
                     _LOGGER.info(f'unlocked door {self.door}')
                 else:
-                    raise ValueError(f'failed to unlock door {self.door}')
+                    _LOGGER.info(f'unable to unlock door {self.door}')
+
+                await self.coordinator.async_request_refresh()
+
+            # response = self.uhppote.open_door(self.serial_no, self.door_id)
+            # if response.controller == self.serial_no:
+            #     if response.opened:
+            #         _LOGGER.info(f'unlocked door {self.door}')
+            #     else:
+            #         raise ValueError(f'failed to unlock door {self.door}')
 
         except (Exception):
             _LOGGER.exception(f'error unlocking door {self.door}')
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
     async def async_update(self):
+        self._update()
+
+    def _update(self):
         self._available = True

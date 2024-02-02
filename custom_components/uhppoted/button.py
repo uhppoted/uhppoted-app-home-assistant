@@ -11,36 +11,21 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from uhppoted import uhppote
 
-from .const import DOMAIN
-from .const import CONF_BIND_ADDR
-from .const import CONF_BROADCAST_ADDR
-from .const import CONF_LISTEN_ADDR
-from .const import CONF_DEBUG
-
-from .const import ATTR_CONTROLLER_ADDRESS
-from .const import ATTR_NETMASK
-from .const import ATTR_GATEWAY
-from .const import ATTR_FIRMWARE
-
+from .coordinators.coordinators import Coordinators
 from .config import configure_doors
 from .door import DoorUnlock
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     options = entry.options
-
-    bind = options[CONF_BIND_ADDR]
-    broadcast = options[CONF_BROADCAST_ADDR]
-    listen = options[CONF_LISTEN_ADDR]
-    debug = options[CONF_DEBUG]
-
-    u = uhppote.Uhppote(bind, broadcast, listen, debug)
     entities = []
+    doors = Coordinators.doors()
 
     def g(unique_id, controller, serial_no, door, door_no):
         entities.extend([
-            DoorUnlock(u, unique_id, controller, serial_no, door, door_no),
+            DoorUnlock(doors, unique_id, controller, serial_no, door, door_no),
         ])
 
     configure_doors(options, g)
+    await doors.async_config_entry_first_refresh()
     async_add_entities(entities, update_before_add=True)

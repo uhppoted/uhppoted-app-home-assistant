@@ -69,6 +69,15 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
         return None
 
+    def unlock_door(self, controller, door) -> None:
+        api = self._uhppote['api']
+        response = api.open_door(controller, door)
+
+        if response.controller != controller:
+            raise ValueError(f'invalid response to open-door')
+        else:
+            return response
+
     async def _async_update_data(self):
         try:
             contexts = set(self.async_contexts())
