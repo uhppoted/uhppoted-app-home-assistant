@@ -3,6 +3,7 @@ from collections import deque
 
 from datetime import datetime
 from datetime import date
+import re
 import logging
 
 from homeassistant.core import callback
@@ -331,15 +332,13 @@ class CardPermission(CoordinatorEntity, SwitchEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
-    def __init__(self, coordinator, u, unique_id, card, name, door):
+    def __init__(self, coordinator, unique_id, card, name, door):
         super().__init__(coordinator, context=int(f'{card}'))
 
         _LOGGER.debug(f'card {card} permission for door {door[CONF_DOOR_ID]}')
 
-        self.driver = u
         self.card = int(f'{card}')
         self.door = door
-
         self._unique_id = unique_id
         self._name = f'uhppoted.card.{card}.{door[CONF_DOOR_ID]}'.lower()
         self._allowed = None
@@ -376,42 +375,8 @@ class CardPermission(CoordinatorEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs):
         _LOGGER.debug(f'card:{self.card} enable access for door {self.door[CONF_DOOR_ID]}')
         try:
-            controller = int(f'{self.door[CONF_CONTROLLER_SERIAL_NUMBER]}')
-            door = int(f'{self.door[CONF_DOOR_NUMBER]}')
-            card = self.card
-
-            start = default_card_start_date()
-            end = default_card_end_date()
-            door1 = 1 if door == 1 else 0
-            door2 = 1 if door == 2 else 0
-            door3 = 1 if door == 3 else 0
-            door4 = 1 if door == 4 else 0
-            PIN = 0
-
-            response = self.driver['api'].get_card(controller, self.card)
-            if response.controller == controller and response.card_number == self.card:
-                if response.start_date:
-                    start = response.start_date
-
-                if response.end_date:
-                    end = response.start_date
-
-                door1 = 1 if door == 1 else response.door_1
-                door2 = 1 if door == 2 else response.door_2
-                door3 = 1 if door == 3 else response.door_3
-                door4 = 1 if door == 4 else response.door_4
-                PIN = response.pin
-
-            response = self.driver['api'].put_card(controller, card, start, end, door1, door2, door3, door4, PIN)
-            if response.stored:
-                _LOGGER.info(
-                    f'controller {self.door[CONF_DOOR_CONTROLLER]}, card {self.card} door {self.door[CONF_DOOR_ID]} permission updated'
-                )
-            else:
-                _LOGGER.warning(
-                    f'controller {self.door[CONF_DOOR_CONTROLLER]}, card {self.card} door {self.door[CONF_DOOR_ID]} permission not updated'
-                )
-                self._available = False
+            self.coordinator.set_card_permission(self.card, self.door, True)
+            _LOGGER.info(f'card {self.card} permission to door {self.door[CONF_DOOR_ID]} granted')
 
         except (Exception):
             self._available = False
@@ -420,43 +385,8 @@ class CardPermission(CoordinatorEntity, SwitchEntity):
     async def async_turn_off(self, **kwargs):
         _LOGGER.debug(f'card:{self.card} remove access for door {self.door[CONF_DOOR_ID]}')
         try:
-            controller = int(f'{self.door[CONF_CONTROLLER_SERIAL_NUMBER]}')
-            door = int(f'{self.door[CONF_DOOR_NUMBER]}')
-            card = self.card
-
-            start = default_card_start_date()
-            end = default_card_end_date()
-            door1 = 1 if door == 1 else 0
-            door2 = 1 if door == 2 else 0
-            door3 = 1 if door == 3 else 0
-            door4 = 1 if door == 4 else 0
-            PIN = 0
-
-            response = self.driver['api'].get_card(controller, self.card)
-            if response.controller == controller and response.card_number == self.card:
-                if response.start_date:
-                    start = response.start_date
-
-                if response.end_date:
-                    end = response.start_date
-
-                door1 = 0 if door == 1 else response.door_1
-                door2 = 0 if door == 2 else response.door_2
-                door3 = 0 if door == 3 else response.door_3
-                door4 = 0 if door == 4 else response.door_4
-                PIN = response.pin
-
-            response = self.driver['api'].put_card(controller, card, start, end, door1, door2, door3, door4, PIN)
-            if response.stored:
-                _LOGGER.info(
-                    f'controller {self.door[CONF_DOOR_CONTROLLER]}, card {self.card} door {self.door[CONF_DOOR_ID]} permission updated'
-                )
-            else:
-                _LOGGER.warning(
-                    f'controller {self.door[CONF_DOOR_CONTROLLER]}, card {self.card} door {self.door[CONF_DOOR_ID]} permission not updated'
-                )
-                self._available = False
-
+            self.coordinator.set_card_permission(self.card, self.door, False)
+            _LOGGER.info(f'card {self.card} permission to door {self.door[CONF_DOOR_ID]} revoked')
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error updating card {self.card} access for door {self.door[CONF_DOOR_ID]}')
@@ -492,7 +422,7 @@ class CardPIN(CoordinatorEntity, TextEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
 
-    _attr_mode = 'password'
+    _attr_mode = 'normal'
     _attr_pattern = '[0-9]{0,6}'
     _attr_native_max_value = 6
     _attr_native_min_value = 0
@@ -531,7 +461,9 @@ class CardPIN(CoordinatorEntity, TextEntity):
 
     async def async_set_value(self, value):
         try:
-            if self.coordinator.set_card_PIN(self.card, int(f'{value}')):
+            PIN = 0 if not f'{value}'.isdigit() else int(f'{value}')
+
+            if self.coordinator.set_card_PIN(self.card, PIN):
                 _LOGGER.info(f'card {self.card} PIN updated')
             else:
                 _LOGGER.warning(f' card {self.card} PIN not updated')

@@ -20,16 +20,14 @@ from .const import CONF_DOOR_NUMBER
 from .const import CONF_DOOR_CONTROLLER
 
 from .coordinators.cards import CardsCoordinator
-from .config import configure_driver
 from .config import configure_cards
 from .card import CardPermission
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     options = entry.options
-    entities = []
     cards = CardsCoordinator(hass, options)
-    u = configure_driver(options)
+    entities = []
 
     doors = []
     if CONF_CONTROLLERS in options and CONF_DOORS in options:
@@ -53,7 +51,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     def h(card, name, unique_id):
         for d in doors:
             entities.extend([
-                CardPermission(cards, u, unique_id, card, name, d),
+                CardPermission(cards, unique_id, card, name, d),
             ])
 
     configure_cards(options, h)

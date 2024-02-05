@@ -27,10 +27,7 @@ KeyboardInterrupt
             - [x] cards
       - [ ] communalize data
       - [x] getters
-      - [ ] events
-            - [ ] async listen
-            - [x] enable record-special-events
-      - [ ] setters
+      - [X] setters
             - [x] await self.coordinator.async_request_refresh()
             - [x] ControllerDateTime
             - [x] DoorDelay
@@ -39,7 +36,10 @@ KeyboardInterrupt
             - [x] CardStartDate
             - [x] CardEndDate
             - [x] CardPin
-            - [ ] CardPermission
+            - [x] CardPermission
+      - [ ] events
+            - [ ] async listen
+            - [x] enable record-special-events
 
 - [ ] Controller
       - [ ] Rework as Device
