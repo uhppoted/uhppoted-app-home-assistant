@@ -39,7 +39,7 @@ class CardsCoordinator(DataUpdateCoordinator):
             'cards': {},
         }
 
-    def set_card_start_date(self, card, start_date) -> None:
+    def set_card_start_date(self, card, start_date):
         api = self._uhppote['api']
         controllers = get_configured_controllers(self._options)
         errors = []
@@ -80,7 +80,7 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         return True
 
-    def set_card_end_date(self, card, end_date) -> None:
+    def set_card_end_date(self, card, end_date):
         api = self._uhppote['api']
         controllers = get_configured_controllers(self._options)
         errors = []
@@ -110,6 +110,51 @@ class CardsCoordinator(DataUpdateCoordinator):
             except Exception as e:
                 errors.append(f'{controller}')
                 _LOGGER.exception(f'error updating card {card} end date on controller {controller} ({e})')
+
+        if errors and len(errors) > 1:
+            _LOGGER.exception(f'error updating card {card} end date on controllers {",".join(errors)}')
+            return False
+
+        if errors and len(errors) > 0:
+            _LOGGER.exception(f'error updating card {card} end date on controller {errors[0]}')
+            return False
+
+        return True
+
+    def set_card_PIN(self, card, PIN):
+        api = self._uhppote['api']
+        controllers = get_configured_controllers(self._options)
+        errors = []
+
+        for controller in controllers:
+            try:
+                start = default_card_start_date()
+                end = default_card_end_date()
+                door1 = 0
+                door2 = 0
+                door3 = 0
+                door4 = 0
+
+                response = api.get_card(controller, card)
+                if response.controller == controller and response.card_number == card:
+                    if response.start_date:
+                        start = response.start_date
+
+                    if response.end_date:
+                        end = response.end_date
+
+                    door1 = response.door_1
+                    door2 = response.door_2
+                    door3 = response.door_3
+                    door4 = response.door_4
+
+                response = api.put_card(controller, card, start, end, door1, door2, door3, door4, PIN)
+                if not response.stored:
+                    errors.append(f'{controller}')
+
+            except (Exception):
+                self._available = False
+                _LOGGER.exception(f'error updating card {self.card} PIN')
 
         if errors and len(errors) > 1:
             _LOGGER.exception(f'error updating card {card} end date on controllers {",".join(errors)}')

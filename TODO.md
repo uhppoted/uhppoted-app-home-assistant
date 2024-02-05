@@ -21,10 +21,10 @@ KeyboardInterrupt
 
 - [ ] DataCoordinator
       - [ ] parallelize requests
-      - [ ] communalize coordinators
+      - [x] communalize coordinators
             - [x] controllers
             - [x] doors
-            - [ ] cards
+            - [x] cards
       - [ ] communalize data
       - [x] getters
       - [ ] events
@@ -38,7 +38,7 @@ KeyboardInterrupt
             - [x] DoorUnlock
             - [x] CardStartDate
             - [x] CardEndDate
-            - [ ] CardPin
+            - [x] CardPin
             - [ ] CardPermission
 
 - [ ] Controller
