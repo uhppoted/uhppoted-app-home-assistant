@@ -188,7 +188,7 @@ class CardsCoordinator(DataUpdateCoordinator):
                 start = response.start_date
 
             if response.end_date:
-                end = response.start_date
+                end = response.end_date
 
             door1 = permission if doorno == 1 else response.door_1
             door2 = permission if doorno == 2 else response.door_2

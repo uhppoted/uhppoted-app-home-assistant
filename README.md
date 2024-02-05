@@ -19,6 +19,54 @@ UHPPOTE controller HACS integration for Home Assistant.
 
 ### Alpha Release
 
+**NOTE**: The Alpha release is a first release and is entirely a **use at your own risk/discretion**. It has had
+**very limited** testing and you could quite conceivably lock yourself out of your own home. i.e. have a backup 
+plan (and/or a fire axe ready). It is also quite likely that you will have to reconfigure your system again with
+each new release i.e. it is for the brave and adventurous who like living on the edge.
+
+The installation below is entirely manual and installs the project as a _Home Assistant_ _custom component_.
+
+
+1. Create the `config/custom_components` subdirectory under the _Home Assistant_ folder, if it does not already
+   exist and create the `__init.py__` file:
+
+```
+cd <Home Assistant>
+mkdir -p config/custom_components
+touch config/custom_components/__init.py__
+```
+
+2. Download the _.tar.gz_ archive from the [_Releases]() section of the repository and extract it to the
+   `config/custom_components` folder under the _Home Assistant_ folder, e.g.:
+
+```
+cd <Home Assistant>
+cd config/custom_components
+tar xvzf uhppoted-app-homeassistant.tar.gz .
+```
+3. (Optionally), add the default configuration to the `configuration.yaml` file in the `config` folder of
+   _Home Assistant_, e.g.:
+```
+...
+uhppoted:
+    bind_address: 192.168.1.100
+    broadcast_address: 192.168.1.255:60000
+    listen_address: 192.168.1.100:60001
+    debug: false
+...
+```
+
+4. Start (or restart) _Home Assistant_ and confirm there are no errors in the logs.
+
+5. Configure your UHPPOTE controllers:
+   1. Open the _Settings_ page
+   2. From the _Settings_ page, open the _Devices and Services_ page
+   3. Click on the _Add Integration_ button
+   4. Search for _uhppoted_
+   5. Step through the configuration flow to set up the initial system configuration
+   6. Add the entities to cards on the desktop (an example is show below)
+
+
 ### Development Version
 
 The suggested installation for the development version installs the cloned project as a symbolic link under the 
