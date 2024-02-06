@@ -11,8 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from uhppoted import uhppote
 
-from .coordinators.events import EventsCoordinator
-
+from .coordinators.coordinators import Coordinators
 from .config import configure_controllers
 from .config import configure_doors
 from .config import configure_cards
@@ -26,11 +25,9 @@ from .card import CardSwiped
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
-    config = entry.data
     options = entry.options
+    events = Coordinators.events()
     entities = []
-
-    events = EventsCoordinator(hass, options)
 
     def f(unique_id, controller, serial_no, address):
         entities.extend([

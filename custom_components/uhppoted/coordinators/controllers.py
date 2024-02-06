@@ -38,6 +38,12 @@ class ControllersCoordinator(DataUpdateCoordinator):
             'controllers': {},
         }
 
+    def __del__(self):
+        self.unload()
+
+    def unload(self):
+        pass
+
     def set_datetime(self, controller, time):
         api = self._uhppote['api']
         response = api.set_time(controller, time)
@@ -96,11 +102,6 @@ class ControllersCoordinator(DataUpdateCoordinator):
                     tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
 
                     info[ATTR_CONTROLLER_DATETIME] = datetime.datetime(year, month, day, hour, minute, second, 0, tz)
-
-                response = api.record_special_events(controller, True)
-                if response.controller == controller:
-                    if not response.updated:
-                        _LOGGER.warning('record special events not enabled for {controller}')
 
                 info[ATTR_AVAILABLE] = True
 

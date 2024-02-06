@@ -22,24 +22,19 @@ KeyboardInterrupt
 - [ ] DataCoordinator
       - [ ] parallelize requests
       - [x] communalize coordinators
-            - [x] controllers
-            - [x] doors
-            - [x] cards
       - [ ] communalize data
       - [x] getters
       - [X] setters
-            - [x] await self.coordinator.async_request_refresh()
-            - [x] ControllerDateTime
-            - [x] DoorDelay
-            - [x] DoorMode
-            - [x] DoorUnlock
-            - [x] CardStartDate
-            - [x] CardEndDate
-            - [x] CardPin
-            - [x] CardPermission
       - [ ] events
-            - [ ] async listen
             - [x] enable record-special-events
+            - [x] enable record-special-events
+            - https://community.home-assistant.io/t/starting-a-websocket-connection-in-async-setup-entry-via-hass-async-create-task-causes-long-startup/464966/5
+            - https://community.home-assistant.io/t/creating-persistent-async-tasks/180257
+            - https://docs.python.org/3.6/library/weakref.html#weakref.finalize
+            - https://docs.python.org/3.6/library/weakref.html#comparing-finalizers-with-del-methods
+            - https://docs.python.org/3.6/reference/datamodel.html#object.__del__
+            - https://docs.python.org/3/library/asyncio-protocol.html#udp-echo-server
+            - https://docs.python.org/3/library/asyncio-stream.html
 
 - [ ] Controller
       - [ ] Rework as Device

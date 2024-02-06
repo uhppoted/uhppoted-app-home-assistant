@@ -41,6 +41,12 @@ class CardsCoordinator(DataUpdateCoordinator):
             'cards': {},
         }
 
+    def __del__(self):
+        self.unload()
+
+    def unload(self):
+        pass
+
     def set_card_start_date(self, card, start_date):
         api = self._uhppote['api']
         controllers = get_configured_controllers(self._options)

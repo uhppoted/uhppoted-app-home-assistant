@@ -3,6 +3,7 @@ from __future__ import annotations
 import async_timeout
 import datetime
 import logging
+import asyncio
 
 _LOGGER = logging.getLogger(__name__)
 _INTERVAL = datetime.timedelta(seconds=30)
@@ -23,6 +24,27 @@ from ..config import get_configured_controllers
 from ..config import get_configured_cards
 
 
+async def _listen(hass, listener):
+    loop = asyncio.get_running_loop()
+    transport, protocol = await loop.create_datagram_endpoint(lambda: listener, local_addr=('192.168.1.100', 60001))
+
+    _LOGGER.debug(f'UDP event listener {transport}')
+    _LOGGER.debug(f'UDP event listener {protocol}')
+
+
+class EventListener:
+
+    def connection_made(self, transport):
+        self._transport = transport
+
+    def datagram_received(self, data, addr):
+        print(f'>>>>>>>>>>>>>>>>>>>>>>>> EVENT {len(data)} bytes')
+
+    def close(self):
+        if self.transport:
+            self._transport.close()
+
+
 class EventsCoordinator(DataUpdateCoordinator):
 
     def __init__(self, hass, options):
@@ -34,6 +56,18 @@ class EventsCoordinator(DataUpdateCoordinator):
             'events': {},
             'index': {},
         }
+
+        self._listener = EventListener()
+
+        asyncio.create_task(_listen(hass, self._listener))
+
+    def __del__(self):
+        self.unload()
+
+    def unload(self):
+        print(">>>>>>>> awooooooooogah ...")
+        if self._listener:
+            self._listener.close()
 
     async def _async_update_data(self):
         try:
@@ -61,6 +95,11 @@ class EventsCoordinator(DataUpdateCoordinator):
             }
 
             try:
+                response = api.record_special_events(controller, True)
+                if response.controller == controller:
+                    if not response.updated:
+                        _LOGGER.warning('record special events not enabled for {controller}')
+
                 response = api.get_status(controller)
                 if response.controller == controller:
                     info[ATTR_STATUS] = response

@@ -39,6 +39,12 @@ class DoorsCoordinator(DataUpdateCoordinator):
             'doors': {},
         }
 
+    def __del__(self):
+        self.unload()
+
+    def unload(self):
+        pass
+
     def set_door_mode(self, controller, door, mode):
         api = self._uhppote['api']
 
