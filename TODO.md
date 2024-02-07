@@ -10,7 +10,6 @@ TimeoutError: timed out
 ^C2023-11-29 12:44:52.365 ERROR (MainThread) [root] Uncaught exception
 ...               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 KeyboardInterrupt
-
 ```
 
 - [ ] _config-flow_
@@ -27,14 +26,15 @@ KeyboardInterrupt
       - [X] setters
       - [ ] events
             - [x] enable record-special-events
-            - [x] enable record-special-events
-            - https://community.home-assistant.io/t/starting-a-websocket-connection-in-async-setup-entry-via-hass-async-create-task-causes-long-startup/464966/5
-            - https://community.home-assistant.io/t/creating-persistent-async-tasks/180257
-            - https://docs.python.org/3.6/library/weakref.html#weakref.finalize
-            - https://docs.python.org/3.6/library/weakref.html#comparing-finalizers-with-del-methods
-            - https://docs.python.org/3.6/reference/datamodel.html#object.__del__
-            - https://docs.python.org/3/library/asyncio-protocol.html#udp-echo-server
-            - https://docs.python.org/3/library/asyncio-stream.html
+            - [ ] synthesize door-lock event
+            - [ ] event-listener
+                  - https://developers.home-assistant.io/docs/integration_fetching_data/#pushing-api-endpoints
+            - [ ] `unload`
+                  - https://docs.python.org/3.6/library/weakref.html#weakref.finalize
+                  - https://docs.python.org/3.6/library/weakref.html#comparing-finalizers-with-del-methods
+                  - https://docs.python.org/3.6/reference/datamodel.html#object.__del__
+                  - https://docs.python.org/3/library/asyncio-protocol.html#udp-echo-server
+                  - https://docs.python.org/3/library/asyncio-stream.html
 
 - [ ] Controller
       - [ ] Rework as Device
@@ -45,7 +45,6 @@ KeyboardInterrupt
 
 - [ ] Doors
       - [ ] unlock
-            - [x] Update other entities (data coordinator)
             - [ ] service call
       - [ ] Name translation
             - https://developers.home-assistant.io/docs/core/entity
@@ -96,4 +95,6 @@ KeyboardInterrupt
     - https://community.home-assistant.io/t/request-give-the-ability-to-add-attributes-to-people-entities/297483
     - https://www.home-assistant.io/integrations/person
     - https://community.home-assistant.io/t/is-there-a-way-to-create-custom-attributes-for-entities/142875
+12. https://community.home-assistant.io/t/starting-a-websocket-connection-in-async-setup-entry-via-hass-async-create-task-causes-long-startup/464966/5
+13. https://community.home-assistant.io/t/creating-persistent-async-tasks/180257
 

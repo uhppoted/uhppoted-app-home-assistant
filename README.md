@@ -6,6 +6,16 @@ UHPPOTE controller HACS integration for Home Assistant.
 
 (_IN DEVELOPMENT_)
 
+**Caveat**
+
+_It turns out that an access control system (ACS) is not a particuarly comfortable fit for _Home Assistant_ - there are simply
+a lot more moving parts in an ACS than with e.g. a thermostat. Having said which, the _uhppoted-app-homeassistant_ integration
+is functional and usable but leaves something to be desired in the elegance. However, it is still in the early alpha stage of
+development and it has a long way to go…_
+
+_In it's current incarnation it is only really suitable for managing a small home ACS i.e a couple of controllers with half a 
+dozen doors and maybe ten or so access cards._
+
 1. [Installation](#installation)
     - [Development version](#developmnet-version)
 

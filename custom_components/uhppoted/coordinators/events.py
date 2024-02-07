@@ -1,4 +1,5 @@
 from __future__ import annotations
+from dataclasses import dataclass
 
 import async_timeout
 import datetime
@@ -13,6 +14,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import UpdateFailed
 
 from uhppoted import uhppote
+from uhppoted import decode
 
 from ..const import ATTR_AVAILABLE
 from ..const import ATTR_EVENTS
@@ -32,13 +34,63 @@ async def _listen(hass, listener):
     _LOGGER.debug(f'UDP event listener {protocol}')
 
 
+@dataclass
+class Event:
+    controller: int
+    index: int
+    event_type: int
+    access_granted: bool
+    door: int
+    direction: int
+    card: int
+    timestamp: datetime.datetime
+    reason: int
+
+
 class EventListener:
+
+    def __init__(self, handler):
+        self._handler = handler
 
     def connection_made(self, transport):
         self._transport = transport
 
-    def datagram_received(self, data, addr):
-        print(f'>>>>>>>>>>>>>>>>>>>>>>>> EVENT {len(data)} bytes')
+    def datagram_received(self, packet, addr):
+        try:
+            event = self.decode(packet)
+            if self._handler:
+                self._handler(event)
+        except BaseException as err:
+            _LOGGER.warning(f'Error decoding received event ({err})')
+
+    def decode(self, packet):
+        evt = decode.event(packet)
+
+        # FIXME interim workaround for bug in uhppoted-python::decode.event
+        # evt.door_1_open = unpack_bool(packet, 28)
+        # evt.door_2_open = unpack_bool(packet, 29)
+        # evt.door_3_open = unpack_bool(packet, 30)
+        # evt.door_4_open = unpack_bool(packet, 31)
+        # evt.door_1_button = unpack_bool(packet, 32)
+        # evt.door_2_button = unpack_bool(packet, 33)
+        # evt.door_3_button = unpack_bool(packet, 34)
+        # evt.door_4_button = unpack_bool(packet, 35)
+        # evt.relays = unpack_uint8(packet, 49)
+        # evt.inputs = unpack_uint8(packet, 50)
+        # evt.system_error = unpack_uint8(packet, 36)
+        # # END FIXME
+
+        # yapf: disable
+        return Event(evt.controller, 
+                     evt.event_index, 
+                     evt.event_type, 
+                     evt.event_access_granted, 
+                     evt.event_door,
+                     evt.event_direction, 
+                     evt.event_card, 
+                     evt.event_timestamp, 
+                     evt.event_reason)
+        # yapf: enable
 
     def close(self):
         if self.transport:
@@ -57,7 +109,7 @@ class EventsCoordinator(DataUpdateCoordinator):
             'index': {},
         }
 
-        self._listener = EventListener()
+        self._listener = EventListener(self.onEvent)
 
         asyncio.create_task(_listen(hass, self._listener))
 
@@ -65,9 +117,23 @@ class EventsCoordinator(DataUpdateCoordinator):
         self.unload()
 
     def unload(self):
-        print(">>>>>>>> awooooooooogah ...")
         if self._listener:
             self._listener.close()
+
+    def onEvent(self, event):
+        contexts = set(self.async_contexts())
+        controller = event.controller
+        
+        if controller in contexts:
+            if not self._state['index'][controller] or self._state['index'][controller] < event.index:
+                self._state['index'][controller] = event.index
+            
+            self._state['events'][controller] =  {
+                ATTR_AVAILABLE: True,
+                ATTR_EVENTS: [event],
+            }
+            
+            self.async_set_updated_data(self._state['events'])
 
     async def _async_update_data(self):
         try:
@@ -116,7 +182,8 @@ class EventsCoordinator(DataUpdateCoordinator):
                             next = ix + 1
                             response = api.get_event(controller, next)
                             if response.controller == controller and response.index == next:
-                                info[ATTR_EVENTS].append(response)
+                                event = self.decode(response)
+                                info[ATTR_EVENTS].append(event)
                                 ix = response.index
 
                         self._state['index'][controller] = ix
@@ -129,3 +196,16 @@ class EventsCoordinator(DataUpdateCoordinator):
             self._state['events'][controller] = info
 
         return self._state['events']
+
+    def decode(self, evt):
+        # yapf: disable
+        return Event(evt.controller, 
+                     evt.index, 
+                     evt.event_type, 
+                     evt.access_granted, 
+                     evt.door, 
+                     evt.direction, 
+                     evt.card,
+                     evt.timestamp, 
+                     evt.reason)
+        # yapf: enable

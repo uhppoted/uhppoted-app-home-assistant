@@ -13,6 +13,9 @@ build: format
 
 build-all: format
 
+dist: build-all
+
+
 docker-build:
 	docker run --detach --name home-assistant --restart=unless-stopped --publish 8123:8123 \
                --env TZ=America/New York \
