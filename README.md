@@ -6,30 +6,32 @@ UHPPOTE controller HACS integration for Home Assistant.
 
 (_IN DEVELOPMENT_)
 
+---
 **Caveat**
 
-_It turns out that an access control system (ACS) is not a particuarly comfortable fit for _Home Assistant_ - there are simply
-a lot more moving parts in an ACS than with e.g. a thermostat. Having said which, the _uhppoted-app-homeassistant_ integration
-is functional and usable but leaves something to be desired in the elegance. However, it is still in the early alpha stage of
-development and it has a long way to go…_
+_An access control system (ACS) is not a particuarly comfortable fit for _Home Assistant_ - there are simply a lot more moving parts
+in an ACS than with e.g. a thermostat. Having said which, however, the _uhppoted-app-home-assistant_ integration is functional and 
+usable but leaves something to be desired in terms of elegance. However, it is still in the early alpha stage of development and it
+has a long way to go so there may still be hope :-)._
 
 _In it's current incarnation it is only really suitable for managing a small home ACS i.e a couple of controllers with half a 
-dozen doors and maybe ten or so access cards._
+dozen doors and maybe five or ten or so access cards._
 
+---
+**Contents**
 1. [Installation](#installation)
-    - [Development version](#developmnet-version)
+    - [Alpha release](#alpha-release)
+    - [Development version](#development-version)
 
-2. [Configuration](#configuration)
+**Screenshot**
 
 <img width="1024" src="doc/images/screenshot.png">
 
 ## Installation
 
-### Manual install
-
 ### Alpha Release
 
-**NOTE**: The Alpha release is a first release and is entirely a **use at your own risk/discretion**. It has had
+**NOTE**: The _Alpha_ release is a first release and is entirely a **use at your own risk/discretion**. It has had
 **very limited** testing and you could quite conceivably lock yourself out of your own home. i.e. have a backup 
 plan (and/or a fire axe ready). It is also quite likely that you will have to reconfigure your system again with
 each new release i.e. it is for the brave and adventurous who like living on the edge.
@@ -69,12 +71,12 @@ uhppoted:
 4. Start (or restart) _Home Assistant_ and confirm there are no errors in the logs.
 
 5. Configure your UHPPOTE controllers:
-   1. Open the _Settings_ page
-   2. From the _Settings_ page, open the _Devices and Services_ page
-   3. Click on the _Add Integration_ button
-   4. Search for _uhppoted_
-   5. Step through the configuration flow to set up the initial system configuration
-   6. Add the entities to cards on the desktop (an example is show below)
+   - Open the _Settings_ page
+   - From the _Settings_ page, open the _Devices and Services_ page
+   - Click on the _Add Integration_ button
+   - Search for _uhppoted_
+   - Step through the configuration flow to set up the initial system configuration
+   - Add the entities to cards on the desktop (an example is show below)
 
 
 ### Development Version
@@ -122,4 +124,3 @@ uhppoted:
 ...
 ```
 
-## Configuration
