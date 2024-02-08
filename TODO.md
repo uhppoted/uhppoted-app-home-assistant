@@ -12,6 +12,15 @@ TimeoutError: timed out
 KeyboardInterrupt
 ```
 
+```
+2024-02-07 11:42:54.284 ERROR (MainThread) [custom_components.uhppoted.card] error updating card 8165536 access for door {'door_id': 'Hufflepuff', 'door_number': '3', 'door_controller': 'Beta', 'controller_serial_number': '303986753'}
+Traceback (most recent call last):
+  File "/Users/tonyseebregts/Development/uhppote/hass/config/custom_components/uhppoted/card.py", line 414, in _update
+    self._allowed = door in state[ATTR_CARD_PERMISSIONS]
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: argument of type 'NoneType' is not iterable
+```
+
 - [ ] _config-flow_
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] (somehow) commonalise config-flow and options-flow
@@ -26,9 +35,11 @@ KeyboardInterrupt
       - [X] setters
       - [ ] events
             - [x] enable record-special-events
-            - [ ] synthesize door-lock event
-            - [ ] event-listener
-                  - https://developers.home-assistant.io/docs/integration_fetching_data/#pushing-api-endpoints
+            - [x] event-listener (https://developers.home-assistant.io/docs/integration_fetching_data/#pushing-api-endpoints)
+            - [x] synthesize door-lock event
+            - [ ] synthesize button-released event
+            - [ ] clean up DoorButtonPressed
+            - [ ] update door status on event
             - [ ] `unload`
                   - https://docs.python.org/3.6/library/weakref.html#weakref.finalize
                   - https://docs.python.org/3.6/library/weakref.html#comparing-finalizers-with-del-methods

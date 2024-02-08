@@ -5,10 +5,6 @@ import logging
 
 _LOGGER = logging.getLogger(__name__)
 
-_REASON_BUTTON_PRESSED = 20
-_REASON_DOOR_OPEN = 23
-_REASON_DOOR_CLOSED = 24
-
 from homeassistant.core import callback
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.select import SelectEntity
@@ -27,9 +23,17 @@ from .const import ATTR_DOOR_BUTTON
 from .const import ATTR_DOOR_LOCK
 from .const import ATTR_DOOR_MODE
 from .const import ATTR_DOOR_DELAY
+from .const import EVENT_REASON_DOOR_LOCKED
+from .const import EVENT_REASON_DOOR_UNLOCKED
 
 from .const import ATTR_EVENTS
 from .const import ATTR_STATUS
+
+_REASON_BUTTON_PRESSED = 20
+_REASON_DOOR_OPEN = 23
+_REASON_DOOR_CLOSED = 24
+_REASON_DOOR_LOCKED = EVENT_REASON_DOOR_LOCKED
+_REASON_DOOR_UNLOCKED = EVENT_REASON_DOOR_UNLOCKED
 
 
 class DoorInfo(CoordinatorEntity, SensorEntity):
@@ -559,43 +563,10 @@ class DoorUnlocked(CoordinatorEntity, EventEntity):
                 if ATTR_EVENTS in self.coordinator.data[idx]:
                     events = self.coordinator.data[idx][ATTR_EVENTS]
                     for e in events:
-                        if hasattr(e, 'relays'):
-                            last = self._unlocked
-
-                            if door == 1:
-                                self._unlocked = e.relays & 0x01 == 0x01
-                            elif door == 2:
-                                self._unlocked = e.relays & 0x02 == 0x02
-                            elif door == 3:
-                                self._unlocked = e.relays & 0x04 == 0x04
-                            elif door == 4:
-                                self._unlocked = e.relays & 0x08 == 0x08
-                            else:
-                                self._unlocked = None
-
-                            if self._unlocked != last and self._unlocked:
-                                self._events.appendleft('UNLOCKED')
-                            elif self._unlocked != last and not self._unlocked:
-                                self._events.appendleft('LOCKED')
-
-                if ATTR_STATUS in self.coordinator.data[idx]:
-                    state = self.coordinator.data[idx][ATTR_STATUS]
-                    last = self._unlocked
-                    if door == 1:
-                        self._unlocked = state.relays & 0x01 == 0x01
-                    elif door == 2:
-                        self._unlocked = state.relays & 0x02 == 0x02
-                    elif door == 3:
-                        self._unlocked = state.relays & 0x04 == 0x04
-                    elif door == 4:
-                        self._unlocked = state.relays & 0x08 == 0x08
-                    else:
-                        self._unlocked = None
-
-                    if self._unlocked != last and self._unlocked:
-                        self._events.appendleft('UNLOCKED')
-                    elif self._unlocked != last and not self._unlocked:
-                        self._events.appendleft('LOCKED')
+                        if e.door == door and e.reason == _REASON_DOOR_LOCKED:
+                            self._events.appendleft('LOCKED')
+                        elif e.door == door and e.reason == _REASON_DOOR_UNLOCKED:
+                            self._events.appendleft('UNLOCKED')
 
                 self._available = True
 

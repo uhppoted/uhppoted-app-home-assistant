@@ -75,6 +75,9 @@ ERR_DUPLICATE_DOOR_ID = 'duplicate_door_id'
 ERR_DUPLICATE_DOOR_IDS = 'duplicate_door_ids'
 ERR_INVALID_CARD_ID = 'invalid_card_id'
 
+EVENT_REASON_DOOR_LOCKED = 256
+EVENT_REASON_DOOR_UNLOCKED = 257
+
 EVENTS = {
     1: 'Card swipe',
     2: 'Event #2',
@@ -121,6 +124,8 @@ EVENTS = {
     43: 'Emergency call',
     44: 'Remote open door',
     45: 'Remote open door (USB reader)',
+    EVENT_REASON_DOOR_LOCKED: 'Door locked',  # synthesized event
+    EVENT_REASON_DOOR_UNLOCKED: 'Door unlocked',  # synthesized event
 }
 
 CARD_EVENTS = {
