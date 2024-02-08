@@ -1,3 +1,5 @@
+DIST ?= development
+
 .PHONY: docker
 
 SHARE="/usr/local/etc/com.github.uhppoted/home-assistant"
@@ -13,8 +15,15 @@ build: format
 
 build-all: format
 
-dist: build-all
-
+release: build-all
+	mkdir -p dist/$(DIST)
+	rsync -av --delete \
+          --exclude '.DS_Store'   \
+          --exclude '__pycache__' \
+          --exclude '.style.yapf' \
+          custom_components/uhppoted dist/$(DIST)/
+	tar --directory=dist/$(DIST) --exclude=".DS_Store" -cvzf dist/$(DIST).tar.gz uhppoted
+#	cd dist; zip --recurse-paths $(DIST).zip $(DIST)
 
 docker-build:
 	docker run --detach --name home-assistant --restart=unless-stopped --publish 8123:8123 \
