@@ -22,12 +22,14 @@ from homeassistant.helpers.update_coordinator import UpdateFailed
 from uhppoted import uhppote
 from uhppoted import decode
 from uhppoted.decode import unpack_uint8
+from uhppoted.decode import unpack_bool
 
 from ..const import ATTR_AVAILABLE
 from ..const import ATTR_EVENTS
 from ..const import ATTR_STATUS
 from ..const import EVENT_REASON_DOOR_LOCKED
 from ..const import EVENT_REASON_DOOR_UNLOCKED
+from ..const import EVENT_REASON_BUTTON_RELEASED
 
 from ..config import configure_driver
 from ..config import configure_cards
@@ -66,9 +68,9 @@ class EventListener:
 
     def datagram_received(self, packet, addr):
         try:
-            (event, relays) = self.decode(packet)
+            (event, relays, buttons) = self.decode(packet)
             if self._handler:
-                self._handler(event, relays)
+                self._handler(event, relays, buttons)
         except BaseException as err:
             _LOGGER.warning(f'Error decoding received event ({err})')
 
@@ -80,12 +82,13 @@ class EventListener:
         # evt.door_2_open = unpack_bool(packet, 29)
         # evt.door_3_open = unpack_bool(packet, 30)
         # evt.door_4_open = unpack_bool(packet, 31)
-        # evt.door_1_button = unpack_bool(packet, 32)
-        # evt.door_2_button = unpack_bool(packet, 33)
-        # evt.door_3_button = unpack_bool(packet, 34)
-        # evt.door_4_button = unpack_bool(packet, 35)
         relays = unpack_uint8(packet, 49)
-        # evt.inputs = unpack_uint8(packet, 50)
+        buttons = {
+            1: unpack_bool(packet, 32),
+            2: unpack_bool(packet, 33),
+            3: unpack_bool(packet, 34),
+            4: unpack_bool(packet, 35),
+        }
         # evt.system_error = unpack_uint8(packet, 36)
         # # END FIXME
 
@@ -99,7 +102,8 @@ class EventListener:
                       evt.event_card,
                       evt.event_timestamp,
                       evt.event_reason),
-                relays)
+                relays,
+                buttons)
         # yapf: enable
 
     def close(self):
@@ -118,6 +122,7 @@ class EventsCoordinator(DataUpdateCoordinator):
             'events': {},
             'index': {},
             'relays': {},
+            'buttons': {},
         }
 
         self._listener = EventListener(self.onEvent)
@@ -131,13 +136,14 @@ class EventsCoordinator(DataUpdateCoordinator):
         if self._listener:
             self._listener.close()
 
-    def onEvent(self, event, relays):
+    def onEvent(self, event, relays, inputs):
         contexts = set(self.async_contexts())
         controller = event.controller
 
         if controller in contexts:
             events = [event]
             events.extend(self.doorLocks(controller, relays))
+            events.extend(self.doorButtons(controller, inputs))
 
             if not controller in self._state['index'] or self._state['index'][controller] < event.index:
                 self._state['index'][controller] = event.index
@@ -185,6 +191,12 @@ class EventsCoordinator(DataUpdateCoordinator):
                     info[ATTR_STATUS] = response
                     index = response.event_index
                     relays = response.relays
+                    buttons = {
+                        1: response.door_1_button,
+                        2: response.door_2_button,
+                        3: response.door_3_button,
+                        4: response.door_4_button,
+                    }
                     events = []
 
                     if not controller in self._state['index']:
@@ -206,6 +218,7 @@ class EventsCoordinator(DataUpdateCoordinator):
                         self._state['index'][controller] = ix
 
                     events.extend(self.doorLocks(controller, relays))
+                    events.extend(self.doorButtons(controller, buttons))
 
                     info[ATTR_EVENTS] = events
                     info[ATTR_AVAILABLE] = True
@@ -245,5 +258,22 @@ class EventsCoordinator(DataUpdateCoordinator):
                         events.append(Event(controller, -1, None, None, door, None, None, timestamp, reason))
 
             self._state['relays'][controller] = relays
+
+        return events
+
+    def doorButtons(self, controller, buttons):
+        contexts = set(self.async_contexts())
+        events = []
+
+        if controller in contexts:
+            timestamp = datetime.datetime.now()
+
+            if controller in self._state['buttons']:
+                for door in [1, 2, 3, 4]:
+                    if self._state['buttons'][controller][door] != buttons[door] and not buttons[door]:
+                        events.append(
+                            Event(controller, -1, None, None, door, None, None, timestamp,EVENT_REASON_BUTTON_RELEASED))
+
+            self._state['buttons'][controller] = buttons
 
         return events

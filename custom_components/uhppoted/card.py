@@ -409,6 +409,9 @@ class CardPermission(CoordinatorEntity, SwitchEntity):
                 self._available = False
             elif ATTR_CARD_PERMISSIONS not in self.coordinator.data[idx]:
                 self._available = False
+            elif self.coordinator.data[idx][ATTR_CARD_PERMISSIONS] == None:
+                self._allowed = False
+                self._available = state[ATTR_AVAILABLE]
             else:
                 state = self.coordinator.data[idx]
                 self._allowed = door in state[ATTR_CARD_PERMISSIONS]

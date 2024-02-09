@@ -25,6 +25,7 @@ from .const import ATTR_DOOR_MODE
 from .const import ATTR_DOOR_DELAY
 from .const import EVENT_REASON_DOOR_LOCKED
 from .const import EVENT_REASON_DOOR_UNLOCKED
+from .const import EVENT_REASON_BUTTON_RELEASED
 
 from .const import ATTR_EVENTS
 from .const import ATTR_STATUS
@@ -34,6 +35,7 @@ _REASON_DOOR_OPEN = 23
 _REASON_DOOR_CLOSED = 24
 _REASON_DOOR_LOCKED = EVENT_REASON_DOOR_LOCKED
 _REASON_DOOR_UNLOCKED = EVENT_REASON_DOOR_UNLOCKED
+_REASON_BUTTON_RELEASED = EVENT_REASON_BUTTON_RELEASED
 
 
 class DoorInfo(CoordinatorEntity, SensorEntity):
@@ -422,7 +424,6 @@ class DoorButtonPressed(CoordinatorEntity, EventEntity):
         self.door = door
         self._name = f'uhppoted.door.{door}.button.event'.lower()
         self._door_id = int(f'{door_id}')
-        self._pressed = None
         self._events = deque([], 16)
         self._available = False
 
@@ -458,46 +459,15 @@ class DoorButtonPressed(CoordinatorEntity, EventEntity):
                 self._available = False
             else:
                 if ATTR_EVENTS in self.coordinator.data[idx]:
-                    last = self._pressed
                     events = self.coordinator.data[idx][ATTR_EVENTS]
                     for e in events:
                         if e.door == door and e.reason == _REASON_BUTTON_PRESSED:
-                            self._pressed = True
                             self._events.appendleft('PRESSED')
-                        elif door == 1 and hasattr(e, 'door_1_button'):
-                            self._pressed = response.door_1_button == True
-                        elif door == 2 and hasattr(e, 'door_2_button'):
-                            self._pressed = response.door_2_button == True
-                        elif door == 3 and hasattr(e, 'door_3_button'):
-                            self._pressed = response.door_3_button == True
-                        elif door == 4 and hasattr(e, 'door_4_button'):
-                            self._pressed = response.door_4_button == True
 
-                        if self._pressed != last and self._pressed:
-                            self._events.appendleft('PRESSED')
-                        elif self._pressed != last and not self._pressed:
+                        if e.door == door and e.reason == _REASON_BUTTON_RELEASED:
                             self._events.appendleft('RELEASED')
 
-                if ATTR_STATUS in self.coordinator.data[idx]:
-                    state = self.coordinator.data[idx][ATTR_STATUS]
-                    last = self._pressed
-                    if door == 1:
-                        self._pressed = state.door_1_button == True
-                    elif door == 2:
-                        self._pressed = state.door_2_button == True
-                    elif door == 3:
-                        self._pressed = state.door_3_button == True
-                    elif door == 4:
-                        self._pressed = state.door_4_button == True
-                    else:
-                        self._pressed = None
-
-                    if self._pressed != last and self._pressed:
-                        self._events.appendleft('PRESSED')
-                    elif self._pressed != last and not self._pressed:
-                        self._events.appendleft('RELEASED')
-
-            self._available = True
+                self._available = True
 
             # ... because Home Assistant coalesces multiple events in an update cycle
             if len(self._events) > 0:
@@ -525,7 +495,6 @@ class DoorUnlocked(CoordinatorEntity, EventEntity):
         self.door = door
         self._name = f'uhppoted.door.{door}.unlocked.event'.lower()
         self._door_id = int(f'{door_id}')
-        self._unlocked = None
         self._events = deque([], 16)
         self._available = False
 
@@ -800,13 +769,6 @@ class DoorUnlock(CoordinatorEntity, ButtonEntity):
                     _LOGGER.info(f'unable to unlock door {self.door}')
 
                 await self.coordinator.async_request_refresh()
-
-            # response = self.uhppote.open_door(self.serial_no, self.door_id)
-            # if response.controller == self.serial_no:
-            #     if response.opened:
-            #         _LOGGER.info(f'unlocked door {self.door}')
-            #     else:
-            #         raise ValueError(f'failed to unlock door {self.door}')
 
         except (Exception):
             _LOGGER.exception(f'error unlocking door {self.door}')

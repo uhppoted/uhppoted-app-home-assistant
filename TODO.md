@@ -12,6 +12,7 @@ TimeoutError: timed out
 KeyboardInterrupt
 ```
 
+- [x] Mysterious crash
 ```
 2024-02-07 11:42:54.284 ERROR (MainThread) [custom_components.uhppoted.card] error updating card 8165536 access for door {'door_id': 'Hufflepuff', 'door_number': '3', 'door_controller': 'Beta', 'controller_serial_number': '303986753'}
 Traceback (most recent call last):
@@ -37,8 +38,8 @@ TypeError: argument of type 'NoneType' is not iterable
             - [x] enable record-special-events
             - [x] event-listener (https://developers.home-assistant.io/docs/integration_fetching_data/#pushing-api-endpoints)
             - [x] synthesize door-lock event
-            - [ ] synthesize button-released event
-            - [ ] clean up DoorButtonPressed
+            - [x] synthesize button-released event
+            - [x] clean up DoorButtonPressed
             - [ ] update door status on event
             - [ ] `unload`
                   - https://docs.python.org/3.6/library/weakref.html#weakref.finalize
