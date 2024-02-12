@@ -12,16 +12,6 @@ TimeoutError: timed out
 KeyboardInterrupt
 ```
 
-- [x] Mysterious crash
-```
-2024-02-07 11:42:54.284 ERROR (MainThread) [custom_components.uhppoted.card] error updating card 8165536 access for door {'door_id': 'Hufflepuff', 'door_number': '3', 'door_controller': 'Beta', 'controller_serial_number': '303986753'}
-Traceback (most recent call last):
-  File "/Users/tonyseebregts/Development/uhppote/hass/config/custom_components/uhppoted/card.py", line 414, in _update
-    self._allowed = door in state[ATTR_CARD_PERMISSIONS]
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: argument of type 'NoneType' is not iterable
-```
-
 - [ ] _config-flow_
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] (somehow) commonalise config-flow and options-flow
@@ -29,6 +19,7 @@ TypeError: argument of type 'NoneType' is not iterable
       - https://developers.home-assistant.io/docs/dev_101_states/
 
 - [ ] DataCoordinator
+      - [ ] Handle timeout on startup
       - [ ] parallelize requests
       - [x] communalize coordinators
       - [ ] communalize data
@@ -40,7 +31,8 @@ TypeError: argument of type 'NoneType' is not iterable
             - [x] synthesize door-lock event
             - [x] synthesize button-released event
             - [x] clean up DoorButtonPressed
-            - [ ] update door status on event
+            - [x] update door status on event
+            - [ ] optimization: use status from event
             - [ ] `unload`
                   - https://docs.python.org/3.6/library/weakref.html#weakref.finalize
                   - https://docs.python.org/3.6/library/weakref.html#comparing-finalizers-with-del-methods

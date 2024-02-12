@@ -1,3 +1,5 @@
+import asyncio
+
 from .controllers import ControllersCoordinator
 from .doors import DoorsCoordinator
 from .cards import CardsCoordinator
@@ -55,7 +57,7 @@ class Coordinators():
         self._controllers = ControllersCoordinator(hass, options)
         self._doors = DoorsCoordinator(hass, options)
         self._cards = CardsCoordinator(hass, options)
-        self._events = EventsCoordinator(hass, options)
+        self._events = EventsCoordinator(hass, options, lambda evt: self._on_event(hass, evt))
 
     def __del__(self):
         self.unload()
@@ -65,3 +67,9 @@ class Coordinators():
         self._doors.unload()
         self._cards.unload()
         self._events.unload()
+
+    def _on_event(self, hass, event):
+        asyncio.run_coroutine_threadsafe(self._async_on_event(event), hass.loop)
+
+    async def _async_on_event(self, event):
+        await self._doors.async_request_refresh()

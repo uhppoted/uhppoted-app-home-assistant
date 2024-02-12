@@ -113,10 +113,11 @@ class EventListener:
 
 class EventsCoordinator(DataUpdateCoordinator):
 
-    def __init__(self, hass, options):
+    def __init__(self, hass, options, notify):
         super().__init__(hass, _LOGGER, name="events", update_interval=_INTERVAL)
         self._uhppote = configure_driver(options)
         self._options = options
+        self._notify = notify
         self._initialised = False
         self._state = {
             'events': {},
@@ -154,6 +155,9 @@ class EventsCoordinator(DataUpdateCoordinator):
             }
 
             self.async_set_updated_data(self._state['events'])
+
+            if self._notify:
+                self._notify(event)
 
     async def _async_update_data(self):
         try:
@@ -272,7 +276,8 @@ class EventsCoordinator(DataUpdateCoordinator):
                 for door in [1, 2, 3, 4]:
                     if self._state['buttons'][controller][door] != buttons[door] and not buttons[door]:
                         events.append(
-                            Event(controller, -1, None, None, door, None, None, timestamp,EVENT_REASON_BUTTON_RELEASED))
+                            Event(controller, -1, None, None, door, None, None, timestamp,
+                                  EVENT_REASON_BUTTON_RELEASED))
 
             self._state['buttons'][controller] = buttons
 
