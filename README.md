@@ -24,7 +24,11 @@ and maybe five or ten or so access cards i.e. not a ginormous mansion or an offi
 **Screenshots**
 
 <img width="800" src="doc/images/controllers.png">
+
+---
 <img width="800" src="doc/images/doors.png">
+
+---
 <img width="800" src="doc/images/cards.png">
 
 ## Installation
