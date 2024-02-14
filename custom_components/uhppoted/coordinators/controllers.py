@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import concurrent.futures
+import threading
 import datetime
 import logging
 import async_timeout
@@ -12,7 +14,6 @@ from uhppoted import uhppote
 _LOGGER = logging.getLogger(__name__)
 _INTERVAL = datetime.timedelta(seconds=30)
 
-# Attribute constants
 from ..const import ATTR_AVAILABLE
 from ..const import ATTR_CONTROLLER
 from ..const import ATTR_CONTROLLER_ADDRESS
@@ -66,48 +67,70 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
     async def _get_controllers(self, contexts):
         api = self._uhppote['api']
+        lock = threading.Lock()
 
-        for controller in contexts:
-            _LOGGER.debug(f'update controller {controller}')
-
-            info = {
-                ATTR_AVAILABLE: False,
-                ATTR_CONTROLLER: {
-                    ATTR_CONTROLLER_ADDRESS: None,
-                    ATTR_NETMASK: None,
-                    ATTR_GATEWAY: None,
-                    ATTR_FIRMWARE: None,
-                },
-                ATTR_CONTROLLER_DATETIME: None,
-            }
-
-            try:
-                response = api.get_controller(controller)
-                if response.controller == controller:
-                    info[ATTR_CONTROLLER] = {
-                        ATTR_CONTROLLER_ADDRESS: f'{response.ip_address}',
-                        ATTR_NETMASK: f'{response.subnet_mask}',
-                        ATTR_GATEWAY: f'{response.gateway}',
-                        ATTR_FIRMWARE: f'{response.version} {response.date:%Y-%m-%d}',
-                    }
-
-                response = api.get_time(controller)
-                if response.controller == controller:
-                    year = response.datetime.year
-                    month = response.datetime.month
-                    day = response.datetime.day
-                    hour = response.datetime.hour
-                    minute = response.datetime.minute
-                    second = response.datetime.second
-                    tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
-
-                    info[ATTR_CONTROLLER_DATETIME] = datetime.datetime(year, month, day, hour, minute, second, 0, tz)
-
-                info[ATTR_AVAILABLE] = True
-
-            except (Exception):
-                _LOGGER.exception(f'error retrieving controller {controller} information')
-
-            self._state['controllers'][controller] = info
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            executor.map(lambda controller: self._get_controller(api, lock, controller), contexts)
+            executor.map(lambda controller: self._get_datetime(api, lock, controller), contexts)
 
         return self._state['controllers']
+
+    def _get_controller(self, api, lock, controller):
+        _LOGGER.debug(f'update controller {controller}')
+
+        available = False
+        info = {
+            ATTR_CONTROLLER_ADDRESS: None,
+            ATTR_NETMASK: None,
+            ATTR_GATEWAY: None,
+            ATTR_FIRMWARE: None,
+        }
+
+        try:
+            response = api.get_controller(controller)
+            if response.controller == controller:
+                info = {
+                    ATTR_CONTROLLER_ADDRESS: f'{response.ip_address}',
+                    ATTR_NETMASK: f'{response.subnet_mask}',
+                    ATTR_GATEWAY: f'{response.gateway}',
+                    ATTR_FIRMWARE: f'{response.version} {response.date:%Y-%m-%d}',
+                }
+
+                available = True
+
+        except (Exception):
+            _LOGGER.exception(f'error retrieving controller {controller} information')
+
+        with lock:
+            if controller in self._state['controllers']:
+                self._state['controllers'][controller][ATTR_CONTROLLER] = info
+                self._state['controllers'][controller][ATTR_AVAILABLE] = available
+            else:
+                self._state['controllers'][controller] = {ATTR_CONTROLLER: info, ATTR_AVAILABLE: available}
+
+    def _get_datetime(self, api, lock, controller):
+        _LOGGER.debug(f'update controller datetime {controller}')
+
+        sysdatetime = None
+
+        try:
+            response = api.get_time(controller)
+            if response.controller == controller:
+                year = response.datetime.year
+                month = response.datetime.month
+                day = response.datetime.day
+                hour = response.datetime.hour
+                minute = response.datetime.minute
+                second = response.datetime.second
+                tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
+
+                sysdatetime = datetime.datetime(year, month, day, hour, minute, second, 0, tz)
+
+        except (Exception):
+            _LOGGER.exception(f'error retrieving controller {controller} information')
+
+        with lock:
+            if controller in self._state['controllers']:
+                self._state['controllers'][controller][ATTR_CONTROLLER_DATETIME] = sysdatetime
+            else:
+                self._state['controllers'][controller] = {ATTR_CONTROLLER_DATETIME: sysdatetime}

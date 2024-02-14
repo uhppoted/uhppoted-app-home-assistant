@@ -21,6 +21,11 @@ KeyboardInterrupt
 - [ ] DataCoordinator
       - [ ] Handle timeout on startup
       - [ ] parallelize requests
+            - [x] controllers
+            - [ ] doors
+            - [ ] cards
+            - [ ] events
+
       - [x] communalize coordinators
       - [ ] communalize data
       - [x] getters
