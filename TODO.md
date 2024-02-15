@@ -22,7 +22,7 @@ KeyboardInterrupt
       - [ ] Handle timeout on startup
       - [ ] parallelize requests
             - [x] controllers
-            - [ ] doors
+            - [x] doors
             - [ ] cards
             - [ ] events
 
@@ -37,6 +37,7 @@ KeyboardInterrupt
             - [x] synthesize button-released event
             - [x] clean up DoorButtonPressed
             - [x] update door status on event
+            - (?) rework using threading 
             - [ ] optimization: use status from event
             - [ ] `unload`
                   - https://docs.python.org/3.6/library/weakref.html#weakref.finalize

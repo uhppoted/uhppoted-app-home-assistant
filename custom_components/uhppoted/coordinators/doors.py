@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import concurrent.futures
+import threading
 import datetime
 import logging
 import async_timeout
@@ -100,6 +102,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
     async def _get_doors(self, contexts):
         api = self._uhppote['api']
+        lock = threading.Lock()
 
         controllers = set()
         doors = {}
@@ -110,10 +113,21 @@ class DoorsCoordinator(DataUpdateCoordinator):
                 doors[idx] = door
 
         state = {}
-        for controller in controllers:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            executor.map(lambda controller: self._get_controller(api, lock, state, controller), controllers)
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            executor.map(lambda idx: self._get_door(api, lock, idx, doors[idx], state), contexts)
+
+        return self._state['doors']
+
+    def _get_controller(self, api, lock, state, controller):
+        info = None
+
+        try:
             response = api.get_status(controller)
             if response.controller == controller:
-                state[controller] = {
+                info = {
                     1: {
                         'open': response.door_1_open == True,
                         'button': response.door_1_button == True,
@@ -135,46 +149,49 @@ class DoorsCoordinator(DataUpdateCoordinator):
                         'locked': response.relays & 0x08 == 0x00,
                     }
                 }
+        except (Exception):
+            _LOGGER.exception(f'error retrieving controller {controller} door state')
 
-        for idx in contexts:
-            info = {
-                ATTR_AVAILABLE: False,
-                ATTR_DOOR_MODE: None,
-                ATTR_DOOR_DELAY: None,
-                ATTR_DOOR_OPEN: None,
-                ATTR_DOOR_BUTTON: None,
-                ATTR_DOOR_LOCK: None,
-            }
+        with lock:
+            state[controller] = info
 
-            try:
-                if idx in doors:
-                    door = doors[idx]
-                    name = door[CONF_DOOR_ID]
-                    controller = door[CONF_CONTROLLER_SERIAL_NUMBER]
-                    door_id = door[CONF_DOOR_NUMBER]
+    def _get_door(self, api, lock, idx, door, state):
+        info = {
+            ATTR_AVAILABLE: False,
+            ATTR_DOOR_MODE: None,
+            ATTR_DOOR_DELAY: None,
+            ATTR_DOOR_OPEN: None,
+            ATTR_DOOR_BUTTON: None,
+            ATTR_DOOR_LOCK: None,
+        }
 
-                    _LOGGER.debug(f'update door {name}')
+        try:
+            name = door[CONF_DOOR_ID]
+            controller = door[CONF_CONTROLLER_SERIAL_NUMBER]
+            door_id = door[CONF_DOOR_NUMBER]
 
-                    mode = None
-                    delay = None
+            _LOGGER.debug(f'update door {name}')
 
-                    response = api.get_door_control(controller, door_id)
-                    if response.controller == controller and response.door == door_id and controller in state:
-                        mode = response.mode
-                        delay = response.delay
+            mode = None
+            delay = None
 
-                        info = {
-                            ATTR_DOOR_MODE: mode,
-                            ATTR_DOOR_DELAY: delay,
-                            ATTR_DOOR_OPEN: state[controller][door_id]['open'],
-                            ATTR_DOOR_BUTTON: state[controller][door_id]['button'],
-                            ATTR_DOOR_LOCK: state[controller][door_id]['locked'],
-                            ATTR_AVAILABLE: True,
-                        }
+            response = api.get_door_control(controller, door_id)
+            if response.controller == controller and response.door == door_id and controller in state and state[
+                    controller] != None:
+                mode = response.mode
+                delay = response.delay
 
-            except (Exception):
-                _LOGGER.exception(f'error retrieving door {door} information')
+                info = {
+                    ATTR_DOOR_MODE: mode,
+                    ATTR_DOOR_DELAY: delay,
+                    ATTR_DOOR_OPEN: state[controller][door_id]['open'],
+                    ATTR_DOOR_BUTTON: state[controller][door_id]['button'],
+                    ATTR_DOOR_LOCK: state[controller][door_id]['locked'],
+                    ATTR_AVAILABLE: True,
+                }
 
+        except (Exception):
+            _LOGGER.exception(f'error retrieving door {door} information')
+
+        with lock:
             self._state['doors'][idx] = info
-
-        return self._state['doors']
