@@ -23,7 +23,7 @@ KeyboardInterrupt
       - [ ] parallelize requests
             - [x] controllers
             - [x] doors
-            - [ ] cards
+            - [x] cards
             - [ ] events
 
       - [x] communalize coordinators
@@ -37,7 +37,7 @@ KeyboardInterrupt
             - [x] synthesize button-released event
             - [x] clean up DoorButtonPressed
             - [x] update door status on event
-            - (?) rework using threading 
+            - [ ] rework using threading (pending library aysnc)
             - [ ] optimization: use status from event
             - [ ] `unload`
                   - https://docs.python.org/3.6/library/weakref.html#weakref.finalize
@@ -54,6 +54,7 @@ KeyboardInterrupt
       - [ ] Name translation
 
 - [ ] Doors
+      - [x] Update on event
       - [ ] unlock
             - [ ] service call
       - [ ] Name translation
@@ -61,7 +62,6 @@ KeyboardInterrupt
             - https://github.com/home-assistant/core/issues/98993
             - https://developers.home-assistant.io/docs/core/entity
             - python3 -m script.hassfest
-      - [ ] Update on event
 
 - [ ] Cards
       - [ ] set max cards in _configuration.yaml_

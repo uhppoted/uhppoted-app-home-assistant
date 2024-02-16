@@ -128,3 +128,44 @@ uhppoted:
 ...
 ```
 
+## Configuration
+
+1. Open the _Home Assistant/Settings_ page.
+2. Open the _Devices & Services_ page.
+3. Select the _Integrations_ tab and then select _Add integration_.
+4. Search for _uhppoted_ and open the _uhppoted_ custom integration item.
+5. Enter the bind, broadcast, listen addresses and (optionally) enable debug.
+6. Select the controllers to manage with _Home Assistant_ from the list of controllers found on the LAN.
+7. For each controller:
+   - choose a unique name e.g. Main, Controller #1, etc.
+   - (optionally) set the controller IP address
+   - (optionally) set the controller timezone (defaults to _Local_)
+8. For each controller, select the doors to manage with _Home Assistant_
+9. For each selected door:
+   - choose a unique name e.g. Entrance, Garage, Workshop
+10. Select the cards to be managed by _Home Assistant_ from the list of cards found on the controllers
+11. For each selected card:
+   - enter the name of the person using that card
+12. On completion of configuration the _uhppoted_ service will create all the entities for the controllers, doors and
+    cards.
+13. Add selected information to the dashboard from the entities listed below.
+   
+### Entities
+
+#### Controllers
+
+1. uhppoted.controller.{controller}.info
+2. uhppoted.controller.{controller}.datetime
+
+
+#### Doors
+
+1. uhppoted.door.{door}
+2. uhppoted.door.{door}.open
+3. uhppoted.door.{door}.lock
+4. uhppoted.door.{door}.button
+5. uhppoted.door.{door}.mode
+6. uhppoted.door.{door}.delay
+7. uhppoted.door.{door}.unlock
+
+#### Cards

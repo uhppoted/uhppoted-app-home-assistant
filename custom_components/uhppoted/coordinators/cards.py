@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import concurrent.futures
+import threading
 import datetime
 import logging
 import async_timeout
@@ -225,61 +227,67 @@ class CardsCoordinator(DataUpdateCoordinator):
     async def _get_cards(self, contexts):
         api = self._uhppote['api']
         controllers = self._uhppote['controllers']
+        lock = threading.Lock()
 
-        for card in contexts:
-            _LOGGER.debug(f'update card {card}')
-
-            info = {
-                ATTR_AVAILABLE: False,
-                ATTR_CARD_STARTDATE: None,
-                ATTR_CARD_ENDDATE: None,
-                ATTR_CARD_PERMISSIONS: None,
-            }
-
-            try:
-                start_date = None
-                end_date = None
-                permissions = {}
-                PIN = None
-
-                for controller in controllers:
-                    response = api.get_card(controller, card)
-
-                    if response.controller == controller and response.card_number == card:
-                        if response.start_date and (not start_date or response.start_date < start_date):
-                            start_date = response.start_date
-
-                        if response.end_date != None and (not end_date or response.end_date > end_date):
-                            end_date = response.end_date
-
-                        permissions[controller] = []
-
-                        if response.door_1 > 0:
-                            permissions[controller].append(1)
-
-                        if response.door_2 > 0:
-                            permissions[controller].append(2)
-
-                        if response.door_3 > 0:
-                            permissions[controller].append(3)
-
-                        if response.door_4 > 0:
-                            permissions[controller].append(4)
-
-                        if response.pin > 0:
-                            PIN = response.pin
-
-                info = {
-                    ATTR_CARD_STARTDATE: start_date,
-                    ATTR_CARD_ENDDATE: end_date,
-                    ATTR_CARD_PERMISSIONS: resolve_permissions(self._options, permissions),
-                    ATTR_CARD_PIN: PIN,
-                    ATTR_AVAILABLE: True,
-                }
-
-            except (Exception):
-                _LOGGER.exception(f'error retrieving card {card} information')
-
-            self._state['cards'][card] = info
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            executor.map(lambda card: self._get_card(api, controllers, lock, card), contexts)
 
         return self._state['cards']
+
+    def _get_card(self, api, controllers, lock, card):
+        _LOGGER.debug(f'update card {card}')
+
+        info = {
+            ATTR_AVAILABLE: False,
+            ATTR_CARD_STARTDATE: None,
+            ATTR_CARD_ENDDATE: None,
+            ATTR_CARD_PERMISSIONS: None,
+        }
+
+        try:
+            start_date = None
+            end_date = None
+            permissions = {}
+            PIN = None
+
+            for controller in controllers:
+                response = api.get_card(controller, card)
+
+                if response.controller == controller and response.card_number == card:
+                    if response.start_date and (not start_date or response.start_date < start_date):
+                        start_date = response.start_date
+
+                    if response.end_date != None and (not end_date or response.end_date > end_date):
+                        end_date = response.end_date
+
+                    permissions[controller] = []
+
+                    if response.door_1 > 0:
+                        permissions[controller].append(1)
+
+                    if response.door_2 > 0:
+                        permissions[controller].append(2)
+
+                    if response.door_3 > 0:
+                        permissions[controller].append(3)
+
+                    if response.door_4 > 0:
+                        permissions[controller].append(4)
+
+                    if response.pin > 0:
+                        PIN = response.pin
+
+            info = {
+                ATTR_CARD_STARTDATE: start_date,
+                ATTR_CARD_ENDDATE: end_date,
+                ATTR_CARD_PERMISSIONS: resolve_permissions(self._options, permissions),
+                ATTR_CARD_PIN: PIN,
+                ATTR_AVAILABLE: True,
+            }
+
+        except (Exception):
+            _LOGGER.exception(f'error retrieving card {card} information')
+
+        with lock:
+            self._state['cards'][card] = info
+

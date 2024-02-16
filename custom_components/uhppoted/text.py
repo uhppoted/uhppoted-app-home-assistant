@@ -10,14 +10,14 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from uhppoted import uhppote
 
-from .coordinators.cards import CardsCoordinator
+from .coordinators.coordinators import Coordinators
 from .config import configure_cards
 from .card import CardPIN
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     options = entry.options
-    cards = CardsCoordinator(hass, options)
+    cards = Coordinators.cards()
     entities = []
 
     def h(card, name, unique_id):

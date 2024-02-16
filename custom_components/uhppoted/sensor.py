@@ -16,13 +16,12 @@ from homeassistant.helpers.update_coordinator import UpdateFailed
 
 from uhppoted import uhppote
 
-from .coordinators.coordinators import Coordinators
-from .coordinators.cards import CardsCoordinator
-
 from .config import configure_controllers
 from .config import configure_doors
 from .config import configure_cards
 from .config import configure_driver
+
+from .coordinators.coordinators import Coordinators
 
 from .controller import ControllerInfo
 from .door import DoorInfo
@@ -37,7 +36,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     options = entry.options
     controllers = Coordinators.controllers()
     doors = Coordinators.doors()
-    cards = CardsCoordinator(hass, options)
+    cards = Coordinators.cards()
     entities = []
 
     def f(unique_id, controller, serial_no, address):
