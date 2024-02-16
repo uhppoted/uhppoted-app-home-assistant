@@ -376,20 +376,27 @@ class CardPermission(CoordinatorEntity, SwitchEntity):
         _LOGGER.debug(f'card:{self.card} enable access for door {self.door[CONF_DOOR_ID]}')
         try:
             self.coordinator.set_card_permission(self.card, self.door, True)
+            self._allowed = True
+            self._available = True
             _LOGGER.info(f'card {self.card} permission to door {self.door[CONF_DOOR_ID]} granted')
-
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error updating card {self.card} access for door {self.door[CONF_DOOR_ID]}')
+
+        await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs):
         _LOGGER.debug(f'card:{self.card} remove access for door {self.door[CONF_DOOR_ID]}')
         try:
             self.coordinator.set_card_permission(self.card, self.door, False)
+            self._allowed = False
+            self._available = True
             _LOGGER.info(f'card {self.card} permission to door {self.door[CONF_DOOR_ID]} revoked')
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error updating card {self.card} access for door {self.door[CONF_DOOR_ID]}')
+
+        await self.coordinator.async_request_refresh()
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -419,7 +426,6 @@ class CardPermission(CoordinatorEntity, SwitchEntity):
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error updating card {self.card} access for door {self.door}')
-
 
 class CardPIN(CoordinatorEntity, TextEntity):
     _attr_icon = 'mdi:card-account-details'
