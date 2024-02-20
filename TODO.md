@@ -20,11 +20,11 @@ KeyboardInterrupt
 
 - [ ] DataCoordinator
       - [ ] Handle timeout on startup
-      - [ ] parallelize requests
+      - [x] parallelize requests
             - [x] controllers
             - [x] doors
             - [x] cards
-            - [ ] events
+            - [x] events
 
       - [x] communalize coordinators
       - [ ] communalize data
@@ -54,7 +54,6 @@ KeyboardInterrupt
       - [ ] Name translation
 
 - [ ] Doors
-      - [x] Update on event
       - [ ] unlock
             - [ ] service call
       - [ ] Name translation

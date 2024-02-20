@@ -207,8 +207,7 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         response = api.put_card(controller, card, start, end, door1, door2, door3, door4, PIN)
         if not response.stored:
-            raise ValueError(
-                f'controller {controller}, card {card} door {door[CONF_DOOR_ID]} permission not updated')
+            raise ValueError(f'controller {controller}, card {card} door {door[CONF_DOOR_ID]} permission not updated')
 
     async def _async_update_data(self):
         try:
@@ -290,4 +289,3 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         with lock:
             self._state['cards'][card] = info
-

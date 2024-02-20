@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+import concurrent.futures
+import threading
 from dataclasses import dataclass
 
 import async_timeout
@@ -175,64 +178,77 @@ class EventsCoordinator(DataUpdateCoordinator):
 
     async def _get_events(self, contexts):
         api = self._uhppote['api']
+        lock = threading.Lock()
 
-        for controller in contexts:
-            _LOGGER.debug(f'update controller {controller}')
-
-            info = {
-                ATTR_AVAILABLE: False,
-                ATTR_EVENTS: [],
-            }
-
-            try:
-                response = api.record_special_events(controller, True)
-                if response.controller == controller:
-                    if not response.updated:
-                        _LOGGER.warning('record special events not enabled for {controller}')
-
-                response = api.get_status(controller)
-                if response.controller == controller:
-                    info[ATTR_STATUS] = response
-                    index = response.event_index
-                    relays = response.relays
-                    buttons = {
-                        1: response.door_1_button,
-                        2: response.door_2_button,
-                        3: response.door_3_button,
-                        4: response.door_4_button,
-                    }
-                    events = []
-
-                    if not controller in self._state['index']:
-                        self._state['index'][controller] = index
-                    elif self._state['index'][controller] >= index:
-                        self._state['index'][controller] = index
-                    else:
-                        count = 0
-                        ix = self._state['index'][controller]
-                        while ix < index and count < _MAX_EVENTS:
-                            count += 1
-                            next = ix + 1
-                            response = api.get_event(controller, next)
-                            if response.controller == controller and response.index == next:
-                                event = self.decode(response, relays)
-                                events.append(event)
-                                ix = response.index
-
-                        self._state['index'][controller] = ix
-
-                    events.extend(self.doorLocks(controller, relays))
-                    events.extend(self.doorButtons(controller, buttons))
-
-                    info[ATTR_EVENTS] = events
-                    info[ATTR_AVAILABLE] = True
-
-            except (Exception):
-                _LOGGER.exception(f'error retrieving controller {controller} events')
-
-            self._state['events'][controller] = info
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            executor.map(lambda controller: self._record_special_events(api, lock, controller), contexts)
+            executor.map(lambda controller: self._get_controller_events(api, lock, controller), contexts)
 
         return self._state['events']
+
+    def _record_special_events(self, api, lock, controller):
+        _LOGGER.debug(f'enable controller {controller} record special events')
+
+        try:
+            response = api.record_special_events(controller, True)
+            if response.controller == controller:
+                if not response.updated:
+                    _LOGGER.warning('record special events not enabled for {controller}')
+
+        except (Exception):
+            _LOGGER.warning(f'error enabling controller {controller} record special events')
+
+    def _get_controller_events(self, api, lock, controller):
+        _LOGGER.debug(f'get controller {controller} events')
+
+        info = {
+            ATTR_AVAILABLE: False,
+            ATTR_EVENTS: [],
+        }
+
+        try:
+            response = api.get_status(controller)
+            if response.controller == controller:
+                info[ATTR_STATUS] = response
+                index = response.event_index
+                relays = response.relays
+                buttons = {
+                    1: response.door_1_button,
+                    2: response.door_2_button,
+                    3: response.door_3_button,
+                    4: response.door_4_button,
+                }
+                events = []
+
+                if not controller in self._state['index']:
+                    self._state['index'][controller] = index
+                elif self._state['index'][controller] >= index:
+                    self._state['index'][controller] = index
+                else:
+                    count = 0
+                    ix = self._state['index'][controller]
+                    while ix < index and count < _MAX_EVENTS:
+                        count += 1
+                        next = ix + 1
+                        response = api.get_event(controller, next)
+                        if response.controller == controller and response.index == next:
+                            event = self.decode(response, relays)
+                            events.append(event)
+                            ix = response.index
+
+                    self._state['index'][controller] = ix
+
+                events.extend(self.doorLocks(controller, relays))
+                events.extend(self.doorButtons(controller, buttons))
+
+                info[ATTR_EVENTS] = events
+                info[ATTR_AVAILABLE] = True
+
+        except (Exception):
+            _LOGGER.exception(f'error retrieving controller {controller} events')
+
+        with lock:
+            self._state['events'][controller] = info
 
     def decode(self, evt, relays):
         # yapf: disable

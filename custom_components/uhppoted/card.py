@@ -427,6 +427,7 @@ class CardPermission(CoordinatorEntity, SwitchEntity):
             self._available = False
             _LOGGER.exception(f'error updating card {self.card} access for door {self.door}')
 
+
 class CardPIN(CoordinatorEntity, TextEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
