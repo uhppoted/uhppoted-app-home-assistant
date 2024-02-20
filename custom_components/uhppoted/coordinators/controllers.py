@@ -69,9 +69,12 @@ class ControllersCoordinator(DataUpdateCoordinator):
         api = self._uhppote['api']
         lock = threading.Lock()
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            executor.map(lambda controller: self._get_controller(api, lock, controller), contexts)
-            executor.map(lambda controller: self._get_datetime(api, lock, controller), contexts)
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                executor.map(lambda controller: self._get_controller(api, lock, controller), contexts, timeout=1)
+                executor.map(lambda controller: self._get_datetime(api, lock, controller), contexts, timeout=1)
+        except Exception as err:
+            _LOGGER.error(f'error retrieving controller {controller} information ({err})')
 
         return self._state['controllers']
 
@@ -98,8 +101,8 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
                 available = True
 
-        except (Exception):
-            _LOGGER.exception(f'error retrieving controller {controller} information')
+        except Exception as err:
+            _LOGGER.error(f'error retrieving controller {controller} information ({err})')
 
         with lock:
             if controller in self._state['controllers']:
@@ -126,8 +129,8 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
                 sysdatetime = datetime.datetime(year, month, day, hour, minute, second, 0, tz)
 
-        except (Exception):
-            _LOGGER.exception(f'error retrieving controller {controller} information')
+        except Exception as err:
+            _LOGGER.error(f'error retrieving controller {controller} information ({err})')
 
         with lock:
             if controller in self._state['controllers']:

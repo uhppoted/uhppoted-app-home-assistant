@@ -163,6 +163,8 @@ class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
 
             if not self.coordinator.data or idx not in self.coordinator.data:
                 self._available = False
+            elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
+                self._available = False
             elif ATTR_CONTROLLER_DATETIME not in self.coordinator.data[idx]:
                 self._available = False
             else:
