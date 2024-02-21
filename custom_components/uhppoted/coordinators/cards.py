@@ -218,7 +218,7 @@ class CardsCoordinator(DataUpdateCoordinator):
                 contexts.update(cards)
                 self._initialised = True
 
-            async with async_timeout.timeout(5):
+            async with async_timeout.timeout(2.5):
                 return await self._get_cards(contexts)
         except Exception as err:
             raise UpdateFailed(f"uhppoted API error {err}")
@@ -228,8 +228,11 @@ class CardsCoordinator(DataUpdateCoordinator):
         controllers = self._uhppote['controllers']
         lock = threading.Lock()
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            executor.map(lambda card: self._get_card(api, controllers, lock, card), contexts)
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                executor.map(lambda card: self._get_card(api, controllers, lock, card), contexts, timeout=1)
+        except Exception as err:
+            _LOGGER.error(f'error retrieving controller {controller} information ({err})')
 
         return self._state['cards']
 
@@ -284,8 +287,8 @@ class CardsCoordinator(DataUpdateCoordinator):
                 ATTR_AVAILABLE: True,
             }
 
-        except (Exception):
-            _LOGGER.exception(f'error retrieving card {card} information')
+        except Exception as err:
+            _LOGGER.error(f'error retrieving card {card} information ({err})')
 
         with lock:
             self._state['cards'][card] = info

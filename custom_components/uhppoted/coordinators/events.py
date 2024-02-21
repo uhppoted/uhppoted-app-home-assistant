@@ -171,7 +171,7 @@ class EventsCoordinator(DataUpdateCoordinator):
                 contexts.update(controllers)
                 self._initialised = True
 
-            async with async_timeout.timeout(5):
+            async with async_timeout.timeout(2.5):
                 return await self._get_events(contexts)
         except Exception as err:
             raise UpdateFailed(f"uhppoted API error {err}")
@@ -180,9 +180,12 @@ class EventsCoordinator(DataUpdateCoordinator):
         api = self._uhppote['api']
         lock = threading.Lock()
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            executor.map(lambda controller: self._record_special_events(api, lock, controller), contexts)
-            executor.map(lambda controller: self._get_controller_events(api, lock, controller), contexts)
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                executor.map(lambda controller: self._record_special_events(api, lock, controller), contexts, timeout=1)
+                executor.map(lambda controller: self._get_controller_events(api, lock, controller), contexts, timeout=1)
+        except Exception as err:
+            _LOGGER.error(f'error retrieving controller {controller} information ({err})')
 
         return self._state['events']
 
@@ -195,8 +198,8 @@ class EventsCoordinator(DataUpdateCoordinator):
                 if not response.updated:
                     _LOGGER.warning('record special events not enabled for {controller}')
 
-        except (Exception):
-            _LOGGER.warning(f'error enabling controller {controller} record special events')
+        except Exception as err:
+            _LOGGER.warning(f'error enabling controller {controller} record special events ({err})')
 
     def _get_controller_events(self, api, lock, controller):
         _LOGGER.debug(f'get controller {controller} events')
@@ -244,8 +247,8 @@ class EventsCoordinator(DataUpdateCoordinator):
                 info[ATTR_EVENTS] = events
                 info[ATTR_AVAILABLE] = True
 
-        except (Exception):
-            _LOGGER.exception(f'error retrieving controller {controller} events')
+        except Exception as err:
+            _LOGGER.error(f'error retrieving controller {controller} events ({err})')
 
         with lock:
             self._state['events'][controller] = info

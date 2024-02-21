@@ -414,15 +414,16 @@ class CardPermission(CoordinatorEntity, SwitchEntity):
 
             if not self.coordinator.data or idx not in self.coordinator.data:
                 self._available = False
+            elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
+                self._available = False
             elif ATTR_CARD_PERMISSIONS not in self.coordinator.data[idx]:
                 self._available = False
             elif self.coordinator.data[idx][ATTR_CARD_PERMISSIONS] == None:
                 self._allowed = False
-                self._available = state[ATTR_AVAILABLE]
+                self._available = self.coordinator.data[idx][ATTR_AVAILABLE]
             else:
-                state = self.coordinator.data[idx]
-                self._allowed = door in state[ATTR_CARD_PERMISSIONS]
-                self._available = state[ATTR_AVAILABLE]
+                self._allowed = door in self.coordinator.data[idx][ATTR_CARD_PERMISSIONS]
+                self._available = self.coordinator.data[idx][ATTR_AVAILABLE]
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error updating card {self.card} access for door {self.door}')

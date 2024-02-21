@@ -1,17 +1,6 @@
 # TODO
 
-- [ ] Shutdown while waiting for controller response
-      - e.g. if simulator is off
-      - (?) asyncio maybe
-      - (?) move from polled to event model
-      - https://community.home-assistant.io/t/hass-async-create-task/428301
-```
-TimeoutError: timed out
-^C2023-11-29 12:44:52.365 ERROR (MainThread) [root] Uncaught exception
-...               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-KeyboardInterrupt
-```
-
+- [x] Shutdown while waiting for controller response
 - [ ] _config-flow_
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] (somehow) commonalise config-flow and options-flow
@@ -21,11 +10,6 @@ KeyboardInterrupt
 - [ ] DataCoordinator
       - [ ] Handle timeout on startup
       - [x] parallelize requests
-            - [x] controllers
-            - [x] doors
-            - [x] cards
-            - [x] events
-
       - [x] communalize coordinators
       - [ ] communalize data
       - [x] getters
