@@ -11,6 +11,14 @@ from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
+from .const import CONF_TIMEZONE
+from .const import CONF_MAX_CARDS
+from .const import CONF_PREFERRED_CARDS
+from .const import CONF_PIN_ENABLED
+from .const import CONF_POLL_CONTROLLERS
+from .const import CONF_POLL_DOORS
+from .const import CONF_POLL_CARDS
+from .const import CONF_POLL_EVENTS
 
 from .coordinators.coordinators import Coordinators
 
@@ -21,11 +29,23 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_BROADCAST_ADDR: '255.255.255.255:60000',
         CONF_LISTEN_ADDR: '0.0.0.0:60001',
         CONF_DEBUG: False,
+        CONF_TIMEZONE: 'Local',
+        CONF_MAX_CARDS: 5,
+        CONF_PREFERRED_CARDS: '',
+        CONF_PIN_ENABLED: False,
+        CONF_POLL_CONTROLLERS: 30,
+        CONF_POLL_DOORS: 30,
+        CONF_POLL_CARDS: 30,
+        CONF_POLL_EVENTS: 30,
     }
 
     if 'uhppoted' in config:
         c = config['uhppoted']
-        for v in [CONF_BIND_ADDR, CONF_BROADCAST_ADDR, CONF_LISTEN_ADDR, CONF_DEBUG]:
+        for v in [
+                CONF_BIND_ADDR, CONF_BROADCAST_ADDR, CONF_LISTEN_ADDR, CONF_DEBUG, CONF_TIMEZONE, CONF_MAX_CARDS,
+                CONF_PREFERRED_CARDS, CONF_PIN_ENABLED, CONF_POLL_CONTROLLERS, CONF_POLL_DOORS, CONF_POLL_CARDS,
+                CONF_POLL_EVENTS
+        ]:
             if v in c:
                 defaults[v] = c[v]
 
@@ -33,6 +53,14 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     _LOGGER.info(f'default broadcast address {defaults[CONF_BROADCAST_ADDR]}')
     _LOGGER.info(f'default listen address {defaults[CONF_LISTEN_ADDR]}')
     _LOGGER.info(f'default debug {defaults[CONF_DEBUG]}')
+    _LOGGER.info(f'default timezone {defaults[CONF_TIMEZONE]}')
+    _LOGGER.info(f'max. cards {defaults[CONF_MAX_CARDS]}')
+    _LOGGER.info(f'preferred cards {defaults[CONF_PREFERRED_CARDS]}')
+    _LOGGER.info(f'PIN enabled {defaults[CONF_PIN_ENABLED]}')
+    _LOGGER.info(f'controllers: poll interval {defaults[CONF_POLL_CONTROLLERS]}s')
+    _LOGGER.info(f'doors:       poll interval {defaults[CONF_POLL_DOORS]}s')
+    _LOGGER.info(f'cards:       poll interval {defaults[CONF_POLL_CARDS]}s')
+    _LOGGER.info(f'events:      poll interval {defaults[CONF_POLL_EVENTS]}s')
 
     hass.data.setdefault(DOMAIN, defaults)
 

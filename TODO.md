@@ -1,11 +1,6 @@
 # TODO
 
 - [x] Shutdown while waiting for controller response
-- [ ] _config-flow_
-      - [ ] Use _self.options_ struct and _self.configured_ list
-      - [ ] (somehow) commonalise config-flow and options-flow
-      - [ ] Integration icon
-      - https://developers.home-assistant.io/docs/dev_101_states/
 
 - [ ] DataCoordinator
       - [ ] Handle timeout on startup
@@ -13,7 +8,8 @@
       - [x] communalize coordinators
       - [ ] communalize data
       - [x] getters
-      - [X] setters
+      - [x] setters
+      - [ ] intervals from _configuration.yaml_
       - [ ] events
             - [x] enable record-special-events
             - [x] event-listener (https://developers.home-assistant.io/docs/integration_fetching_data/#pushing-api-endpoints)
@@ -21,14 +17,15 @@
             - [x] synthesize button-released event
             - [x] clean up DoorButtonPressed
             - [x] update door status on event
+            - [x] `unload`
             - [ ] rework using threading (pending library aysnc)
             - [ ] optimization: use status from event
-            - [ ] `unload`
-                  - https://docs.python.org/3.6/library/weakref.html#weakref.finalize
-                  - https://docs.python.org/3.6/library/weakref.html#comparing-finalizers-with-del-methods
-                  - https://docs.python.org/3.6/reference/datamodel.html#object.__del__
-                  - https://docs.python.org/3/library/asyncio-protocol.html#udp-echo-server
-                  - https://docs.python.org/3/library/asyncio-stream.html
+
+- [ ] _config-flow_
+      - [ ] Use _self.options_ struct and _self.configured_ list
+      - [ ] (somehow) commonalise config-flow and options-flow
+      - [ ] Integration icon
+      - https://developers.home-assistant.io/docs/dev_101_states/
 
 - [ ] Controller
       - [ ] Rework as Device
@@ -38,25 +35,20 @@
       - [ ] Name translation
 
 - [ ] Doors
-      - [ ] unlock
-            - [ ] service call
+      - [ ] unlock service call
       - [ ] Name translation
-            - https://developers.home-assistant.io/docs/core/entity
-            - https://github.com/home-assistant/core/issues/98993
-            - https://developers.home-assistant.io/docs/core/entity
-            - python3 -m script.hassfest
 
 - [ ] Cards
       - [ ] set max cards in _configuration.yaml_
       - [ ] set preferred cards in _configuration.yaml_
       - [ ] Enable PIN in configuration.yaml
       - [ ] Name translation
-      - (?) Only set PIN in _options-flow_
 
 - [ ] Service
 
-## ToDo
+## To Be Done
 
+- (?) Only set PIN in _options-flow_
 - [ ] Custom card
 - [ ] Discovery
       - https://developers.home-assistant.io/docs/data_entry_flow_index/#initializing-a-config-flow-from-an-external-source
@@ -90,4 +82,15 @@
     - https://community.home-assistant.io/t/is-there-a-way-to-create-custom-attributes-for-entities/142875
 12. https://community.home-assistant.io/t/starting-a-websocket-connection-in-async-setup-entry-via-hass-async-create-task-causes-long-startup/464966/5
 13. https://community.home-assistant.io/t/creating-persistent-async-tasks/180257
+14. Unload
+    - https://docs.python.org/3.6/library/weakref.html#weakref.finalize
+    - https://docs.python.org/3.6/library/weakref.html#comparing-finalizers-with-del-methods
+    - https://docs.python.org/3.6/reference/datamodel.html#object.__del__
+    - https://docs.python.org/3/library/asyncio-protocol.html#udp-echo-server
+    - https://docs.python.org/3/library/asyncio-stream.html
+15. Name translation
+    - https://developers.home-assistant.io/docs/core/entity
+    - https://github.com/home-assistant/core/issues/98993
+    - https://developers.home-assistant.io/docs/core/entity
+    - python3 -m script.hassfest
 
