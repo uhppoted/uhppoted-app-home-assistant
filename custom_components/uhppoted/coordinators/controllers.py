@@ -30,14 +30,19 @@ from ..config import get_configured_cards
 
 class ControllersCoordinator(DataUpdateCoordinator):
 
-    def __init__(self, hass, options):
-        super().__init__(hass, _LOGGER, name="controllers", update_interval=_INTERVAL)
+    def __init__(self, hass,options, poll):
+        interval = _INTERVAL if poll == None else poll
+        
+        super().__init__(hass, _LOGGER, name="controllers", update_interval=poll)
+        
         self._uhppote = configure_driver(options)
         self._options = options
         self._initialised = False
         self._state = {
             'controllers': {},
         }
+
+        _LOGGER.info(f'controllers coordinator initialised ({interval.total_seconds():.0f}s)')
 
     def __del__(self):
         self.unload()

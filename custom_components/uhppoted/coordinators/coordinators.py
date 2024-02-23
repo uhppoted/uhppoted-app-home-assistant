@@ -1,10 +1,16 @@
 import asyncio
+import datetime
+
+from ..const import DOMAIN
+from ..const import CONF_POLL_CONTROLLERS
+from ..const import CONF_POLL_DOORS
+from ..const import CONF_POLL_CARDS
+from ..const import CONF_POLL_EVENTS
 
 from .controllers import ControllersCoordinator
 from .doors import DoorsCoordinator
 from .cards import CardsCoordinator
 from .events import EventsCoordinator
-
 
 class Coordinators():
     COORDINATORS = None
@@ -54,10 +60,29 @@ class Coordinators():
         return None
 
     def __init__(self, hass, options):
-        self._controllers = ControllersCoordinator(hass, options)
-        self._doors = DoorsCoordinator(hass, options)
-        self._cards = CardsCoordinator(hass, options)
-        self._events = EventsCoordinator(hass, options, lambda evt: self._on_event(hass, evt))
+        poll_controllers = None
+        poll_doors = None
+        poll_cards = None
+        poll_events = None
+
+        defaults = hass.data[DOMAIN] if DOMAIN in hass.data else {}
+
+        if CONF_POLL_CONTROLLERS in defaults:
+            poll_controllers = datetime.timedelta(seconds=defaults[CONF_POLL_CONTROLLERS])
+
+        if CONF_POLL_DOORS in defaults:
+            poll_doors = datetime.timedelta(seconds=defaults[CONF_POLL_DOORS])
+
+        if CONF_POLL_CARDS in defaults:
+            poll_cards = datetime.timedelta(seconds=defaults[CONF_POLL_CARDS])
+
+        if CONF_POLL_EVENTS in defaults:
+            poll_events = datetime.timedelta(seconds=defaults[CONF_POLL_EVENTS])
+
+        self._controllers = ControllersCoordinator(hass, options, poll_controllers)
+        self._doors = DoorsCoordinator(hass, options, poll_doors)
+        self._cards = CardsCoordinator(hass, options, poll_cards)
+        self._events = EventsCoordinator(hass, options, poll_events, lambda evt: self._on_event(hass, evt))
 
     def __del__(self):
         self.unload()

@@ -9,7 +9,7 @@
       - [ ] communalize data
       - [x] getters
       - [x] setters
-      - [ ] intervals from _configuration.yaml_
+      - [x] intervals from _configuration.yaml_
       - [ ] events
             - [x] enable record-special-events
             - [x] event-listener (https://developers.home-assistant.io/docs/integration_fetching_data/#pushing-api-endpoints)

@@ -116,8 +116,11 @@ class EventListener:
 
 class EventsCoordinator(DataUpdateCoordinator):
 
-    def __init__(self, hass, options, notify):
-        super().__init__(hass, _LOGGER, name="events", update_interval=_INTERVAL)
+    def __init__(self, hass, options, poll, notify):
+        interval = _INTERVAL if poll == None else poll
+
+        super().__init__(hass, _LOGGER, name="events", update_interval=interval)
+
         self._uhppote = configure_driver(options)
         self._options = options
         self._notify = notify
@@ -132,6 +135,8 @@ class EventsCoordinator(DataUpdateCoordinator):
         self._listener = EventListener(self.onEvent)
 
         asyncio.create_task(_listen(hass, self._listener))
+
+        _LOGGER.info(f'events coordinator initialised ({interval.total_seconds():.0f}s)')
 
     def __del__(self):
         self.unload()
