@@ -12,6 +12,7 @@ from .doors import DoorsCoordinator
 from .cards import CardsCoordinator
 from .events import EventsCoordinator
 
+
 class Coordinators():
     COORDINATORS = None
 

@@ -80,21 +80,6 @@ class EventListener:
     def decode(self, packet):
         evt = decode.event(packet)
 
-        # FIXME interim workaround for bug in uhppoted-python::decode.event
-        # evt.door_1_open = unpack_bool(packet, 28)
-        # evt.door_2_open = unpack_bool(packet, 29)
-        # evt.door_3_open = unpack_bool(packet, 30)
-        # evt.door_4_open = unpack_bool(packet, 31)
-        relays = unpack_uint8(packet, 49)
-        buttons = {
-            1: unpack_bool(packet, 32),
-            2: unpack_bool(packet, 33),
-            3: unpack_bool(packet, 34),
-            4: unpack_bool(packet, 35),
-        }
-        # evt.system_error = unpack_uint8(packet, 36)
-        # # END FIXME
-
         # yapf: disable
         return (Event(evt.controller,
                       evt.event_index,
@@ -105,8 +90,13 @@ class EventListener:
                       evt.event_card,
                       evt.event_timestamp,
                       evt.event_reason),
-                relays,
-                buttons)
+                evt.relays,
+                {
+                    1: evt.door_1_button,
+                    2: evt.door_2_button,
+                    3: evt.door_3_button,
+                    4: evt.door_4_button,
+                })
         # yapf: enable
 
     def close(self):
