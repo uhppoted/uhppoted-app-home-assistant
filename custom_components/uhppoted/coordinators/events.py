@@ -134,7 +134,6 @@ class EventsCoordinator(DataUpdateCoordinator):
 
         if CONF_LISTEN_ADDR in options:
             match = re.match(r'([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}):([0-9]+)', options[CONF_LISTEN_ADDR])
-
             if match:
                 addr = match.group(1)
                 port = int(match.group(2))

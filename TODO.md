@@ -20,7 +20,7 @@
             - [x] update door status on event
             - [x] `unload`
             - [ ] Reconnect on connection lost 
-                  - [ ] Unless being unloaded!
+                  - Unless being unloaded!
 
 - [ ] _config-flow_
       - [ ] Use _self.options_ struct and _self.configured_ list

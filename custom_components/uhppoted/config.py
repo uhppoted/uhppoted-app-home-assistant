@@ -206,6 +206,14 @@ def get_all_doors(options):
 def get_all_cards(options, max_cards=DEFAULT_MAX_CARDS, preferred_cards=DEFAULT_PREFERRED_CARDS):
     cards = dict()
 
+    # ... build 'preferred' cards list
+    preferred = set()
+    if preferred_cards:
+        preferred = {int(v) for v in re.findall(r'[0-9]+', f'{preferred_cards}')}
+
+    # ... get preferred cards
+    # TODO
+
     # ... get controller cards
     bind = options[CONF_BIND_ADDR]
     broadcast = options[CONF_BROADCAST_ADDR]
