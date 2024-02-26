@@ -201,7 +201,7 @@ def get_all_doors(options):
     return sorted(list(controllers), key=lambda v: v[CONF_CONTROLLER_SERIAL_NUMBER], reverse=True)
 
 
-def get_all_cards(options):
+def get_all_cards(options, max_cards=MAX_CARDS, preferred_cards=''):
     cards = dict()
 
     # ... get controller cards
@@ -225,7 +225,7 @@ def get_all_cards(options):
             count = 0
             errors = 0
 
-            while count < N and ix < MAX_CARD_INDEX and len(cards) < MAX_CARDS and errors < MAX_ERRORS:
+            while count < N and ix < MAX_CARD_INDEX and len(cards) < max_cards and errors < MAX_ERRORS:
                 try:
                     response = u.get_card_by_index(controller, ix)
                     cards[response.card_number] = {

@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 import async_timeout
 import datetime
+import re
 import logging
 import asyncio
 
@@ -27,6 +28,7 @@ from uhppoted import decode
 from uhppoted.decode import unpack_uint8
 from uhppoted.decode import unpack_bool
 
+from ..const import CONF_LISTEN_ADDR
 from ..const import ATTR_AVAILABLE
 from ..const import ATTR_EVENTS
 from ..const import ATTR_STATUS
@@ -40,12 +42,13 @@ from ..config import get_configured_controllers
 from ..config import get_configured_cards
 
 
-async def _listen(hass, listener):
+async def _listen(hass, addr, port, listener):
     loop = asyncio.get_running_loop()
-    transport, protocol = await loop.create_datagram_endpoint(lambda: listener, local_addr=('192.168.1.100', 60001))
+    transport, protocol = await loop.create_datagram_endpoint(lambda: listener, local_addr=(addr, port))
 
     _LOGGER.debug(f'UDP event listener {transport}')
     _LOGGER.debug(f'UDP event listener {protocol}')
+    _LOGGER.info(f'listening for events on {addr}:{port}')
 
 
 @dataclass
@@ -65,6 +68,7 @@ class EventListener:
 
     def __init__(self, handler):
         self._handler = handler
+        self._transport = None
 
     def connection_made(self, transport):
         self._transport = transport
@@ -100,7 +104,7 @@ class EventListener:
         # yapf: enable
 
     def close(self):
-        if self.transport:
+        if self._transport:
             self._transport.close()
 
 
@@ -108,6 +112,8 @@ class EventsCoordinator(DataUpdateCoordinator):
 
     def __init__(self, hass, options, poll, notify):
         interval = _INTERVAL if poll == None else poll
+        addr = '0.0.0.0'
+        port = 60001
 
         super().__init__(hass, _LOGGER, name="events", update_interval=interval)
 
@@ -122,9 +128,16 @@ class EventsCoordinator(DataUpdateCoordinator):
             'buttons': {},
         }
 
+        if CONF_LISTEN_ADDR in options:
+            match = re.match(r'([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}):([0-9]+)', options[CONF_LISTEN_ADDR])
+
+            if match:
+                addr = match.group(1)
+                port = int(match.group(2))
+
         self._listener = EventListener(self.onEvent)
 
-        asyncio.create_task(_listen(hass, self._listener))
+        asyncio.create_task(_listen(hass, addr, port, self._listener))
 
         _LOGGER.info(f'events coordinator initialised ({interval.total_seconds():.0f}s)')
 

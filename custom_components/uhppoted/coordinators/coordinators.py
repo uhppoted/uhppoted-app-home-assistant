@@ -66,6 +66,8 @@ class Coordinators():
         poll_cards = None
         poll_events = None
 
+        listen_addr = '0.0.0.0:60001'
+
         defaults = hass.data[DOMAIN] if DOMAIN in hass.data else {}
 
         if CONF_POLL_CONTROLLERS in defaults:

@@ -21,6 +21,7 @@ from homeassistant.helpers import config_validation as cv
 from uhppoted import uhppote
 
 from .const import DOMAIN
+
 from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR

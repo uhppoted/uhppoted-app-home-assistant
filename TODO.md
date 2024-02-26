@@ -7,10 +7,11 @@
       - [x] parallelize requests
       - [x] communalize coordinators
       - [ ] communalize data
+            - [ ] optimization: update global controller status from event
       - [x] getters
       - [x] setters
       - [x] intervals from _configuration.yaml_
-      - [ ] events
+      - [x] events
             - [x] enable record-special-events
             - [x] event-listener (https://developers.home-assistant.io/docs/integration_fetching_data/#pushing-api-endpoints)
             - [x] synthesize door-lock event
@@ -18,8 +19,6 @@
             - [x] clean up DoorButtonPressed
             - [x] update door status on event
             - [x] `unload`
-            - [ ] rework using threading (pending library aysnc)
-            - [ ] optimization: use status from event
 
 - [ ] _config-flow_
       - [ ] Use _self.options_ struct and _self.configured_ list
