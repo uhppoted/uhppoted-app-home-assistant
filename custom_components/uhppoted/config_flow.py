@@ -40,6 +40,8 @@ from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
 
+from .const import CONF_MAX_CARDS
+from .const import CONF_PREFERRED_CARDS
 from .const import CONF_CARDS
 from .const import CONF_CARD_UNIQUE_ID
 from .const import CONF_CARD_NUMBER
@@ -56,6 +58,9 @@ from .const import DEFAULT_DOOR1
 from .const import DEFAULT_DOOR2
 from .const import DEFAULT_DOOR3
 from .const import DEFAULT_DOOR4
+
+from .const import DEFAULT_MAX_CARDS
+from .const import DEFAULT_PREFERRED_CARDS
 
 from .options_flow import UhppotedOptionsFlow
 
@@ -82,6 +87,15 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
         defaults = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
+
+        self._max_cards = DEFAULT_MAX_CARDS
+        self._preferred_cards = DEFAULT_PREFERRED_CARDS
+
+        if CONF_MAX_CARDS in defaults:
+            self._max_cards = defaults[CONF_MAX_CARDS]
+
+        if CONF_PREFERRED_CARDS in defaults:
+            self._preferred_cards = defaults[CONF_PREFERRED_CARDS]
 
         self.data = {}
         self.options = {}
@@ -358,7 +372,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
 
                 return await self.async_step_card()
 
-        cards = [v[CONF_CARD_NUMBER] for v in get_all_cards(self.options)]
+        cards = [v[CONF_CARD_NUMBER] for v in get_all_cards(self.options, self._max_cards, self._preferred_cards)]
 
         if len(cards) < 2:
             self.configuration['cards'] = [{

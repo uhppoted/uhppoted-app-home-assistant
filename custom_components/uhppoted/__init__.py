@@ -20,6 +20,9 @@ from .const import CONF_POLL_DOORS
 from .const import CONF_POLL_CARDS
 from .const import CONF_POLL_EVENTS
 
+from .const import DEFAULT_MAX_CARDS
+from .const import DEFAULT_PREFERRED_CARDS
+
 from .coordinators.coordinators import Coordinators
 
 
@@ -30,8 +33,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_LISTEN_ADDR: '0.0.0.0:60001',
         CONF_DEBUG: False,
         CONF_TIMEZONE: 'Local',
-        CONF_MAX_CARDS: 5,
-        CONF_PREFERRED_CARDS: '',
+        CONF_MAX_CARDS: DEFAULT_MAX_CARDS,
+        CONF_PREFERRED_CARDS: DEFAULT_PREFERRED_CARDS,
         CONF_PIN_ENABLED: False,
         CONF_POLL_CONTROLLERS: 30,
         CONF_POLL_DOORS: 30,

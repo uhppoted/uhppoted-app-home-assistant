@@ -19,6 +19,8 @@
             - [x] clean up DoorButtonPressed
             - [x] update door status on event
             - [x] `unload`
+            - [ ] Reconnect on connection lost 
+                  - [ ] Unless being unloaded!
 
 - [ ] _config-flow_
       - [ ] Use _self.options_ struct and _self.configured_ list
@@ -38,7 +40,7 @@
       - [ ] Name translation
 
 - [ ] Cards
-      - [ ] set max cards in _configuration.yaml_
+      - [x] set max cards in _configuration.yaml_
       - [ ] set preferred cards in _configuration.yaml_
       - [ ] Enable PIN in configuration.yaml
       - [ ] Name translation

@@ -33,6 +33,11 @@ from .const import CONF_CARD_STARTDATE
 from .const import CONF_CARD_ENDDATE
 from .const import CONF_CARD_DOORS
 
+from .const import DEFAULT_MAX_CARDS
+from .const import DEFAULT_MAX_CARD_INDEX
+from .const import DEFAULT_MAX_CARD_ERRORS
+from .const import DEFAULT_PREFERRED_CARDS
+
 from .const import ERR_INVALID_CONTROLLER_ID
 from .const import ERR_DUPLICATE_CONTROLLER_ID
 from .const import ERR_DUPLICATE_CONTROLLER_IDS
@@ -42,9 +47,6 @@ from .const import ERR_DUPLICATE_DOOR_IDS
 from .const import ERR_INVALID_CARD_ID
 
 _LOGGER = logging.getLogger(__name__)
-MAX_CARDS = 25
-MAX_CARD_INDEX = 20000
-MAX_ERRORS = 5
 
 
 def normalise(v):
@@ -201,7 +203,7 @@ def get_all_doors(options):
     return sorted(list(controllers), key=lambda v: v[CONF_CONTROLLER_SERIAL_NUMBER], reverse=True)
 
 
-def get_all_cards(options, max_cards=MAX_CARDS, preferred_cards=''):
+def get_all_cards(options, max_cards=DEFAULT_MAX_CARDS, preferred_cards=DEFAULT_PREFERRED_CARDS):
     cards = dict()
 
     # ... get controller cards
@@ -220,12 +222,13 @@ def get_all_cards(options, max_cards=MAX_CARDS, preferred_cards=''):
             response = u.get_cards(controller)
             _LOGGER.info(f'{controller}: {response.cards} cards')
 
-            N = min(response.cards, MAX_CARDS)
+            N = min(response.cards, max_cards)
             ix = 1
             count = 0
             errors = 0
 
-            while count < N and ix < MAX_CARD_INDEX and len(cards) < max_cards and errors < MAX_ERRORS:
+            while count < N and ix < DEFAULT_MAX_CARD_INDEX and len(
+                    cards) < max_cards and errors < DEFAULT_MAX_CARD_ERRORS:
                 try:
                     response = u.get_card_by_index(controller, ix)
                     cards[response.card_number] = {

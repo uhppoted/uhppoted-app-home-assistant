@@ -34,6 +34,8 @@ from .const import CONF_DOOR_ID
 from .const import CONF_DOOR_CONTROLLER
 from .const import CONF_DOOR_NUMBER
 
+from .const import CONF_MAX_CARDS
+from .const import CONF_PREFERRED_CARDS
 from .const import CONF_CARDS
 from .const import CONF_CARD_UNIQUE_ID
 from .const import CONF_CARD_NUMBER
@@ -50,6 +52,9 @@ from .const import DEFAULT_DOOR1
 from .const import DEFAULT_DOOR2
 from .const import DEFAULT_DOOR3
 from .const import DEFAULT_DOOR4
+
+from .const import DEFAULT_MAX_CARDS
+from .const import DEFAULT_PREFERRED_CARDS
 
 from .config import validate_controller_id
 from .config import validate_door_duplicates
@@ -70,6 +75,9 @@ _LOGGER = logging.getLogger(__name__)
 class UhppotedOptionsFlow(OptionsFlow):
 
     def __init__(self, entry: ConfigEntry) -> None:
+        self._max_cards = DEFAULT_MAX_CARDS
+        self._preferred_cards = DEFAULT_PREFERRED_CARDS
+
         self.config_entry = entry
         self.data = dict(entry.data)
         self.options = copy.deepcopy(dict(entry.options))
@@ -78,6 +86,14 @@ class UhppotedOptionsFlow(OptionsFlow):
         self.configuration = {'doors': []}
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        defaults = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
+
+        if CONF_MAX_CARDS in defaults:
+            self._max_cards = defaults[CONF_MAX_CARDS]
+
+        if CONF_PREFERRED_CARDS in defaults:
+            self._preferred_cards = defaults[CONF_PREFERRED_CARDS]
+
         return self.async_show_menu(step_id="init",
                                     menu_options=['IPv4', 'controllers', 'doors', 'cards'],
                                     description_placeholders={})
@@ -420,7 +436,7 @@ class UhppotedOptionsFlow(OptionsFlow):
 
                 return await self.async_step_card()
 
-        cards = get_all_cards(self.options)
+        cards = get_all_cards(self.options, self._max_cards, self._preferred_cards)
         defaults = [f'{v[CONF_CARD_NUMBER]}' for v in self.options[CONF_CARDS]] if CONF_CARDS in self.options else []
 
         select = SelectSelectorConfig(options=[g(v) for v in cards],

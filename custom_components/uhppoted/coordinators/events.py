@@ -73,6 +73,10 @@ class EventListener:
     def connection_made(self, transport):
         self._transport = transport
 
+    def connection_lost(self, err):
+        self._transport = None
+        _LOGGER.error(f'event listener UDP connection lost {err}')
+
     def datagram_received(self, packet, addr):
         try:
             (event, relays, buttons) = self.decode(packet)
