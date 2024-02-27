@@ -41,7 +41,7 @@
 
 - [ ] Cards
       - [x] set max cards in _configuration.yaml_
-      - [ ] set preferred cards in _configuration.yaml_
+      - [x] set preferred cards in _configuration.yaml_
       - [ ] Enable PIN in configuration.yaml
       - [ ] Name translation
 

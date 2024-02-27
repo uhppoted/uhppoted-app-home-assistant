@@ -204,6 +204,13 @@ def get_all_doors(options):
 
 
 def get_all_cards(options, max_cards=DEFAULT_MAX_CARDS, preferred_cards=DEFAULT_PREFERRED_CARDS):
+    bind = options[CONF_BIND_ADDR]
+    broadcast = options[CONF_BROADCAST_ADDR]
+    listen = options[CONF_LISTEN_ADDR]
+    debug = options[CONF_DEBUG]
+    u = uhppote.Uhppote(bind, broadcast, listen, debug)
+
+    controllers = options[CONF_CONTROLLERS]
     cards = dict()
 
     # ... build 'preferred' cards list
@@ -212,17 +219,21 @@ def get_all_cards(options, max_cards=DEFAULT_MAX_CARDS, preferred_cards=DEFAULT_
         preferred = {int(v) for v in re.findall(r'[0-9]+', f'{preferred_cards}')}
 
     # ... get preferred cards
-    # TODO
+    for c in controllers:
+        controller = int(f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip())
+        for card in sorted(list(preferred)):
+            try:
+                response = u.get_card(controller, card)
+                if response.card_number == card:
+                    cards[response.card_number] = {
+                        CONF_CARD_NUMBER: response.card_number,
+                        CONF_CARD_UNIQUE_ID: uuid.uuid4(),
+                        CONF_CARD_NAME: None,
+                    }
+            except Exception as e:
+                _LOGGER.warning(f'{controller} error retrieving preferred card {card} ({e})')
 
     # ... get controller cards
-    bind = options[CONF_BIND_ADDR]
-    broadcast = options[CONF_BROADCAST_ADDR]
-    listen = options[CONF_LISTEN_ADDR]
-    debug = options[CONF_DEBUG]
-    u = uhppote.Uhppote(bind, broadcast, listen, debug)
-
-    controllers = options[CONF_CONTROLLERS]
-
     for c in controllers:
         controller = int(f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip())
 
@@ -235,17 +246,13 @@ def get_all_cards(options, max_cards=DEFAULT_MAX_CARDS, preferred_cards=DEFAULT_
             count = 0
             errors = 0
 
-            while count < N and ix < DEFAULT_MAX_CARD_INDEX and len(
-                    cards) < max_cards and errors < DEFAULT_MAX_CARD_ERRORS:
+            while count < N and ix < DEFAULT_MAX_CARD_INDEX and len(cards) < max_cards and errors < DEFAULT_MAX_CARD_ERRORS: # yapf: disable
                 try:
                     response = u.get_card_by_index(controller, ix)
                     cards[response.card_number] = {
                         CONF_CARD_NUMBER: response.card_number,
                         CONF_CARD_UNIQUE_ID: uuid.uuid4(),
                         CONF_CARD_NAME: None,
-                        CONF_CARD_STARTDATE: None,
-                        CONF_CARD_ENDDATE: None,
-                        CONF_CARD_DOORS: [],
                     }
                     count += 1
                     ix += 1
