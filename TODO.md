@@ -26,17 +26,20 @@
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] (somehow) commonalise config-flow and options-flow
       - [ ] Integration icon
-      - https://developers.home-assistant.io/docs/dev_101_states/
 
 - [ ] Controller
+      - [ ] Set default timezone in configuration.yaml
       - [ ] Rework as Device
       - [ ] device_info
       - [ ] entity_category
-      - [ ] Set default timezone in configuration.yaml
       - [ ] Name translation
 
 - [ ] Doors
       - [ ] unlock service call
+            - https://data.home-assistant.io/docs/services
+            - https://developers.home-assistant.io/docs/dev_101_services
+            - https://community.home-assistant.io/t/registering-a-service/40327/8
+            - https://community.home-assistant.io/t/async-register-entity-service-calling-entity-method-from-service-call/240927/2
       - [ ] Name translation
 
 - [ ] Cards

@@ -5,6 +5,7 @@ _LOGGER = logging.getLogger(__name__)
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
+from homeassistant.helpers import entity_platform
 
 from .const import DOMAIN
 from .const import CONF_BIND_ADDR
@@ -24,6 +25,12 @@ from .const import DEFAULT_MAX_CARDS
 from .const import DEFAULT_PREFERRED_CARDS
 
 from .coordinators.coordinators import Coordinators
+
+def unlock_door(call):
+    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> UNLOCK DOOR', call.data)
+    # name = call.data.get(ATTR_NAME, DEFAULT_NAME)
+    # 
+    # hass.states.set("hello_service.hello", name)
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
@@ -66,6 +73,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     _LOGGER.info(f'events:      poll interval {defaults[CONF_POLL_EVENTS]}s')
 
     hass.data.setdefault(DOMAIN, defaults)
+
+    hass.services.async_register(DOMAIN, "unlock_door", unlock_door)
 
     return True
 
