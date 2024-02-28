@@ -26,10 +26,11 @@ from .const import DEFAULT_PREFERRED_CARDS
 
 from .coordinators.coordinators import Coordinators
 
+
 def unlock_door(call):
     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> UNLOCK DOOR', call.data)
     # name = call.data.get(ATTR_NAME, DEFAULT_NAME)
-    # 
+    #
     # hass.states.set("hello_service.hello", name)
 
 
@@ -59,18 +60,18 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
             if v in c:
                 defaults[v] = c[v]
 
-    _LOGGER.info(f'default bind address {defaults[CONF_BIND_ADDR]}')
-    _LOGGER.info(f'default broadcast address {defaults[CONF_BROADCAST_ADDR]}')
-    _LOGGER.info(f'default listen address {defaults[CONF_LISTEN_ADDR]}')
-    _LOGGER.info(f'default debug {defaults[CONF_DEBUG]}')
-    _LOGGER.info(f'default timezone {defaults[CONF_TIMEZONE]}')
-    _LOGGER.info(f'max. cards {defaults[CONF_MAX_CARDS]}')
-    _LOGGER.info(f'preferred cards {defaults[CONF_PREFERRED_CARDS]}')
-    _LOGGER.info(f'PIN enabled {defaults[CONF_PIN_ENABLED]}')
-    _LOGGER.info(f'controllers: poll interval {defaults[CONF_POLL_CONTROLLERS]}s')
-    _LOGGER.info(f'doors:       poll interval {defaults[CONF_POLL_DOORS]}s')
-    _LOGGER.info(f'cards:       poll interval {defaults[CONF_POLL_CARDS]}s')
-    _LOGGER.info(f'events:      poll interval {defaults[CONF_POLL_EVENTS]}s')
+    _LOGGER.info(f'default bind address:        {defaults[CONF_BIND_ADDR]}')
+    _LOGGER.info(f'default broadcast address:   {defaults[CONF_BROADCAST_ADDR]}')
+    _LOGGER.info(f'default listen address:      {defaults[CONF_LISTEN_ADDR]}')
+    _LOGGER.info(f'default debug:               {defaults[CONF_DEBUG]}')
+    _LOGGER.info(f'default timezone:            {defaults[CONF_TIMEZONE]}')
+    _LOGGER.info(f'max. cards:                  {defaults[CONF_MAX_CARDS]}')
+    _LOGGER.info(f'preferred cards:             {defaults[CONF_PREFERRED_CARDS]}')
+    _LOGGER.info(f'PIN enabled:                 {defaults[CONF_PIN_ENABLED]}')
+    _LOGGER.info(f'poll interval - controllers: {defaults[CONF_POLL_CONTROLLERS]}s')
+    _LOGGER.info(f'poll interval - doors:       {defaults[CONF_POLL_DOORS]}s')
+    _LOGGER.info(f'poll interval - cards:       {defaults[CONF_POLL_CARDS]}s')
+    _LOGGER.info(f'poll interval - events:      {defaults[CONF_POLL_EVENTS]}s')
 
     hass.data.setdefault(DOMAIN, defaults)
 

@@ -10,20 +10,30 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from uhppoted import uhppote
 
+from .const import DOMAIN
+from .const import CONF_PIN_ENABLED
+
 from .coordinators.coordinators import Coordinators
 from .config import configure_cards
 from .card import CardPIN
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
+    defaults = hass.data[DOMAIN] if DOMAIN in hass.data else {}
+
+    PIN = False
+    if CONF_PIN_ENABLED in defaults:
+        PIN = defaults[CONF_PIN_ENABLED] == True
+
     options = entry.options
     cards = Coordinators.cards()
     entities = []
 
     def h(card, name, unique_id):
-        entities.extend([
-            CardPIN(cards, unique_id, card, name),
-        ])
+        if PIN:
+            entities.extend([
+                CardPIN(cards, unique_id, card, name),
+            ])
 
     configure_cards(options, h)
     await cards.async_config_entry_first_refresh()

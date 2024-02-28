@@ -12,13 +12,6 @@
       - [x] setters
       - [x] intervals from _configuration.yaml_
       - [x] events
-            - [x] enable record-special-events
-            - [x] event-listener (https://developers.home-assistant.io/docs/integration_fetching_data/#pushing-api-endpoints)
-            - [x] synthesize door-lock event
-            - [x] synthesize button-released event
-            - [x] clean up DoorButtonPressed
-            - [x] update door status on event
-            - [x] `unload`
             - [ ] Reconnect on connection lost 
                   - Unless being unloaded!
 
@@ -45,7 +38,7 @@
 - [ ] Cards
       - [x] set max cards in _configuration.yaml_
       - [x] set preferred cards in _configuration.yaml_
-      - [ ] Enable PIN in configuration.yaml
+      - [x] Enable PIN in configuration.yaml
       - [ ] Name translation
 
 - [ ] Service
@@ -97,4 +90,4 @@
     - https://github.com/home-assistant/core/issues/98993
     - https://developers.home-assistant.io/docs/core/entity
     - python3 -m script.hassfest
-
+16. https://developers.home-assistant.io/docs/integration_fetching_data/#pushing-api-endpoints
