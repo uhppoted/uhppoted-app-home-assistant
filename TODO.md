@@ -1,5 +1,27 @@
 # TODO
 
+```
+Exception ignored in: <function Coordinators.__del__ at 0x11dfc4540>
+Traceback (most recent call last):
+  File "/Users/tonyseebregts/Development/uhppote/hass/config/custom_components/uhppoted/coordinators/coordinators.py", line 91, in __del__
+    self.unload()
+  File "/Users/tonyseebregts/Development/uhppote/hass/config/custom_components/uhppoted/coordinators/coordinators.py", line 29, in unload
+    coordinators._unload()
+  File "/Users/tonyseebregts/Development/uhppote/hass/config/custom_components/uhppoted/coordinators/coordinators.py", line 97, in _unload
+    self._events.unload()
+  File "/Users/tonyseebregts/Development/uhppote/hass/config/custom_components/uhppoted/coordinators/events.py", line 152, in unload
+    self._listener.close()
+  File "/Users/tonyseebregts/Development/uhppote/hass/config/custom_components/uhppoted/coordinators/events.py", line 112, in close
+    self._transport.close()
+  File "/Users/tonyseebregts/opt/miniconda3/envs/hass/lib/python3.11/asyncio/selector_events.py", line 860, in close
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/Users/tonyseebregts/opt/miniconda3/envs/hass/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
+    self._check_closed()
+  File "/Users/tonyseebregts/opt/miniconda3/envs/hass/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+```
+
 - [x] Shutdown while waiting for controller response
 
 - [ ] DataCoordinator
@@ -29,10 +51,32 @@
 
 - [ ] Doors
       - [ ] unlock service call
+            - (?) register as 'unlock-gryffindor'
+            - [ ] services.yaml
+`2024-02-28 12:01:43.027 WARNING (SyncWorker_2) [homeassistant.helpers.service] Unable to find services.yaml for the uhppoted integration`
+            - [ ] icon (async_register_entity_service)
+            - [ ] Remove (https://github.com/doudz/homeassistant-myjdownloader/blob/master/custom_components/myjdownloader/__init__.py)
+```
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Unload a config entry."""
+
+    # remove services
+    hass.services.async_remove(DOMAIN, SERVICE_RESTART_AND_UPDATE)
+```
+            
             - https://data.home-assistant.io/docs/services
             - https://developers.home-assistant.io/docs/dev_101_services
             - https://community.home-assistant.io/t/registering-a-service/40327/8
             - https://community.home-assistant.io/t/async-register-entity-service-calling-entity-method-from-service-call/240927/2
+            - https://github.com/doudz/homeassistant-myjdownloader/blob/master/custom_components/myjdownloader/services.yaml
+
+```
+service: uhppoted.unlock_le_door
+data: {}
+target:
+  entity_id: button.uhppoted_door_slytherin_unlock
+```
+
       - [ ] Name translation
 
 - [ ] Cards

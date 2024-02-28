@@ -25,13 +25,7 @@ from .const import DEFAULT_MAX_CARDS
 from .const import DEFAULT_PREFERRED_CARDS
 
 from .coordinators.coordinators import Coordinators
-
-
-def unlock_door(call):
-    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> UNLOCK DOOR', call.data)
-    # name = call.data.get(ATTR_NAME, DEFAULT_NAME)
-    #
-    # hass.states.set("hello_service.hello", name)
+from .services import unlock_door
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
@@ -75,7 +69,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
     hass.data.setdefault(DOMAIN, defaults)
 
-    hass.services.async_register(DOMAIN, "unlock_door", unlock_door)
+    # hass.services.async_register(DOMAIN, "unlock_door", unlock_door)
 
     return True
 
@@ -113,10 +107,13 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         Platform.TEXT,
     ]
 
-    # TODO pre-unload cleanup (if any)
+    # ... pre-unload: remove global services
+    # hass.services.async_remove(DOMAIN, 'unlock-door')
+
+    # ... unload
     ok = await hass.config_entries.async_unload_platforms(entry, platforms)
 
-    # ... post-unload cleanup (if any)
+    # ... post-unload: shut down data-coordinators
     Coordinators.unload()
 
     return ok

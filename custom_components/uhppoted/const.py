@@ -47,6 +47,7 @@ ATTR_CONTROLLER_SERIAL_NUMBER = 'serial_no'
 ATTR_CONTROLLER_DATETIME = 'date-time'
 
 ATTR_DOORS = 'doors'
+ATTR_DOOR = 'door'
 ATTR_DOOR_CONTROLLER = 'controller'
 ATTR_DOOR_NUMBER = 'door'
 ATTR_DOOR_OPEN = 'door_open'
