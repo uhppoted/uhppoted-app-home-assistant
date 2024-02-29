@@ -169,3 +169,15 @@ uhppoted:
 7. uhppoted.door.{door}.unlock
 
 #### Cards
+
+## Service API
+
+### `unlock-door`
+
+Example:
+```
+service: uhppoted.unlock_door
+data: {
+  door: Gryffindor
+}
+```

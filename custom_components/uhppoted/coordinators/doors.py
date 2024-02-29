@@ -28,6 +28,7 @@ from ..const import ATTR_DOOR_OPEN
 from ..config import configure_driver
 from ..config import get_configured_doors
 from ..config import resolve_door
+from ..config import resolve_door_by_name
 
 
 class DoorsCoordinator(DataUpdateCoordinator):
@@ -90,6 +91,16 @@ class DoorsCoordinator(DataUpdateCoordinator):
             raise ValueError(f'invalid response to open-door')
         else:
             return response
+
+    def unlock_door_by_name(self, door):
+        record = resolve_door_by_name(self._options, door)
+        if record:
+            controller = record[CONF_CONTROLLER_SERIAL_NUMBER]
+            doorno = record[CONF_DOOR_NUMBER]
+            response = self.unlock_door(controller, doorno)
+            return response.opened
+
+        return False
 
     async def _async_update_data(self):
         try:

@@ -5,7 +5,6 @@ _LOGGER = logging.getLogger(__name__)
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.helpers import entity_platform
 
 from .const import DOMAIN
 from .const import CONF_BIND_ADDR
@@ -25,7 +24,8 @@ from .const import DEFAULT_MAX_CARDS
 from .const import DEFAULT_PREFERRED_CARDS
 
 from .coordinators.coordinators import Coordinators
-from .services import unlock_door
+from .services.services import Services
+from .config import get_all_doors
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
@@ -69,8 +69,6 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
     hass.data.setdefault(DOMAIN, defaults)
 
-    # hass.services.async_register(DOMAIN, "unlock_door", unlock_door)
-
     return True
 
 
@@ -88,6 +86,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "date"))
     hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "switch"))
     hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "text"))
+
+    Services.initialise(hass, entry.options)
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
@@ -107,8 +107,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         Platform.TEXT,
     ]
 
-    # ... pre-unload: remove global services
-    # hass.services.async_remove(DOMAIN, 'unlock-door')
+    # ... pre-unload: remove service endpoints
+    Services.unload(hass)
 
     # ... unload
     ok = await hass.config_entries.async_unload_platforms(entry, platforms)

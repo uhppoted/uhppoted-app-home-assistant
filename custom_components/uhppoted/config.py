@@ -417,3 +417,25 @@ def resolve_door(options, unique_id):
                         }
 
     return None
+
+
+def resolve_door_by_name(options, name):
+
+    def normalise(v):
+        return re.sub('[^a-zA-z0-9]', '', f'{v}'.strip().lower())
+
+    if CONF_CONTROLLERS in options and CONF_DOORS in options:
+        controllers = options[CONF_CONTROLLERS]
+        doors = options[CONF_DOORS]
+
+        for door in doors:
+            if normalise(door[CONF_DOOR_ID]) == normalise(name):
+                for controller in controllers:
+                    if controller[CONF_CONTROLLER_ID] == door[CONF_DOOR_CONTROLLER]:
+                        return {
+                            CONF_DOOR_ID: door[CONF_DOOR_ID],
+                            CONF_CONTROLLER_SERIAL_NUMBER: int(f'{controller[CONF_CONTROLLER_SERIAL_NUMBER]}'),
+                            CONF_DOOR_NUMBER: door[CONF_DOOR_NUMBER],
+                        }
+
+    return None

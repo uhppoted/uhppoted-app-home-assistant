@@ -21,35 +21,14 @@
       - [ ] (somehow) commonalise config-flow and options-flow
       - [ ] Integration icon
 
-- [ ] Service
-      - [ ] unlock service call
-            - (?) register as 'unlock-gryffindor'
-            - [ ] services.yaml
-`2024-02-28 12:01:43.027 WARNING (SyncWorker_2) [homeassistant.helpers.service] Unable to find services.yaml for the uhppoted integration`
-            - [ ] icon (async_register_entity_service)
-            - [ ] Remove (https://github.com/doudz/homeassistant-myjdownloader/blob/master/custom_components/myjdownloader/__init__.py)
-```
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload a config entry."""
-
-    # remove services
-    hass.services.async_remove(DOMAIN, SERVICE_RESTART_AND_UPDATE)
-```
+- [ ] Services
+      - [x] unlock-door
+      - [ ] add-card
+      - [ ] delete-card
+      - (?) `unlock-gryffindor`
+      - [ ] services.yaml
+      - [ ] icon (async_register_entity_service)
             
-            - https://data.home-assistant.io/docs/services
-            - https://developers.home-assistant.io/docs/dev_101_services
-            - https://community.home-assistant.io/t/registering-a-service/40327/8
-            - https://community.home-assistant.io/t/async-register-entity-service-calling-entity-method-from-service-call/240927/2
-            - https://github.com/doudz/homeassistant-myjdownloader/blob/master/custom_components/myjdownloader/services.yaml
-
-```
-service: uhppoted.unlock_le_door
-data: {}
-target:
-  entity_id: button.uhppoted_door_slytherin_unlock
-```
-
-
 - [ ] Controller
       - [x] Set default timezone in configuration.yaml
       - [ ] Rework as Device
@@ -112,3 +91,11 @@ target:
     - https://developers.home-assistant.io/docs/core/entity
     - python3 -m script.hassfest
 16. https://developers.home-assistant.io/docs/integration_fetching_data/#pushing-api-endpoints
+17. Services
+    - https://data.home-assistant.io/docs/services
+    - https://developers.home-assistant.io/docs/dev_101_services
+    - https://community.home-assistant.io/t/registering-a-service/40327/8
+    - https://community.home-assistant.io/t/async-register-entity-service-calling-entity-method-from-service-call/240927/2
+    - https://github.com/doudz/homeassistant-myjdownloader/blob/master/custom_components/myjdownloader/services.yaml
+
+

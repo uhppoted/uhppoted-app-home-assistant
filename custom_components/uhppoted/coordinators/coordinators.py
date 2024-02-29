@@ -60,6 +60,12 @@ class Coordinators():
 
         return None
 
+    @classmethod
+    def unlock_door(clazz, door):
+        coordinators = Coordinators.COORDINATORS
+        if coordinators and coordinators._doors:
+            return coordinators._doors.unlock_door_by_name(door)
+
     def __init__(self, hass, options):
         poll_controllers = None
         poll_doors = None
