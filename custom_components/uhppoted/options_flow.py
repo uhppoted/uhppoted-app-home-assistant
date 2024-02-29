@@ -20,6 +20,7 @@ from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
+from .const import CONF_TIMEZONE
 
 from .const import CONF_CONTROLLERS
 from .const import CONF_CONTROLLER_UNIQUE_ID
@@ -75,6 +76,7 @@ _LOGGER = logging.getLogger(__name__)
 class UhppotedOptionsFlow(OptionsFlow):
 
     def __init__(self, entry: ConfigEntry) -> None:
+        self._timezone = DEFAULT_CONTROLLER_TIMEZONE
         self._max_cards = DEFAULT_MAX_CARDS
         self._preferred_cards = DEFAULT_PREFERRED_CARDS
 
@@ -88,11 +90,9 @@ class UhppotedOptionsFlow(OptionsFlow):
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         defaults = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
 
-        if CONF_MAX_CARDS in defaults:
-            self._max_cards = defaults[CONF_MAX_CARDS]
-
-        if CONF_PREFERRED_CARDS in defaults:
-            self._preferred_cards = defaults[CONF_PREFERRED_CARDS]
+        self._timezone = defaults.get(CONF_TIMEZONE, DEFAULT_CONTROLLER_TIMEZONE)
+        self._max_cards = defaults.get(CONF_MAX_CARDS, DEFAULT_MAX_CARDS)
+        self._preferred_cards = defaults.get(CONF_PREFERRED_CARDS, DEFAULT_PREFERRED_CARDS)
 
         return self.async_show_menu(step_id="init",
                                     menu_options=['IPv4', 'controllers', 'doors', 'cards'],
@@ -235,16 +235,15 @@ class UhppotedOptionsFlow(OptionsFlow):
         defaults = {
             CONF_CONTROLLER_ID: DEFAULT_CONTROLLER_ID,
             CONF_CONTROLLER_ADDR: DEFAULT_CONTROLLER_ADDR,
-            CONF_CONTROLLER_TIMEZONE: DEFAULT_CONTROLLER_TIMEZONE,
+            CONF_CONTROLLER_TIMEZONE: self._timezone,
         }
 
-        if CONF_CONTROLLERS in self.options:
-            for v in self.options[CONF_CONTROLLERS]:
-                if int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') == int(f'{serial_no}'):
-                    for k in [CONF_CONTROLLER_ID, CONF_CONTROLLER_ADDR, CONF_CONTROLLER_TIMEZONE]:
-                        if k in v:
-                            defaults[k] = v[k]
-                    break
+        for v in self.options.get(CONF_CONTROLLERS, []):
+            if int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') == int(f'{serial_no}'):
+                for k in [CONF_CONTROLLER_ID, CONF_CONTROLLER_ADDR, CONF_CONTROLLER_TIMEZONE]:
+                    if k in v:
+                        defaults[k] = v[k]
+                break
 
         if user_input is not None:
             for k in [CONF_CONTROLLER_ID, CONF_CONTROLLER_ADDR, CONF_CONTROLLER_TIMEZONE]:
@@ -437,7 +436,7 @@ class UhppotedOptionsFlow(OptionsFlow):
                 return await self.async_step_card()
 
         cards = get_all_cards(self.options, self._max_cards, self._preferred_cards)
-        defaults = [f'{v[CONF_CARD_NUMBER]}' for v in self.options[CONF_CARDS]] if CONF_CARDS in self.options else []
+        defaults = [f'{v[CONF_CARD_NUMBER]}' for v in self.options.get(CONF_CARDS, [])]
 
         select = SelectSelectorConfig(options=[g(v) for v in cards],
                                       multiple=True,
@@ -480,7 +479,7 @@ class UhppotedOptionsFlow(OptionsFlow):
                     errors[k] = f'{err}'
 
             if not errors:
-                v = self.options[CONF_CARDS] if CONF_CARDS in self.options else []
+                v = self.options.get(CONF_CARDS, [])
 
                 for ix, item in enumerate(cards):
                     k = f'card{ix+1}_name'

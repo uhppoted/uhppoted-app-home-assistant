@@ -119,7 +119,7 @@ class EventsCoordinator(DataUpdateCoordinator):
         addr = '0.0.0.0'
         port = 60001
 
-        super().__init__(hass, _LOGGER, name="events", update_interval=interval)
+        super().__init__(hass, _LOGGER, name='events', update_interval=interval)
 
         self._uhppote = configure_driver(options)
         self._options = options
@@ -148,8 +148,11 @@ class EventsCoordinator(DataUpdateCoordinator):
         self.unload()
 
     def unload(self):
-        if self._listener:
-            self._listener.close()
+        try:
+            if self._listener:
+                self._listener.close()
+        except Exception as err:
+            _LOGGER.warning(f'error unloading events-coordinator ({err})')
 
     def onEvent(self, event, relays, inputs):
         contexts = set(self.async_contexts())
@@ -185,7 +188,7 @@ class EventsCoordinator(DataUpdateCoordinator):
             async with async_timeout.timeout(2.5):
                 return await self._get_events(contexts)
         except Exception as err:
-            raise UpdateFailed(f"uhppoted API error {err}")
+            raise UpdateFailed(f'uhppoted API error {err}')
 
     async def _get_events(self, contexts):
         api = self._uhppote['api']

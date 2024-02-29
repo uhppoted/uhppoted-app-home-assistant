@@ -1,31 +1,10 @@
 # TODO
 
-```
-Exception ignored in: <function Coordinators.__del__ at 0x11dfc4540>
-Traceback (most recent call last):
-  File "/Users/tonyseebregts/Development/uhppote/hass/config/custom_components/uhppoted/coordinators/coordinators.py", line 91, in __del__
-    self.unload()
-  File "/Users/tonyseebregts/Development/uhppote/hass/config/custom_components/uhppoted/coordinators/coordinators.py", line 29, in unload
-    coordinators._unload()
-  File "/Users/tonyseebregts/Development/uhppote/hass/config/custom_components/uhppoted/coordinators/coordinators.py", line 97, in _unload
-    self._events.unload()
-  File "/Users/tonyseebregts/Development/uhppote/hass/config/custom_components/uhppoted/coordinators/events.py", line 152, in unload
-    self._listener.close()
-  File "/Users/tonyseebregts/Development/uhppote/hass/config/custom_components/uhppoted/coordinators/events.py", line 112, in close
-    self._transport.close()
-  File "/Users/tonyseebregts/opt/miniconda3/envs/hass/lib/python3.11/asyncio/selector_events.py", line 860, in close
-    self._loop.call_soon(self._call_connection_lost, None)
-  File "/Users/tonyseebregts/opt/miniconda3/envs/hass/lib/python3.11/asyncio/base_events.py", line 761, in call_soon
-    self._check_closed()
-  File "/Users/tonyseebregts/opt/miniconda3/envs/hass/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
-    raise RuntimeError('Event loop is closed')
-RuntimeError: Event loop is closed
-```
-
 - [x] Shutdown while waiting for controller response
 
 - [ ] DataCoordinator
       - [ ] Handle timeout on startup
+      - [ ] Handle timeout on shutdown
       - [x] parallelize requests
       - [x] communalize coordinators
       - [ ] communalize data
@@ -42,14 +21,7 @@ RuntimeError: Event loop is closed
       - [ ] (somehow) commonalise config-flow and options-flow
       - [ ] Integration icon
 
-- [ ] Controller
-      - [ ] Set default timezone in configuration.yaml
-      - [ ] Rework as Device
-      - [ ] device_info
-      - [ ] entity_category
-      - [ ] Name translation
-
-- [ ] Doors
+- [ ] Service
       - [ ] unlock service call
             - (?) register as 'unlock-gryffindor'
             - [ ] services.yaml
@@ -77,15 +49,20 @@ target:
   entity_id: button.uhppoted_door_slytherin_unlock
 ```
 
+
+- [ ] Controller
+      - [x] Set default timezone in configuration.yaml
+      - [ ] Rework as Device
+      - [ ] device_info
+      - [ ] entity_category
+      - [ ] Name translation
+
+- [ ] Doors
       - [ ] Name translation
 
 - [ ] Cards
-      - [x] set max cards in _configuration.yaml_
-      - [x] set preferred cards in _configuration.yaml_
-      - [x] Enable PIN in configuration.yaml
       - [ ] Name translation
 
-- [ ] Service
 
 ## To Be Done
 

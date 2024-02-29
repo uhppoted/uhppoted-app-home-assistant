@@ -26,6 +26,7 @@ from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
+from .const import CONF_TIMEZONE
 
 from .const import CONF_CONTROLLERS
 from .const import CONF_CONTROLLER_UNIQUE_ID
@@ -88,14 +89,9 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
         defaults = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
 
-        self._max_cards = DEFAULT_MAX_CARDS
-        self._preferred_cards = DEFAULT_PREFERRED_CARDS
-
-        if CONF_MAX_CARDS in defaults:
-            self._max_cards = defaults[CONF_MAX_CARDS]
-
-        if CONF_PREFERRED_CARDS in defaults:
-            self._preferred_cards = defaults[CONF_PREFERRED_CARDS]
+        self._timezone = defaults.get(CONF_TIMEZONE, DEFAULT_CONTROLLER_TIMEZONE)
+        self._max_cards = defaults.get(CONF_MAX_CARDS, DEFAULT_MAX_CARDS)
+        self._preferred_cards = defaults.get(CONF_PREFERRED_CARDS, DEFAULT_PREFERRED_CARDS)
 
         self.data = {}
         self.options = {}
@@ -219,7 +215,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         defaults = {
             CONF_CONTROLLER_ID: DEFAULT_CONTROLLER_ID,
             CONF_CONTROLLER_ADDR: DEFAULT_CONTROLLER_ADDR,
-            CONF_CONTROLLER_TIMEZONE: DEFAULT_CONTROLLER_TIMEZONE,
+            CONF_CONTROLLER_TIMEZONE: self._timezone,
         }
 
         if user_input is not None:
@@ -424,7 +420,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                     errors[k] = f'{err}'
 
             if not errors:
-                v = self.options[CONF_CARDS] if CONF_CARDS in self.options else []
+                v = self.options.get(CONF_CARDS, [])
 
                 for ix, card in enumerate(cards):
                     k = f'card{ix+1}_name'
