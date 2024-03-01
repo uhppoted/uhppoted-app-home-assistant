@@ -2,24 +2,22 @@
 
 - [x] Shutdown while waiting for controller response
 
+- [ ] Integration icon
+      - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/
+      - https://github.com/home-assistant/brands
+
 - [ ] DataCoordinator
       - [ ] Handle timeout on startup
       - [ ] Handle timeout on shutdown
-      - [x] parallelize requests
-      - [x] communalize coordinators
       - [ ] communalize data
             - [ ] optimization: update global controller status from event
-      - [x] getters
-      - [x] setters
-      - [x] intervals from _configuration.yaml_
       - [x] events
-            - [ ] Reconnect on connection lost 
-                  - Unless being unloaded!
+            - (?) Reconnect on connection lost (unless being unloaded)
 
 - [ ] _config-flow_
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] (somehow) commonalise config-flow and options-flow
-      - [ ] Integration icon
+      - (?) Single instance only (https://developers.home-assistant.io/blog/2024/02/26/single-instance-only-manifest-option)
 
 - [ ] Services
       - [x] unlock-door
@@ -41,6 +39,14 @@
 
 - [ ] Cards
       - [ ] Name translation
+            - https://developers.home-assistant.io/blog/2024/01/19/entity-translations-placeholders/
+            - https://developers.home-assistant.io/blog/2023/03/27/entity_name_translations/
+            - https://developers.home-assistant.io/docs/internationalization/core/#name-of-entities
+            - https://developers.home-assistant.io/docs/internationalization/core/#entity-state-attributes
+            - https://developers.home-assistant.io/docs/core/entity/#generic-properties
+            - https://community.home-assistant.io/t/how-to-send-translation-arguments-to-the-translation-custom-integration/143965/3
+            - https://github.com/home-assistant/core/issues/98993
+            - https://community.home-assistant.io/t/translation-issues/657691
 
 
 ## To Be Done

@@ -40,6 +40,7 @@ _LOGGER = logging.getLogger(__name__)
 class CardInfo(CoordinatorEntity, SensorEntity):
     _attr_icon = 'mdi:card-account-details'
     _attr_has_entity_name: True
+    _attr_translation_key: 'card_info'
 
     def __init__(self, coordinator, unique_id, card, name):
         super().__init__(coordinator, context=int(f'{card}'))

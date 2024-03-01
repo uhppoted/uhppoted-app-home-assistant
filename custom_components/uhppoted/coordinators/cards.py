@@ -54,6 +54,12 @@ class CardsCoordinator(DataUpdateCoordinator):
     def unload(self):
         pass
 
+    def add_card(self, card):
+        raise ValueError('** NOT IMPLEMENTED **')
+
+    def delete_card(self, card):
+        raise ValueError('** NOT IMPLEMENTED **')
+
     def set_card_start_date(self, card, start_date):
         api = self._uhppote['api']
         controllers = get_configured_controllers(self._options)

@@ -260,11 +260,19 @@
 
     "entity": {
         "sensor": {
-            "uhppoted": {
-                "controller_id": "THINGX"
+          "card_info": {
+            "name": "Wooot"
+          }
+        },
+
+        "uhppoted": {
+            "card_info" : {
+                "name": "Ye Olde Card Info"
             },
-            "controller_id": {
-                "name": "THINGQ"
+            "sensor": {
+                "card_info" : {
+                    "name": "Ye Olde Card Info Too"
+                }                
             }
         }
     }

@@ -170,6 +170,15 @@ uhppoted:
 
 #### Cards
 
+1. uhppoted.card.{card}.info
+2. uhppoted.card.{card}.cardholder
+3. uhppoted.card.{card}.start_date
+4. uhppoted.card.{card}.end_date
+5. uhppoted.card.{card}.pin
+6. uhppoted.card.{card}.{door}
+
+#### Events
+
 ## Service API
 
 ### `unlock-door`
@@ -179,5 +188,25 @@ Example:
 service: uhppoted.unlock_door
 data: {
   door: Gryffindor
+}
+```
+
+### `add-card`
+
+Example:
+```
+service: uhppoted.add_card
+data: {
+  card: 10058400
+}
+```
+
+### `delete-card`
+
+Example:
+```
+service: uhppoted.delete_card
+data: {
+  card: 10058400
 }
 ```

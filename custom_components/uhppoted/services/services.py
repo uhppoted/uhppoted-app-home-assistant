@@ -2,6 +2,7 @@ from __future__ import annotations
 from collections import deque
 
 import logging
+import re
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -15,10 +16,14 @@ class Services():
     @classmethod
     def initialise(clazz, hass, options):
         hass.services.async_register(DOMAIN, "unlock_door", lambda v: unlock_door(options, v))
+        hass.services.async_register(DOMAIN, "add_card", lambda v: add_card(options, v))
+        hass.services.async_register(DOMAIN, "delete_card", lambda v: delete_card(options, v))
 
     @classmethod
     def unload(clazz, hass):
-        hass.services.async_remove(DOMAIN, 'unlock-door')
+        hass.services.async_remove(DOMAIN, 'unlock_door')
+        hass.services.async_remove(DOMAIN, 'add_card')
+        hass.services.async_remove(DOMAIN, 'delete_card')
 
 
 def unlock_door(options, call):
@@ -28,8 +33,37 @@ def unlock_door(options, call):
         door = call.data.get('door', None)
         if door:
             if Coordinators.unlock_door(door):
-                _LOGGER.info(f'service call:unlock door opened door {door}')
+                _LOGGER.info(f'service call:unlock-door opened door {door}')
             else:
-                _LOGGER.warning(f'service call:unlock door did not open door {door}')
+                _LOGGER.warning(f'service call:unlock-door did not open door {door}')
     except Exception as err:
         _LOGGER.warning(f'error executing unlock-door service call ({err})')
+
+
+def add_card(options, call):
+    _LOGGER.debug('service call:add-card', call.data)
+
+    try:
+        card = call.data.get('card', None)
+        if card and re.compile("^[0-9]+$").match(f'{card}'):
+            if Coordinators.add_card(card):
+                _LOGGER.info(f'service call:add-card  added card {card}')
+            else:
+                _LOGGER.info(f'service call:add-card  failed to add card {card}')
+
+    except Exception as err:
+        _LOGGER.warning(f'error executing add-card service call ({err})')
+
+
+def delete_card(options, call):
+    _LOGGER.debug('service call:delete-card', call.data)
+
+    try:
+        card = call.data.get('card', None)
+        if card and re.compile("^[0-9]+$").match(f'{card}'):
+            if Coordinators.delete_card(card):
+                _LOGGER.info(f'service call:delete-card  deleted card {card}')
+            else:
+                _LOGGER.info(f'service call:delete-card  failed to delete card {card}')
+    except Exception as err:
+        _LOGGER.warning(f'error executing delete-card service call ({err})')

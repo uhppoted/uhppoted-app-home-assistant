@@ -65,6 +65,24 @@ class Coordinators():
         coordinators = Coordinators.COORDINATORS
         if coordinators and coordinators._doors:
             return coordinators._doors.unlock_door_by_name(door)
+        else:
+            return False
+
+    @classmethod
+    def add_card(clazz, card):
+        coordinators = Coordinators.COORDINATORS
+        if coordinators and coordinators._cards:
+            return coordinators._cards.add_card(card)
+        else:
+            return False
+
+    @classmethod
+    def delete_card(clazz, card):
+        coordinators = Coordinators.COORDINATORS
+        if coordinators and coordinators._cards:
+            return coordinators._cards.delete_card(card)
+        else:
+            return False
 
     def __init__(self, hass, options):
         poll_controllers = None

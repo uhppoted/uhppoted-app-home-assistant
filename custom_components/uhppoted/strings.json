@@ -260,11 +260,14 @@
 
     "entity": {
         "sensor": {
-            "uhppoted": {
-                "controller_id": "THINGX"
-            },
-            "controller_id": {
-                "name": "THINGQ"
+          "card_info": {
+            "name": "Thermostat mode"
+          }
+        },
+
+        "uhppoted": {
+            "card_info" : {
+                "name": "Ye Olde Card Info"
             }
         }
     }
