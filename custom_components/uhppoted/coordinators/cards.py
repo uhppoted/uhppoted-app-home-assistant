@@ -58,7 +58,31 @@ class CardsCoordinator(DataUpdateCoordinator):
         raise ValueError('** NOT IMPLEMENTED **')
 
     def delete_card(self, card):
-        raise ValueError('** NOT IMPLEMENTED **')
+        api = self._uhppote['api']
+        controllers = get_configured_controllers(self._options)
+        cardno = int(f'{card}')
+        errors = []
+
+        for controller in controllers:
+            try:
+                response = api.delete_card(controller, cardno)
+                if response.controller == controller:
+                    if response.deleted:
+                        _LOGGER.info(f'card {card} deleted from controller {controller}')
+                    else:
+                        _LOGGER.warning(f'card {card} not deleted from controller {controller}')
+
+            except Exception as e:
+                errors.append(f'{controller}')
+                _LOGGER.exception(f'error deleting card {card} from controller {controller} ({e})')
+
+        if errors and len(errors) > 1:
+            raise ValueError(f'error deleting card {card} from controllers {",".join(errors)}')
+
+        if errors and len(errors) > 0:
+            raise ValueError(f'error deleting card {card} from controller {errors[0]}')
+
+        return True
 
     def set_card_start_date(self, card, start_date):
         api = self._uhppote['api']
