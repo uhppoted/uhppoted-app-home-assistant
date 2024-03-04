@@ -55,7 +55,47 @@ class CardsCoordinator(DataUpdateCoordinator):
         pass
 
     def add_card(self, card):
-        raise ValueError('** NOT IMPLEMENTED **')
+        api = self._uhppote['api']
+        controllers = get_configured_controllers(self._options)
+        cardno = int(f'{card}')
+        errors = []
+
+        for controller in controllers:
+            try:
+                response = api.get_card(controller, cardno)
+                if response.controller == controller and response.card_number == cardno:
+                    _LOGGER.info(f'card {card} already exists on controller {controller}')
+                elif response.controller == controller and response.card_number == 0:
+                    start_date = default_card_start_date()
+                    end_date = default_card_end_date()
+                    door1 = 0
+                    door2 = 0
+                    door3 = 0
+                    door4 = 0
+                    PIN = 0
+
+                    response = api.put_card(controller, card, start_date, end_date, door1, door2, door3, door4, PIN)
+                    if response.stored:
+                        _LOGGER.info(f'card {card} added to controller {controller}')
+                    else:
+                        errors.append(f'{controller}')
+                        _LOGGER.warning(f'card {card} not added to controller {controller}')
+                else:
+                    errors.append(f'{controller}')
+                    _LOGGER.error(f'invalid get-card response for {card} from {controller} ({response})')
+
+            except Exception as e:
+                errors.append(f'{controller}')
+                _LOGGER.exception(f'error adding card {card} to controller {controller} ({e})')
+
+        if errors and len(errors) > 1:
+            raise ValueError(f'error adding card {card} to controllers {",".join(errors)}')
+
+        if errors and len(errors) > 0:
+            raise ValueError(f'error adding card {card} to controller {errors[0]}')
+
+        return True
+
 
     def delete_card(self, card):
         api = self._uhppote['api']

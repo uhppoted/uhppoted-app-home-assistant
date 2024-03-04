@@ -21,11 +21,11 @@
 
 - [ ] Services
       - [x] unlock-door
-      - [ ] add-card
-      - [ ] delete-card
-      - (?) `unlock-gryffindor`
+      - [x] delete-card
+      - [x] add-card
       - [ ] services.yaml
       - [ ] icon (async_register_entity_service)
+      - (?) `unlock-gryffindor`
             
 - [ ] Controller
       - [x] Set default timezone in configuration.yaml
