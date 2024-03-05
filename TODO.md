@@ -7,25 +7,22 @@
       - https://github.com/home-assistant/brands
 
 - [ ] DataCoordinator
-      - [ ] Handle timeout on startup
-      - [ ] Handle timeout on shutdown
       - [ ] communalize data
             - [ ] optimization: update global controller status from event
-      - [x] events
-            - (?) Reconnect on connection lost (unless being unloaded)
+      - [ ] Handle timeout on startup
+      - [ ] Handle timeout on shutdown
+      - (?) Reconnect event listener on connection lost (unless being unloaded)
 
 - [ ] _config-flow_
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] (somehow) commonalise config-flow and options-flow
       - (?) Single instance only (https://developers.home-assistant.io/blog/2024/02/26/single-instance-only-manifest-option)
 
-- [ ] Services
+- [x] Services
       - [x] unlock-door
       - [x] delete-card
       - [x] add-card
-      - [ ] services.yaml
-      - [ ] icon (async_register_entity_service)
-      - (?) `unlock-gryffindor`
+      - [x] services.yaml
             
 - [ ] Controller
       - [x] Set default timezone in configuration.yaml

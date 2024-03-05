@@ -1,0 +1,20 @@
+unlock_door:
+  description: Unlocks a door managed by a UHPPOTE controller
+  fields:
+    door:
+      description: Name of door (case- and space-insensitive)
+      example: "Gryffindor"
+
+add_card:
+  description: Adds a card to all the configured controllers
+  fields:
+    card:
+      description: Card number
+      example: 10058400
+
+delete_card:
+  description: Deletes a card from all the configured controllers
+  fields:
+    card:
+      description: Card number
+      example: 10058400            

@@ -96,7 +96,6 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         return True
 
-
     def delete_card(self, card):
         api = self._uhppote['api']
         controllers = get_configured_controllers(self._options)

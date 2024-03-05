@@ -773,13 +773,6 @@ class DoorUnlock(CoordinatorEntity, ButtonEntity):
         except (Exception):
             _LOGGER.exception(f'error unlocking door {self.door}')
 
-    # service call
-    async def async_unlock_door(self):
-        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AWOOOGAH, async-unlock-door', self._name)
-
-    # async def custom_set_sleep_timer(entity, service_call):
-    # await entity.set_sleep_timer(service_call.data['sleep_time'])
-
     @callback
     def _handle_coordinator_update(self) -> None:
         self._update()
