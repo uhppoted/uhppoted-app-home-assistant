@@ -23,8 +23,8 @@ doors and maybe a dozen or so access cards i.e. not a large mansion or an office
     - [Development version](#development-version)
 3. [Configuration](#configuration)
     - [Entities](#entities)
-       - [Controllers](#controllers)
-       - [Doors](#doors)
+       - [controllers](#controllers)
+       - [doors](#doors)
        - [cards](#cards)
 4. [Service API](#service-api)
    - [`unlock-door`](#unlock-door)
@@ -48,10 +48,10 @@ doors and maybe a dozen or so access cards i.e. not a large mansion or an office
 ### Alpha Release
 
 **NOTE**: The _Alpha_ release is a first release and is entirely **use at your own risk/discretion**. It has had
-**very limited** testing - you probably won't lock yourself out of your own home (unless of course it's late at
-night and pouring with rain) but have a backup plan (and/or a fire axe ready). It is also reasonably likely that
-future releases may require you to reconfigure your system again i.e. it is for the brave and adventurous who like
-living on the edge.
+**very limited** testing - you probably won't lock yourself out of your own home (_unless of course it's late at
+night and pouring with rain, in which case it's inevitable_) but have a backup plan (and/or a fire axe ready). It
+is also reasonably likely that future releases may require you to reconfigure your system again i.e. it is for the
+brave and adventurous who like living on the edge.
 
 The installation below is entirely manual and installs the project as a _Home Assistant_ _custom component_.
 
@@ -65,8 +65,8 @@ mkdir -p config/custom_components
 touch config/custom_components/__init.py__
 ```
 
-2. Download the _.tar.gz_ archive from the [_Releases_]() section of the repository and extract it to the
-   `config/custom_components` folder under the _Home Assistant_ folder, e.g.:
+2. Download the _.tar.gz_ archive from the [_Releases_]() section of the repository (or the most recent [nightly build](https://github.com/uhppoted/uhppoted-app-home-assistant/actions/workflows/alpha.yaml)) and extract it to the `config/custom_components` folder under 
+the _Home Assistant_ folder, e.g.:
 
 ```
 cd <Home Assistant>
@@ -145,7 +145,15 @@ uhppoted:
     bind_address: 192.168.1.100
     broadcast_address: 192.168.1.255:60000
     listen_address: 192.168.1.100:60001
+    timezone: LOCAL
     debug: false
+    max_cards: 10
+    preferred_cards: 10058400, 10058401
+    card_PINs: false
+    controllers_poll_interval: 30
+    doors_poll_interval: 30
+    cards_poll_interval: 30
+    events_poll_interval: 30
 ...
 ```
 
@@ -158,15 +166,15 @@ uhppoted:
 5. Enter the bind, broadcast, listen addresses and (optionally) enable debug.
 6. Select the controllers to manage with _Home Assistant_ from the list of controllers found on the LAN.
 7. For each controller:
-   - choose a unique name e.g. Main, Controller #1, etc.
+   - choose a unique name e.g. _Main_, _Controller #1_, etc.
    - (optionally) set the controller IP address
    - (optionally) set the controller timezone (defaults to _Local_)
 8. For each controller, select the doors to manage with _Home Assistant_
 9. For each selected door:
-   - choose a unique name e.g. Entrance, Garage, Workshop
+   - choose a unique name e.g. _Entrance_, _Garage_, _Man Cave_
 10. Select the cards to be managed by _Home Assistant_ from the list of cards found on the controllers
 11. For each selected card:
-   - enter the name of the person using that card
+   - enter the name of the person (or other entity) using that card
 12. On completion of configuration the _uhppoted_ service will create all the entities for the controllers, doors and
     cards.
 13. Add selected information to the dashboard from the entities listed below.
