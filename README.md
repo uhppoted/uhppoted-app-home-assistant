@@ -1,4 +1,5 @@
 ![build](https://github.com/uhppoted/uhppoted-app-home-assistant/workflows/build/badge.svg)
+![alpha](https://github.com/uhppoted/uhppoted-app-home-assistant/workflows/alpha/badge.svg)
 
 # uhppoted-app-home-assistant
 
@@ -7,10 +8,10 @@ UHPPOTE controller custom component for Home Assistant.
 Development status: _ALPHA_
 
 ---
-The _uhppoted-app-home-assistant_ is an experimental Home Assistant custom component for the UHPPOTE access controllers,
-leveraging the _uhppoted-python_ library. It turns out that an access control system has quite a lot of moving parts
-and the current implementation, although functional and usable, is very much intended for brave (and/or foolhardy) early
-adopter.
+_uhppoted-app-home-assistant_ is an experimental _Home Assistant_ custom component for the UHPPOTE access controllers,
+leveraging the [_uhppoted-python_](https://github.com/uhppoted/uhppoted-python) library. It turns out that an access
+control system has quite a lot of moving parts and the current implementation, although functional and usable, is
+very much intended for brave (and/or foolhardy) early adopter.
 
 The current version is only really suitable for managing a small home ACS e.g. a couple of controllers with half a dozen
 doors and maybe five or ten or so access cards i.e. not a large mansion or an office building.
@@ -35,16 +36,17 @@ doors and maybe five or ten or so access cards i.e. not a large mansion or an of
 
 ### Alpha Release
 
-**NOTE**: The _Alpha_ release is a first release and is entirely a **use at your own risk/discretion**. It has had
-**very limited** testing and you could quite conceivably lock yourself out of your own home. i.e. have a backup 
-plan (and/or a fire axe ready). It is also quite likely that you will have to reconfigure your system again with
-each new release i.e. it is for the brave and adventurous who like living on the edge.
+**NOTE**: The _Alpha_ release is a first release and is entirely **use at your own risk/discretion**. It has had
+**very limited** testing - you probably won't lock yourself out of your own home (unless of course it's late at
+night and pouring with rain) but have a backup plan (and/or a fire axe ready). It is also reasonably likely that
+future releases may require you to reconfigure your system again i.e. it is for the brave and adventurous who like
+living on the edge.
 
 The installation below is entirely manual and installs the project as a _Home Assistant_ _custom component_.
 
 
-1. Create the `config/custom_components` subdirectory under the _Home Assistant_ folder, if it does not already
-   exist and create the `__init.py__` file:
+1. Create the `config/custom_components` subdirectory under the _Home Assistant_ folder (if it does not already
+   exist) and create the `__init.py__` file:
 
 ```
 cd <Home Assistant>
@@ -52,7 +54,7 @@ mkdir -p config/custom_components
 touch config/custom_components/__init.py__
 ```
 
-2. Download the _.tar.gz_ archive from the [_Releases]() section of the repository and extract it to the
+2. Download the _.tar.gz_ archive from the [_Releases_]() section of the repository and extract it to the
    `config/custom_components` folder under the _Home Assistant_ folder, e.g.:
 
 ```
@@ -68,7 +70,15 @@ uhppoted:
     bind_address: 192.168.1.100
     broadcast_address: 192.168.1.255:60000
     listen_address: 192.168.1.100:60001
+    timezone: LOCAL
     debug: false
+    max_cards: 10
+    preferred_cards: 10058400, 10058401
+    card_PINs: false
+    controllers_poll_interval: 30
+    doors_poll_interval: 30
+    cards_poll_interval: 30
+    events_poll_interval: 30
 ...
 ```
 
