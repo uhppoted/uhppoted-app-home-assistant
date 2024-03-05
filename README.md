@@ -112,7 +112,7 @@ is completely NOT guaranteed to be any kind of stable. You could quite conceivab
 apartment, your house, the planet or possibly the entire galaxy. At the very least expect to have to reconfigure
 your system often. You have been warned :-). 
 
-1. Clone the _uhppoted-app-home-assistant_ repo to a folder that is **NOT* _under_ the _Home Assistant_ folder, e.g.:
+1. Clone the _uhppoted-app-home-assistant_ repo to a folder that is **NOT** _under_ the _Home Assistant_ folder, e.g.:
 
 ```
 cd ~/experimental-stuff
@@ -183,33 +183,33 @@ uhppoted:
 
 #### Controllers
 
-1. uhppoted.controller.{controller}.info
-2. uhppoted.controller.{controller}.datetime
-3. uhppoted.controller.{controller}.event
+1. `uhppoted.controller.{controller}.info`
+2. `uhppoted.controller.{controller}.datetime`
+3. `uhppoted.controller.{controller}.event`
 
 
 #### Doors
 
-1. uhppoted.door.{door}.info
-2. uhppoted.door.{door}.open
-3. uhppoted.door.{door}.lock
-4. uhppoted.door.{door}.button
-5. uhppoted.door.{door}.mode
-6. uhppoted.door.{door}.delay
-7. uhppoted.door.{door}.unlock
-8. uhppoted.door.{door}.open.event
-9. uhppoted.door.{door}.button.event
-10. uhppoted.door.{door}.unlocked.event
+1.  `uhppoted.door.{door}.info`
+2.  `uhppoted.door.{door}.open`
+3.  `uhppoted.door.{door}.lock`
+4.  `uhppoted.door.{door}.button`
+5.  `uhppoted.door.{door}.mode`
+6.  `uhppoted.door.{door}.delay`
+7.  `uhppoted.door.{door}.unlock`
+8.  `uhppoted.door.{door}.open.event`
+9.  `uhppoted.door.{door}.button.event`
+10. `uhppoted.door.{door}.unlocked.event`
 
 #### Cards
 
-1. uhppoted.card.{card}.info
-2. uhppoted.card.{card}.cardholder
-3. uhppoted.card.{card}.start-date
-4. uhppoted.card.{card}.end-date
-5. uhppoted.card.{card}.{door}
-6. uhppoted.card.{card}.pin
-7. uhppoted.card.{card}.swipe.event
+1. `uhppoted.card.{card}.info`
+2. `uhppoted.card.{card}.cardholder`
+3. `uhppoted.card.{card}.start-date`
+4. `uhppoted.card.{card}.end-date`
+5. `uhppoted.card.{card}.{door}`
+6. `uhppoted.card.{card}.pin`
+7. `uhppoted.card.{card}.swipe.event`
 
 
 ## Service API
@@ -221,9 +221,8 @@ Unlocks a door by name - the name is case- and space-insensitive.
 Example:
 ```
 service: uhppoted.unlock_door
-data: {
+data:
   door: Gryffindor
-}
 ```
 
 ### `add-card`
@@ -235,9 +234,8 @@ for the _uhppoted_ service (under _Settings/Devices & Services/uhppoted_).
 Example:
 ```
 service: uhppoted.add_card
-data: {
+data:
   card: 10058400
-}
 ```
 
 ### `delete-card`
@@ -249,7 +247,6 @@ for the _uhppoted_ service (under _Settings/Devices & Services/uhppoted_).
 Example:
 ```
 service: uhppoted.delete_card
-data: {
+data:
   card: 10058400
-}
 ```
