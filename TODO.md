@@ -1,6 +1,6 @@
 # TODO
 
-- [x] Shutdown while waiting for controller response
+- [ ] Package for installation
 
 - [ ] Integration icon
       - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/

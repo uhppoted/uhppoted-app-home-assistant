@@ -2,18 +2,18 @@
 
 # uhppoted-app-home-assistant
 
-UHPPOTE controller HACS integration for Home Assistant.
+UHPPOTE controller custom component for Home Assistant.
 
-(_IN DEVELOPMENT_)
+Development status: _ALPHA_
 
 ---
-The _uhppoted-app-home-assistant_ is something of an awkward fit into the _Home Assistant_ conceptual model - it turns out
-an access control system (ACS) has a lot more moving parts than e.g. the average thermostat. Having said which, it is 
-functional and usable just not as clean and elegant as one would like. However, it is still in the early alpha stage of
-development...
+The _uhppoted-app-home-assistant_ is an experimental Home Assistant custom component for the UHPPOTE access controllers,
+leveraging the _uhppoted-python_ library. It turns out that an access control system has quite a lot of moving parts
+and the current implementation, although functional and usable, is very much intended for brave (and/or foolhardy) early
+adopter.
 
-The current version is only really suitable for managing a small home ACS - a couple of controllers with half a dozen doors 
-and maybe five or ten or so access cards i.e. not a ginormous mansion or an office building.
+The current version is only really suitable for managing a small home ACS e.g. a couple of controllers with half a dozen
+doors and maybe five or ten or so access cards i.e. not a large mansion or an office building.
 
 ---
 **Contents**
