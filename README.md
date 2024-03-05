@@ -11,17 +11,28 @@ Development status: _ALPHA_
 _uhppoted-app-home-assistant_ is an experimental _Home Assistant_ custom component for the UHPPOTE access controllers,
 leveraging the [_uhppoted-python_](https://github.com/uhppoted/uhppoted-python) library. It turns out that an access
 control system has quite a lot of moving parts and the current implementation, although functional and usable, is
-very much intended for brave (and/or foolhardy) early adopter.
+somewhat complex and very much intended for brave (and/or foolhardy) early adopter.
 
 The current version is only really suitable for managing a small home ACS e.g. a couple of controllers with half a dozen
-doors and maybe five or ten or so access cards i.e. not a large mansion or an office building.
+doors and maybe a dozen or so access cards i.e. not a large mansion or an office building.
 
----
 **Contents**
-1. [Installation](#installation)
+1. [Screenshots](#screenshots)
+2. [Installation](#installation)
     - [Alpha release](#alpha-release)
     - [Development version](#development-version)
+3. [Configuration](#configuration)
+    - [Entities](#entities)
+       - [Controllers](#controllers)
+       - [Doors](#doors)
+       - [cards](#cards)
+4. [Service API](#service-api)
+   - [`unlock-door`](#unlock-door)
+   - [`add-card`](#add-card)
+   - [`delete-card`](#delete-card)
 
+
+---
 **Screenshots**
 
 <img width="800" src="doc/images/controllers.png">
