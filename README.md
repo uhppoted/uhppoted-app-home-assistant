@@ -10,11 +10,11 @@ Development status: _ALPHA_
 ---
 _uhppoted-app-home-assistant_ is an experimental _Home Assistant_ custom component for the UHPPOTE access controllers,
 leveraging the [_uhppoted-python_](https://github.com/uhppoted/uhppoted-python) library. It turns out that an access
-control system has quite a lot of moving parts and the current implementation, although functional and usable, is
-somewhat complex and very much intended for brave (and/or foolhardy) early adopter.
+control system has quite a lot more moving parts than e.g. your average thermostat, and the current implementation, 
+although functional and usable, is intended more for the (brave) early adopter.
 
-The current version is only really suitable for managing a small home ACS e.g. a couple of controllers with half a dozen
-doors and maybe a dozen or so access cards i.e. not a large mansion or an office building.
+The current version is most suited to a small'ish home ACS i.e. a couple of controllers with half a dozen
+doors and maybe a ten or so access cards - so, not a large mansion or an office building.
 
 **Contents**
 1. [Screenshots](#screenshots)
@@ -49,9 +49,9 @@ doors and maybe a dozen or so access cards i.e. not a large mansion or an office
 
 **NOTE**: The _Alpha_ release is a first release and is entirely **use at your own risk/discretion**. It has had
 **very limited** testing - you probably won't lock yourself out of your own home (_unless of course it's late at
-night and pouring with rain, in which case it's inevitable_) but have a backup plan (and/or a fire axe ready). It
-is also reasonably likely that future releases may require you to reconfigure your system again i.e. it is for the
-brave and adventurous who like living on the edge.
+night and pouring with rain, in which case it's inevitable_) but please do have a backup plan (which may or may
+not include a fire axe). It is also reasonably likely that future releases may require you to reconfigure your
+system again i.e. it is for the brave and adventurous who like living on the edge.
 
 The installation below is entirely manual and installs the project as a _Home Assistant_ _custom component_.
 

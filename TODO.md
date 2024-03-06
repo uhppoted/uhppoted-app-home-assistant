@@ -18,12 +18,6 @@
       - [ ] (somehow) commonalise config-flow and options-flow
       - (?) Single instance only (https://developers.home-assistant.io/blog/2024/02/26/single-instance-only-manifest-option)
 
-- [x] Services
-      - [x] unlock-door
-      - [x] delete-card
-      - [x] add-card
-      - [x] services.yaml
-            
 - [ ] Controller
       - [x] Set default timezone in configuration.yaml
       - [ ] Rework as Device
