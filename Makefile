@@ -23,7 +23,7 @@ release: build-all
           --exclude '.style.yapf' \
           custom_components/uhppoted dist/$(DIST)/
 	tar --directory=dist/$(DIST) --exclude=".DS_Store" -cvzf dist/$(DIST).tar.gz uhppoted
-#	cd dist; zip --recurse-paths $(DIST).zip $(DIST)
+	cd dist/$(DIST); zip -x .DS_Store --recurse-paths ../$(DIST).zip .
 
 docker-build:
 	docker run --detach --name home-assistant --restart=unless-stopped --publish 8123:8123 \

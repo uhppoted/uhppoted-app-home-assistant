@@ -24,3 +24,18 @@ jobs:
 
     - name: Build
       run: make build-all
+
+    - name: Build archive
+      run: make release DIST=uhppoted-app-home-assistant_alpha-v0.0.0
+
+    - name: Upload .tar.gz artifact
+      uses: actions/upload-artifact@v4
+      with:
+        path: dist/*.tar.gz
+        name: uhppoted-app-home-assistant_alpha-v0.0.0
+
+    - name: Upload .zip artifact
+      uses: actions/upload-artifact@v4
+      with:
+        path: dist/*.zip
+        name: uhppoted-app-home-assistant_alpha-v0.0.0
