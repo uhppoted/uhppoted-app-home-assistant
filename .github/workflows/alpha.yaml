@@ -32,10 +32,10 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         path: dist/*.tar.gz
-        name: uhppoted-app-home-assistant_alpha-v0.0.0
+        name: uhppoted-app-home-assistant_alpha-v0.0.0.tar.gz
 
     - name: Upload .zip artifact
       uses: actions/upload-artifact@v4
       with:
         path: dist/*.zip
-        name: uhppoted-app-home-assistant_alpha-v0.0.0
+        name: uhppoted-app-home-assistant_alpha-v0.0.0.zip
