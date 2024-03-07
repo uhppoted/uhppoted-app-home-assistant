@@ -11,7 +11,7 @@ from .controllers import ControllersCoordinator
 from .doors import DoorsCoordinator
 from .cards import CardsCoordinator
 from .events import EventsCoordinator
-
+from .db import DB
 
 class Coordinators():
     COORDINATORS = None
@@ -106,10 +106,11 @@ class Coordinators():
         if CONF_POLL_EVENTS in defaults:
             poll_events = datetime.timedelta(seconds=defaults[CONF_POLL_EVENTS])
 
-        self._controllers = ControllersCoordinator(hass, options, poll_controllers)
-        self._doors = DoorsCoordinator(hass, options, poll_doors)
-        self._cards = CardsCoordinator(hass, options, poll_cards)
-        self._events = EventsCoordinator(hass, options, poll_events, lambda evt: self._on_event(hass, evt))
+        self._db = DB()
+        self._controllers = ControllersCoordinator(hass, options, poll_controllers, self._db)
+        self._doors = DoorsCoordinator(hass, options, poll_doors, self._db)
+        self._cards = CardsCoordinator(hass, options, poll_cards, self._db)
+        self._events = EventsCoordinator(hass, options, poll_events, self._db, lambda evt: self._on_event(hass, evt))
 
     def __del__(self):
         self.unload()

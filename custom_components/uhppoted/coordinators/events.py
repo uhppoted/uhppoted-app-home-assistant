@@ -114,7 +114,7 @@ class EventListener:
 
 class EventsCoordinator(DataUpdateCoordinator):
 
-    def __init__(self, hass, options, poll, notify):
+    def __init__(self, hass, options, poll, db, notify):
         interval = _INTERVAL if poll == None else poll
         addr = '0.0.0.0'
         port = 60001
@@ -123,6 +123,7 @@ class EventsCoordinator(DataUpdateCoordinator):
 
         self._uhppote = configure_driver(options)
         self._options = options
+        self._db = db
         self._notify = notify
         self._initialised = False
         self._state = {

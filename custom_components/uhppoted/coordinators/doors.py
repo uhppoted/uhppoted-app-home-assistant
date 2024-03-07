@@ -33,13 +33,14 @@ from ..config import resolve_door_by_name
 
 class DoorsCoordinator(DataUpdateCoordinator):
 
-    def __init__(self, hass, options, poll):
+    def __init__(self, hass, options, poll, db):
         interval = _INTERVAL if poll == None else poll
 
         super().__init__(hass, _LOGGER, name="doors", update_interval=interval)
 
         self._uhppote = configure_driver(options)
         self._options = options
+        self._db = db
         self._initialised = False
         self._state = {
             'doors': {},

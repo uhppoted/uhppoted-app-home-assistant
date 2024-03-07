@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] Package for installation
+- [x] Package for installation
 
 - [ ] Integration icon
       - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/
@@ -8,7 +8,16 @@
 
 - [ ] DataCoordinator
       - [ ] communalize data
+            - [ ] RWLock
+                  - https://www.oreilly.com/library/view/python-cookbook/0596001673/ch06s04.html
+                  - https://docs.python.org/3/library/threading.html#rlock-objects
+                  - https://docs.python.org/3/library/threading.html#condition-objects
+            - [ ] controllers
+            - [ ] doors
+            - [ ] cards
+            - [ ] events
             - [ ] optimization: update global controller status from event
+            - (?) class variable
       - [ ] Handle timeout on startup
       - [ ] Handle timeout on shutdown
       - (?) Reconnect event listener on connection lost (unless being unloaded)
@@ -20,6 +29,7 @@
 
 - [ ] Controller
       - [x] Set default timezone in configuration.yaml
+      - [ ] (optionally) set event listener
       - [ ] Rework as Device
       - [ ] device_info
       - [ ] entity_category

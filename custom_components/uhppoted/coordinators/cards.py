@@ -34,13 +34,14 @@ from ..config import default_card_end_date
 
 class CardsCoordinator(DataUpdateCoordinator):
 
-    def __init__(self, hass, options, poll):
+    def __init__(self, hass, options, poll, db):
         interval = _INTERVAL if poll == None else poll
 
         super().__init__(hass, _LOGGER, name="cards", update_interval=interval)
 
         self._uhppote = configure_driver(options)
         self._options = options
+        self._db = db
         self._initialised = False
         self._state = {
             'cards': {},

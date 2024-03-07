@@ -14,7 +14,7 @@ control system has quite a lot more moving parts than e.g. your average thermost
 although functional and usable, is intended more for the (brave) early adopter.
 
 The current version is most suited to a small'ish home ACS i.e. a couple of controllers with half a dozen
-doors and maybe a ten or so access cards - so, not a large mansion or an office building.
+doors and maybe a ten or so access cards - so, not a large mansion [~~or an office building~~](https://github.com/uhppoted/uhppoted-app-home-assistant/issues/1).
 
 **Contents**
 1. [Screenshots](#screenshots)
