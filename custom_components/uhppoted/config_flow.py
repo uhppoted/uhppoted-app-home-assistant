@@ -25,6 +25,7 @@ from .const import DOMAIN
 from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
+from .const import CONF_EVENTS_DEST_ADDR
 from .const import CONF_DEBUG
 from .const import CONF_TIMEZONE
 
@@ -65,6 +66,7 @@ from .const import DEFAULT_PREFERRED_CARDS
 
 from .options_flow import UhppotedOptionsFlow
 
+from .config import validate_events_addr
 from .config import validate_controller_id
 from .config import validate_door_id
 from .config import validate_door_duplicates
@@ -113,7 +115,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             if not errors:
                 self.options.update(user_input)
-                return await self.async_step_controllers()
+                return await self.async_step_events()
 
         bind = self.options[CONF_BIND_ADDR]
         broadcast = self.options[CONF_BROADCAST_ADDR]
@@ -128,6 +130,34 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         })
 
         return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
+
+    async def async_step_events(self, user_input: Optional[Dict[str, Any]] = None):
+        errors: Dict[str, str] = {}
+
+        if user_input is not None:
+            address = user_input[CONF_EVENTS_DEST_ADDR]
+
+            try:
+                validate_events_addr(address)
+            except ValueError as err:
+                errors[CONF_EVENTS_DEST_ADDR] = f'{err}'
+
+            if not errors:
+                print('>>>>>>>>>>>>>>> awoooooogahhhhhh', address)
+                # if dest != '':
+                #     self.options.update([[CONF_EVENTS_DEST_ADDR,dest]])
+                # else:
+                #     self.options.pop(CONF_EVENTS_DEST_ADDR, None)
+
+                return await self.async_step_controllers()
+
+        addr = self.options.get(CONF_EVENTS_DEST_ADDR, '')
+
+        schema = vol.Schema({
+            vol.Optional(CONF_EVENTS_DEST_ADDR, default=addr): str,
+        })
+
+        return self.async_show_form(step_id="events", data_schema=schema, errors=errors)
 
     async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
         errors: Dict[str, str] = {}

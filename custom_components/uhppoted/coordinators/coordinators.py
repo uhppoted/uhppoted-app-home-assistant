@@ -13,6 +13,7 @@ from .cards import CardsCoordinator
 from .events import EventsCoordinator
 from .db import DB
 
+
 class Coordinators():
     COORDINATORS = None
 

@@ -118,7 +118,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 self._state['controllers'][controller] = {ATTR_CONTROLLER: info, ATTR_AVAILABLE: available}
 
     def _get_datetime(self, api, lock, controller):
-        _LOGGER.debug(f'update controller datetime {controller}')
+        _LOGGER.debug(f'retrieve controller datetime {controller}')
 
         sysdatetime = None
 

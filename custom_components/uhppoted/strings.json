@@ -27,6 +27,17 @@
                 }
             },
 
+            "events": {
+                "title": "UHPPOTE IPv4 - events configuration",
+                "description": "Network settings for controller events",
+                "data": {
+                    "events_destination_address": "(optional) controller events listener address"
+                },
+                "data_description": {
+                    "events_destination_address": "The destination IPv4 address for controller events e.g. 192.168.1.100:60001'"
+                }
+            },
+
             "controllers": {
                 "title": "UHPPOTE controllers list",
                 "data": {
@@ -261,13 +272,18 @@
     "entity": {
         "sensor": {
           "card_info": {
-            "name": "Thermostat mode"
+            "name": "Wooot"
           }
         },
 
         "uhppoted": {
             "card_info" : {
                 "name": "Ye Olde Card Info"
+            },
+            "sensor": {
+                "card_info" : {
+                    "name": "Ye Olde Card Info Too"
+                }                
             }
         }
     }

@@ -2,7 +2,9 @@ import re
 import logging
 import datetime
 import calendar
+import socket
 import uuid
+import urllib
 
 from typing import Any
 
@@ -51,6 +53,20 @@ _LOGGER = logging.getLogger(__name__)
 
 def normalise(v):
     return re.sub(r'\s+', '', f'{v}', flags=re.UNICODE).lower()
+
+
+def validate_events_addr(addr):
+    if addr == '':
+        pass
+    else:
+        try:
+            host, port = addr.split(':')
+            socket.inet_pton(socket.AF_INET, host)
+            if 0 > int(port) > 65535:
+                raise ValueError(f'invalid port ({port})')
+        except Exception as err:
+            _LOGGER.warning(f'Invalid controller event listener address {addr} ({err}')
+            raise ValueError(f'Invalid controller event listener address {addr}')
 
 
 def validate_controller_id(serial_no, name, options):

@@ -1,10 +1,12 @@
 # TODO
 
-- [x] Package for installation
-
 - [ ] Integration icon
       - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/
       - https://github.com/home-assistant/brands
+
+- [ ] Set controller event listener
+      - https://stackoverflow.com/questions/5281409/get-destination-address-of-a-received-udp-packet
+      - https://stackoverflow.com/questions/39059418/python-sockets-how-can-i-get-the-ip-address-of-a-socket-after-i-bind-it-to-an
 
 - [ ] DataCoordinator
       - [ ] communalize data
