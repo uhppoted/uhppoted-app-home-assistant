@@ -31,10 +31,10 @@
                 "title": "UHPPOTE IPv4 - events configuration",
                 "description": "Network settings for controller events",
                 "data": {
-                    "events_destination_address": "controller events listener address (optional)"
+                    "events_destination_address": "controller set-events-listener address"
                 },
                 "data_description": {
-                    "events_destination_address": "The destination IPv4 address for controller events e.g. 192.168.1.100:60001'"
+                    "events_destination_address": "The destination IPv4 address for controller events e.g. 192.168.1.100:60001. Leave blank to configure manually."
                 }
             },
 
@@ -167,6 +167,17 @@
                     "broadcast_address": "The service broadcast address (defaults to 255.255.255.255:60000)",
                     "listen_address": "The service event listen address (defaults to 0.0.0.0:60001)",
                     "debug": "Logs messages between controller and Home Assistant"
+                }
+            },
+
+            "events": {
+                "title": "UHPPOTE IPv4 - events configuration",
+                "description": "Network settings for controller events",
+                "data": {
+                    "events_destination_address": "controller set-events-listener address"
+                },
+                "data_description": {
+                    "events_destination_address": "The destination IPv4 address for controller events e.g. 192.168.1.100:60001. Leave blank to configure manually."
                 }
             },
 

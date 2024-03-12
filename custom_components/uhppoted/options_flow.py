@@ -19,6 +19,7 @@ from .const import DOMAIN
 from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
+from .const import CONF_EVENTS_DEST_ADDR
 from .const import CONF_DEBUG
 from .const import CONF_TIMEZONE
 
@@ -45,6 +46,12 @@ from .const import CONF_CARD_STARTDATE
 from .const import CONF_CARD_ENDDATE
 from .const import CONF_CARD_DOORS
 
+from .const import DEFAULT_BIND_ADDRESS
+from .const import DEFAULT_BROADCAST_ADDRESS
+from .const import DEFAULT_LISTEN_ADDRESS
+from .const import DEFAULT_EVENTS_DEST_ADDR
+from .const import DEFAULT_DEBUG
+
 from .const import DEFAULT_CONTROLLER_ID
 from .const import DEFAULT_CONTROLLER_ADDR
 from .const import DEFAULT_CONTROLLER_TIMEZONE
@@ -57,6 +64,7 @@ from .const import DEFAULT_DOOR4
 from .const import DEFAULT_MAX_CARDS
 from .const import DEFAULT_PREFERRED_CARDS
 
+from .config import validate_events_addr
 from .config import validate_controller_id
 from .config import validate_door_duplicates
 from .config import validate_door_id
@@ -65,6 +73,7 @@ from .config import validate_all_controllers
 from .config import validate_all_doors
 from .config import validate_all_cards
 
+from .config import get_IPv4_addresses
 from .config import get_all_controllers
 from .config import get_all_doors
 from .config import get_all_cards
@@ -76,6 +85,11 @@ _LOGGER = logging.getLogger(__name__)
 class UhppotedOptionsFlow(OptionsFlow):
 
     def __init__(self, entry: ConfigEntry) -> None:
+        self._bind = DEFAULT_BIND_ADDRESS
+        self._broadcast = DEFAULT_BROADCAST_ADDRESS
+        self._listen = DEFAULT_LISTEN_ADDRESS
+        self._events_dest_addr = DEFAULT_EVENTS_DEST_ADDR
+        self._debug = DEFAULT_DEBUG
         self._timezone = DEFAULT_CONTROLLER_TIMEZONE
         self._max_cards = DEFAULT_MAX_CARDS
         self._preferred_cards = DEFAULT_PREFERRED_CARDS
@@ -90,6 +104,11 @@ class UhppotedOptionsFlow(OptionsFlow):
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         defaults = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
 
+        self._bind = defaults.get(CONF_BIND_ADDR, self._bind)
+        self._broadcast = defaults.get(CONF_BROADCAST_ADDR, self._broadcast)
+        self._listen = defaults.get(CONF_LISTEN_ADDR, self._listen)
+        self._events_dest_addr = defaults.get(CONF_EVENTS_DEST_ADDR, self._events_dest_addr)
+        self._debug = defaults.get(CONF_DEBUG, self._debug)
         self._timezone = defaults.get(CONF_TIMEZONE, DEFAULT_CONTROLLER_TIMEZONE)
         self._max_cards = defaults.get(CONF_MAX_CARDS, DEFAULT_MAX_CARDS)
         self._preferred_cards = defaults.get(CONF_PREFERRED_CARDS, DEFAULT_PREFERRED_CARDS)
@@ -99,18 +118,19 @@ class UhppotedOptionsFlow(OptionsFlow):
                                     description_placeholders={})
         # return await self.async_step_IPv4()
 
+
     async def async_step_IPv4(self, user_input: Optional[Dict[str, Any]] = None):
         errors: Dict[str, str] = {}
 
         if user_input is not None:
             if not errors:
                 self.options.update(user_input)
-                return await self.async_step_controllers()
+                return await self.async_step_events()
 
-        bind = self.options[CONF_BIND_ADDR]
-        broadcast = self.options[CONF_BROADCAST_ADDR]
-        listen = self.options[CONF_LISTEN_ADDR]
-        debug = self.options[CONF_DEBUG]
+        bind = self.options.get(CONF_BIND_ADDR, self._bind)
+        broadcast = self.options.get(CONF_BROADCAST_ADDR, self._broadcast)
+        listen = self.options.get(CONF_LISTEN_ADDR, self._listen)
+        debug = self.options.get(CONF_DEBUG, self._debug)
 
         schema = vol.Schema({
             vol.Optional(CONF_BIND_ADDR, default=bind): str,
@@ -120,6 +140,37 @@ class UhppotedOptionsFlow(OptionsFlow):
         })
 
         return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
+
+
+    async def async_step_events(self, user_input: Optional[Dict[str, Any]] = None):
+        errors: Dict[str, str] = {}
+
+        if user_input is not None:
+            address = user_input.get(CONF_EVENTS_DEST_ADDR,'')
+
+            try:
+                validate_events_addr(address)
+            except ValueError as err:
+                errors[CONF_EVENTS_DEST_ADDR] = f'{err}'
+
+            if not errors:
+                self.options.update([[CONF_EVENTS_DEST_ADDR,address]])
+
+                return await self.async_step_controllers()
+
+        addr = self.options.get(CONF_EVENTS_DEST_ADDR, self._events_dest_addr)
+        addresses = [v for v in get_IPv4_addresses() if v != '127.0.0.1']
+
+        select = SelectSelectorConfig(options=[{ 'label': f'{v}:60001', 'value': f'{v}:60001' } for v in addresses],
+                                      multiple=False,
+                                      custom_value=True,
+                                      mode=SelectSelectorMode.LIST) # yapf: disable
+
+        schema = vol.Schema({
+            vol.Optional(CONF_EVENTS_DEST_ADDR, default=addr): SelectSelector(select),
+        })
+
+        return self.async_show_form(step_id="events", data_schema=schema, errors=errors)
 
     async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
 

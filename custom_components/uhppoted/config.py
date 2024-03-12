@@ -5,6 +5,7 @@ import calendar
 import socket
 import uuid
 import urllib
+import netifaces
 
 from typing import Any
 
@@ -146,6 +147,15 @@ def get_IPv4(defaults):
         CONF_DEBUG: debug,
     }
 
+def get_IPv4_addresses():
+    addresses = []
+    for interface in netifaces.interfaces():
+        addrs = netifaces.ifaddresses(interface).get(netifaces.AF_INET)
+        if addrs:
+            for addr_info in addrs:
+                addresses.append(addr_info['addr'])
+    
+    return addresses
 
 def get_all_controllers(options):
     controllers = set()

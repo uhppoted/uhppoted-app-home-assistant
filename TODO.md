@@ -5,8 +5,10 @@
       - https://github.com/home-assistant/brands
 
 - [ ] Set controller event listener
-      - https://stackoverflow.com/questions/5281409/get-destination-address-of-a-received-udp-packet
-      - https://stackoverflow.com/questions/39059418/python-sockets-how-can-i-get-the-ip-address-of-a-socket-after-i-bind-it-to-an
+      - [x] config-flow
+      - [x] options-flow
+      - [ ] events-coordinator
+      - [ ] controller-info
 
 - [ ] DataCoordinator
       - [ ] communalize data
@@ -26,6 +28,7 @@
 
 - [ ] _config-flow_
       - [ ] Use _self.options_ struct and _self.configured_ list
+      - [ ] Use options for defaults (Ref. https://developers.home-assistant.io/docs/data_entry_flow_index/#defaults--suggestions)
       - [ ] (somehow) commonalise config-flow and options-flow
       - (?) Single instance only (https://developers.home-assistant.io/blog/2024/02/26/single-instance-only-manifest-option)
 

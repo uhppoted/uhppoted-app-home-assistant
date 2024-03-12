@@ -12,7 +12,6 @@ from homeassistant.core import callback
 from homeassistant.config_entries import ConfigFlow
 from homeassistant.config_entries import OptionsFlow
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers import selector
 from homeassistant.helpers.selector import SelectSelector
 from homeassistant.helpers.selector import SelectSelectorConfig
 from homeassistant.helpers.selector import SelectSelectorMode
@@ -52,6 +51,12 @@ from .const import CONF_CARD_STARTDATE
 from .const import CONF_CARD_ENDDATE
 from .const import CONF_CARD_DOORS
 
+from .const import DEFAULT_BIND_ADDRESS
+from .const import DEFAULT_BROADCAST_ADDRESS
+from .const import DEFAULT_LISTEN_ADDRESS
+from .const import DEFAULT_EVENTS_DEST_ADDR
+from .const import DEFAULT_DEBUG
+
 from .const import DEFAULT_CONTROLLER_ID
 from .const import DEFAULT_CONTROLLER_ADDR
 from .const import DEFAULT_CONTROLLER_TIMEZONE
@@ -72,7 +77,9 @@ from .config import validate_door_id
 from .config import validate_door_duplicates
 from .config import validate_card_id
 from .config import validate_all_cards
+
 from .config import get_IPv4
+from .config import get_IPv4_addresses
 from .config import get_all_controllers
 from .config import get_all_cards
 from .config import default_card_start_date
@@ -91,6 +98,11 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
         defaults = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
 
+        self._bind = defaults.get(CONF_BIND_ADDR, DEFAULT_BIND_ADDRESS)
+        self._broadcast = defaults.get(CONF_BROADCAST_ADDR, DEFAULT_BROADCAST_ADDRESS)
+        self._listen = defaults.get(CONF_LISTEN_ADDR, DEFAULT_LISTEN_ADDRESS)
+        self._events_dest_addr = defaults.get(CONF_EVENTS_DEST_ADDR, DEFAULT_EVENTS_DEST_ADDR)
+        self._debug = defaults.get(CONF_DEBUG, DEFAULT_DEBUG)
         self._timezone = defaults.get(CONF_TIMEZONE, DEFAULT_CONTROLLER_TIMEZONE)
         self._max_cards = defaults.get(CONF_MAX_CARDS, DEFAULT_MAX_CARDS)
         self._preferred_cards = defaults.get(CONF_PREFERRED_CARDS, DEFAULT_PREFERRED_CARDS)
@@ -117,10 +129,10 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 self.options.update(user_input)
                 return await self.async_step_events()
 
-        bind = self.options[CONF_BIND_ADDR]
-        broadcast = self.options[CONF_BROADCAST_ADDR]
-        listen = self.options[CONF_LISTEN_ADDR]
-        debug = self.options[CONF_DEBUG]
+        bind = self.options.get(CONF_BIND_ADDR,self._bind)
+        broadcast = self.options.get(CONF_BROADCAST_ADDR, self._broadcast)
+        listen = self.options.get(CONF_LISTEN_ADDR,self._listen)
+        debug = self.options.get(CONF_DEBUG, self._debug)
 
         schema = vol.Schema({
             vol.Optional(CONF_BIND_ADDR, default=bind): str,
@@ -135,7 +147,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: Dict[str, str] = {}
 
         if user_input is not None:
-            address = user_input[CONF_EVENTS_DEST_ADDR]
+            address = user_input.get(CONF_EVENTS_DEST_ADDR,'')
 
             try:
                 validate_events_addr(address)
@@ -143,18 +155,20 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors[CONF_EVENTS_DEST_ADDR] = f'{err}'
 
             if not errors:
-                print('>>>>>>>>>>>>>>> awoooooogahhhhhh', address)
-                # if dest != '':
-                #     self.options.update([[CONF_EVENTS_DEST_ADDR,dest]])
-                # else:
-                #     self.options.pop(CONF_EVENTS_DEST_ADDR, None)
+                self.options.update([[CONF_EVENTS_DEST_ADDR,address]])
 
                 return await self.async_step_controllers()
 
-        addr = self.options.get(CONF_EVENTS_DEST_ADDR, '')
+        addr = self.options.get(CONF_EVENTS_DEST_ADDR, self._events_dest_addr)
+        addresses = [v for v in get_IPv4_addresses() if v != '127.0.0.1']
+
+        select = SelectSelectorConfig(options=[{ 'label': f'{v}:60001', 'value': f'{v}:60001' } for v in addresses],
+                                      multiple=False,
+                                      custom_value=True,
+                                      mode=SelectSelectorMode.LIST) # yapf: disable
 
         schema = vol.Schema({
-            vol.Optional(CONF_EVENTS_DEST_ADDR, default=addr): str,
+            vol.Optional(CONF_EVENTS_DEST_ADDR, default=''): SelectSelector(select),
         })
 
         return self.async_show_form(step_id="events", data_schema=schema, errors=errors)
@@ -296,13 +310,13 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         if re.match('^[4].*', f"{controller['serial_no']}"):
             doors.append(4)
 
-        select = selector.SelectSelectorConfig(options=[{ 'label': f'Door {v}', 'value': f'{v}' } for v in doors],
-                                               multiple=True,
-                                               custom_value=False,
-                                               mode=selector.SelectSelectorMode.LIST) # yapf: disable
+        select = SelectSelectorConfig(options=[{ 'label': f'Door {v}', 'value': f'{v}' } for v in doors],
+                                      multiple=True,
+                                      custom_value=False,
+                                      mode=SelectSelectorMode.LIST) # yapf: disable
 
         schema = vol.Schema({
-            vol.Required('doors', default=[f'{v}' for v in doors]): selector.SelectSelector(select),
+            vol.Required('doors', default=[f'{v}' for v in doors]): SelectSelector(select),
         })
 
         placeholders = {
