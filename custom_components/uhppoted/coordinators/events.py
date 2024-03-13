@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import concurrent.futures
 import threading
+from ipaddress import IPv4Address
 from dataclasses import dataclass
 
 import async_timeout
@@ -29,6 +30,7 @@ from uhppoted.decode import unpack_uint8
 from uhppoted.decode import unpack_bool
 
 from ..const import CONF_LISTEN_ADDR
+from ..const import CONF_EVENTS_DEST_ADDR
 from ..const import ATTR_AVAILABLE
 from ..const import ATTR_EVENTS
 from ..const import ATTR_STATUS
@@ -125,6 +127,7 @@ class EventsCoordinator(DataUpdateCoordinator):
         self._options = options
         self._db = db
         self._notify = notify
+        self._listener_addr = options.get(CONF_EVENTS_DEST_ADDR, None)
         self._initialised = False
         self._state = {
             'events': {},
@@ -198,6 +201,7 @@ class EventsCoordinator(DataUpdateCoordinator):
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 executor.map(lambda controller: self._record_special_events(api, lock, controller), contexts, timeout=1)
+                executor.map(lambda controller: self._set_event_listener(api, lock, controller), contexts, timeout=1)
                 executor.map(lambda controller: self._get_controller_events(api, lock, controller), contexts, timeout=1)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller} information ({err})')
@@ -215,6 +219,28 @@ class EventsCoordinator(DataUpdateCoordinator):
 
         except Exception as err:
             _LOGGER.warning(f'error enabling controller {controller} record special events ({err})')
+
+    def _set_event_listener(self, api, lock, controller):
+        if self._listener_addr != None:
+            _LOGGER.debug(f'check controller {controller} event listener')
+
+            try:
+                response = api.get_listener(controller)
+                if response.controller == controller:
+                    addr = f'{response.address}:{response.port}'
+                    if addr != self._listener_addr:
+                        _LOGGER.warning(f'controller {controller} incorrect event listener address ({addr})')
+                        host, port = self._listener_addr.split(':')
+                        response = api.set_listener(controller, IPv4Address(host), int(port))
+                        if response.controller == controller:
+                            if response.ok:
+                                _LOGGER.warning(
+                                    f'controller {controller} event listener address updated ({self._listener_addr})')
+                            else:
+                                _LOGGER.warning(f'failed to set controller {controller} event listener address')
+
+            except Exception as err:
+                _LOGGER.warning(f'error setting controller {controller} event listener ({err})')
 
     def _get_controller_events(self, api, lock, controller):
         _LOGGER.debug(f'fetch controller {controller} events')

@@ -4,11 +4,11 @@
       - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/
       - https://github.com/home-assistant/brands
 
-- [ ] Set controller event listener
+- [x] Set controller event listener
       - [x] config-flow
       - [x] options-flow
       - [x] controller-info attribute
-      - [ ] events-coordinator
+      - [x] events-coordinator
 
 - [ ] DataCoordinator
       - [ ] communalize data
