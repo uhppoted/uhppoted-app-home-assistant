@@ -19,6 +19,7 @@ from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
 from .const import ATTR_CONTROLLER
 from .const import ATTR_CONTROLLER_DATETIME
+from .const import ATTR_CONTROLLER_LISTENER
 from .const import ATTR_EVENTS
 from .const import EVENTS
 
@@ -43,6 +44,7 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
             ATTR_NETMASK: None,
             ATTR_GATEWAY: None,
             ATTR_FIRMWARE: None,
+            ATTR_CONTROLLER_LISTENER: None,
         }
         self._available = False
 
@@ -90,11 +92,13 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
             elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
                 self._available = False
             else:
-                state = self.coordinator.data[idx][ATTR_CONTROLLER]
+                data = self.coordinator.data[idx]
+                state = data[ATTR_CONTROLLER]
                 self._attributes[ATTR_CONTROLLER_ADDRESS] = state[ATTR_CONTROLLER_ADDRESS]
                 self._attributes[ATTR_NETMASK] = state[ATTR_NETMASK]
                 self._attributes[ATTR_GATEWAY] = state[ATTR_GATEWAY]
                 self._attributes[ATTR_FIRMWARE] = state[ATTR_FIRMWARE]
+                self._attributes[ATTR_CONTROLLER_LISTENER] = data.get(ATTR_CONTROLLER_LISTENER, None)
                 self._available = self.coordinator.data[idx][ATTR_AVAILABLE]
 
         except (Exception):

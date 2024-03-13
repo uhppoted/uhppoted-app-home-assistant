@@ -21,6 +21,7 @@ from ..const import ATTR_NETMASK
 from ..const import ATTR_GATEWAY
 from ..const import ATTR_FIRMWARE
 from ..const import ATTR_CONTROLLER_DATETIME
+from ..const import ATTR_CONTROLLER_LISTENER
 
 from ..config import configure_driver
 from ..config import configure_cards
@@ -79,13 +80,14 @@ class ControllersCoordinator(DataUpdateCoordinator):
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 executor.map(lambda controller: self._get_controller(api, lock, controller), contexts, timeout=1)
                 executor.map(lambda controller: self._get_datetime(api, lock, controller), contexts, timeout=1)
+                executor.map(lambda controller: self._get_listener(api, lock, controller), contexts, timeout=1)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller} information ({err})')
 
         return self._state['controllers']
 
     def _get_controller(self, api, lock, controller):
-        _LOGGER.debug(f'update controller {controller}')
+        _LOGGER.debug(f'fetch controller info {controller}')
 
         available = False
         info = {
@@ -118,7 +120,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 self._state['controllers'][controller] = {ATTR_CONTROLLER: info, ATTR_AVAILABLE: available}
 
     def _get_datetime(self, api, lock, controller):
-        _LOGGER.debug(f'retrieve controller datetime {controller}')
+        _LOGGER.debug(f'fetch controller datetime {controller}')
 
         sysdatetime = None
 
@@ -136,10 +138,29 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 sysdatetime = datetime.datetime(year, month, day, hour, minute, second, 0, tz)
 
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller} information ({err})')
+            _LOGGER.error(f'error retrieving controller {controller} date/time ({err})')
 
         with lock:
             if controller in self._state['controllers']:
                 self._state['controllers'][controller][ATTR_CONTROLLER_DATETIME] = sysdatetime
             else:
                 self._state['controllers'][controller] = {ATTR_CONTROLLER_DATETIME: sysdatetime}
+
+    def _get_listener(self, api, lock, controller):
+        _LOGGER.debug(f'fetch controller event listener {controller}')
+
+        listener = None
+
+        try:
+            response = api.get_listener(controller)
+            if response.controller == controller:
+                listener = f'{response.address}:{response.port}'
+
+        except Exception as err:
+            _LOGGER.error(f'error retrieving controller {controller} event listener ({err})')
+
+        with lock:
+            if controller in self._state['controllers']:
+                self._state['controllers'][controller][ATTR_CONTROLLER_LISTENER] = listener
+            else:
+                self._state['controllers'][controller] = {ATTR_CONTROLLER_LISTENER: listener}

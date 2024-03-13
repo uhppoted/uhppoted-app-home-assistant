@@ -7,8 +7,8 @@
 - [ ] Set controller event listener
       - [x] config-flow
       - [x] options-flow
+      - [x] controller-info attribute
       - [ ] events-coordinator
-      - [ ] controller-info
 
 - [ ] DataCoordinator
       - [ ] communalize data
@@ -24,6 +24,7 @@
             - (?) class variable
       - [ ] Handle timeout on startup
       - [ ] Handle timeout on shutdown
+      - [ ] Change log messages to read 'retrieving.....'
       - (?) Reconnect event listener on connection lost (unless being unloaded)
 
 - [ ] _config-flow_

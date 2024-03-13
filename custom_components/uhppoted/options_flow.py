@@ -118,7 +118,6 @@ class UhppotedOptionsFlow(OptionsFlow):
                                     description_placeholders={})
         # return await self.async_step_IPv4()
 
-
     async def async_step_IPv4(self, user_input: Optional[Dict[str, Any]] = None):
         errors: Dict[str, str] = {}
 
@@ -141,12 +140,11 @@ class UhppotedOptionsFlow(OptionsFlow):
 
         return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
 
-
     async def async_step_events(self, user_input: Optional[Dict[str, Any]] = None):
         errors: Dict[str, str] = {}
 
         if user_input is not None:
-            address = user_input.get(CONF_EVENTS_DEST_ADDR,'')
+            address = user_input.get(CONF_EVENTS_DEST_ADDR, '')
 
             try:
                 validate_events_addr(address)
@@ -154,7 +152,7 @@ class UhppotedOptionsFlow(OptionsFlow):
                 errors[CONF_EVENTS_DEST_ADDR] = f'{err}'
 
             if not errors:
-                self.options.update([[CONF_EVENTS_DEST_ADDR,address]])
+                self.options.update([[CONF_EVENTS_DEST_ADDR, address]])
 
                 return await self.async_step_controllers()
 

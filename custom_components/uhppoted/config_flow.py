@@ -129,9 +129,9 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 self.options.update(user_input)
                 return await self.async_step_events()
 
-        bind = self.options.get(CONF_BIND_ADDR,self._bind)
+        bind = self.options.get(CONF_BIND_ADDR, self._bind)
         broadcast = self.options.get(CONF_BROADCAST_ADDR, self._broadcast)
-        listen = self.options.get(CONF_LISTEN_ADDR,self._listen)
+        listen = self.options.get(CONF_LISTEN_ADDR, self._listen)
         debug = self.options.get(CONF_DEBUG, self._debug)
 
         schema = vol.Schema({
@@ -147,7 +147,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: Dict[str, str] = {}
 
         if user_input is not None:
-            address = user_input.get(CONF_EVENTS_DEST_ADDR,'')
+            address = user_input.get(CONF_EVENTS_DEST_ADDR, '')
 
             try:
                 validate_events_addr(address)
@@ -155,7 +155,7 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors[CONF_EVENTS_DEST_ADDR] = f'{err}'
 
             if not errors:
-                self.options.update([[CONF_EVENTS_DEST_ADDR,address]])
+                self.options.update([[CONF_EVENTS_DEST_ADDR, address]])
 
                 return await self.async_step_controllers()
 

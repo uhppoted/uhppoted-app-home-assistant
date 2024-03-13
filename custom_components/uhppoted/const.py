@@ -47,6 +47,7 @@ ATTR_FIRMWARE = 'firmware'
 ATTR_CONTROLLER = 'controller'
 ATTR_CONTROLLER_SERIAL_NUMBER = 'serial_no'
 ATTR_CONTROLLER_DATETIME = 'date-time'
+ATTR_CONTROLLER_LISTENER = 'event listener'
 
 ATTR_DOORS = 'doors'
 ATTR_DOOR = 'door'
