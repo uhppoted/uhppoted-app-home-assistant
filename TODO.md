@@ -24,7 +24,7 @@
             - (?) class variable
       - [ ] Handle timeout on startup
       - [ ] Handle timeout on shutdown
-      - [ ] Change log messages to read 'retrieving.....'
+      - [x] Change log messages to read 'retrieving.....'
       - (?) Reconnect event listener on connection lost (unless being unloaded)
 
 - [ ] _config-flow_

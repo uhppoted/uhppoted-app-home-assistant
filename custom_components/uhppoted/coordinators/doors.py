@@ -139,7 +139,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 executor.map(lambda idx: self._get_door(api, lock, idx, doors[idx], state), contexts, timeout=1)
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller} information ({err})')
+            _LOGGER.error(f'error retrieving controller {controller} door information ({err})')
 
         return self._state['doors']
 
@@ -192,7 +192,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
             controller = door[CONF_CONTROLLER_SERIAL_NUMBER]
             door_id = door[CONF_DOOR_NUMBER]
 
-            _LOGGER.debug(f'update door {name}')
+            _LOGGER.debug(f'fetch door {name} information')
 
             mode = None
             delay = None

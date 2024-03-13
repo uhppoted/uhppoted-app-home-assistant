@@ -312,7 +312,7 @@ class CardsCoordinator(DataUpdateCoordinator):
         return self._state['cards']
 
     def _get_card(self, api, controllers, lock, card):
-        _LOGGER.debug(f'update card {card}')
+        _LOGGER.debug(f'fetch card {card} information')
 
         info = {
             ATTR_AVAILABLE: False,

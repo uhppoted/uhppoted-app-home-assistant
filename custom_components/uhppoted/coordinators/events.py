@@ -217,7 +217,7 @@ class EventsCoordinator(DataUpdateCoordinator):
             _LOGGER.warning(f'error enabling controller {controller} record special events ({err})')
 
     def _get_controller_events(self, api, lock, controller):
-        _LOGGER.debug(f'get controller {controller} events')
+        _LOGGER.debug(f'fetch controller {controller} events')
 
         info = {
             ATTR_AVAILABLE: False,
