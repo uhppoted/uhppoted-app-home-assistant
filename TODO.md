@@ -5,10 +5,7 @@
       - https://github.com/home-assistant/brands
 
 - [x] Set controller event listener
-      - [x] config-flow
-      - [x] options-flow
-      - [x] controller-info attribute
-      - [x] events-coordinator
+- [x] Change log messages to read 'retrieving.....'
 
 - [ ] DataCoordinator
       - [ ] communalize data
@@ -21,25 +18,23 @@
             - [ ] cards
             - [ ] events
             - [ ] optimization: update global controller status from event
-            - (?) class variable
       - [ ] Handle timeout on startup
       - [ ] Handle timeout on shutdown
-      - [x] Change log messages to read 'retrieving.....'
       - (?) Reconnect event listener on connection lost (unless being unloaded)
 
 - [ ] _config-flow_
+      - [ ] Provide IP address list for bind/broadcast and listen addresses
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] Use options for defaults (Ref. https://developers.home-assistant.io/docs/data_entry_flow_index/#defaults--suggestions)
       - [ ] (somehow) commonalise config-flow and options-flow
       - (?) Single instance only (https://developers.home-assistant.io/blog/2024/02/26/single-instance-only-manifest-option)
 
 - [ ] Controller
-      - [x] Set default timezone in configuration.yaml
-      - [ ] (optionally) set event listener
       - [ ] Rework as Device
       - [ ] device_info
       - [ ] entity_category
       - [ ] Name translation
+            - https://developers.home-assistant.io/docs/internationalization/core/#entity-state-attributes
 
 - [ ] Doors
       - [ ] Name translation

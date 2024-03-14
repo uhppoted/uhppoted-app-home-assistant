@@ -26,7 +26,7 @@ from .const import EVENTS
 
 class ControllerInfo(CoordinatorEntity, SensorEntity):
     _attr_icon = 'mdi:identifier'
-    _attr_has_entity_name: True
+    _attr_has_entity_name = True
     _attr_translation_key = 'controller_id'
 
     def __init__(self, coordinator, unique_id, controller, serial_no):
@@ -52,9 +52,9 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
     def unique_id(self) -> str:
         return f'uhppoted.controller.{self._unique_id}.info'.lower()
 
-    @property
-    def name(self) -> str:
-        return self._name
+    # @property
+    # def name(self) -> str:
+    #     return self._name
 
     @property
     def available(self) -> bool:
