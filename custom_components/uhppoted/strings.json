@@ -282,19 +282,18 @@
 
     "entity": {
         "sensor": {
-          "card_info": {
-            "name": "Wooot"
-          }
-        },
+            "controller_id": {
+                "name": "test entity name translation"
+            }
+        }
+    },
 
-        "uhppoted": {
-            "card_info" : {
-                "name": "Ye Olde Card Info"
-            },
-            "sensor": {
-                "card_info" : {
-                    "name": "Ye Olde Card Info Too"
-                }                
+    "entity_component": {
+        "_": {
+            "state_attributes": {
+                "event_listener": {
+                    "name": "test attr name translation"
+                }
             }
         }
     }

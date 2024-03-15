@@ -52,9 +52,10 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
     def unique_id(self) -> str:
         return f'uhppoted.controller.{self._unique_id}.info'.lower()
 
-    # @property
-    # def name(self) -> str:
-    #     return self._name
+    # NTS: remove to use name translation
+    @property
+    def name(self) -> str:
+        return self._name
 
     @property
     def available(self) -> bool:

@@ -283,7 +283,7 @@
     "entity": {
         "sensor": {
             "controller_id": {
-                "name": "WOOOOOOT"
+                "name": "test entity name translation"
             }
         }
     },
@@ -292,7 +292,7 @@
         "_": {
             "state_attributes": {
                 "event_listener": {
-                    "name": "QWERTY"
+                    "name": "test attr name translation"
                 }
             }
         }

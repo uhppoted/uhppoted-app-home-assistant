@@ -4,9 +4,6 @@
       - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/
       - https://github.com/home-assistant/brands
 
-- [x] Set controller event listener
-- [x] Change log messages to read 'retrieving.....'
-
 - [ ] DataCoordinator
       - [ ] communalize data
             - [ ] RWLock
@@ -23,6 +20,7 @@
       - (?) Reconnect event listener on connection lost (unless being unloaded)
 
 - [ ] _config-flow_
+      - [ ] Set default controller address from get-all-controllers response
       - [ ] Provide IP address list for bind/broadcast and listen addresses
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] Use options for defaults (Ref. https://developers.home-assistant.io/docs/data_entry_flow_index/#defaults--suggestions)
