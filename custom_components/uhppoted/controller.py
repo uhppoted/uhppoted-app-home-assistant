@@ -88,19 +88,14 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
 
             if not self.coordinator.data or idx not in self.coordinator.data:
                 self._available = False
-            elif ATTR_CONTROLLER not in self.coordinator.data[idx]:
-                self._available = False
-            elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
-                self._available = False
             else:
-                data = self.coordinator.data[idx]
-                state = data[ATTR_CONTROLLER]
-                self._attributes[ATTR_CONTROLLER_ADDRESS] = state[ATTR_CONTROLLER_ADDRESS]
-                self._attributes[ATTR_NETMASK] = state[ATTR_NETMASK]
-                self._attributes[ATTR_GATEWAY] = state[ATTR_GATEWAY]
-                self._attributes[ATTR_FIRMWARE] = state[ATTR_FIRMWARE]
-                self._attributes[ATTR_CONTROLLER_LISTENER] = data.get(ATTR_CONTROLLER_LISTENER, None)
-                self._available = self.coordinator.data[idx][ATTR_AVAILABLE]
+                state = self.coordinator.data[idx]
+                self._attributes[ATTR_CONTROLLER_ADDRESS] = state.get(ATTR_CONTROLLER_ADDRESS, None)
+                self._attributes[ATTR_NETMASK] = state.get(ATTR_NETMASK, None)
+                self._attributes[ATTR_GATEWAY] = state.get(ATTR_GATEWAY, None)
+                self._attributes[ATTR_FIRMWARE] = state.get(ATTR_FIRMWARE, None)
+                self._attributes[ATTR_CONTROLLER_LISTENER] = state.get(ATTR_CONTROLLER_LISTENER, None)
+                self._available = state.get(ATTR_AVAILABLE, False)
 
         except (Exception):
             self._available = False
@@ -174,8 +169,8 @@ class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
                 self._available = False
             else:
                 state = self.coordinator.data[idx]
-                self._available = state[ATTR_AVAILABLE]
-                self._datetime = state[ATTR_CONTROLLER_DATETIME]
+                self._available = state.get(ATTR_AVAILABLE, False)
+                self._datetime = state.get(ATTR_CONTROLLER_DATETIME, None)
 
         except (Exception):
             self._available = False

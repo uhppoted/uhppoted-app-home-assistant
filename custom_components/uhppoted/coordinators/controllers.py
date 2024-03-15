@@ -90,23 +90,19 @@ class ControllersCoordinator(DataUpdateCoordinator):
         _LOGGER.debug(f'fetch controller info {controller}')
 
         available = False
-        info = {
-            ATTR_CONTROLLER_ADDRESS: None,
-            ATTR_NETMASK: None,
-            ATTR_GATEWAY: None,
-            ATTR_FIRMWARE: None,
-        }
+
+        address = None
+        netmask = None
+        gateway = None
+        firmware = None
 
         try:
             response = api.get_controller(controller)
             if response.controller == controller:
-                info = {
-                    ATTR_CONTROLLER_ADDRESS: f'{response.ip_address}',
-                    ATTR_NETMASK: f'{response.subnet_mask}',
-                    ATTR_GATEWAY: f'{response.gateway}',
-                    ATTR_FIRMWARE: f'{response.version} {response.date:%Y-%m-%d}',
-                }
-
+                address = f'{response.ip_address}'
+                netmask = f'{response.subnet_mask}'
+                gateway = f'{response.gateway}'
+                firmware = f'{response.version} {response.date:%Y-%m-%d}'
                 available = True
 
         except Exception as err:
@@ -114,10 +110,19 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
         with lock:
             if controller in self._state['controllers']:
-                self._state['controllers'][controller][ATTR_CONTROLLER] = info
+                self._state['controllers'][controller][ATTR_CONTROLLER_ADDRESS] = address
+                self._state['controllers'][controller][ATTR_NETMASK] = netmask
+                self._state['controllers'][controller][ATTR_GATEWAY] = gateway
+                self._state['controllers'][controller][ATTR_FIRMWARE] = firmware
                 self._state['controllers'][controller][ATTR_AVAILABLE] = available
             else:
-                self._state['controllers'][controller] = {ATTR_CONTROLLER: info, ATTR_AVAILABLE: available}
+                self._state['controllers'][controller] = {
+                    ATTR_CONTROLLER_ADDRESS: address,
+                    ATTR_NETMASK: netmask,
+                    ATTR_GATEWAY: gateway,
+                    ATTR_FIRMWARE: firmware,
+                    ATTR_AVAILABLE: available,
+                }
 
     def _get_datetime(self, api, lock, controller):
         _LOGGER.debug(f'fetch controller datetime {controller}')
