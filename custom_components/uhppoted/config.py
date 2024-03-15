@@ -148,6 +148,42 @@ def get_IPv4(defaults):
     }
 
 
+def get_bind_addresses():
+    addresses = ['0.0.0.0']
+    for interface in netifaces.interfaces():
+        addrs = netifaces.ifaddresses(interface).get(netifaces.AF_INET)
+        if addrs:
+            for addr_info in addrs:
+                if 'addr' in addr_info and addr_info['addr'] != '127.0.0.1':
+                    addresses.append(addr_info['addr'])
+
+    return addresses
+
+
+def get_broadcast_addresses():
+    addresses = ['255.255.255.255']
+    for interface in netifaces.interfaces():
+        addrs = netifaces.ifaddresses(interface).get(netifaces.AF_INET)
+        if addrs:
+            for addr_info in addrs:
+                if 'broadcast' in addr_info:
+                    addresses.append(addr_info['broadcast'])
+
+    return addresses
+
+
+def get_listen_addresses():
+    addresses = ['0.0.0.0']
+    for interface in netifaces.interfaces():
+        addrs = netifaces.ifaddresses(interface).get(netifaces.AF_INET)
+        if addrs:
+            for addr_info in addrs:
+                if 'addr' in addr_info and addr_info['addr'] != '127.0.0.1':
+                    addresses.append(addr_info['addr'])
+
+    return addresses
+
+
 def get_IPv4_addresses():
     addresses = []
     for interface in netifaces.interfaces():

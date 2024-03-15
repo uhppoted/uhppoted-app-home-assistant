@@ -79,16 +79,21 @@ from .config import validate_card_id
 from .config import validate_all_cards
 
 from .config import get_IPv4
+from .config import get_bind_addresses
+from .config import get_broadcast_addresses
+from .config import get_listen_addresses
 from .config import get_IPv4_addresses
 from .config import get_all_controllers
 from .config import get_all_cards
 from .config import default_card_start_date
 from .config import default_card_end_date
 
+from .flow import UhppotedFlow
+
 _LOGGER = logging.getLogger(__name__)
 
 
-class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
+class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
@@ -134,10 +139,25 @@ class UhppotedConfigFlow(ConfigFlow, domain=DOMAIN):
         listen = self.options.get(CONF_LISTEN_ADDR, self._listen)
         debug = self.options.get(CONF_DEBUG, self._debug)
 
+        binds = SelectSelectorConfig(options=[{ 'label': f'{v}', 'value': f'{v}' } for v in get_bind_addresses()],
+                                     multiple=False,
+                                     custom_value=True,
+                                     mode=SelectSelectorMode.LIST) # yapf: disable
+
+        broadcasts = SelectSelectorConfig(options=[{ 'label': f'{v}:60000', 'value': f'{v}:60000' } for v in get_broadcast_addresses()],
+                                          multiple=False,
+                                          custom_value=True,
+                                          mode=SelectSelectorMode.LIST) # yapf: disable
+
+        listens = SelectSelectorConfig(options=[{ 'label': f'{v}:60001', 'value': f'{v}:60001' } for v in get_listen_addresses()],
+                                       multiple=False,
+                                       custom_value=True,
+                                       mode=SelectSelectorMode.LIST) # yapf: disable
+
         schema = vol.Schema({
-            vol.Optional(CONF_BIND_ADDR, default=bind): str,
-            vol.Optional(CONF_BROADCAST_ADDR, default=broadcast): str,
-            vol.Optional(CONF_LISTEN_ADDR, default=listen): str,
+            vol.Optional(CONF_BIND_ADDR, default=bind): SelectSelector(binds),
+            vol.Optional(CONF_BROADCAST_ADDR, default=broadcast): SelectSelector(broadcasts),
+            vol.Optional(CONF_LISTEN_ADDR, default=listen): SelectSelector(listens),
             vol.Optional(CONF_DEBUG, default=debug): bool,
         })
 

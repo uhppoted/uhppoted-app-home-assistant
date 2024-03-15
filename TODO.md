@@ -20,8 +20,8 @@
       - (?) Reconnect event listener on connection lost (unless being unloaded)
 
 - [ ] _config-flow_
+      - [x] Provide IP address list for bind/broadcast and listen addresses
       - [ ] Set default controller address from get-all-controllers response
-      - [ ] Provide IP address list for bind/broadcast and listen addresses
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] Use options for defaults (Ref. https://developers.home-assistant.io/docs/data_entry_flow_index/#defaults--suggestions)
       - [ ] (somehow) commonalise config-flow and options-flow
