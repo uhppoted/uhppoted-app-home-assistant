@@ -239,7 +239,6 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         return self.async_show_form(step_id="controllers", data_schema=schema, errors=errors)
 
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
-        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>', self.controllers)
         it = next((v for v in self.controllers if not v['controller']['configured']), None)
         if it == None:
             return await self.async_step_doors()

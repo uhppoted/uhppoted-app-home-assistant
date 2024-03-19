@@ -219,6 +219,33 @@ def get_all_controllers(options):
     return sorted(list(controllers), reverse=True)
 
 
+def get_all_controllers_new(options):
+    controllers = dict()
+    if CONF_CONTROLLERS in options:
+        for v in options[CONF_CONTROLLERS]:
+            controllers.add(int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}'))
+
+    try:
+        bind = options[CONF_BIND_ADDR]
+        broadcast = options[CONF_BROADCAST_ADDR]
+        listen = options[CONF_LISTEN_ADDR]
+        debug = options[CONF_DEBUG]
+        u = uhppote.Uhppote(bind, broadcast, listen, debug)
+
+        response = u.get_all_controllers()
+
+        for v in response:
+            controllers[v.controller] = {
+                'controller': v.controller,
+                'address': f'{v.ip_address}',
+            }
+
+    except Exception as e:
+        _LOGGER.exception(f'error retrieving list of controllers ({e})')
+
+    return sorted(controllers.values(), key=lambda v: v['controller'], reverse=True)
+
+
 def get_all_doors(options):
     controllers = []
 
