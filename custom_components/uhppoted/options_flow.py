@@ -299,8 +299,12 @@ class UhppotedOptionsFlow(OptionsFlow):
 
                 return await self.async_step_controller()
 
+        controller_id = controller.get('name', None)
+        if not controller_id or controller_id == '':
+            controller_id = controller.get('serial_no', DEFAULT_CONTROLLER_ID)
+
         defaults = {
-            CONF_CONTROLLER_ID: DEFAULT_CONTROLLER_ID,
+            CONF_CONTROLLER_ID: controller_id,
             CONF_CONTROLLER_ADDR: DEFAULT_CONTROLLER_ADDR,
             CONF_CONTROLLER_TIMEZONE: self._timezone,
         }

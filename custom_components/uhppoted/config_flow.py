@@ -239,6 +239,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         return self.async_show_form(step_id="controllers", data_schema=schema, errors=errors)
 
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
+        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>', self.controllers)
         it = next((v for v in self.controllers if not v['controller']['configured']), None)
         if it == None:
             return await self.async_step_doors()
@@ -276,8 +277,12 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
 
                 return await self.async_step_controller()
 
+        controller_id = controller.get('name', None)
+        if not controller_id or controller_id == '':
+            controller_id = controller.get('serial_no', DEFAULT_CONTROLLER_ID)
+
         defaults = {
-            CONF_CONTROLLER_ID: DEFAULT_CONTROLLER_ID,
+            CONF_CONTROLLER_ID: controller_id,
             CONF_CONTROLLER_ADDR: DEFAULT_CONTROLLER_ADDR,
             CONF_CONTROLLER_TIMEZONE: self._timezone,
         }

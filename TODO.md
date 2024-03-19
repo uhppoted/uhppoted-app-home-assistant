@@ -1,8 +1,6 @@
 # TODO
 
-- [ ] Integration icon
-      - https://developers.home-assistant.io/blog/2020/05/08/logos-custom-integrations/
-      - https://github.com/home-assistant/brands
+- [x] Integration icon
 
 - [ ] DataCoordinator
       - [ ] communalize data
@@ -21,10 +19,11 @@
 
 - [ ] _config-flow_
       - [x] Provide IP address list for bind/broadcast and listen addresses
+      - [x] Set serial number as default controller name
       - [ ] Set default controller address from get-all-controllers response
+      - [ ] Commonalise config-flow and options-flow
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] Use options for defaults (Ref. https://developers.home-assistant.io/docs/data_entry_flow_index/#defaults--suggestions)
-      - [ ] (somehow) commonalise config-flow and options-flow
       - (?) Single instance only (https://developers.home-assistant.io/blog/2024/02/26/single-instance-only-manifest-option)
 
 - [ ] Controller
