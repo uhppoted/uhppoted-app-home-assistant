@@ -83,7 +83,7 @@ from .config import get_bind_addresses
 from .config import get_broadcast_addresses
 from .config import get_listen_addresses
 from .config import get_IPv4_addresses
-from .config import get_all_controllers
+from .config import get_all_controllers_new
 from .config import get_all_cards
 from .config import default_card_start_date
 from .config import default_card_end_date
@@ -112,6 +112,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         self._max_cards = defaults.get(CONF_MAX_CARDS, DEFAULT_MAX_CARDS)
         self._preferred_cards = defaults.get(CONF_PREFERRED_CARDS, DEFAULT_PREFERRED_CARDS)
 
+        self.cache = {}
         self.data = {}
         self.options = {}
         self.controllers = []
@@ -199,11 +200,18 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             if not errors:
                 for v in user_input[CONF_CONTROLLERS]:
+                    address = ''
+                    if 'controllers' in self.cache:
+                        for cached in self.cache['controllers']:
+                            if cached['controller'] == int(f'{v}'):
+                                address = cached.get('address', '')
+
                     self.controllers.append({
                         'controller': {
                             'unique_id': uuid.uuid4(),
                             'name': '',
                             'serial_no': v,
+                            'address': address,
                             'configured': False,
                         },
                         'doors': None,
@@ -211,7 +219,9 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
 
                 return await self.async_step_controller()
 
-        controllers = get_all_controllers(self.options)
+        controllers = get_all_controllers_new(self.options)
+
+        self.cache['controllers'] = controllers
 
         if len(controllers) < 2:
             for v in controllers:
@@ -219,7 +229,8 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
                     'controller': {
                         'unique_id': uuid.uuid4(),
                         'name': '',
-                        'serial_no': v,
+                        'serial_no': v['controller'],
+                        'address': v.get('address', ''),
                         'configured': False,
                     },
                     'doors': None,
@@ -228,9 +239,9 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
             return await self.async_step_controller()
 
         schema = vol.Schema({
-            vol.Required(CONF_CONTROLLERS, default=[f'{v}' for v in controllers]):
+            vol.Required(CONF_CONTROLLERS, default=[f"{v['controller']}" for v in controllers]):
             SelectSelector(
-                SelectSelectorConfig(options=[f'{v}' for v in controllers],
+                SelectSelectorConfig(options=[f"{v['controller']}" for v in controllers],
                                      multiple=True,
                                      custom_value=False,
                                      mode=SelectSelectorMode.LIST)),
@@ -280,9 +291,11 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         if not controller_id or controller_id == '':
             controller_id = controller.get('serial_no', DEFAULT_CONTROLLER_ID)
 
+        address = controller.get('address', DEFAULT_CONTROLLER_ADDR)
+
         defaults = {
             CONF_CONTROLLER_ID: controller_id,
-            CONF_CONTROLLER_ADDR: DEFAULT_CONTROLLER_ADDR,
+            CONF_CONTROLLER_ADDR: address,
             CONF_CONTROLLER_TIMEZONE: self._timezone,
         }
 
