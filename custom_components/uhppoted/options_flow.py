@@ -103,6 +103,7 @@ class UhppotedOptionsFlow(OptionsFlow):
         self.controllers = []
         self.doors = []
         self.configuration = {'doors': []}
+        self.cache = {}
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         defaults = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
@@ -191,18 +192,21 @@ class UhppotedOptionsFlow(OptionsFlow):
     async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
 
         def g(v):
+            serial_no = v['controller']
+            address = v.get('address', DEFAULT_CONTROLLER_ADDR)
+
             if self.options and CONF_CONTROLLERS in self.options:
                 for c in self.options[CONF_CONTROLLERS]:
-                    if f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}' == f'{v}':
+                    if f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}' == f'{serial_no}':
                         if c[CONF_CONTROLLER_ID] != '':
                             return {
-                                'label': f'{v} ({c[CONF_CONTROLLER_ID]})',
-                                'value': f'{v}',
+                                'label': f'{serial_no} ({c[CONF_CONTROLLER_ID]})',
+                                'value': f'{serial_no}',
                             }
                         break
             return {
-                'label': f'{v}',
-                'value': f'{v}',
+                'label': f'{serial_no}',
+                'value': f'{serial_no}',
             }
 
         errors: Dict[str, str] = {}
@@ -210,9 +214,16 @@ class UhppotedOptionsFlow(OptionsFlow):
         if user_input is not None:
             if not errors:
                 for v in user_input[CONF_CONTROLLERS]:
+                    address = ''
+                    if 'controllers' in self.cache:
+                        for cached in self.cache['controllers']:
+                            if cached['controller'] == int(f'{v}'):
+                                address = cached.get('address', '')
+
                     self.controllers.append({
                         'controller': {
                             'serial_no': v,
+                            'address': address,
                             'configured': False,
                         },
                         'doors': None,
@@ -223,6 +234,8 @@ class UhppotedOptionsFlow(OptionsFlow):
         controllers = get_all_controllers(self.options)
         if len(controllers) < 1:
             return await self.async_step_door()
+
+        self.cache['controllers'] = controllers
 
         configured = set()
         if self.options and CONF_CONTROLLERS in self.options:
@@ -303,9 +316,11 @@ class UhppotedOptionsFlow(OptionsFlow):
         if not controller_id or controller_id == '':
             controller_id = controller.get('serial_no', DEFAULT_CONTROLLER_ID)
 
+        address = controller.get('address', DEFAULT_CONTROLLER_ADDR)
+
         defaults = {
             CONF_CONTROLLER_ID: controller_id,
-            CONF_CONTROLLER_ADDR: DEFAULT_CONTROLLER_ADDR,
+            CONF_CONTROLLER_ADDR: address,
             CONF_CONTROLLER_TIMEZONE: self._timezone,
         }
 

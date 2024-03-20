@@ -20,7 +20,7 @@
 - [ ] _config-flow_
       - [x] Provide IP address list for bind/broadcast and listen addresses
       - [x] Set serial number as default controller name
-      - [ ] Set default controller address from get-all-controllers response
+      - [x] Set default controller address from get-all-controllers response
       - [ ] Commonalise config-flow and options-flow
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] Use options for defaults (Ref. https://developers.home-assistant.io/docs/data_entry_flow_index/#defaults--suggestions)

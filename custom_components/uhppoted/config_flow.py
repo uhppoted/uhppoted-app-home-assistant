@@ -83,7 +83,7 @@ from .config import get_bind_addresses
 from .config import get_broadcast_addresses
 from .config import get_listen_addresses
 from .config import get_IPv4_addresses
-from .config import get_all_controllers_new
+from .config import get_all_controllers
 from .config import get_all_cards
 from .config import default_card_start_date
 from .config import default_card_end_date
@@ -112,12 +112,12 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         self._max_cards = defaults.get(CONF_MAX_CARDS, DEFAULT_MAX_CARDS)
         self._preferred_cards = defaults.get(CONF_PREFERRED_CARDS, DEFAULT_PREFERRED_CARDS)
 
-        self.cache = {}
         self.data = {}
         self.options = {}
         self.controllers = []
         self.doors = []
         self.configuration = {'cards': []}
+        self.cache = {}
 
         self.options.update(get_IPv4(defaults))
         self.options.update({
@@ -219,7 +219,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
 
                 return await self.async_step_controller()
 
-        controllers = get_all_controllers_new(self.options)
+        controllers = get_all_controllers(self.options)
 
         self.cache['controllers'] = controllers
 
