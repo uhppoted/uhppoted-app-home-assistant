@@ -30,6 +30,7 @@ from ..config import get_configured_cards
 
 
 class ControllersCoordinator(DataUpdateCoordinator):
+    _state: Dict[int, Dict]
 
     def __init__(self, hass, options, poll, db):
         interval = _INTERVAL if poll == None else poll
@@ -39,10 +40,8 @@ class ControllersCoordinator(DataUpdateCoordinator):
         self._uhppote = configure_driver(options)
         self._options = options
         self._db = db
+        self._state = {}
         self._initialised = False
-        self._state = {
-            'controllers': {},
-        }
 
         _LOGGER.info(f'controllers coordinator initialised ({interval.total_seconds():.0f}s)')
 
@@ -76,6 +75,12 @@ class ControllersCoordinator(DataUpdateCoordinator):
         api = self._uhppote['api']
         lock = threading.Lock()
 
+        for v in contexts:
+            if not v in self._state:
+                self._state[v] = {
+                    ATTR_AVAILABLE: False,
+                }
+
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 executor.map(lambda controller: self._get_controller(api, lock, controller), contexts, timeout=1)
@@ -84,7 +89,9 @@ class ControllersCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller} information ({err})')
 
-        return self._state['controllers']
+        self._db.controllers = self._state
+
+        return self._db.controllers
 
     def _get_controller(self, api, lock, controller):
         _LOGGER.debug(f'fetch controller info {controller}')
@@ -109,20 +116,13 @@ class ControllersCoordinator(DataUpdateCoordinator):
             _LOGGER.error(f'error retrieving controller {controller} information ({err})')
 
         with lock:
-            if controller in self._state['controllers']:
-                self._state['controllers'][controller][ATTR_CONTROLLER_ADDRESS] = address
-                self._state['controllers'][controller][ATTR_NETMASK] = netmask
-                self._state['controllers'][controller][ATTR_GATEWAY] = gateway
-                self._state['controllers'][controller][ATTR_FIRMWARE] = firmware
-                self._state['controllers'][controller][ATTR_AVAILABLE] = available
-            else:
-                self._state['controllers'][controller] = {
-                    ATTR_CONTROLLER_ADDRESS: address,
-                    ATTR_NETMASK: netmask,
-                    ATTR_GATEWAY: gateway,
-                    ATTR_FIRMWARE: firmware,
-                    ATTR_AVAILABLE: available,
-                }
+            self._state[controller].update({
+                ATTR_CONTROLLER_ADDRESS: address,
+                ATTR_NETMASK: netmask,
+                ATTR_GATEWAY: gateway,
+                ATTR_FIRMWARE: firmware,
+                ATTR_AVAILABLE: available,
+            })
 
     def _get_datetime(self, api, lock, controller):
         _LOGGER.debug(f'fetch controller datetime {controller}')
@@ -146,10 +146,9 @@ class ControllersCoordinator(DataUpdateCoordinator):
             _LOGGER.error(f'error retrieving controller {controller} date/time ({err})')
 
         with lock:
-            if controller in self._state['controllers']:
-                self._state['controllers'][controller][ATTR_CONTROLLER_DATETIME] = sysdatetime
-            else:
-                self._state['controllers'][controller] = {ATTR_CONTROLLER_DATETIME: sysdatetime}
+            self._state[controller].update({
+                ATTR_CONTROLLER_DATETIME: sysdatetime,
+            })
 
     def _get_listener(self, api, lock, controller):
         _LOGGER.debug(f'fetch controller event listener {controller}')
@@ -165,7 +164,6 @@ class ControllersCoordinator(DataUpdateCoordinator):
             _LOGGER.error(f'error retrieving controller {controller} event listener ({err})')
 
         with lock:
-            if controller in self._state['controllers']:
-                self._state['controllers'][controller][ATTR_CONTROLLER_LISTENER] = listener
-            else:
-                self._state['controllers'][controller] = {ATTR_CONTROLLER_LISTENER: listener}
+            self._state[controller].update({
+                ATTR_CONTROLLER_LISTENER: listener,
+            })

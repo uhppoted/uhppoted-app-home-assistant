@@ -33,6 +33,7 @@ from ..config import default_card_end_date
 
 
 class CardsCoordinator(DataUpdateCoordinator):
+    _state: Dict[int, Dict]
 
     def __init__(self, hass, options, poll, db):
         interval = _INTERVAL if poll == None else poll
@@ -42,10 +43,8 @@ class CardsCoordinator(DataUpdateCoordinator):
         self._uhppote = configure_driver(options)
         self._options = options
         self._db = db
+        self._state = {}
         self._initialised = False
-        self._state = {
-            'cards': {},
-        }
 
         _LOGGER.info(f'cards coordinator initialised ({interval.total_seconds():.0f}s)')
 
@@ -293,6 +292,12 @@ class CardsCoordinator(DataUpdateCoordinator):
                 contexts.update(cards)
                 self._initialised = True
 
+            for v in contexts:
+                if not v in self._state:
+                    self._state[v] = {
+                        ATTR_AVAILABLE: False,
+                    }
+
             async with async_timeout.timeout(2.5):
                 return await self._get_cards(contexts)
         except Exception as err:
@@ -309,7 +314,9 @@ class CardsCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller} information ({err})')
 
-        return self._state['cards']
+        self._db.cards = self._state
+
+        return self._db.cards
 
     def _get_card(self, api, controllers, lock, card):
         _LOGGER.debug(f'fetch card {card} information')
@@ -366,4 +373,4 @@ class CardsCoordinator(DataUpdateCoordinator):
             _LOGGER.error(f'error retrieving card {card} information ({err})')
 
         with lock:
-            self._state['cards'][card] = info
+            self._state[card].update(info)

@@ -175,7 +175,8 @@ class EventsCoordinator(DataUpdateCoordinator):
                 ATTR_EVENTS: events,
             }
 
-            self.async_set_updated_data(self._state['events'])
+            self._db.events = self._state['events']
+            self.async_set_updated_data(self._db.events)
 
             if self._notify:
                 self._notify(event)
@@ -206,7 +207,9 @@ class EventsCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller} information ({err})')
 
-        return self._state['events']
+        self._db.events = self._state['events']
+
+        return self._db.events
 
     def _record_special_events(self, api, lock, controller):
         _LOGGER.debug(f'enable controller {controller} record special events')

@@ -201,7 +201,7 @@ def get_all_controllers(options):
     if CONF_CONTROLLERS in options:
         for v in options[CONF_CONTROLLERS]:
             serial_no = int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}')
-            address = v.get(CONF_CONTROLLER_ADDR,'')
+            address = v.get(CONF_CONTROLLER_ADDR, '')
             k = serial_no
             controllers[k] = {
                 'controller': serial_no,

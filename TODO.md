@@ -1,26 +1,21 @@
 # TODO
 
-- [x] Integration icon
-
 - [ ] DataCoordinator
       - [ ] communalize data
+            - [x] controllers
+            - [x] doors
+            - [x] cards
+            - [x] events
+            - [x] optimization: update global controller status from event
             - [ ] RWLock
                   - https://www.oreilly.com/library/view/python-cookbook/0596001673/ch06s04.html
                   - https://docs.python.org/3/library/threading.html#rlock-objects
                   - https://docs.python.org/3/library/threading.html#condition-objects
-            - [ ] controllers
-            - [ ] doors
-            - [ ] cards
-            - [ ] events
-            - [ ] optimization: update global controller status from event
       - [ ] Handle timeout on startup
       - [ ] Handle timeout on shutdown
       - (?) Reconnect event listener on connection lost (unless being unloaded)
 
 - [ ] _config-flow_
-      - [x] Provide IP address list for bind/broadcast and listen addresses
-      - [x] Set serial number as default controller name
-      - [x] Set default controller address from get-all-controllers response
       - [ ] Commonalise config-flow and options-flow
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] Use options for defaults (Ref. https://developers.home-assistant.io/docs/data_entry_flow_index/#defaults--suggestions)

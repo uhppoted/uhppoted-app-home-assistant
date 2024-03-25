@@ -32,6 +32,7 @@ from ..config import resolve_door_by_name
 
 
 class DoorsCoordinator(DataUpdateCoordinator):
+    _state: Dict[str, Dict]
 
     def __init__(self, hass, options, poll, db):
         interval = _INTERVAL if poll == None else poll
@@ -41,10 +42,8 @@ class DoorsCoordinator(DataUpdateCoordinator):
         self._uhppote = configure_driver(options)
         self._options = options
         self._db = db
+        self._state = {}
         self._initialised = False
-        self._state = {
-            'doors': {},
-        }
 
         _LOGGER.info(f'doors coordinator initialised ({interval.total_seconds():.0f}s)')
 
@@ -121,6 +120,12 @@ class DoorsCoordinator(DataUpdateCoordinator):
         api = self._uhppote['api']
         lock = threading.Lock()
 
+        for v in contexts:
+            if not v in self._state:
+                self._state[v] = {
+                    ATTR_AVAILABLE: False,
+                }
+
         controllers = set()
         doors = {}
         for idx in contexts:
@@ -141,7 +146,9 @@ class DoorsCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller} door information ({err})')
 
-        return self._state['doors']
+        self._db.doors = self._state
+
+        return self._db.doors
 
     def _get_controller(self, api, lock, state, controller):
         info = None
@@ -216,4 +223,4 @@ class DoorsCoordinator(DataUpdateCoordinator):
             _LOGGER.error(f'error retrieving door {door["door_id"]} information ({err})')
 
         with lock:
-            self._state['doors'][idx] = info
+            self._state[idx].update(info)
