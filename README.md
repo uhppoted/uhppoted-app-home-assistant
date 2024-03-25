@@ -101,7 +101,7 @@ uhppoted:
    - Click on the _Add Integration_ button
    - Search for _uhppoted_
    - Step through the configuration flow to set up the initial system configuration
-   - Add the entities to cards on the desktop (an example is show below)
+   - Add the entities to cards on the desktop (examples in the screenshots above)
 
 
 ### Development Version
