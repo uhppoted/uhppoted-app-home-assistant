@@ -1,5 +1,5 @@
 ![build](https://github.com/uhppoted/uhppoted-app-home-assistant/workflows/build/badge.svg)
-![alpha](https://github.com/uhppoted/uhppoted-app-home-assistant/workflows/alpha/badge.svg)
+![nightly](https://github.com/uhppoted/uhppoted-app-home-assistant/workflows/nightly/badge.svg)
 
 # uhppoted-app-home-assistant
 
@@ -20,7 +20,7 @@ doors and maybe a ten or so access cards - so, not a large mansion [~~or an offi
 1. [Screenshots](#screenshots)
 2. [Installation](#installation)
     - [Alpha release](#alpha-release)
-    - [Development version](#development-version)
+    - [Building from source](#building-from-source)
 3. [Configuration](#configuration)
     - [Entities](#entities)
        - [controllers](#controllers)
@@ -65,7 +65,7 @@ mkdir -p config/custom_components
 touch config/custom_components/__init.py__
 ```
 
-2. Download the _.tar.gz_ archive from the [_Releases_]() section of the repository (or the most recent [nightly build](https://github.com/uhppoted/uhppoted-app-home-assistant/actions/workflows/alpha.yaml)) and extract it to the `config/custom_components` folder under 
+2. Download the _.tar.gz_ archive from the [_Releases_]() section of the repository (or the most recent [nightly build](https://github.com/uhppoted/uhppoted-app-home-assistant/actions/workflows/nightly.yaml)) and extract it to the `config/custom_components` folder under 
 the _Home Assistant_ folder, e.g.:
 
 ```
@@ -104,7 +104,7 @@ uhppoted:
    - Add the entities to cards on the desktop (examples in the screenshots above)
 
 
-### Development Version
+### Building from source
 
 The suggested installation for the development version installs the cloned project as a symbolic link under the 
 _Home Assistant_ `config/custom_components` folder. Be warned - the development version changes almost daily and
