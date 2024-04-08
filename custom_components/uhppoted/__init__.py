@@ -19,6 +19,7 @@ from .const import CONF_POLL_CONTROLLERS
 from .const import CONF_POLL_DOORS
 from .const import CONF_POLL_CARDS
 from .const import CONF_POLL_EVENTS
+from .const import CONF_CONTROLLERS
 
 from .const import DEFAULT_MAX_CARDS
 from .const import DEFAULT_PREFERRED_CARDS
@@ -42,14 +43,16 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_POLL_DOORS: 30,
         CONF_POLL_CARDS: 30,
         CONF_POLL_EVENTS: 30,
+        CONF_CONTROLLERS: [],
     }
 
     if 'uhppoted' in config:
         c = config['uhppoted']
+
         for v in [
                 CONF_BIND_ADDR, CONF_BROADCAST_ADDR, CONF_LISTEN_ADDR, CONF_DEBUG, CONF_TIMEZONE, CONF_MAX_CARDS,
                 CONF_PREFERRED_CARDS, CONF_PIN_ENABLED, CONF_POLL_CONTROLLERS, CONF_POLL_DOORS, CONF_POLL_CARDS,
-                CONF_POLL_EVENTS
+                CONF_POLL_EVENTS, CONF_CONTROLLERS
         ]:
             if v in c:
                 defaults[v] = c[v]
@@ -66,6 +69,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     _LOGGER.info(f'poll interval - doors:       {defaults[CONF_POLL_DOORS]}s')
     _LOGGER.info(f'poll interval - cards:       {defaults[CONF_POLL_CARDS]}s')
     _LOGGER.info(f'poll interval - events:      {defaults[CONF_POLL_EVENTS]}s')
+    _LOGGER.info(f'controllers:                 {defaults[CONF_CONTROLLERS]}')
 
     hass.data.setdefault(DOMAIN, defaults)
 

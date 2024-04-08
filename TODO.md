@@ -1,5 +1,10 @@
 # TODO
 
+- [ ] Add support for non-local controllers (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/3)
+      - [x] Add controllers to _configuration.yaml_
+      - [ ] README
+      - [ ] CHANGELOG
+
 - [ ] DataCoordinator
       - [ ] communalize data
             - [x] controllers

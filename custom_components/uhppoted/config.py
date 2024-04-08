@@ -195,8 +195,18 @@ def get_IPv4_addresses():
     return addresses
 
 
-def get_all_controllers(options):
+def get_all_controllers(predefined, options):
     controllers = dict()
+
+    for v in predefined:
+        serial_no = v.get('controller',0)
+        address = v.get('address', '')
+        if serial_no > 0 and address != '':
+            k = serial_no
+            controllers[k] = {
+                'controller': serial_no,
+                'address': address,
+            }
 
     if CONF_CONTROLLERS in options:
         for v in options[CONF_CONTROLLERS]:

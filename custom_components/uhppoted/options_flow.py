@@ -96,6 +96,7 @@ class UhppotedOptionsFlow(OptionsFlow):
         self._timezone = DEFAULT_CONTROLLER_TIMEZONE
         self._max_cards = DEFAULT_MAX_CARDS
         self._preferred_cards = DEFAULT_PREFERRED_CARDS
+        self._controllers = []
 
         self.config_entry = entry
         self.data = dict(entry.data)
@@ -116,6 +117,7 @@ class UhppotedOptionsFlow(OptionsFlow):
         self._timezone = defaults.get(CONF_TIMEZONE, DEFAULT_CONTROLLER_TIMEZONE)
         self._max_cards = defaults.get(CONF_MAX_CARDS, DEFAULT_MAX_CARDS)
         self._preferred_cards = defaults.get(CONF_PREFERRED_CARDS, DEFAULT_PREFERRED_CARDS)
+        self._controllers = defaults.get(CONF_CONTROLLERS, [])
 
         return self.async_show_menu(step_id="init",
                                     menu_options=['IPv4', 'controllers', 'doors', 'cards'],
@@ -231,7 +233,7 @@ class UhppotedOptionsFlow(OptionsFlow):
 
                 return await self.async_step_controller()
 
-        controllers = get_all_controllers(self.options)
+        controllers = get_all_controllers(self._controllers, self.options)
         if len(controllers) < 1:
             return await self.async_step_door()
 
