@@ -21,6 +21,7 @@ from .const import CONF_CONTROLLER_UNIQUE_ID
 from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
+from .const import CONF_CONTROLLER_PORT
 
 from .const import CONF_DOORS
 from .const import CONF_DOOR_UNIQUE_ID
@@ -201,21 +202,25 @@ def get_all_controllers(predefined, options):
     for v in predefined:
         serial_no = v.get('controller',0)
         address = v.get('address', '')
+        port = v.get('port', 60000)
         if serial_no > 0 and address != '':
             k = serial_no
             controllers[k] = {
                 'controller': serial_no,
                 'address': address,
+                'port': port,
             }
 
     if CONF_CONTROLLERS in options:
         for v in options[CONF_CONTROLLERS]:
             serial_no = int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}')
             address = v.get(CONF_CONTROLLER_ADDR, '')
+            port = v.get(CONF_CONTROLLER_PORT, 60000)
             k = serial_no
             controllers[k] = {
                 'controller': serial_no,
                 'address': address,
+                'port': port,
             }
 
     try:
@@ -231,6 +236,7 @@ def get_all_controllers(predefined, options):
             controllers[v.controller] = {
                 'controller': v.controller,
                 'address': f'{v.ip_address}',
+                'port': 60000,
             }
 
     except Exception as e:

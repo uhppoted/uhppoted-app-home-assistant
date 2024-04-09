@@ -28,6 +28,7 @@ from .const import CONF_CONTROLLER_UNIQUE_ID
 from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
+from .const import CONF_CONTROLLER_PORT
 from .const import CONF_CONTROLLER_TIMEZONE
 
 from .const import CONF_DOORS
@@ -217,15 +218,18 @@ class UhppotedOptionsFlow(OptionsFlow):
             if not errors:
                 for v in user_input[CONF_CONTROLLERS]:
                     address = ''
+                    port = 60000
                     if 'controllers' in self.cache:
                         for cached in self.cache['controllers']:
                             if cached['controller'] == int(f'{v}'):
                                 address = cached.get('address', '')
+                                port = cached.get('port', 60000)
 
                     self.controllers.append({
                         'controller': {
                             'serial_no': v,
                             'address': address,
+                            'port': port,
                             'configured': False,
                         },
                         'doors': None,
@@ -234,6 +238,7 @@ class UhppotedOptionsFlow(OptionsFlow):
                 return await self.async_step_controller()
 
         controllers = get_all_controllers(self._controllers, self.options)
+
         if len(controllers) < 1:
             return await self.async_step_door()
 
@@ -273,6 +278,7 @@ class UhppotedOptionsFlow(OptionsFlow):
         else:
             controller = it['controller']
             serial_no = controller['serial_no']
+            port = controller.get('port', 60000)
 
         errors: Dict[str, str] = {}
 
@@ -296,6 +302,7 @@ class UhppotedOptionsFlow(OptionsFlow):
                         else:
                             v[CONF_CONTROLLER_ID] = name
                             v[CONF_CONTROLLER_ADDR] = address
+                            v[CONF_CONTROLLER_PORT] = port
                             v[CONF_CONTROLLER_TIMEZONE] = timezone
                         break
                 else:
@@ -305,6 +312,7 @@ class UhppotedOptionsFlow(OptionsFlow):
                             CONF_CONTROLLER_SERIAL_NUMBER: serial_no,
                             CONF_CONTROLLER_ID: name,
                             CONF_CONTROLLER_ADDR: address,
+                            CONF_CONTROLLER_PORT: port,
                             CONF_CONTROLLER_TIMEZONE: timezone,
                         })
 
@@ -323,6 +331,7 @@ class UhppotedOptionsFlow(OptionsFlow):
         defaults = {
             CONF_CONTROLLER_ID: controller_id,
             CONF_CONTROLLER_ADDR: address,
+            CONF_CONTROLLER_PORT: port,
             CONF_CONTROLLER_TIMEZONE: self._timezone,
         }
 
@@ -341,6 +350,7 @@ class UhppotedOptionsFlow(OptionsFlow):
         schema = vol.Schema({
             vol.Required(CONF_CONTROLLER_ID, default=defaults[CONF_CONTROLLER_ID]): str,
             vol.Optional(CONF_CONTROLLER_ADDR, default=defaults[CONF_CONTROLLER_ADDR]): str,
+            vol.Optional(CONF_CONTROLLER_PORT, default=defaults[CONF_CONTROLLER_PORT]): int,
             vol.Optional(CONF_CONTROLLER_TIMEZONE, default=defaults[CONF_CONTROLLER_TIMEZONE]): str,
         })
 

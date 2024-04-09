@@ -1,0 +1,15 @@
+version: "0.0"
+
+services:
+  hass-simulator:
+    container_name: hass-simulator
+    restart: unless-stopped
+    image: ghcr.io/uhppoted/simulator:latest
+    volumes:
+      - hass-simulator:/usr/local/etc/uhppoted
+    ports:
+      - "54321:60000/udp"
+      - "8765:8000"
+
+volumes:
+  hass-simulator:
