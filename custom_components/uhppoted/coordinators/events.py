@@ -196,7 +196,7 @@ class EventsCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f'uhppoted API error {err}')
 
     async def _get_events(self, contexts):
-        api = self._uhppote['api']
+        api = self._uhppote.api
         lock = threading.Lock()
 
         try:

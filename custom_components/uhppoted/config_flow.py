@@ -112,7 +112,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         self._timezone = defaults.get(CONF_TIMEZONE, DEFAULT_CONTROLLER_TIMEZONE)
         self._max_cards = defaults.get(CONF_MAX_CARDS, DEFAULT_MAX_CARDS)
         self._preferred_cards = defaults.get(CONF_PREFERRED_CARDS, DEFAULT_PREFERRED_CARDS)
-        self._controllers = defaults.get(CONF_CONTROLLERS,[])
+        self._controllers = defaults.get(CONF_CONTROLLERS, [])
 
         self.data = {}
         self.options = {}

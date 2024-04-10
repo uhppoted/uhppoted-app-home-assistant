@@ -54,7 +54,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         pass
 
     def set_door_mode(self, controller, door, mode):
-        api = self._uhppote['api']
+        api = self._uhppote.api
 
         response = api.get_door_control(controller, door)
         if response.controller == controller and response.door == door:
@@ -69,7 +69,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         return None
 
     def set_door_delay(self, controller, door, delay):
-        api = self._uhppote['api']
+        api = self._uhppote.api
 
         response = api.get_door_control(controller, door)
         if response.controller == controller and response.door == door:
@@ -84,7 +84,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         return None
 
     def unlock_door(self, controller, door) -> None:
-        api = self._uhppote['api']
+        api = self._uhppote.api
         response = api.open_door(controller, door)
 
         if response.controller != controller:
@@ -117,7 +117,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"uhppoted API error {err}")
 
     async def _get_doors(self, contexts):
-        api = self._uhppote['api']
+        api = self._uhppote.api
         lock = threading.Lock()
 
         for v in contexts:

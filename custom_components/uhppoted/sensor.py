@@ -19,7 +19,6 @@ from uhppoted import uhppote
 from .config import configure_controllers
 from .config import configure_doors
 from .config import configure_cards
-from .config import configure_driver
 
 from .coordinators.coordinators import Coordinators
 

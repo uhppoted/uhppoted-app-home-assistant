@@ -52,7 +52,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         pass
 
     def set_datetime(self, controller, time):
-        api = self._uhppote['api']
+        api = self._uhppote.api
         response = api.set_time(controller, time)
 
         return response if response.controller == controller else None
@@ -72,7 +72,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"uhppoted API error {err}")
 
     async def _get_controllers(self, contexts):
-        api = self._uhppote['api']
+        api = self._uhppote.api
         lock = threading.Lock()
 
         for v in contexts:

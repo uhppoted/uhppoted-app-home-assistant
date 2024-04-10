@@ -15,7 +15,6 @@ from .coordinators.coordinators import Coordinators
 from .config import configure_controllers
 from .config import configure_doors
 from .config import configure_cards
-from .config import configure_driver
 
 from .controller import ControllerEvent
 from .door import DoorUnlocked

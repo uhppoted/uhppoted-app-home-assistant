@@ -4,10 +4,10 @@
       - [x] Add controllers to _configuration.yaml_
       - [x] Rework controller address to include port
       - [ ] Rework config_driver to return class
-            - reworks cards.py to use driver.controllers()
-            - store map of controllers to {address,port}
-            - migrate api functions to class and use controllers list internally
-            - singleton/cached/shared
+            - [x] Rework cards.py to use driver.controllers()
+            - [ ] Migrate api functions to class and use controllers list internally
+            - [ ] store map of controllers to {address,port}
+            - [ ] singleton/cached/shared
       - [ ] Use UDP.sendto
       - [ ] Use UDP.sendto in services
       - [ ] Fallback to broadcast for e.g. status

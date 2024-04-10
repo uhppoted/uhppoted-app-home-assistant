@@ -55,7 +55,7 @@ class CardsCoordinator(DataUpdateCoordinator):
         pass
 
     def add_card(self, card):
-        api = self._uhppote['api']
+        api = self._uhppote.api
         controllers = get_configured_controllers(self._options)
         cardno = int(f'{card}')
         errors = []
@@ -97,7 +97,7 @@ class CardsCoordinator(DataUpdateCoordinator):
         return True
 
     def delete_card(self, card):
-        api = self._uhppote['api']
+        api = self._uhppote.api
         controllers = get_configured_controllers(self._options)
         cardno = int(f'{card}')
         errors = []
@@ -124,7 +124,7 @@ class CardsCoordinator(DataUpdateCoordinator):
         return True
 
     def set_card_start_date(self, card, start_date):
-        api = self._uhppote['api']
+        api = self._uhppote.api
         controllers = get_configured_controllers(self._options)
         errors = []
 
@@ -165,7 +165,7 @@ class CardsCoordinator(DataUpdateCoordinator):
         return True
 
     def set_card_end_date(self, card, end_date):
-        api = self._uhppote['api']
+        api = self._uhppote.api
         controllers = get_configured_controllers(self._options)
         errors = []
 
@@ -206,7 +206,7 @@ class CardsCoordinator(DataUpdateCoordinator):
         return True
 
     def set_card_PIN(self, card, PIN):
-        api = self._uhppote['api']
+        api = self._uhppote.api
         controllers = get_configured_controllers(self._options)
         errors = []
 
@@ -251,7 +251,7 @@ class CardsCoordinator(DataUpdateCoordinator):
         return True
 
     def set_card_permission(self, card, door, allowed):
-        api = self._uhppote['api']
+        api = self._uhppote.api
         controller = int(f'{door[CONF_CONTROLLER_SERIAL_NUMBER]}')
         doorno = int(f'{door[CONF_DOOR_NUMBER]}')
         permission = 1 if allowed else 0
@@ -304,8 +304,8 @@ class CardsCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"uhppoted API error {err}")
 
     async def _get_cards(self, contexts):
-        api = self._uhppote['api']
-        controllers = self._uhppote['controllers']
+        api = self._uhppote.api
+        controllers = self._uhppote.controllers
         lock = threading.Lock()
 
         try:

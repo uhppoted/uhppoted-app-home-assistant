@@ -50,6 +50,8 @@ from .const import ERR_DUPLICATE_DOOR_ID
 from .const import ERR_DUPLICATE_DOOR_IDS
 from .const import ERR_INVALID_CARD_ID
 
+from .uhppoted import uhppoted
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -200,7 +202,7 @@ def get_all_controllers(predefined, options):
     controllers = dict()
 
     for v in predefined:
-        serial_no = v.get('controller',0)
+        serial_no = v.get('controller', 0)
         address = v.get('address', '')
         port = v.get('port', 60000)
         if serial_no > 0 and address != '':
@@ -228,9 +230,8 @@ def get_all_controllers(predefined, options):
         broadcast = options[CONF_BROADCAST_ADDR]
         listen = options[CONF_LISTEN_ADDR]
         debug = options[CONF_DEBUG]
-        u = uhppote.Uhppote(bind, broadcast, listen, debug)
 
-        response = u.get_all_controllers()
+        response = uhppoted.get_all_controllers(bind, broadcast, listen, debug)
 
         for v in response:
             controllers[v.controller] = {
@@ -432,10 +433,7 @@ def configure_driver(options):
     else:
         controllers = []
 
-    return {
-        'api': uhppote.Uhppote(bind, broadcast, listen, debug),
-        'controllers': controllers,
-    }
+    return uhppoted(bind, broadcast, listen, controllers, debug)
 
 
 def default_card_start_date():
