@@ -52,10 +52,12 @@ class ControllersCoordinator(DataUpdateCoordinator):
         pass
 
     def set_datetime(self, controller, time):
-        api = self._uhppote.api
-        response = api.set_time(controller, time)
+        response = self._uhppote.set_time(controller, time)
 
-        return response if response.controller == controller else None
+        if response.controller == controller:
+            return response 
+        else:
+            return None
 
     async def _async_update_data(self):
         try:
@@ -72,7 +74,6 @@ class ControllersCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"uhppoted API error {err}")
 
     async def _get_controllers(self, contexts):
-        api = self._uhppote.api
         lock = threading.Lock()
 
         for v in contexts:
@@ -83,9 +84,9 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                executor.map(lambda controller: self._get_controller(api, lock, controller), contexts, timeout=1)
-                executor.map(lambda controller: self._get_datetime(api, lock, controller), contexts, timeout=1)
-                executor.map(lambda controller: self._get_listener(api, lock, controller), contexts, timeout=1)
+                executor.map(lambda controller: self._get_controller(lock, controller), contexts, timeout=1)
+                executor.map(lambda controller: self._get_datetime(lock, controller), contexts, timeout=1)
+                executor.map(lambda controller: self._get_listener(lock, controller), contexts, timeout=1)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller} information ({err})')
 
@@ -93,7 +94,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
         return self._db.controllers
 
-    def _get_controller(self, api, lock, controller):
+    def _get_controller(self, lock, controller):
         _LOGGER.debug(f'fetch controller info {controller}')
 
         available = False
@@ -104,7 +105,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         firmware = None
 
         try:
-            response = api.get_controller(controller)
+            response = self._uhppote.get_controller(controller)
             if response.controller == controller:
                 address = f'{response.ip_address}'
                 netmask = f'{response.subnet_mask}'
@@ -124,13 +125,13 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 ATTR_AVAILABLE: available,
             })
 
-    def _get_datetime(self, api, lock, controller):
+    def _get_datetime(self, lock, controller):
         _LOGGER.debug(f'fetch controller datetime {controller}')
 
         sysdatetime = None
 
         try:
-            response = api.get_time(controller)
+            response = self._uhppote.get_time(controller)
             if response.controller == controller:
                 year = response.datetime.year
                 month = response.datetime.month
@@ -150,13 +151,13 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 ATTR_CONTROLLER_DATETIME: sysdatetime,
             })
 
-    def _get_listener(self, api, lock, controller):
+    def _get_listener(self, lock, controller):
         _LOGGER.debug(f'fetch controller event listener {controller}')
 
         listener = None
 
         try:
-            response = api.get_listener(controller)
+            response = self._uhppote.get_listener(controller)
             if response.controller == controller:
                 listener = f'{response.address}:{response.port}'
 

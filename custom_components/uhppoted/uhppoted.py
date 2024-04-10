@@ -18,3 +18,15 @@ class uhppoted:
     @staticmethod
     def get_all_controllers(bind, broadcast, listen, debug):
         return uhppote.Uhppote(bind, broadcast, listen, debug).get_all_controllers()
+
+    def get_controller(self, controller):
+        return self._api.get_controller(controller)
+
+    def get_time(self, controller):
+        return self._api.get_time(controller)
+
+    def set_time(self, controller, time):
+        return self._api.set_time(controller, time)
+
+    def get_listener(self, controller):
+        return self._api.get_listener(controller)

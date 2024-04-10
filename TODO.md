@@ -6,6 +6,10 @@
       - [ ] Rework config_driver to return class
             - [x] Rework cards.py to use driver.controllers()
             - [ ] Migrate api functions to class and use controllers list internally
+                  - [x] controllers
+                  - [ ] doors
+                  - [ ] cards
+                  - [ ] events
             - [ ] store map of controllers to {address,port}
             - [ ] singleton/cached/shared
       - [ ] Use UDP.sendto
