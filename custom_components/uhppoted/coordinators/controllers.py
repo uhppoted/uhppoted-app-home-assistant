@@ -55,7 +55,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         response = self._uhppote.set_time(controller, time)
 
         if response.controller == controller:
-            return response 
+            return response
         else:
             return None
 

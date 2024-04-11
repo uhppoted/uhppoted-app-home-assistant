@@ -196,14 +196,13 @@ class EventsCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f'uhppoted API error {err}')
 
     async def _get_events(self, contexts):
-        api = self._uhppote.api
         lock = threading.Lock()
 
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                executor.map(lambda controller: self._record_special_events(api, lock, controller), contexts, timeout=1)
-                executor.map(lambda controller: self._set_event_listener(api, lock, controller), contexts, timeout=1)
-                executor.map(lambda controller: self._get_controller_events(api, lock, controller), contexts, timeout=1)
+                executor.map(lambda controller: self._record_special_events(lock, controller), contexts, timeout=1)
+                executor.map(lambda controller: self._set_event_listener(lock, controller), contexts, timeout=1)
+                executor.map(lambda controller: self._get_controller_events(lock, controller), contexts, timeout=1)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller} information ({err})')
 
@@ -211,11 +210,11 @@ class EventsCoordinator(DataUpdateCoordinator):
 
         return self._db.events
 
-    def _record_special_events(self, api, lock, controller):
+    def _record_special_events(self, lock, controller):
         _LOGGER.debug(f'enable controller {controller} record special events')
 
         try:
-            response = api.record_special_events(controller, True)
+            response = self._uhppote.record_special_events(controller, True)
             if response.controller == controller:
                 if not response.updated:
                     _LOGGER.warning('record special events not enabled for {controller}')
@@ -223,18 +222,18 @@ class EventsCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.warning(f'error enabling controller {controller} record special events ({err})')
 
-    def _set_event_listener(self, api, lock, controller):
+    def _set_event_listener(self, lock, controller):
         if self._listener_addr != None:
             _LOGGER.debug(f'check controller {controller} event listener')
 
             try:
-                response = api.get_listener(controller)
+                response = self._uhppote.get_listener(controller)
                 if response.controller == controller:
                     addr = f'{response.address}:{response.port}'
                     if addr != self._listener_addr:
                         _LOGGER.warning(f'controller {controller} incorrect event listener address ({addr})')
                         host, port = self._listener_addr.split(':')
-                        response = api.set_listener(controller, IPv4Address(host), int(port))
+                        response = self._uhppote.set_listener(controller, IPv4Address(host), int(port))
                         if response.controller == controller:
                             if response.ok:
                                 _LOGGER.warning(
@@ -245,7 +244,7 @@ class EventsCoordinator(DataUpdateCoordinator):
             except Exception as err:
                 _LOGGER.warning(f'error setting controller {controller} event listener ({err})')
 
-    def _get_controller_events(self, api, lock, controller):
+    def _get_controller_events(self, lock, controller):
         _LOGGER.debug(f'fetch controller {controller} events')
 
         info = {
@@ -254,7 +253,7 @@ class EventsCoordinator(DataUpdateCoordinator):
         }
 
         try:
-            response = api.get_status(controller)
+            response = self._uhppote.get_status(controller)
             if response.controller == controller:
                 info[ATTR_STATUS] = response
                 index = response.event_index
@@ -277,7 +276,7 @@ class EventsCoordinator(DataUpdateCoordinator):
                     while ix < index and count < _MAX_EVENTS:
                         count += 1
                         next = ix + 1
-                        response = api.get_event(controller, next)
+                        response = self._uhppote.get_event(controller, next)
                         if response.controller == controller and response.index == next:
                             event = self.decode(response, relays)
                             events.append(event)

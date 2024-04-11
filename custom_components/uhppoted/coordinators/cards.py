@@ -55,14 +55,13 @@ class CardsCoordinator(DataUpdateCoordinator):
         pass
 
     def add_card(self, card):
-        api = self._uhppote.api
         controllers = get_configured_controllers(self._options)
         cardno = int(f'{card}')
         errors = []
 
         for controller in controllers:
             try:
-                response = api.get_card(controller, cardno)
+                response = self._uhppote.get_card(controller, cardno)
                 if response.controller == controller and response.card_number == cardno:
                     _LOGGER.info(f'card {card} already exists on controller {controller}')
                 elif response.controller == controller and response.card_number == 0:
@@ -74,7 +73,8 @@ class CardsCoordinator(DataUpdateCoordinator):
                     door4 = 0
                     PIN = 0
 
-                    response = api.put_card(controller, card, start_date, end_date, door1, door2, door3, door4, PIN)
+                    response = self._uhppote.put_card(controller, card, start_date, end_date, door1, door2, door3,
+                                                      door4, PIN)
                     if response.stored:
                         _LOGGER.info(f'card {card} added to controller {controller}')
                     else:
@@ -97,14 +97,13 @@ class CardsCoordinator(DataUpdateCoordinator):
         return True
 
     def delete_card(self, card):
-        api = self._uhppote.api
         controllers = get_configured_controllers(self._options)
         cardno = int(f'{card}')
         errors = []
 
         for controller in controllers:
             try:
-                response = api.delete_card(controller, cardno)
+                response = self._uhppote.delete_card(controller, cardno)
                 if response.controller == controller:
                     if response.deleted:
                         _LOGGER.info(f'card {card} deleted from controller {controller}')
@@ -124,7 +123,6 @@ class CardsCoordinator(DataUpdateCoordinator):
         return True
 
     def set_card_start_date(self, card, start_date):
-        api = self._uhppote.api
         controllers = get_configured_controllers(self._options)
         errors = []
 
@@ -137,7 +135,7 @@ class CardsCoordinator(DataUpdateCoordinator):
                 door4 = 0
                 PIN = 0
 
-                response = api.get_card(controller, card)
+                response = self._uhppote.get_card(controller, card)
                 if response.controller == controller and response.card_number == card:
                     end_date = response.end_date if response.end_date else end_date
                     door1 = response.door_1
@@ -146,7 +144,8 @@ class CardsCoordinator(DataUpdateCoordinator):
                     door4 = response.door_4
                     PIN = response.pin
 
-                response = api.put_card(controller, card, start_date, end_date, door1, door2, door3, door4, PIN)
+                response = self._uhppote.put_card(controller, card, start_date, end_date, door1, door2, door3, door4,
+                                                  PIN)
                 if not response.stored:
                     errors.append(f'{controller}')
 
@@ -165,7 +164,6 @@ class CardsCoordinator(DataUpdateCoordinator):
         return True
 
     def set_card_end_date(self, card, end_date):
-        api = self._uhppote.api
         controllers = get_configured_controllers(self._options)
         errors = []
 
@@ -178,7 +176,7 @@ class CardsCoordinator(DataUpdateCoordinator):
                 door4 = 0
                 PIN = 0
 
-                response = api.get_card(controller, card)
+                response = self._uhppote.get_card(controller, card)
                 if response.controller == controller and response.card_number == card:
                     start_date = response.start_date if response.end_date else start_date
                     door1 = response.door_1
@@ -187,7 +185,8 @@ class CardsCoordinator(DataUpdateCoordinator):
                     door4 = response.door_4
                     PIN = response.pin
 
-                response = api.put_card(controller, card, start_date, end_date, door1, door2, door3, door4, PIN)
+                response = self._uhppote.put_card(controller, card, start_date, end_date, door1, door2, door3, door4,
+                                                  PIN)
                 if not response.stored:
                     errors.append(f'{controller}')
 
@@ -206,7 +205,6 @@ class CardsCoordinator(DataUpdateCoordinator):
         return True
 
     def set_card_PIN(self, card, PIN):
-        api = self._uhppote.api
         controllers = get_configured_controllers(self._options)
         errors = []
 
@@ -219,7 +217,7 @@ class CardsCoordinator(DataUpdateCoordinator):
                 door3 = 0
                 door4 = 0
 
-                response = api.get_card(controller, card)
+                response = self._uhppote.get_card(controller, card)
                 if response.controller == controller and response.card_number == card:
                     if response.start_date:
                         start = response.start_date
@@ -232,7 +230,7 @@ class CardsCoordinator(DataUpdateCoordinator):
                     door3 = response.door_3
                     door4 = response.door_4
 
-                response = api.put_card(controller, card, start, end, door1, door2, door3, door4, PIN)
+                response = self._uhppote.put_card(controller, card, start, end, door1, door2, door3, door4, PIN)
                 if not response.stored:
                     errors.append(f'{controller}')
 
@@ -251,7 +249,6 @@ class CardsCoordinator(DataUpdateCoordinator):
         return True
 
     def set_card_permission(self, card, door, allowed):
-        api = self._uhppote.api
         controller = int(f'{door[CONF_CONTROLLER_SERIAL_NUMBER]}')
         doorno = int(f'{door[CONF_DOOR_NUMBER]}')
         permission = 1 if allowed else 0
@@ -264,7 +261,7 @@ class CardsCoordinator(DataUpdateCoordinator):
         door4 = permission if doorno == 4 else 0
         PIN = 0
 
-        response = api.get_card(controller, card)
+        response = self._uhppote.get_card(controller, card)
         if response.controller == controller and response.card_number == card:
             if response.start_date:
                 start = response.start_date
@@ -279,7 +276,7 @@ class CardsCoordinator(DataUpdateCoordinator):
 
             PIN = response.pin
 
-        response = api.put_card(controller, card, start, end, door1, door2, door3, door4, PIN)
+        response = self._uhppote.put_card(controller, card, start, end, door1, door2, door3, door4, PIN)
         if not response.stored:
             raise ValueError(f'controller {controller}, card {card} door {door[CONF_DOOR_ID]} permission not updated')
 
@@ -304,13 +301,12 @@ class CardsCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"uhppoted API error {err}")
 
     async def _get_cards(self, contexts):
-        api = self._uhppote.api
         controllers = self._uhppote.controllers
         lock = threading.Lock()
 
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                executor.map(lambda card: self._get_card(api, controllers, lock, card), contexts, timeout=1)
+                executor.map(lambda card: self._get_card(controllers, lock, card), contexts, timeout=1)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller} information ({err})')
 
@@ -318,7 +314,7 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         return self._db.cards
 
-    def _get_card(self, api, controllers, lock, card):
+    def _get_card(self, controllers, lock, card):
         _LOGGER.debug(f'fetch card {card} information')
 
         info = {
@@ -335,7 +331,7 @@ class CardsCoordinator(DataUpdateCoordinator):
             PIN = None
 
             for controller in controllers:
-                response = api.get_card(controller, card)
+                response = self._uhppote.get_card(controller, card)
 
                 if response.controller == controller and response.card_number == card:
                     if response.start_date and (not start_date or response.start_date < start_date):

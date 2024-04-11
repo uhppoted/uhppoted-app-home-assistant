@@ -54,12 +54,10 @@ class DoorsCoordinator(DataUpdateCoordinator):
         pass
 
     def set_door_mode(self, controller, door, mode):
-        api = self._uhppote.api
-
-        response = api.get_door_control(controller, door)
+        response = self._uhppote.get_door_control(controller, door)
         if response.controller == controller and response.door == door:
             delay = response.delay
-            response = api.set_door_control(controller, door, mode, delay)
+            response = self._uhppote.set_door_control(controller, door, mode, delay)
 
             if response.controller != controller or response.door != door:
                 raise ValueError(f'invalid response to set-door-control')
@@ -69,12 +67,10 @@ class DoorsCoordinator(DataUpdateCoordinator):
         return None
 
     def set_door_delay(self, controller, door, delay):
-        api = self._uhppote.api
-
-        response = api.get_door_control(controller, door)
+        response = self._uhppote.get_door_control(controller, door)
         if response.controller == controller and response.door == door:
             mode = response.mode
-            response = api.set_door_control(controller, door, mode, delay)
+            response = self._uhppote.set_door_control(controller, door, mode, delay)
 
             if response.controller != controller or response.door != door:
                 raise ValueError(f'invalid response to set-door-control')
@@ -84,8 +80,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         return None
 
     def unlock_door(self, controller, door) -> None:
-        api = self._uhppote.api
-        response = api.open_door(controller, door)
+        response = self._uhppote.open_door(controller, door)
 
         if response.controller != controller:
             raise ValueError(f'invalid response to open-door')
@@ -117,7 +112,6 @@ class DoorsCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"uhppoted API error {err}")
 
     async def _get_doors(self, contexts):
-        api = self._uhppote.api
         lock = threading.Lock()
 
         for v in contexts:
@@ -137,12 +131,10 @@ class DoorsCoordinator(DataUpdateCoordinator):
         state = {}
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                executor.map(lambda controller: self._get_controller(api, lock, state, controller),
-                             controllers,
-                             timeout=1)
+                executor.map(lambda controller: self._get_controller(lock, state, controller), controllers, timeout=1)
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                executor.map(lambda idx: self._get_door(api, lock, idx, doors[idx], state), contexts, timeout=1)
+                executor.map(lambda idx: self._get_door(lock, idx, doors[idx], state), contexts, timeout=1)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller} door information ({err})')
 
@@ -150,11 +142,11 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
         return self._db.doors
 
-    def _get_controller(self, api, lock, state, controller):
+    def _get_controller(self, lock, state, controller):
         info = None
 
         try:
-            response = api.get_status(controller)
+            response = self._uhppote.get_status(controller)
             if response.controller == controller:
                 info = {
                     1: {
@@ -184,7 +176,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         with lock:
             state[controller] = info
 
-    def _get_door(self, api, lock, idx, door, state):
+    def _get_door(self, lock, idx, door, state):
         info = {
             ATTR_AVAILABLE: False,
             ATTR_DOOR_MODE: None,
@@ -204,7 +196,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
             mode = None
             delay = None
 
-            response = api.get_door_control(controller, door_id)
+            response = self._uhppote.get_door_control(controller, door_id)
             if response.controller == controller and response.door == door_id and controller in state and state[
                     controller] != None:
                 mode = response.mode

@@ -7,8 +7,8 @@
             - [x] Rework cards.py to use driver.controllers()
             - [ ] Migrate api functions to class and use controllers list internally
                   - [x] controllers
-                  - [ ] doors
-                  - [ ] cards
+                  - [x] doors
+                  - [x] cards
                   - [ ] events
             - [ ] store map of controllers to {address,port}
             - [ ] singleton/cached/shared
