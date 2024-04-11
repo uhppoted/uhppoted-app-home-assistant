@@ -4,6 +4,7 @@ from uhppoted import uhppote
 class uhppoted:
 
     def __init__(self, bind, broadcast, listen, controllers, debug):
+        self._broadcast = broadcast
         self._api = uhppote.Uhppote(bind, broadcast, listen, debug)
         self._controllers = controllers
 
@@ -20,43 +21,66 @@ class uhppoted:
         return uhppote.Uhppote(bind, broadcast, listen, debug).get_all_controllers()
 
     def get_controller(self, controller):
-        return self._api.get_controller(controller)
+        addr = self._lookup(controller)
+        return self._api.get_controller(controller, dest_addr=addr)
 
     def get_time(self, controller):
-        return self._api.get_time(controller)
+        addr = self._lookup(controller)
+        return self._api.get_time(controller, dest_addr=addr)
 
     def set_time(self, controller, time):
-        return self._api.set_time(controller, time)
+        addr = self._lookup(controller)
+        return self._api.set_time(controller, time, dest_addr=addr)
 
     def get_listener(self, controller):
-        return self._api.get_listener(controller)
+        addr = self._lookup(controller)
+        return self._api.get_listener(controller, dest_addr=addr)
 
     def set_listener(self, controller, addr, port):
-        return self._api.set_listener(controller, addr, port)
+        addr = self._lookup(controller)
+        return self._api.set_listener(controller, addr, port, dest_addr=addr)
 
     def get_door_control(self, controller, door):
-        return self._api.get_door_control(controller, door)
+        addr = self._lookup(controller)
+        return self._api.get_door_control(controller, door, dest_addr=addr)
 
     def set_door_control(self, controller, door, mode, delay):
-        return self._api.set_door_control(controller, door, mode, delay)
+        addr = self._lookup(controller)
+        return self._api.set_door_control(controller, door, mode, delay, dest_addr=addr)
 
     def open_door(self, controller, door):
-        return self._api.open_door(controller, door)
+        addr = self._lookup(controller)
+        return self._api.open_door(controller, door, dest_addr=addr)
 
     def get_status(self, controller):
-        return self._api.get_status(controller)
+        addr = self._lookup(controller)
+        return self._api.get_status(controller, dest_addr=addr)
 
     def get_card(self, controller, card):
+        addr = self._lookup(controller)
         return self._api.get_card(controller, card)
 
     def put_card(self, controller, card, start_date, end_date, door1, door2, door3, door4, PIN):
-        return self._api.put_card(controller, card, start_date, end_date, door1, door2, door3, door4, PIN)
+        addr = self._lookup(controller)
+        return self._api.put_card(controller, card, start_date, end_date, door1, door2, door3, door4, PIN, dest_addr=addr)
 
     def delete_card(self, controller, card):
-        return api.delete_card(controller, card)
+        addr = self._lookup(controller)
+        return api.delete_card(controller, card, dest_addr=addr)
 
     def record_special_events(self, controller, enable):
-        return self._api.record_special_events(controller, enable)
+        addr = self._lookup(controller)
+        return self._api.record_special_events(controller, enable, dest_addr=addr)
 
     def get_event(self, controller, index):
-        return self._api.get_event(controller, index)
+        addr = self._lookup(controller)
+        return self._api.get_event(controller, index, dest_addr=addr)
+
+    def _lookup(self, controller):
+        for v in self._controllers:
+            if controller == v['controller']:
+                addr = v.get('address', self._broadcast)
+                port = v.get('port', 60000)
+                return f'{addr}:{port}'
+
+        return None

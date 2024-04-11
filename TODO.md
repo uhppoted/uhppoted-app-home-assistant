@@ -3,6 +3,10 @@
 - [ ] Add support for non-local controllers (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/3)
       - [x] Add controllers to _configuration.yaml_
       - [x] Rework controller address to include port
+      - [ ] config-flow: doors and cards for off LAN controller
+            - use addr:port to retrieve doors
+      - [ ] options-flow: doors and cards for off LAN controller
+            - use addr:port to retrieve doors
       - [ ] Rework config_driver to return class
             - [x] Rework cards.py to use driver.controllers()
             - [ ] Migrate api functions to class and use controllers list internally
@@ -11,8 +15,8 @@
                   - [x] cards
                   - [x] events
                   - [x] store map of controllers to {controller,address,port}
-                  - [ ] Use address from controllers list
-                        - skip if address is broadcast address
+                  - [x] Use address from controllers list
+                  - [ ] Use `None` if address is broadcast address
                   - [ ] Use timeout from controllers list
             - [ ] singleton/cached/shared
       - [ ] Use UDP.sendto in services
@@ -20,6 +24,17 @@
             - only for 'discovered' controllers
       - [ ] README
       - [ ] CHANGELOG
+      - [ ] Startup errors:
+            - [ ] events listener
+```
+[custom_components.uhppoted.coordinators.events] controller 706050403 incorrect event listener address (0.0.0.0:0)
+[custom_components.uhppoted.coordinators.events] error setting controller 706050403 event listener ('str' object has no attribute 'packed')
+```
+            - [ ] Cards
+```
+[custom_components.uhppoted.coordinators.cards] error retrieving card 8165535 information (timed out)
+[custom_components.uhppoted.coordinators.cards] error retrieving card 8165536 information (timed out)
+```
 
 - [ ] DataCoordinator
       - [ ] communalize data
