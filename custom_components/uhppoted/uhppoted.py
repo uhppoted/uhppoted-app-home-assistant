@@ -13,7 +13,7 @@ class uhppoted:
 
     @property
     def controllers(self):
-        return self._controllers
+        return [v['controller'] for v in self._controllers]
 
     @staticmethod
     def get_all_controllers(bind, broadcast, listen, debug):

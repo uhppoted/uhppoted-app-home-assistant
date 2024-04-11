@@ -429,7 +429,11 @@ def configure_driver(options):
     debug = options[CONF_DEBUG]
 
     if CONF_CONTROLLERS in options:
-        controllers = [int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') for v in options[CONF_CONTROLLERS]]
+        controllers = [{
+            'controller': int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}'),
+            'address': f'{v[CONF_CONTROLLER_ADDR]}',
+            'port': int(f'{v.get(CONF_CONTROLLER_PORT,60000)}'),
+        } for v in options[CONF_CONTROLLERS]]
     else:
         controllers = []
 

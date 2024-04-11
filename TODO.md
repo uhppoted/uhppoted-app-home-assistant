@@ -9,10 +9,12 @@
                   - [x] controllers
                   - [x] doors
                   - [x] cards
-                  - [ ] events
-            - [ ] store map of controllers to {address,port}
+                  - [x] events
+                  - [x] store map of controllers to {controller,address,port}
+                  - [ ] Use address from controllers list
+                        - skip if address is broadcast address
+                  - [ ] Use timeout from controllers list
             - [ ] singleton/cached/shared
-      - [ ] Use UDP.sendto
       - [ ] Use UDP.sendto in services
       - [ ] Fallback to broadcast for e.g. status
             - only for 'discovered' controllers
@@ -21,11 +23,6 @@
 
 - [ ] DataCoordinator
       - [ ] communalize data
-            - [x] controllers
-            - [x] doors
-            - [x] cards
-            - [x] events
-            - [x] optimization: update global controller status from event
             - [ ] RWLock
                   - https://www.oreilly.com/library/view/python-cookbook/0596001673/ch06s04.html
                   - https://docs.python.org/3/library/threading.html#rlock-objects
