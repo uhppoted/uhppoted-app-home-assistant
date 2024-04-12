@@ -21,17 +21,12 @@
                   - [x] Use timeout from controllers list
                   - [x] Use `None` if address is broadcast address
             - [x] singleton/cached/shared
-            - [x] Cards `error retrieving card 8165535 information (timed out)`
+            - [x] Error: `error retrieving card 8165535 information (timed out)`
+            - [x] Error: `error setting controller 706050403 event listener ('str' object has no attribute 'packed'`
       - [ ] Configure operation timeout
       - [ ] Use UDP.sendto in services
       - [ ] README
       - [ ] CHANGELOG
-      - [ ] Startup errors:
-            - [ ] events listener
-```
-[custom_components.uhppoted.coordinators.events] controller 706050403 incorrect event listener address (0.0.0.0:0)
-[custom_components.uhppoted.coordinators.events] error setting controller 706050403 event listener ('str' object has no attribute 'packed')
-```
 
 - [ ] DataCoordinator
       - [ ] communalize data

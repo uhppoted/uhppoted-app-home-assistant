@@ -37,9 +37,9 @@ class uhppoted:
         (addr, timeout) = self._lookup(controller)
         return self._api.get_listener(controller, dest_addr=addr, timeout=timeout)
 
-    def set_listener(self, controller, addr, port):
+    def set_listener(self, controller, address, port):
         (addr, timeout) = self._lookup(controller)
-        return self._api.set_listener(controller, addr, port, dest_addr=addr, timeout=timeout)
+        return self._api.set_listener(controller, address, port, dest_addr=addr, timeout=timeout)
 
     def get_door_control(self, controller, door):
         (addr, timeout) = self._lookup(controller)
