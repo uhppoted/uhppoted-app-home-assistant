@@ -9,15 +9,15 @@
             - use addr:port to retrieve doors
       - [ ] Rework config_driver to return class
             - [x] Rework cards.py to use driver.controllers()
-            - [ ] Migrate api functions to class and use controllers list internally
+            - [x] Migrate api functions to class and use controllers list internally
                   - [x] controllers
                   - [x] doors
                   - [x] cards
                   - [x] events
                   - [x] store map of controllers to {controller,address,port}
                   - [x] Use address from controllers list
-                  - [ ] Use `None` if address is broadcast address
-                  - [ ] Use timeout from controllers list
+                  - [x] Use timeout from controllers list
+                  - [x] Use `None` if address is broadcast address
             - [ ] singleton/cached/shared
       - [ ] Use UDP.sendto in services
       - [ ] Fallback to broadcast for e.g. status
