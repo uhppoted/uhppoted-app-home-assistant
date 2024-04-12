@@ -295,14 +295,8 @@ def get_all_doors(options):
 
 
 def get_all_cards(options, max_cards=DEFAULT_MAX_CARDS, preferred_cards=DEFAULT_PREFERRED_CARDS):
-    bind = options[CONF_BIND_ADDR]
-    broadcast = options[CONF_BROADCAST_ADDR]
-    listen = options[CONF_LISTEN_ADDR]
-    debug = options[CONF_DEBUG]
-    u = uhppote.Uhppote(bind, broadcast, listen, debug)
-
-    controllers = options[CONF_CONTROLLERS]
     cards = dict()
+    u = configure_driver(options)
 
     # ... build 'preferred' cards list
     preferred = set()
@@ -310,8 +304,7 @@ def get_all_cards(options, max_cards=DEFAULT_MAX_CARDS, preferred_cards=DEFAULT_
         preferred = {int(v) for v in re.findall(r'[0-9]+', f'{preferred_cards}')}
 
     # ... get preferred cards
-    for c in controllers:
-        controller = int(f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip())
+    for controller in u.controllers:
         for card in sorted(list(preferred)):
             try:
                 response = u.get_card(controller, card)
@@ -325,9 +318,7 @@ def get_all_cards(options, max_cards=DEFAULT_MAX_CARDS, preferred_cards=DEFAULT_
                 _LOGGER.warning(f'{controller} error retrieving preferred card {card} ({e})')
 
     # ... get controller cards
-    for c in controllers:
-        controller = int(f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip())
-
+    for controller in u.controllers:
         try:
             response = u.get_cards(controller)
             _LOGGER.info(f'{controller}: {response.cards} cards')
@@ -372,7 +363,7 @@ def get_card(card_number, options):
                 return v
 
     return {
-        CONF_CARD_NUMBER: card_number,
+        CONF_CARD_NUMBER: int(f'{card_number}'),
         CONF_CARD_UNIQUE_ID: uuid.uuid4(),
         CONF_CARD_NAME: f'{card_number}',
     }

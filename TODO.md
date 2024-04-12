@@ -3,12 +3,12 @@
 - [ ] Add support for non-local controllers (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/3)
       - [x] Add controllers to _configuration.yaml_
       - [x] Rework controller address to include port
-      - [ ] config-flow: doors and cards for off LAN controller
+      - [x] config-flow: doors and cards for off LAN controller
             - [x] default to 4 door controllers
-            - [ ] use addr:port to retrieve cards
-      - [ ] options-flow: doors and cards for off LAN controller
+            - [x] use addr:port to retrieve cards
+      - [x] options-flow: doors and cards for off LAN controller
             - [x] default to 4 door controllers
-            - [ ] use addr:port to retrieve cards
+            - [x] use addr:port to retrieve cards
       - [x] Rework config_driver to return class
             - [x] Rework cards.py to use driver.controllers()
             - [x] Migrate api functions to class and use controllers list internally
@@ -26,7 +26,8 @@
       - [ ] Configure operation timeout
       - [ ] Use UDP.sendto in services
       - [ ] README
-      - [ ] CHANGELOG
+      - [x] CHANGELOG
+      - [ ] Reworked preferred-cards in configuration.yaml as array
 
 - [ ] DataCoordinator
       - [ ] communalize data
