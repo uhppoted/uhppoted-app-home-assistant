@@ -59,7 +59,7 @@ class uhppoted:
 
     def get_card(self, controller, card):
         (addr, timeout) = self._lookup(controller)
-        return self._api.get_card(controller, card)
+        return self._api.get_card(controller, card, dest_addr=addr, timeout=timeout)
 
     def put_card(self, controller, card, start_date, end_date, door1, door2, door3, door4, PIN):
         (addr, timeout) = self._lookup(controller)
