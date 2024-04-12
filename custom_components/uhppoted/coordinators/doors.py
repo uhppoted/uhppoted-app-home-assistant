@@ -25,7 +25,6 @@ from ..const import ATTR_DOOR_BUTTON
 from ..const import ATTR_DOOR_LOCK
 from ..const import ATTR_DOOR_OPEN
 
-from ..config import configure_driver
 from ..config import get_configured_doors
 from ..config import resolve_door
 from ..config import resolve_door_by_name
@@ -34,13 +33,13 @@ from ..config import resolve_door_by_name
 class DoorsCoordinator(DataUpdateCoordinator):
     _state: Dict[str, Dict]
 
-    def __init__(self, hass, options, poll, db):
+    def __init__(self, hass, options, poll, driver, db):
         interval = _INTERVAL if poll == None else poll
 
         super().__init__(hass, _LOGGER, name="doors", update_interval=interval)
 
-        self._uhppote = configure_driver(options)
         self._options = options
+        self._uhppote = driver
         self._db = db
         self._state = {}
         self._initialised = False

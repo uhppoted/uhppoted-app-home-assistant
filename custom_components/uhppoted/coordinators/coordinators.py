@@ -7,6 +7,8 @@ from ..const import CONF_POLL_DOORS
 from ..const import CONF_POLL_CARDS
 from ..const import CONF_POLL_EVENTS
 
+from ..config import configure_driver
+
 from .controllers import ControllersCoordinator
 from .doors import DoorsCoordinator
 from .cards import CardsCoordinator
@@ -108,10 +110,11 @@ class Coordinators():
             poll_events = datetime.timedelta(seconds=defaults[CONF_POLL_EVENTS])
 
         self._db = DB()
-        self._controllers = ControllersCoordinator(hass, options, poll_controllers, self._db)
-        self._doors = DoorsCoordinator(hass, options, poll_doors, self._db)
-        self._cards = CardsCoordinator(hass, options, poll_cards, self._db)
-        self._events = EventsCoordinator(hass, options, poll_events, self._db, lambda evt: self._on_event(hass, evt))
+        self._driver = configure_driver(options)
+        self._controllers = ControllersCoordinator(hass, options, poll_controllers, self._driver, self._db)
+        self._doors = DoorsCoordinator(hass, options, poll_doors, self._driver, self._db)
+        self._cards = CardsCoordinator(hass, options, poll_cards, self._driver, self._db)
+        self._events = EventsCoordinator(hass, options, poll_events, self._driver, self._db, lambda evt: self._on_event(hass, evt))
 
     def __del__(self):
         self.unload()

@@ -38,7 +38,6 @@ from ..const import EVENT_REASON_DOOR_LOCKED
 from ..const import EVENT_REASON_DOOR_UNLOCKED
 from ..const import EVENT_REASON_BUTTON_RELEASED
 
-from ..config import configure_driver
 from ..config import configure_cards
 from ..config import get_configured_controllers
 from ..config import get_configured_cards
@@ -116,15 +115,15 @@ class EventListener:
 
 class EventsCoordinator(DataUpdateCoordinator):
 
-    def __init__(self, hass, options, poll, db, notify):
+    def __init__(self, hass, options, poll, driver, db, notify):
         interval = _INTERVAL if poll == None else poll
         addr = '0.0.0.0'
         port = 60001
 
         super().__init__(hass, _LOGGER, name='events', update_interval=interval)
 
-        self._uhppote = configure_driver(options)
         self._options = options
+        self._uhppote = driver
         self._db = db
         self._notify = notify
         self._listener_addr = options.get(CONF_EVENTS_DEST_ADDR, None)

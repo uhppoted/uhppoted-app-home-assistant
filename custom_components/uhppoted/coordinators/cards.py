@@ -23,7 +23,6 @@ from ..const import ATTR_CARD_ENDDATE
 from ..const import ATTR_CARD_PERMISSIONS
 from ..const import ATTR_CARD_PIN
 
-from ..config import configure_driver
 from ..config import configure_cards
 from ..config import get_configured_controllers
 from ..config import get_configured_cards
@@ -35,13 +34,13 @@ from ..config import default_card_end_date
 class CardsCoordinator(DataUpdateCoordinator):
     _state: Dict[int, Dict]
 
-    def __init__(self, hass, options, poll, db):
+    def __init__(self, hass, options, poll, driver, db):
         interval = _INTERVAL if poll == None else poll
 
         super().__init__(hass, _LOGGER, name="cards", update_interval=interval)
 
-        self._uhppote = configure_driver(options)
         self._options = options
+        self._uhppote = driver
         self._db = db
         self._state = {}
         self._initialised = False
