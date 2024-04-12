@@ -4,9 +4,11 @@
       - [x] Add controllers to _configuration.yaml_
       - [x] Rework controller address to include port
       - [ ] config-flow: doors and cards for off LAN controller
-            - use addr:port to retrieve doors
+            - [x] default to 4 door controllers
+            - [ ] use addr:port to retrieve cards
       - [ ] options-flow: doors and cards for off LAN controller
-            - use addr:port to retrieve doors
+            - [x] default to 4 door controllers
+            - [ ] use addr:port to retrieve cards
       - [ ] Rework config_driver to return class
             - [x] Rework cards.py to use driver.controllers()
             - [x] Migrate api functions to class and use controllers list internally
@@ -19,9 +21,8 @@
                   - [x] Use timeout from controllers list
                   - [x] Use `None` if address is broadcast address
             - [ ] singleton/cached/shared
+      - [ ] Configure operation timeout
       - [ ] Use UDP.sendto in services
-      - [ ] Fallback to broadcast for e.g. status
-            - only for 'discovered' controllers
       - [ ] README
       - [ ] CHANGELOG
       - [ ] Startup errors:

@@ -345,16 +345,16 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
                 return await self.async_step_doors()
 
         doors = []
-        if re.match('^[1234].*', f"{controller['serial_no']}"):
+        if re.match('^[1-9].*', f"{controller['serial_no']}"):
             doors.append(1)
 
-        if re.match('^[234].*', f"{controller['serial_no']}"):
+        if re.match('^[2-9].*', f"{controller['serial_no']}"):
             doors.append(2)
 
-        if re.match('^[34].*', f"{controller['serial_no']}"):
+        if re.match('^[3-9].*', f"{controller['serial_no']}"):
             doors.append(3)
 
-        if re.match('^[4].*', f"{controller['serial_no']}"):
+        if re.match('^[4-9].*', f"{controller['serial_no']}"):
             doors.append(4)
 
         select = SelectSelectorConfig(options=[{ 'label': f'Door {v}', 'value': f'{v}' } for v in doors],

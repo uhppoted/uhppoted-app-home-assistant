@@ -261,25 +261,25 @@ def get_all_doors(options):
             serial_no = v[CONF_CONTROLLER_SERIAL_NUMBER]
             doors = []
 
-            if re.match('^[1234].*', f"{serial_no}"):
+            if re.match('^[1-9].*', f'{serial_no}'):
                 doors.append({
                     CONF_DOOR_ID: lookup(controller, 1),
                     CONF_DOOR_NUMBER: 1,
                 })
 
-            if re.match('^[234].*', f"{serial_no}"):
+            if re.match('^[2-9].*', f'{serial_no}'):
                 doors.append({
                     CONF_DOOR_ID: lookup(controller, 2),
                     CONF_DOOR_NUMBER: 2,
                 })
 
-            if re.match('^[34].*', f"{serial_no}"):
+            if re.match('^[3-9].*', f'{serial_no}'):
                 doors.append({
                     CONF_DOOR_ID: lookup(controller, 3),
                     CONF_DOOR_NUMBER: 3,
                 })
 
-            if re.match('^[4].*', f"{serial_no}"):
+            if re.match('^[4-9].*', f'{serial_no}'):
                 doors.append({
                     CONF_DOOR_ID: lookup(controller, 4),
                     CONF_DOOR_NUMBER: 4,
