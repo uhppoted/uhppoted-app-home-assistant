@@ -12,18 +12,10 @@
       - [x] Rework config_driver to return class
             - [x] Rework cards.py to use driver.controllers()
             - [x] Migrate api functions to class and use controllers list internally
-                  - [x] controllers
-                  - [x] doors
-                  - [x] cards
-                  - [x] events
-                  - [x] store map of controllers to {controller,address,port}
-                  - [x] Use address from controllers list
-                  - [x] Use timeout from controllers list
-                  - [x] Use `None` if address is broadcast address
             - [x] singleton/cached/shared
             - [x] Error: `error retrieving card 8165535 information (timed out)`
             - [x] Error: `error setting controller 706050403 event listener ('str' object has no attribute 'packed'`
-      - [ ] Configure operation timeout
+      - [x] Configure operation timeout
       - [ ] Use UDP.sendto in services
       - [ ] README
       - [x] CHANGELOG

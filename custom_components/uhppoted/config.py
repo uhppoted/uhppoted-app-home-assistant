@@ -23,6 +23,7 @@ from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
 from .const import CONF_CONTROLLER_PORT
+from .const import CONF_CONTROLLER_TIMEOUT
 
 from .const import CONF_DOORS
 from .const import CONF_DOOR_UNIQUE_ID
@@ -422,12 +423,20 @@ def configure_driver(options, defaults={}):
     timeout = options.get(CONF_TIMEOUT, defaults.get(CONF_TIMEOUT, DEFAULT_TIMEOUT))
     debug = options[CONF_DEBUG]
 
-    if CONF_CONTROLLERS in options:
-        controllers = [{
-            'controller': int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}'),
+    timeouts = dict([[v['controller'], v.get('timeout', timeout)] for v in defaults.get(CONF_CONTROLLERS, [])])
+
+    def f(v):
+        controller = int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}')
+
+        return {
+            'controller': controller,
             'address': f'{v[CONF_CONTROLLER_ADDR]}',
             'port': int(f'{v.get(CONF_CONTROLLER_PORT,60000)}'),
-        } for v in options[CONF_CONTROLLERS]]
+            'timeout': timeouts.get(controller, timeout),
+        }
+
+    if CONF_CONTROLLERS in options:
+        controllers = [f(v) for v in options[CONF_CONTROLLERS]]
     else:
         controllers = []
 
