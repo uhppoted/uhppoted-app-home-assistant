@@ -14,6 +14,7 @@ from uhppoted import uhppote
 from .const import CONF_BIND_ADDR
 from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
+from .const import CONF_TIMEOUT
 from .const import CONF_DEBUG
 
 from .const import CONF_CONTROLLERS
@@ -37,6 +38,7 @@ from .const import CONF_CARD_STARTDATE
 from .const import CONF_CARD_ENDDATE
 from .const import CONF_CARD_DOORS
 
+from .const import DEFAULT_TIMEOUT
 from .const import DEFAULT_MAX_CARDS
 from .const import DEFAULT_MAX_CARD_INDEX
 from .const import DEFAULT_MAX_CARD_ERRORS
@@ -413,10 +415,11 @@ def configure_cards(options, f):
             f(card, name, unique_id)
 
 
-def configure_driver(options):
+def configure_driver(options, defaults={}):
     bind = options[CONF_BIND_ADDR]
     broadcast = options[CONF_BROADCAST_ADDR]
     listen = options[CONF_LISTEN_ADDR]
+    timeout = options.get(CONF_TIMEOUT, defaults.get(CONF_TIMEOUT, DEFAULT_TIMEOUT))
     debug = options[CONF_DEBUG]
 
     if CONF_CONTROLLERS in options:
@@ -428,7 +431,7 @@ def configure_driver(options):
     else:
         controllers = []
 
-    return uhppoted(bind, broadcast, listen, controllers, debug)
+    return uhppoted(bind, broadcast, listen, controllers, timeout, debug)
 
 
 def default_card_start_date():

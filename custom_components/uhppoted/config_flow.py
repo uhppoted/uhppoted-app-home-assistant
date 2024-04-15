@@ -27,6 +27,7 @@ from .const import CONF_LISTEN_ADDR
 from .const import CONF_EVENTS_DEST_ADDR
 from .const import CONF_DEBUG
 from .const import CONF_TIMEZONE
+from .const import CONF_TIMEOUT
 
 from .const import CONF_CONTROLLERS
 from .const import CONF_CONTROLLER_UNIQUE_ID
@@ -56,6 +57,7 @@ from .const import DEFAULT_BIND_ADDRESS
 from .const import DEFAULT_BROADCAST_ADDRESS
 from .const import DEFAULT_LISTEN_ADDRESS
 from .const import DEFAULT_EVENTS_DEST_ADDR
+from .const import DEFAULT_TIMEOUT
 from .const import DEFAULT_DEBUG
 
 from .const import DEFAULT_CONTROLLER_ID
@@ -110,6 +112,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         self._events_dest_addr = defaults.get(CONF_EVENTS_DEST_ADDR, DEFAULT_EVENTS_DEST_ADDR)
         self._debug = defaults.get(CONF_DEBUG, DEFAULT_DEBUG)
         self._timezone = defaults.get(CONF_TIMEZONE, DEFAULT_CONTROLLER_TIMEZONE)
+        self._timeout = defaults.get(CONF_TIMEOUT, DEFAULT_TIMEOUT)
         self._max_cards = defaults.get(CONF_MAX_CARDS, DEFAULT_MAX_CARDS)
         self._preferred_cards = defaults.get(CONF_PREFERRED_CARDS, DEFAULT_PREFERRED_CARDS)
         self._controllers = defaults.get(CONF_CONTROLLERS, [])
@@ -123,6 +126,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
 
         self.options.update(get_IPv4(defaults))
         self.options.update({
+            CONF_TIMEOUT: self._timeout,
             CONF_CONTROLLERS: [],
             CONF_DOORS: [],
         })

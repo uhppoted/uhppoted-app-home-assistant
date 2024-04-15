@@ -6,8 +6,9 @@ CONF_BIND_ADDR = 'bind_address'
 CONF_BROADCAST_ADDR = 'broadcast_address'
 CONF_LISTEN_ADDR = 'listen_address'
 CONF_EVENTS_DEST_ADDR = 'events_destination_address'
-CONF_DEBUG = 'debug'
 CONF_TIMEZONE = 'timezone'
+CONF_TIMEOUT = 'timeout'
+CONF_DEBUG = 'debug'
 
 CONF_MAX_CARDS = 'max_cards'
 CONF_PREFERRED_CARDS = 'preferred_cards'
@@ -24,6 +25,7 @@ CONF_CONTROLLER_SERIAL_NUMBER = 'controller_serial_number'
 CONF_CONTROLLER_ADDR = 'controller_address'
 CONF_CONTROLLER_PORT = 'controller_port'
 CONF_CONTROLLER_TIMEZONE = 'controller_timezone'
+CONF_CONTROLLER_TIMEOUT = 'controller_timeout'
 
 CONF_DOORS = 'doors'
 CONF_DOOR_UNIQUE_ID = 'door_unique_id'
@@ -75,7 +77,13 @@ DEFAULT_BIND_ADDRESS = '0.0.0.0'
 DEFAULT_BROADCAST_ADDRESS = '255.255.255.255:60000'
 DEFAULT_LISTEN_ADDRESS = '0.0.0.0:60001'
 DEFAULT_EVENTS_DEST_ADDR = ''
+DEFAULT_TIMEOUT = 2.5  # seconds
 DEFAULT_DEBUG = False
+
+DEFAULT_POLL_CONTROLLERS = 30  # seconds
+DEFAULT_POLL_DOORS = 30  # seconds
+DEFAULT_POLL_CARDS = 30  # seconds
+DEFAULT_POLL_EVENTS = 30  # seconds
 
 DEFAULT_CONTROLLER_ID = ''
 DEFAULT_CONTROLLER_ADDR = ''

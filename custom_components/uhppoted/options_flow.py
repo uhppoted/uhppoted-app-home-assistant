@@ -22,6 +22,7 @@ from .const import CONF_LISTEN_ADDR
 from .const import CONF_EVENTS_DEST_ADDR
 from .const import CONF_DEBUG
 from .const import CONF_TIMEZONE
+from .const import CONF_TIMEOUT
 
 from .const import CONF_CONTROLLERS
 from .const import CONF_CONTROLLER_UNIQUE_ID
@@ -51,6 +52,7 @@ from .const import DEFAULT_BIND_ADDRESS
 from .const import DEFAULT_BROADCAST_ADDRESS
 from .const import DEFAULT_LISTEN_ADDRESS
 from .const import DEFAULT_EVENTS_DEST_ADDR
+from .const import DEFAULT_TIMEOUT
 from .const import DEFAULT_DEBUG
 
 from .const import DEFAULT_CONTROLLER_ID
@@ -95,6 +97,7 @@ class UhppotedOptionsFlow(OptionsFlow):
         self._events_dest_addr = DEFAULT_EVENTS_DEST_ADDR
         self._debug = DEFAULT_DEBUG
         self._timezone = DEFAULT_CONTROLLER_TIMEZONE
+        self._timeout = DEFAULT_TIMEOUT
         self._max_cards = DEFAULT_MAX_CARDS
         self._preferred_cards = DEFAULT_PREFERRED_CARDS
         self._controllers = []
@@ -116,14 +119,18 @@ class UhppotedOptionsFlow(OptionsFlow):
         self._events_dest_addr = defaults.get(CONF_EVENTS_DEST_ADDR, self._events_dest_addr)
         self._debug = defaults.get(CONF_DEBUG, self._debug)
         self._timezone = defaults.get(CONF_TIMEZONE, DEFAULT_CONTROLLER_TIMEZONE)
+        self._timeout = defaults.get(CONF_TIMEOUT, DEFAULT_TIMEOUT)
         self._max_cards = defaults.get(CONF_MAX_CARDS, DEFAULT_MAX_CARDS)
         self._preferred_cards = defaults.get(CONF_PREFERRED_CARDS, DEFAULT_PREFERRED_CARDS)
         self._controllers = defaults.get(CONF_CONTROLLERS, [])
 
+        self.options.update({
+            CONF_TIMEOUT: self._timeout,
+        })
+
         return self.async_show_menu(step_id="init",
                                     menu_options=['IPv4', 'controllers', 'doors', 'cards'],
                                     description_placeholders={})
-        # return await self.async_step_IPv4()
 
     async def async_step_IPv4(self, user_input: Optional[Dict[str, Any]] = None):
         errors: Dict[str, str] = {}

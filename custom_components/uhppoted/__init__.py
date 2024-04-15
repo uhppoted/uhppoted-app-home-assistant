@@ -12,6 +12,7 @@ from .const import CONF_BROADCAST_ADDR
 from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
 from .const import CONF_TIMEZONE
+from .const import CONF_TIMEOUT
 from .const import CONF_MAX_CARDS
 from .const import CONF_PREFERRED_CARDS
 from .const import CONF_PIN_ENABLED
@@ -21,6 +22,11 @@ from .const import CONF_POLL_CARDS
 from .const import CONF_POLL_EVENTS
 from .const import CONF_CONTROLLERS
 
+from .const import DEFAULT_TIMEOUT
+from .const import DEFAULT_POLL_CONTROLLERS
+from .const import DEFAULT_POLL_DOORS
+from .const import DEFAULT_POLL_CARDS
+from .const import DEFAULT_POLL_EVENTS
 from .const import DEFAULT_MAX_CARDS
 from .const import DEFAULT_PREFERRED_CARDS
 
@@ -36,13 +42,14 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_LISTEN_ADDR: '0.0.0.0:60001',
         CONF_DEBUG: False,
         CONF_TIMEZONE: 'Local',
-        CONF_MAX_CARDS: DEFAULT_MAX_CARDS,
+        CONF_TIMEOUT: DEFAULT_TIMEOUT,  # 2.5s
+        CONF_MAX_CARDS: DEFAULT_MAX_CARDS,  # 10
         CONF_PREFERRED_CARDS: DEFAULT_PREFERRED_CARDS,
         CONF_PIN_ENABLED: False,
-        CONF_POLL_CONTROLLERS: 30,
-        CONF_POLL_DOORS: 30,
-        CONF_POLL_CARDS: 30,
-        CONF_POLL_EVENTS: 30,
+        CONF_POLL_CONTROLLERS: DEFAULT_POLL_CONTROLLERS,  # 30s
+        CONF_POLL_DOORS: DEFAULT_POLL_DOORS,  # 30s
+        CONF_POLL_CARDS: DEFAULT_POLL_CARDS,  # 30s
+        CONF_POLL_EVENTS: DEFAULT_POLL_EVENTS,  # 30s
         CONF_CONTROLLERS: [],
     }
 
@@ -50,9 +57,9 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         c = config['uhppoted']
 
         for v in [
-                CONF_BIND_ADDR, CONF_BROADCAST_ADDR, CONF_LISTEN_ADDR, CONF_DEBUG, CONF_TIMEZONE, CONF_MAX_CARDS,
-                CONF_PREFERRED_CARDS, CONF_PIN_ENABLED, CONF_POLL_CONTROLLERS, CONF_POLL_DOORS, CONF_POLL_CARDS,
-                CONF_POLL_EVENTS, CONF_CONTROLLERS
+                CONF_BIND_ADDR, CONF_BROADCAST_ADDR, CONF_LISTEN_ADDR, CONF_DEBUG, CONF_TIMEZONE, CONF_TIMEOUT,
+                CONF_MAX_CARDS, CONF_PREFERRED_CARDS, CONF_PIN_ENABLED, CONF_POLL_CONTROLLERS, CONF_POLL_DOORS,
+                CONF_POLL_CARDS, CONF_POLL_EVENTS, CONF_CONTROLLERS
         ]:
             if v in c:
                 defaults[v] = c[v]
@@ -62,6 +69,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     _LOGGER.info(f'default listen address:      {defaults[CONF_LISTEN_ADDR]}')
     _LOGGER.info(f'default debug:               {defaults[CONF_DEBUG]}')
     _LOGGER.info(f'default timezone:            {defaults[CONF_TIMEZONE]}')
+    _LOGGER.info(f'default timeout:             {defaults[CONF_TIMEOUT]}s')
     _LOGGER.info(f'max. cards:                  {defaults[CONF_MAX_CARDS]}')
     _LOGGER.info(f'preferred cards:             {defaults[CONF_PREFERRED_CARDS]}')
     _LOGGER.info(f'PIN enabled:                 {defaults[CONF_PIN_ENABLED]}')

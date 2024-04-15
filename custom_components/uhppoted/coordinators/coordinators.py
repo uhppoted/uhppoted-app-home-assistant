@@ -110,7 +110,7 @@ class Coordinators():
             poll_events = datetime.timedelta(seconds=defaults[CONF_POLL_EVENTS])
 
         self._db = DB()
-        self._driver = configure_driver(options)
+        self._driver = configure_driver(options, defaults)
         self._controllers = ControllersCoordinator(hass, options, poll_controllers, self._driver, self._db)
         self._doors = DoorsCoordinator(hass, options, poll_doors, self._driver, self._db)
         self._cards = CardsCoordinator(hass, options, poll_cards, self._driver, self._db)

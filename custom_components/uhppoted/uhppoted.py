@@ -3,9 +3,10 @@ from uhppoted import uhppote
 
 class uhppoted:
 
-    def __init__(self, bind, broadcast, listen, controllers, debug):
+    def __init__(self, bind, broadcast, listen, controllers, timeout, debug):
         self._broadcast = broadcast
         self._api = uhppote.Uhppote(bind, broadcast, listen, debug)
+        self._timeout = timeout
         self._controllers = controllers
 
     @property
@@ -22,7 +23,6 @@ class uhppoted:
 
     def get_controller(self, controller):
         (addr, timeout) = self._lookup(controller)
-
         return self._api.get_controller(controller, dest_addr=addr, timeout=timeout)
 
     def get_time(self, controller):
@@ -100,11 +100,11 @@ class uhppoted:
             if controller == v['controller']:
                 addr = v.get('address', self._broadcast)
                 port = v.get('port', 60000)
-                timeout = v.get('timeout', None)
+                timeout = v.get('timeout', self._timeout)
 
                 if f'{addr}:{port}' == f'{self._broadcast}':
                     return (None, timeout)
                 else:
                     return (f'{addr}:{port}', timeout)
 
-        return (None, None)
+        return (None, self.timeout)
