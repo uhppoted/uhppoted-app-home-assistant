@@ -26,6 +26,8 @@ doors and maybe a ten or so access cards - so, not a large mansion [~~or an offi
        - [controllers](#controllers)
        - [doors](#doors)
        - [cards](#cards)
+    - [Off-LAN controllers](#off-lan-controllers)
+    - [_configuration.yaml_](#configuration-yaml)
 4. [Service API](#service-api)
    - [`unlock-door`](#unlock-door)
    - [`add-card`](#add-card)
@@ -210,6 +212,96 @@ uhppoted:
 5. `uhppoted.card.{card}.{door}`
 6. `uhppoted.card.{card}.pin`
 7. `uhppoted.card.{card}.swipe.event`
+
+
+### Off-LAN controllers
+
+Controllers that are not on the local LAN segments are not discoverable and have to be added manually to the
+_uhppoted_ section of the _Home Assistant_ _configuration.yaml_ file, e.g.:
+```
+...
+uhppoted:
+    ...
+    controllers:
+        - 
+            controller: 504030201
+            address: 192.168.1.100
+        - 
+            controller: 605040302
+            address: 192.168.1.100
+            port: 60000
+        - 
+            controller: 706050403
+            address: 192.168.1.100
+            port: 54321
+            timeout: 0.56
+...
+```
+
+The `controllers` subsection is a YAML array/list of controllers with the following properties;
+- `controller`: controller serial number
+- `address`: controller IPv4 address
+- `port`: (optional) controller UDP port (defaults to 60000)
+- `timeout`: (optional) controller timeout (default to the global uhppoted timeout of 2.5s)
+
+The controllers listed in _configuration.yaml_ are included in the list of _discovered_ controllers and
+can be configured from the _Home Assistant_ user interface in the same way as local controllers. Controllers
+listed in the _configuration.yaml_ are **NOT** automatically added to the list of managed controllers - 
+they do still need to be configured.
+
+### _configuration.yaml_
+
+The operational configuration can be customised by the (entirely optional) setttings in the _uhppoted_ section
+of the _Home Assistant_ _configuration.yaml_ file. The full list of configurable settings comprises:
+
+| Setting                     | Description                                                      | Default value     |
+|-----------------------------|------------------------------------------------------------------|-------------------|
+| `bind_address`              | Default IPv4 UDP bind address                                    | `0.0.0.0`         |
+| `broadcast_address`         | Default IPv4 UDP broadcast address                               | `255.255.255.255` |
+| `listen_address`            | Default IPv4 UDP listen address (for events)                     | `0.0.0.0`         |
+| `timezone`                  | Default controller timezone                                      | local             |
+| `timeout`                   | Default timeout for controller requests/responses (seconds)      | 2.5               |
+| `debug`                     | Enables/disables logging of controller packets                   | false             |
+| `max_cards`                 | Max. cards to 'discover' for configuration                       | 10                |
+| `preferred_cards`           | Comma seperated list of cards that take priority for 'discovery' | - none -          |
+| `card_PINs`                 | Enables/disables retrieving/setting card PINs                    | false             |
+| `controllers_poll_interval` | Interval at which to fetch controller information (seconds)      | 30                |
+| `doors_poll_interval`       | Interval at which to fetch door information (seconds)            | 30                |
+| `cards_poll_interval`       | Interval at which to fetch card information (seconds)            | 30                |
+| `events_poll_interval`      | Interval at which to fetch missed/synthetic events (seconds)     | 30                |
+| `controllers`               | List of off-LAN controllers (see above)                          | -none-            |
+
+e.g.
+```
+uhppoted:
+    bind_address: 192.168.1.100
+    broadcast_address: 192.168.1.255:60000
+    listen_address: 192.168.1.100:60001
+    debug: false
+    timezone: CEST
+    timeout: 1.23
+    max_cards: 7
+    preferred_cards: 8165535,8165536,8165537
+    card_PINs: true
+    controllers_poll_interval: 29
+    doors_poll_interval: 31
+    cards_poll_interval: 33
+    events_poll_interval: 35
+    controllers:
+        - 
+            controller: 504030201
+            address: 192.168.1.100
+            port: 54321
+        - 
+            controller: 605040302
+            address: 192.168.1.100
+            port: 54321
+        - 
+            controller: 706050403
+            address: 192.168.1.100
+            port: 54321
+            timeout: 0.56
+```
 
 
 ## Service API

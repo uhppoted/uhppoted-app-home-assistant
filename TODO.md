@@ -17,7 +17,7 @@
             - [x] Error: `error setting controller 706050403 event listener ('str' object has no attribute 'packed'`
       - [x] Configure operation timeout
       - [ ] Use UDP.sendto in services
-      - [ ] README
+      - [x] README
       - [x] CHANGELOG
       - [ ] Reworked preferred-cards in configuration.yaml as array
 

@@ -427,11 +427,13 @@ def configure_driver(options, defaults={}):
 
     def f(v):
         controller = int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}')
+        address = f'{v[CONF_CONTROLLER_ADDR]}'
+        port = int(f'{v.get(CONF_CONTROLLER_PORT,60000)}')
 
         return {
             'controller': controller,
-            'address': f'{v[CONF_CONTROLLER_ADDR]}',
-            'port': int(f'{v.get(CONF_CONTROLLER_PORT,60000)}'),
+            'address': address,
+            'port': port,
             'timeout': timeouts.get(controller, timeout),
         }
 
