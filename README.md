@@ -217,7 +217,7 @@ uhppoted:
 ### Off-LAN controllers
 
 Controllers that are not on the local LAN segments are not discoverable and have to be added manually to the
-_uhppoted_ section of the _Home Assistant_ _configuration.yaml_ file, e.g.:
+_uhppoted_ section of the _Home Assistant_ `configuration.yaml` file (in the _config_ folder), e.g.:
 ```
 ...
 uhppoted:
@@ -244,9 +244,9 @@ The `controllers` subsection is a YAML array/list of controllers with the follow
 - `port`: _(optional)_ controller UDP port (defaults to 60000)
 - `timeout`: _(optional)_ controller timeout (default to the global uhppoted timeout of 2.5s)
 
-The controllers listed in _configuration.yaml_ are included in the list of _discovered_ controllers and
+The controllers listed in `configuration.yaml` are included in the list of _discovered_ controllers and
 can be configured from the _Home Assistant_ user interface in the same way as local controllers i.e. controllers
-listed in _configuration.yaml_ are **NOT** automatically added to the list of managed controllers - 
+listed in `configuration.yaml` are **NOT** automatically added to the list of managed controllers - 
 they do still need to be configured.
 
 
