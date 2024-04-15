@@ -27,7 +27,7 @@ doors and maybe a ten or so access cards - so, not a large mansion [~~or an offi
        - [doors](#doors)
        - [cards](#cards)
     - [Off-LAN controllers](#off-lan-controllers)
-    - [_configuration.yaml_](#configuration-yaml)
+    - [_configuration.yaml_](#configurationyaml)
 4. [Service API](#service-api)
    - [`unlock-door`](#unlock-door)
    - [`add-card`](#add-card)
@@ -241,18 +241,19 @@ uhppoted:
 The `controllers` subsection is a YAML array/list of controllers with the following properties;
 - `controller`: controller serial number
 - `address`: controller IPv4 address
-- `port`: (optional) controller UDP port (defaults to 60000)
-- `timeout`: (optional) controller timeout (default to the global uhppoted timeout of 2.5s)
+- `port`: _(optional)_ controller UDP port (defaults to 60000)
+- `timeout`: _(optional)_ controller timeout (default to the global uhppoted timeout of 2.5s)
 
 The controllers listed in _configuration.yaml_ are included in the list of _discovered_ controllers and
-can be configured from the _Home Assistant_ user interface in the same way as local controllers. Controllers
-listed in the _configuration.yaml_ are **NOT** automatically added to the list of managed controllers - 
+can be configured from the _Home Assistant_ user interface in the same way as local controllers i.e. controllers
+listed in _configuration.yaml_ are **NOT** automatically added to the list of managed controllers - 
 they do still need to be configured.
+
 
 ### _configuration.yaml_
 
 The operational configuration can be customised by the (entirely optional) setttings in the _uhppoted_ section
-of the _Home Assistant_ _configuration.yaml_ file. The full list of configurable settings comprises:
+of the _Home Assistant_ `configuration.yaml` file (in the _Home Assistant `config` folder). The full list of configurable settings comprises:
 
 | Setting                     | Description                                                      | Default value     |
 |-----------------------------|------------------------------------------------------------------|-------------------|
