@@ -473,7 +473,7 @@ class UhppotedOptionsFlow(OptionsFlow):
                     else:
                         if user_input[k].strip() != '-':
                             l.append({
-                                CONF_DOOR_UNIQUE_ID: uuid.uuid4(),
+                                CONF_DOOR_UNIQUE_ID: f'{uuid.uuid4()}',
                                 CONF_DOOR_ID: user_input[k],
                                 CONF_DOOR_CONTROLLER: controller,
                                 CONF_DOOR_NUMBER: door,

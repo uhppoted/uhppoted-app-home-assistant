@@ -119,10 +119,11 @@ class DoorInfo(CoordinatorEntity, SensorEntity):
                 self._available = False
             else:
                 state = self.coordinator.data[idx]
-                self._open = state[ATTR_DOOR_OPEN]
-                self._button = state[ATTR_DOOR_BUTTON]
-                self._locked = state[ATTR_DOOR_LOCK]
+
                 self._available = state[ATTR_AVAILABLE]
+                self._open = state.get(ATTR_DOOR_OPEN, None)
+                self._button = state.get(ATTR_DOOR_BUTTON, None)
+                self._locked = state.get(ATTR_DOOR_LOCK, None)
 
         except (Exception):
             self._available = False

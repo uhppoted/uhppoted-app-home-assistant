@@ -216,7 +216,7 @@ uhppoted:
 
 ### Off-LAN controllers
 
-Controllers that are not on the local LAN segments are not discoverable and have to be added manually to the
+Controllers that are not on the local LAN segment are not discoverable and have to be added manually to the
 _uhppoted_ section of the _Home Assistant_ `configuration.yaml` file (in the _config_ folder), e.g.:
 ```
 ...
