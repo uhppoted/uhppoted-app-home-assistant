@@ -304,7 +304,10 @@ def get_all_cards(options, max_cards=DEFAULT_MAX_CARDS, preferred_cards=DEFAULT_
     # ... build 'preferred' cards list
     preferred = set()
     if preferred_cards:
-        preferred = {int(v) for v in re.findall(r'[0-9]+', f'{preferred_cards}')}
+        if isinstance(preferred_cards, list):
+            preferred = {int(f'{v}') for v in preferred_cards}
+        elif isinstance(preferred_cards, str):
+            preferred = {int(v) for v in re.findall(r'[0-9]+', f'{preferred_cards}')}
 
     # ... get preferred cards
     for controller in u.controllers:

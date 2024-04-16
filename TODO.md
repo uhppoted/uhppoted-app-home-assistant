@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] Add support for non-local controllers (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/3)
+- [x] Add support for non-local controllers (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/3)
       - [x] Add controllers to _configuration.yaml_
       - [x] Rework controller address to include port
       - [x] config-flow: doors and cards for off LAN controller
@@ -8,9 +8,9 @@
       - [x] Rework config_driver to return class
       - [x] Configure operation timeout
       - [x] Use UDP.sendto in services
+      - [x] Reworked preferred-cards in configuration.yaml as array
       - [x] README
       - [x] CHANGELOG
-      - [ ] Reworked preferred-cards in configuration.yaml as array
 
 - [ ] DataCoordinator
       - [ ] communalize data

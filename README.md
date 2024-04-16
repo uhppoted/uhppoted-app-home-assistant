@@ -86,7 +86,9 @@ uhppoted:
     timezone: LOCAL
     debug: false
     max_cards: 10
-    preferred_cards: 10058400, 10058401
+    preferred_cards: 
+        - 10058400
+        - 10058401
     card_PINs: false
     controllers_poll_interval: 30
     doors_poll_interval: 30
@@ -150,7 +152,9 @@ uhppoted:
     timezone: LOCAL
     debug: false
     max_cards: 10
-    preferred_cards: 10058400, 10058401
+    preferred_cards: 
+        - 10058400
+        - 10058401
     card_PINs: false
     controllers_poll_interval: 30
     doors_poll_interval: 30
@@ -264,7 +268,7 @@ of the _Home Assistant_ `configuration.yaml` file (in the _Home Assistant `confi
 | `timeout`                   | Default timeout for controller requests/responses (seconds)      | 2.5               |
 | `debug`                     | Enables/disables logging of controller packets                   | false             |
 | `max_cards`                 | Max. cards to 'discover' for configuration                       | 10                |
-| `preferred_cards`           | Comma seperated list of cards that take priority for 'discovery' | - none -          |
+| `preferred_cards`           | YAML list of of cards that take priority for 'discovery'         | - none -          |
 | `card_PINs`                 | Enables/disables retrieving/setting card PINs                    | false             |
 | `controllers_poll_interval` | Interval at which to fetch controller information (seconds)      | 30                |
 | `doors_poll_interval`       | Interval at which to fetch door information (seconds)            | 30                |
@@ -282,7 +286,9 @@ uhppoted:
     timezone: CEST
     timeout: 1.23
     max_cards: 7
-    preferred_cards: 8165535,8165536,8165537
+    preferred_cards: 
+        - 10058400
+        - 10058401
     card_PINs: true
     controllers_poll_interval: 29
     doors_poll_interval: 31
