@@ -1,4 +1,5 @@
-DIST ?= development
+VERSION ?= 0.8.8.1
+DIST    ?= development
 
 .PHONY: docker
 
@@ -24,6 +25,13 @@ release: build-all
           custom_components/uhppoted dist/$(DIST)/
 	tar --directory=dist/$(DIST) --exclude=".DS_Store" -cvzf dist/$(DIST).tar.gz uhppoted
 	cd dist/$(DIST); zip -x .DS_Store --recurse-paths ../$(DIST).zip .
+
+publish: release
+	echo "Releasing version $(VERSION)"
+	rm -rf dist/development
+	rm -f dist/development.tar.gz
+	rm -f dist/development.zip
+	gh release create "$(VERSION)" "./dist/uhppote-app-home-assistant_$(VERSION)-alpha.tar.gz"  "./dist/uhppote-app-home-assistant_$(VERSION)-alpha.zip" --draft --prerelease --title "$(VERSION)-alpha" --notes-file release-notes.md
 
 docker-build:
 	docker run --detach --name home-assistant --restart=unless-stopped --publish 8123:8123 \

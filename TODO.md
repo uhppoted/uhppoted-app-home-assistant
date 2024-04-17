@@ -12,7 +12,7 @@
       - [x] README
       - [x] CHANGELOG
       - [x] Fix warning for no event listener value
-      - [ ] Fix warning for missing timeout value:
+      - [x] Fix warning for missing timeout value
 
 - [ ] DataCoordinator
       - [ ] communalize data

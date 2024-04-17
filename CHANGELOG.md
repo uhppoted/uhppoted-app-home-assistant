@@ -1,9 +1,9 @@
 # CHANGELOG
 
-## Unreleased
+## [0.8.8.1](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.8.1) - 2024-04-17
 
 ### Added
-1. Added support for 'discovering' off-LAN controllers configured in the _configuration.yaml_ file.
+1. Implements 'discovering' off-LAN controllers configured in the _configuration.yaml_ file.
 
 ### Updated
 1. Reworked `uhppoted` to use controller IP addresses and UDP `sendto`.
