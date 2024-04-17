@@ -225,6 +225,10 @@ class EventsCoordinator(DataUpdateCoordinator):
         if self._listener_addr != None:
             _LOGGER.debug(f'check controller {controller} event listener')
 
+            match = re.match(r'^[0-9.]+:[0-9]+$', f'{self._listener_addr}')
+            if match == None:
+                return
+
             try:
                 response = self._uhppote.get_listener(controller)
                 if response.controller == controller:
