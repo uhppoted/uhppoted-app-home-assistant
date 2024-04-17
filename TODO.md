@@ -12,16 +12,7 @@
       - [x] README
       - [x] CHANGELOG
       - [x] Fix warning for no event listener value
-```
-2024-04-17 08:38:13.385 WARNING (ThreadPoolExecutor-44_3) [custom_components.uhppoted.coordinators.events] controller 706050403 incorrect event listener address (192.168.1.100:60001)
-2024-04-17 08:38:13.385 WARNING (ThreadPoolExecutor-44_3) [custom_components.uhppoted.coordinators.events] error setting controller 706050403 event listener (not enough values to unpack (expected 2, got
-```
       - [ ] Fix warning for missing timeout value:
-```
-2024-04-17 08:41:24.364 ERROR (ThreadPoolExecutor-20_1) [custom_components.uhppoted.coordinators.controllers] error retrieving controller 303986753 information ('uhppoted' object has no attribute 'timeout')
-2024-04-17 08:41:24.364 ERROR (ThreadPoolExecutor-20_3) [custom_components.uhppoted.coordinators.controllers] error retrieving controller 201020304 information ('uhppoted' object has no attribute 'timeout')
-2024-04-17 08:41:24.365 ERROR (ThreadPoolExecutor-20_4) [custom_components.uhppoted.coordinators.controllers] error retrieving controller 303986753 date/time ('uhppoted' object has no attribute 'timeout')
-```
 
 - [ ] DataCoordinator
       - [ ] communalize data

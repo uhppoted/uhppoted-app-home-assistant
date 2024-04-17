@@ -107,4 +107,4 @@ class uhppoted:
                 else:
                     return (f'{addr}:{port}', timeout)
 
-        return (None, self.timeout)
+        return (None, self._timeout)
