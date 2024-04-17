@@ -173,14 +173,14 @@ uhppoted:
 6. Select the controllers to manage with _Home Assistant_ from the list of controllers found on the LAN.
 7. For each controller:
    - choose a unique name e.g. _Main_, _Controller #1_, etc.
-   - (optionally) set the controller IP address
-   - (optionally) set the controller timezone (defaults to _Local_)
+   - _(optional)_ set the controller IP address
+   - _(optional)_ set the controller timezone (defaults to _Local_)
 8. For each controller, select the doors to manage with _Home Assistant_
 9. For each selected door:
    - choose a unique name e.g. _Entrance_, _Garage_, _Man Cave_
 10. Select the cards to be managed by _Home Assistant_ from the list of cards found on the controllers
 11. For each selected card:
-   - enter the name of the person (or other entity) using that card
+    - enter the name of the person (or other entity) using that card
 12. On completion of configuration the _uhppoted_ service will create all the entities for the controllers, doors and
     cards.
 13. Add selected information to the dashboard from the entities listed below.
@@ -256,8 +256,9 @@ they do still need to be configured.
 
 ### _configuration.yaml_
 
-The operational configuration can be customised by the (entirely optional) setttings in the _uhppoted_ section
-of the _Home Assistant_ `configuration.yaml` file (in the _Home Assistant `config` folder). The full list of configurable settings comprises:
+The operational configuration can be customised by the _(entirely optional)_ setttings in the _uhppoted_ section
+of the _Home Assistant_ `configuration.yaml` file (in the _Home Assistant_ `config` folder). The full list of
+configurable settings comprises:
 
 | Setting                     | Description                                                      | Default value     |
 |-----------------------------|------------------------------------------------------------------|-------------------|
