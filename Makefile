@@ -31,7 +31,7 @@ publish: release
 	rm -rf dist/development
 	rm -f dist/development.tar.gz
 	rm -f dist/development.zip
-	gh release create "$(VERSION)" "./dist/uhppote-app-home-assistant_$(VERSION)-alpha.tar.gz"  "./dist/uhppote-app-home-assistant_$(VERSION)-alpha.zip" --draft --prerelease --title "$(VERSION)-alpha" --notes-file release-notes.md
+	gh release create "$(VERSION)" "./dist/uhppoted-app-home-assistant_$(VERSION)-alpha.tar.gz"  "./dist/uhppoted-app-home-assistant_$(VERSION)-alpha.zip" --draft --prerelease --title "$(VERSION)-alpha" --notes-file release-notes.md
 
 docker-build:
 	docker run --detach --name home-assistant --restart=unless-stopped --publish 8123:8123 \
