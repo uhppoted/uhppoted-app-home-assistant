@@ -75,7 +75,7 @@ cd <Home Assistant>
 cd config/custom_components
 tar xvzf uhppoted-app-homeassistant.tar.gz .
 ```
-3. (Optionally), add the default configuration to the `configuration.yaml` file in the `config` folder of
+3. _(Optionally)_, add the default configuration to the `configuration.yaml` file in the `config` folder of
    _Home Assistant_, e.g.:
 ```
 ...
@@ -269,7 +269,7 @@ configurable settings comprises:
 | `timeout`                   | Default timeout for controller requests/responses (seconds)      | 2.5               |
 | `debug`                     | Enables/disables logging of controller packets                   | false             |
 | `max_cards`                 | Max. cards to 'discover' for configuration                       | 10                |
-| `preferred_cards`           | YAML list of of cards that take priority for 'discovery'         | - none -          |
+| `preferred_cards`           | YAML list of of cards that take priority for _'discovery'_       | - none -          |
 | `card_PINs`                 | Enables/disables retrieving/setting card PINs                    | false             |
 | `controllers_poll_interval` | Interval at which to fetch controller information (seconds)      | 30                |
 | `doors_poll_interval`       | Interval at which to fetch door information (seconds)            | 30                |
