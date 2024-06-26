@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] Missing 'port' label in controller configuration
+- [x] Missing 'port' label in controller configuration
 - [ ] TCP transport (cf. https://github.com/uhppoted/uhppote-core/issues/17)
       - [ ] Add TCP/UDP selector to configuration page
 
