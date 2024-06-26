@@ -56,6 +56,7 @@
                     "controller_serial_number": "UHPPOTE controller ID",
                     "controller_address": "controller IPv4 address",
                     "controller_port": "controller UDP port",
+                    "controller_protocol": "controller network protocol",
                     "controller_timezone": "controller timezone"
                 },
                 "data_description": {
@@ -63,6 +64,7 @@
                     "controller_serial_number": "Controller serial number e.g. 405419896",
                     "controller_address": "Controller IPv4 address (optional) e.g. 192.168.1.100",
                     "controller_port": "Controller UDP port (optional) e.g. 60000",
+                    "controller_protocol": "UDP or TCP. Defaults to UDP",
                     "controller_timezone": "Controller timezone (optional) e.g. Europe/Berlin"
                 }
             },
@@ -201,6 +203,7 @@
                     "controller_serial_number": "UHPPOTE controller ID",
                     "controller_address": "controller IPv4 address",
                     "controller_port": "controller UDP port",
+                    "controller_protocol": "controller network protocol",
                     "controller_timezone": "controller timezone"
                 },
                 "data_description": {
@@ -208,6 +211,7 @@
                     "controller_serial_number": "Controller serial number e.g. 405419896",
                     "controller_address": "Controller IPv4 address (optional) e.g. 192.168.1.100",
                     "controller_port": "Controller UDP port (optional) e.g. 60000",
+                    "controller_protocol": "UDP or TCP. Defaults to UDP",
                     "controller_timezone": "Controller timezone (optional) e.g. Europe/Berlin"
                 }
             },

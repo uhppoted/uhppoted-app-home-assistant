@@ -1,12 +1,17 @@
 import copy
 import voluptuous as vol
 
+from homeassistant.helpers.selector import SelectSelector
+from homeassistant.helpers.selector import SelectSelectorConfig
+from homeassistant.helpers.selector import SelectSelectorMode
+
 from .const import CONF_CONTROLLERS
 # from .const import CONF_CONTROLLER_UNIQUE_ID
 from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
 from .const import CONF_CONTROLLER_PORT
+from .const import CONF_CONTROLLER_PROTOCOL
 from .const import CONF_CONTROLLER_TIMEZONE
 
 from .const import DEFAULT_CONTROLLER_ID
@@ -21,6 +26,7 @@ class UhppotedFlow:
         serial_no = controller['serial_no']
         address = controller.get('address', DEFAULT_CONTROLLER_ADDR)
         port = controller.get('port', 60000)
+        protocols = ['UDP', 'TCP']
 
         #     errors: Dict[str, str] = {}
         #
@@ -72,6 +78,7 @@ class UhppotedFlow:
             CONF_CONTROLLER_ID: controller_id,
             CONF_CONTROLLER_ADDR: address,
             CONF_CONTROLLER_PORT: port,
+            CONF_CONTROLLER_PROTOCOL: 'UDP',
             CONF_CONTROLLER_TIMEZONE: default_values[CONF_CONTROLLER_TIMEZONE],  #self._timezone,
         }
 
@@ -92,6 +99,16 @@ class UhppotedFlow:
             vol.Required(CONF_CONTROLLER_ID, default=defaults[CONF_CONTROLLER_ID]): str,
             vol.Optional(CONF_CONTROLLER_ADDR, default=defaults[CONF_CONTROLLER_ADDR]): str,
             vol.Optional(CONF_CONTROLLER_PORT, default=defaults[CONF_CONTROLLER_PORT]): int,
+            vol.Optional(CONF_CONTROLLER_PROTOCOL, default=defaults[CONF_CONTROLLER_PROTOCOL]): int,
+
+            vol.Optional(CONF_CONTROLLER_PROTOCOL, default='UDP'):
+                SelectSelector(
+                    SelectSelectorConfig(
+                        options=protocols,
+                        multiple=False,
+                        custom_value=False,
+                        mode=SelectSelectorMode.DROPDOWN)),
+
             vol.Optional(CONF_CONTROLLER_TIMEZONE, default=defaults[CONF_CONTROLLER_TIMEZONE]): str,
         })
 
