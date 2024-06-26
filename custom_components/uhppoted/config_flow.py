@@ -299,37 +299,16 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
 
                 return await self.async_step_controller()
 
-        controller_id = controller.get('name', None)
-        if not controller_id or controller_id == '':
-            controller_id = controller.get('serial_no', DEFAULT_CONTROLLER_ID)
-
-        address = controller.get('address', DEFAULT_CONTROLLER_ADDR)
-
         defaults = {
-            CONF_CONTROLLER_ID: controller_id,
-            CONF_CONTROLLER_ADDR: address,
-            CONF_CONTROLLER_PORT: port,
             CONF_CONTROLLER_TIMEZONE: self._timezone,
         }
 
-        if user_input is not None:
-            for k in [CONF_CONTROLLER_ID, CONF_CONTROLLER_ADDR, CONF_CONTROLLER_TIMEZONE]:
-                if k in user_input:
-                    defaults[k] = user_input[k]
-
-        schema = vol.Schema({
-            vol.Required(CONF_CONTROLLER_ID, default=defaults[CONF_CONTROLLER_ID]): str,
-            vol.Optional(CONF_CONTROLLER_ADDR, default=defaults[CONF_CONTROLLER_ADDR]): str,
-            vol.Optional(CONF_CONTROLLER_PORT, default=defaults[CONF_CONTROLLER_PORT]): int,
-            vol.Optional(CONF_CONTROLLER_TIMEZONE, default=defaults[CONF_CONTROLLER_TIMEZONE]): str,
-        })
+        (schema,placeholders) = super().step_controller(controller, None, user_input, defaults)
 
         return self.async_show_form(step_id="controller",
                                     data_schema=schema,
                                     errors=errors,
-                                    description_placeholders={
-                                        "serial_no": controller['serial_no'],
-                                    })
+                                    description_placeholders=placeholders)
 
     async def async_step_doors(self, user_input: Optional[Dict[str, Any]] = None):
         it = next((v for v in self.controllers if not v['doors']), None)

@@ -1,18 +1,8 @@
 # TODO
 
-- [x] Add support for non-local controllers (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/3)
-      - [x] Add controllers to _configuration.yaml_
-      - [x] Rework controller address to include port
-      - [x] config-flow: doors and cards for off LAN controller
-      - [x] options-flow: doors and cards for off LAN controller
-      - [x] Rework config_driver to return class
-      - [x] Configure operation timeout
-      - [x] Use UDP.sendto in services
-      - [x] Reworked preferred-cards in configuration.yaml as array
-      - [x] README
-      - [x] CHANGELOG
-      - [x] Fix warning for no event listener value
-      - [x] Fix warning for missing timeout value
+- [ ] Missing 'port' label in controller configuration
+- [ ] TCP transport (cf. https://github.com/uhppoted/uhppote-core/issues/17)
+      - [ ] Add TCP/UDP selector to configuration page
 
 - [ ] DataCoordinator
       - [ ] communalize data
