@@ -106,6 +106,8 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
         defaults = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
 
+        super().initialise(defaults)
+
         self._bind = defaults.get(CONF_BIND_ADDR, DEFAULT_BIND_ADDRESS)
         self._broadcast = defaults.get(CONF_BROADCAST_ADDR, DEFAULT_BROADCAST_ADDRESS)
         self._listen = defaults.get(CONF_LISTEN_ADDR, DEFAULT_LISTEN_ADDRESS)
@@ -236,7 +238,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
             for v in controllers:
                 self.controllers.append({
                     'controller': {
-                        'unique_id': uuid.uuid4(),
+                      # 'unique_id': uuid.uuid4(),
                         'name': '',
                         'serial_no': v['controller'],
                         'address': v.get('address', ''),
@@ -265,50 +267,16 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
             return await self.async_step_doors()
         else:
             controller = it['controller']
-            port = controller.get('port', 60000)
 
-        errors: Dict[str, str] = {}
-        if user_input is not None:
-            unique_id = controller['unique_id']
-            serial_no = controller['serial_no']
-            name = user_input[CONF_CONTROLLER_ID]
-            address = user_input[CONF_CONTROLLER_ADDR]
-            timezone = user_input[CONF_CONTROLLER_TIMEZONE]
+            (schema,placeholders,errors) = super().step_controller(controller, self.options, user_input)
 
-            try:
-                validate_controller_id(serial_no, name, self.options)
-            except ValueError as err:
-                errors[CONF_CONTROLLER_ID] = f'{err}'
-
-            if not errors:
-                v = self.options[CONF_CONTROLLERS]
-
-                v.append({
-                    CONF_CONTROLLER_UNIQUE_ID: unique_id,
-                    CONF_CONTROLLER_SERIAL_NUMBER: serial_no,
-                    CONF_CONTROLLER_ID: name,
-                    CONF_CONTROLLER_ADDR: address,
-                    CONF_CONTROLLER_PORT: port,
-                    CONF_CONTROLLER_TIMEZONE: timezone,
-                })
-
-                self.options.update({CONF_CONTROLLERS: v})
-
-                controller['name'] = user_input[CONF_CONTROLLER_ID]
-                controller['configured'] = True
-
+            if user_input is None or errors:
+                return self.async_show_form(step_id="controller",
+                                            data_schema=schema,
+                                            errors=errors,
+                                            description_placeholders=placeholders)
+            else:
                 return await self.async_step_controller()
-
-        defaults = {
-            CONF_CONTROLLER_TIMEZONE: self._timezone,
-        }
-
-        (schema,placeholders) = super().step_controller(controller, None, user_input, defaults)
-
-        return self.async_show_form(step_id="controller",
-                                    data_schema=schema,
-                                    errors=errors,
-                                    description_placeholders=placeholders)
 
     async def async_step_doors(self, user_input: Optional[Dict[str, Any]] = None):
         it = next((v for v in self.controllers if not v['doors']), None)

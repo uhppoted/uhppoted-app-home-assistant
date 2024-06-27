@@ -3,7 +3,9 @@
 - [x] Missing 'port' label in controller configuration
 - [ ] TCP transport (cf. https://github.com/uhppoted/uhppote-core/issues/17)
       - [x] Add TCP/UDP selector to configuration page
-      - [ ] Add protocol field to controller data
+      - [x] Add protocol field to controller data
+      - [ ] Restore protocol field
+      - [ ] Include protocol when configuring controller entities
 
 - [ ] DataCoordinator
       - [ ] communalize data

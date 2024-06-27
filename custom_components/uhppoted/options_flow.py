@@ -93,6 +93,8 @@ _LOGGER = logging.getLogger(__name__)
 class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
 
     def __init__(self, entry: ConfigEntry) -> None:
+        super().__init__()
+
         self._bind = DEFAULT_BIND_ADDRESS
         self._broadcast = DEFAULT_BROADCAST_ADDRESS
         self._listen = DEFAULT_LISTEN_ADDRESS
@@ -114,6 +116,8 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         defaults = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
+
+        super().initialise(defaults)
 
         self._bind = defaults.get(CONF_BIND_ADDR, self._bind)
         self._broadcast = defaults.get(CONF_BROADCAST_ADDR, self._broadcast)
@@ -202,7 +206,6 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
         return self.async_show_form(step_id="events", data_schema=schema, errors=errors)
 
     async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
-
         def g(v):
             serial_no = v['controller']
             address = v.get('address', DEFAULT_CONTROLLER_ADDR)
@@ -228,17 +231,21 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
                 for v in user_input[CONF_CONTROLLERS]:
                     address = ''
                     port = 60000
+                    protocol = 'UDP'
+
                     if 'controllers' in self.cache:
                         for cached in self.cache['controllers']:
                             if cached['controller'] == int(f'{v}'):
                                 address = cached.get('address', '')
                                 port = cached.get('port', 60000)
+                                protocol = cached.get('protocol','UDP')
 
                     self.controllers.append({
                         'controller': {
                             'serial_no': v,
                             'address': address,
                             'port': port,
+                            'protocol': protocol,
                             'configured': False,
                         },
                         'doors': None,
@@ -286,61 +293,17 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
                 return await self.async_step_controllers()
         else:
             controller = it['controller']
-            serial_no = controller['serial_no']
-            port = controller.get('port', 60000)
 
-        errors: Dict[str, str] = {}
+            (schema,placeholders,errors) = super().step_controller(controller, self.options, user_input)
 
-        if user_input is not None:
-            name = user_input[CONF_CONTROLLER_ID]
-            address = user_input[CONF_CONTROLLER_ADDR]
-            timezone = user_input[CONF_CONTROLLER_TIMEZONE]
-
-            try:
-                validate_controller_id(serial_no, name, None)
-            except ValueError as err:
-                errors[CONF_CONTROLLER_ID] = f'{err}'
-
-            if not errors:
-                controllers = self.options[CONF_CONTROLLERS]
-
-                for v in self.options[CONF_CONTROLLERS]:
-                    if int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') == int(f'{serial_no}'):
-                        if user_input[CONF_CONTROLLER_ID].strip() == '-':
-                            controllers.remove(v)
-                        else:
-                            v[CONF_CONTROLLER_ID] = name
-                            v[CONF_CONTROLLER_ADDR] = address
-                            v[CONF_CONTROLLER_PORT] = port
-                            v[CONF_CONTROLLER_TIMEZONE] = timezone
-                        break
-                else:
-                    if user_input[CONF_CONTROLLER_ID].strip() != '-':
-                        controllers.append({
-                            CONF_CONTROLLER_UNIQUE_ID: uuid.uuid4(),
-                            CONF_CONTROLLER_SERIAL_NUMBER: serial_no,
-                            CONF_CONTROLLER_ID: name,
-                            CONF_CONTROLLER_ADDR: address,
-                            CONF_CONTROLLER_PORT: port,
-                            CONF_CONTROLLER_TIMEZONE: timezone,
-                        })
-
-                self.options.update({CONF_CONTROLLERS: controllers})
-
-                controller['configured'] = True
-
+            if user_input is None or errors:
+                return self.async_show_form(step_id="controller",
+                                            data_schema=schema,
+                                            errors=errors,
+                                            description_placeholders=placeholders)
+            else:
                 return await self.async_step_controller()
 
-        defaults = {
-            CONF_CONTROLLER_TIMEZONE: self._timezone,
-        }
-
-        (schema,placeholders) = super().step_controller(controller, self.options, user_input, defaults)
-
-        return self.async_show_form(step_id="controller",
-                                    data_schema=schema,
-                                    errors=errors,
-                                    description_placeholders=placeholders)
 
     async def async_step_doors(self, user_input: Optional[Dict[str, Any]] = None):
 
