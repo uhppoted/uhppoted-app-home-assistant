@@ -23,6 +23,7 @@ from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
 from .const import CONF_CONTROLLER_PORT
+from .const import CONF_CONTROLLER_PROTOCOL
 from .const import CONF_CONTROLLER_TIMEOUT
 
 from .const import CONF_DOORS
@@ -208,12 +209,15 @@ def get_all_controllers(predefined, options):
         serial_no = v.get('controller', 0)
         address = v.get('address', '')
         port = v.get('port', 60000)
+        protocol = 'UDP'
+
         if serial_no > 0 and address != '':
             k = serial_no
             controllers[k] = {
                 'controller': serial_no,
                 'address': address,
                 'port': port,
+                'protocol': protocol,
             }
 
     if CONF_CONTROLLERS in options:
@@ -221,11 +225,13 @@ def get_all_controllers(predefined, options):
             serial_no = int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}')
             address = v.get(CONF_CONTROLLER_ADDR, '')
             port = v.get(CONF_CONTROLLER_PORT, 60000)
+            protocol = v.get(CONF_CONTROLLER_PROTOCOL, 'UDP')
             k = serial_no
             controllers[k] = {
                 'controller': serial_no,
                 'address': address,
                 'port': port,
+                'protocol': protocol,
             }
 
     try:
@@ -237,10 +243,15 @@ def get_all_controllers(predefined, options):
         response = uhppoted.get_all_controllers(bind, broadcast, listen, debug)
 
         for v in response:
+            protocol = 'UDP'
+            if v.controller in controllers:
+                protocol = controllers[v.controller].get('protocol', protocol)
+
             controllers[v.controller] = {
                 'controller': v.controller,
                 'address': f'{v.ip_address}',
                 'port': 60000,
+                'protocol': protocol,
             }
 
     except Exception as e:

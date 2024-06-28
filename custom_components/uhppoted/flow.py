@@ -80,7 +80,7 @@ class UhppotedFlow:
                             CONF_CONTROLLER_TIMEZONE: timezone,
                         })
 
-                self.options.update({CONF_CONTROLLERS: controllers})
+                options.update({CONF_CONTROLLERS: controllers})
 
                 controller['name'] = name  # FIXME ?? (from config-flow, but not sure why - might be legacy stuff)
                 controller['configured'] = True
@@ -93,20 +93,22 @@ class UhppotedFlow:
             CONF_CONTROLLER_ID: controller_id,
             CONF_CONTROLLER_ADDR: address,
             CONF_CONTROLLER_PORT: port,
-            CONF_CONTROLLER_PROTOCOL: 'UDP',
+            CONF_CONTROLLER_PROTOCOL: protocol,
             CONF_CONTROLLER_TIMEZONE: self._timezone,
         }
+
+        attributes = [CONF_CONTROLLER_ID, CONF_CONTROLLER_ADDR, CONF_CONTROLLER_PORT, CONF_CONTROLLER_PROTOCOL, CONF_CONTROLLER_TIMEZONE]
 
         if options != None:
             for v in options.get(CONF_CONTROLLERS, []):
                 if int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') == int(f'{serial_no}'):
-                    for k in [CONF_CONTROLLER_ID, CONF_CONTROLLER_ADDR, CONF_CONTROLLER_TIMEZONE]:
+                    for k in attributes:
                         if k in v:
                             defaults[k] = v[k]
                     break
         
         if user_input is not None:
-            for k in [CONF_CONTROLLER_ID, CONF_CONTROLLER_ADDR, CONF_CONTROLLER_TIMEZONE]:
+            for k in attributes:
                 if k in user_input:
                     defaults[k] = user_input[k]
 
@@ -114,7 +116,7 @@ class UhppotedFlow:
             vol.Required(CONF_CONTROLLER_ID, default=defaults[CONF_CONTROLLER_ID]): str,
             vol.Optional(CONF_CONTROLLER_ADDR, default=defaults[CONF_CONTROLLER_ADDR]): str,
             vol.Optional(CONF_CONTROLLER_PORT, default=defaults[CONF_CONTROLLER_PORT]): int,
-            vol.Optional(CONF_CONTROLLER_PROTOCOL, default=defaults[CONF_CONTROLLER_PROTOCOL]): int,
+            vol.Optional(CONF_CONTROLLER_PROTOCOL, default=defaults[CONF_CONTROLLER_PROTOCOL]): str,
 
             vol.Optional(CONF_CONTROLLER_PROTOCOL, default='UDP'):
                 SelectSelector(

@@ -215,6 +215,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
                             if cached['controller'] == int(f'{v}'):
                                 address = cached.get('address', '')
                                 port = cached.get('port', 60000)
+                                protocol = cached.get('protocol','UDP')
 
                     self.controllers.append({
                         'controller': {
@@ -223,6 +224,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
                             'serial_no': v,
                             'address': address,
                             'port': port,
+                            'protocol': protocol,
                             'configured': False,
                         },
                         'doors': None,
@@ -238,11 +240,11 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
             for v in controllers:
                 self.controllers.append({
                     'controller': {
-                      # 'unique_id': uuid.uuid4(),
                         'name': '',
                         'serial_no': v['controller'],
                         'address': v.get('address', ''),
                         'port': v.get('port', 60000),
+                        'protocol': v.get('protocol','UDP'),
                         'configured': False,
                     },
                     'doors': None,
