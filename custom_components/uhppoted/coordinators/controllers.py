@@ -14,9 +14,14 @@ from uhppoted import uhppote
 _LOGGER = logging.getLogger(__name__)
 _INTERVAL = datetime.timedelta(seconds=30)
 
+from ..const import CONF_CONTROLLERS
+from ..const import CONF_CONTROLLER_SERIAL_NUMBER
+from ..const import CONF_CONTROLLER_PROTOCOL
+
 from ..const import ATTR_AVAILABLE
 from ..const import ATTR_CONTROLLER
 from ..const import ATTR_CONTROLLER_ADDRESS
+from ..const import ATTR_CONTROLLER_PROTOCOL
 from ..const import ATTR_NETMASK
 from ..const import ATTR_GATEWAY
 from ..const import ATTR_FIRMWARE
@@ -99,14 +104,21 @@ class ControllersCoordinator(DataUpdateCoordinator):
         available = False
 
         address = None
+        protocol = None
         netmask = None
         gateway = None
         firmware = None
+
+        controllers = self._options.get(CONF_CONTROLLERS,[])
+        for v in controllers:
+            if int(f'{v.get(CONF_CONTROLLER_SERIAL_NUMBER,0)}') == int(f'{controller}'):
+                protocol = f'{v.get(CONF_CONTROLLER_PROTOCOL,"UDP")}'
 
         try:
             response = self._uhppote.get_controller(controller)
             if response.controller == controller:
                 address = f'{response.ip_address}'
+                protocol = protocol
                 netmask = f'{response.subnet_mask}'
                 gateway = f'{response.gateway}'
                 firmware = f'{response.version} {response.date:%Y-%m-%d}'
@@ -118,6 +130,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         with lock:
             self._state[controller].update({
                 ATTR_CONTROLLER_ADDRESS: address,
+                ATTR_CONTROLLER_PROTOCOL: protocol,
                 ATTR_NETMASK: netmask,
                 ATTR_GATEWAY: gateway,
                 ATTR_FIRMWARE: firmware,

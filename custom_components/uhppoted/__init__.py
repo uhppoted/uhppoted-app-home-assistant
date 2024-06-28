@@ -73,7 +73,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     _LOGGER.info(f'max. cards:                  {defaults[CONF_MAX_CARDS]}')
     _LOGGER.info(f'preferred cards:             {defaults[CONF_PREFERRED_CARDS]}')
     _LOGGER.info(f'PIN enabled:                 {defaults[CONF_PIN_ENABLED]}')
-    _LOGGER.info(f'poll interval - controllers: {defaults[CONF_POLL_CONTROLLERS]}s')
+    _LOGGER.info(f'poll interval - controllers: {defaults[CONF_POLL_CONTROLLERS]}')
     _LOGGER.info(f'poll interval - doors:       {defaults[CONF_POLL_DOORS]}s')
     _LOGGER.info(f'poll interval - cards:       {defaults[CONF_POLL_CARDS]}s')
     _LOGGER.info(f'poll interval - events:      {defaults[CONF_POLL_EVENTS]}s')

@@ -4,8 +4,12 @@
 - [ ] TCP transport (cf. https://github.com/uhppoted/uhppote-core/issues/17)
       - [x] Add TCP/UDP selector to configuration page
       - [x] Add protocol field to controller data
-      - [ ] Restore protocol field
-      - [ ] Include protocol when configuring controller entities
+      - [x] Restore protocol field
+      - [x] Controller entity protocol attribute
+      - [ ] startup (`_LOGGER.info(f'controllers:                 {defaults[CONF_CONTROLLERS]}')`)
+      - [ ] `configure_driver`
+            - store controllers locally i.e. not in `uhppoted` struct
+            - check protocol field when fetching
 
 - [ ] DataCoordinator
       - [ ] communalize data

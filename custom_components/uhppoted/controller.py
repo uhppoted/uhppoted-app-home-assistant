@@ -14,6 +14,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import ATTR_AVAILABLE
 from .const import ATTR_CONTROLLER_ADDRESS
+from .const import ATTR_CONTROLLER_PROTOCOL
 from .const import ATTR_NETMASK
 from .const import ATTR_GATEWAY
 from .const import ATTR_FIRMWARE
@@ -41,6 +42,7 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
         self._state = serial_no
         self._attributes: Dict[str, Any] = {
             ATTR_CONTROLLER_ADDRESS: None,
+            ATTR_CONTROLLER_PROTOCOL: None,
             ATTR_NETMASK: None,
             ATTR_GATEWAY: None,
             ATTR_FIRMWARE: None,
@@ -91,6 +93,7 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
             else:
                 state = self.coordinator.data[idx]
                 self._attributes[ATTR_CONTROLLER_ADDRESS] = state.get(ATTR_CONTROLLER_ADDRESS, None)
+                self._attributes[ATTR_CONTROLLER_PROTOCOL] = state.get(ATTR_CONTROLLER_PROTOCOL, None)
                 self._attributes[ATTR_NETMASK] = state.get(ATTR_NETMASK, None)
                 self._attributes[ATTR_GATEWAY] = state.get(ATTR_GATEWAY, None)
                 self._attributes[ATTR_FIRMWARE] = state.get(ATTR_FIRMWARE, None)

@@ -43,13 +43,14 @@ CONF_CARD_ENDDATE = 'card_enddate'
 CONF_CARD_DOORS = 'card_doors'
 
 ATTR_AVAILABLE = 'available'
-ATTR_CONTROLLER_ADDRESS = 'address'
 ATTR_NETMASK = 'netmask'
 ATTR_GATEWAY = 'gateway'
 ATTR_FIRMWARE = 'firmware'
 
 ATTR_CONTROLLER = 'controller'
 ATTR_CONTROLLER_SERIAL_NUMBER = 'serial_no'
+ATTR_CONTROLLER_ADDRESS = 'address'
+ATTR_CONTROLLER_PROTOCOL = 'protocol'
 ATTR_CONTROLLER_DATETIME = 'date-time'
 ATTR_CONTROLLER_LISTENER = 'event_listener'
 

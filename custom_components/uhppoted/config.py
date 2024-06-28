@@ -443,11 +443,13 @@ def configure_driver(options, defaults={}):
         controller = int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}')
         address = f'{v[CONF_CONTROLLER_ADDR]}'
         port = int(f'{v.get(CONF_CONTROLLER_PORT,60000)}')
+        protocol = f"{v.get(CONF_CONTROLLER_PROTOCOL,'UDP')}"
 
         return {
             'controller': controller,
             'address': address,
             'port': port,
+            'protocol': protocol,
             'timeout': timeouts.get(controller, timeout),
         }
 
