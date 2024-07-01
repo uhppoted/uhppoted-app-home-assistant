@@ -1,5 +1,7 @@
+from collections import namedtuple
 from uhppoted import uhppote
 
+Controller = namedtuple('Controller', 'id address protocol')
 
 class uhppoted:
 

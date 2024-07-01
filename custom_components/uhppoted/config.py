@@ -55,6 +55,7 @@ from .const import ERR_DUPLICATE_DOOR_IDS
 from .const import ERR_INVALID_CARD_ID
 
 from .uhppoted import uhppoted
+from .uhppoted import Controller
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -481,6 +482,17 @@ def get_configured_controllers(options):
     else:
         return []
 
+def get_configured_controllers_ext(options):
+    def g(v):
+        id = int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}')
+        address = v.get(CONF_CONTROLLER_ADDR,'')
+        port = int(f'{v.get(CONF_CONTROLLER_PORT,60000)}')
+        addr = f'{address}:{port}'
+        protocol = v.get(CONF_CONTROLLER_PROTOCOL,'UDP')
+
+        return Controller(id,addr, protocol)
+
+    return [g(v) for v in options.get(CONF_CONTROLLERS,[])]
 
 def get_configured_doors(options):
     if CONF_DOORS in options:

@@ -30,6 +30,7 @@ from ..const import ATTR_CONTROLLER_LISTENER
 
 from ..config import configure_cards
 from ..config import get_configured_controllers
+from ..config import get_configured_controllers_ext
 from ..config import get_configured_cards
 
 
@@ -42,6 +43,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         super().__init__(hass, _LOGGER, name="controllers", update_interval=poll)
 
         self._options = options
+        self._controllers = get_configured_controllers_ext(options)
         self._uhppote = driver
         self._db = db
         self._state = {}
@@ -86,11 +88,16 @@ class ControllersCoordinator(DataUpdateCoordinator):
                     ATTR_AVAILABLE: False,
                 }
 
+        controllers = []
+        for controller in self._controllers:
+            if controller.id in contexts:
+                controllers.append(controller)
+
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                executor.map(lambda controller: self._get_controller(lock, controller), contexts, timeout=1)
-                executor.map(lambda controller: self._get_datetime(lock, controller), contexts, timeout=1)
-                executor.map(lambda controller: self._get_listener(lock, controller), contexts, timeout=1)
+                executor.map(lambda controller: self._get_controller(lock, controller), controllers, timeout=1)
+                executor.map(lambda controller: self._get_datetime(lock, controller), controllers, timeout=1)
+                executor.map(lambda controller: self._get_listener(lock, controller), controllers, timeout=1)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller} information ({err})')
 
@@ -99,36 +106,30 @@ class ControllersCoordinator(DataUpdateCoordinator):
         return self._db.controllers
 
     def _get_controller(self, lock, controller):
-        _LOGGER.debug(f'fetch controller info {controller}')
+        _LOGGER.debug(f'fetch controller info {controller.id}')
 
         available = False
 
         address = None
-        protocol = None
+        protocol = controller.protocol
         netmask = None
         gateway = None
         firmware = None
 
-        controllers = self._options.get(CONF_CONTROLLERS,[])
-        for v in controllers:
-            if int(f'{v.get(CONF_CONTROLLER_SERIAL_NUMBER,0)}') == int(f'{controller}'):
-                protocol = f'{v.get(CONF_CONTROLLER_PROTOCOL,"UDP")}'
-
         try:
-            response = self._uhppote.get_controller(controller)
-            if response.controller == controller:
+            response = self._uhppote.get_controller(controller.id)
+            if response.controller == controller.id:
                 address = f'{response.ip_address}'
-                protocol = protocol
                 netmask = f'{response.subnet_mask}'
                 gateway = f'{response.gateway}'
                 firmware = f'{response.version} {response.date:%Y-%m-%d}'
                 available = True
 
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller} information ({err})')
+            _LOGGER.error(f'error retrieving controller {controller.id} information ({err})')
 
         with lock:
-            self._state[controller].update({
+            self._state[controller.id].update({
                 ATTR_CONTROLLER_ADDRESS: address,
                 ATTR_CONTROLLER_PROTOCOL: protocol,
                 ATTR_NETMASK: netmask,
@@ -138,13 +139,13 @@ class ControllersCoordinator(DataUpdateCoordinator):
             })
 
     def _get_datetime(self, lock, controller):
-        _LOGGER.debug(f'fetch controller datetime {controller}')
+        _LOGGER.debug(f'fetch controller datetime {controller.id}')
 
         sysdatetime = None
 
         try:
-            response = self._uhppote.get_time(controller)
-            if response.controller == controller:
+            response = self._uhppote.get_time(controller.id)
+            if response.controller == controller.id:
                 year = response.datetime.year
                 month = response.datetime.month
                 day = response.datetime.day
@@ -156,27 +157,27 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 sysdatetime = datetime.datetime(year, month, day, hour, minute, second, 0, tz)
 
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller} date/time ({err})')
+            _LOGGER.error(f'error retrieving controller {controller.id} date/time ({err})')
 
         with lock:
-            self._state[controller].update({
+            self._state[controller.id].update({
                 ATTR_CONTROLLER_DATETIME: sysdatetime,
             })
 
     def _get_listener(self, lock, controller):
-        _LOGGER.debug(f'fetch controller event listener {controller}')
+        _LOGGER.debug(f'fetch controller event listener {controller.id}')
 
         listener = None
 
         try:
-            response = self._uhppote.get_listener(controller)
-            if response.controller == controller:
+            response = self._uhppote.get_listener(controller.id)
+            if response.controller == controller.id:
                 listener = f'{response.address}:{response.port}'
 
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller} event listener ({err})')
+            _LOGGER.error(f'error retrieving controller {controller.id} event listener ({err})')
 
         with lock:
-            self._state[controller].update({
+            self._state[controller.id].update({
                 ATTR_CONTROLLER_LISTENER: listener,
             })

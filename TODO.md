@@ -7,9 +7,9 @@
       - [x] Restore protocol field
       - [x] Controller entity protocol attribute
       - [x] startup (`_LOGGER.info(f'controllers:                 {defaults[CONF_CONTROLLERS]}')`)
-      - [ ] `configure_driver`
-            - store controllers locally i.e. not in `uhppoted` struct
-            - check protocol field when fetching
+      - [ ] Rework coordinators to use `Controller` tuple
+      - [ ] Check controller.protocol from configuration.yaml
+      - [ ] (eventually) remove `controllers` from driver
 
 - [ ] DataCoordinator
       - [ ] communalize data
