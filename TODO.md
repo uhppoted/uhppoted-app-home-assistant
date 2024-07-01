@@ -6,7 +6,7 @@
       - [x] Add protocol field to controller data
       - [x] Restore protocol field
       - [x] Controller entity protocol attribute
-      - [ ] startup (`_LOGGER.info(f'controllers:                 {defaults[CONF_CONTROLLERS]}')`)
+      - [x] startup (`_LOGGER.info(f'controllers:                 {defaults[CONF_CONTROLLERS]}')`)
       - [ ] `configure_driver`
             - store controllers locally i.e. not in `uhppoted` struct
             - check protocol field when fetching

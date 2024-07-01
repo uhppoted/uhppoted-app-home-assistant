@@ -234,10 +234,12 @@ uhppoted:
             controller: 605040302
             address: 192.168.1.100
             port: 60000
+            protocol: UDP
         - 
             controller: 706050403
             address: 192.168.1.100
             port: 54321
+            protocol: TCP
             timeout: 0.56
 ...
 ```
@@ -246,6 +248,7 @@ The `controllers` subsection is a YAML array/list of controllers with the follow
 - `controller`: controller serial number
 - `address`: controller IPv4 address
 - `port`: _(optional)_ controller UDP port (defaults to 60000)
+- `protocol`: _(optional)_ controller transport protocol (UDP or TCP - defaults to UDP)
 - `timeout`: _(optional)_ controller timeout (default to the global uhppoted timeout of 2.5s)
 
 The controllers listed in `configuration.yaml` are included in the list of _discovered_ controllers and
@@ -308,6 +311,7 @@ uhppoted:
             controller: 706050403
             address: 192.168.1.100
             port: 54321
+            protocol: TCP
             timeout: 0.56
 ```
 
