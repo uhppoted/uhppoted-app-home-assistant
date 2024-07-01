@@ -99,7 +99,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 executor.map(lambda controller: self._get_datetime(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_listener(lock, controller), controllers, timeout=1)
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller} information ({err})')
+            _LOGGER.error(f'error retrieving controller information ({err})')
 
         self._db.controllers = self._state
 

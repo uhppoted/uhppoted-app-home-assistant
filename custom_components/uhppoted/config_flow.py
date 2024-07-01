@@ -215,7 +215,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
                             if cached['controller'] == int(f'{v}'):
                                 address = cached.get('address', '')
                                 port = cached.get('port', 60000)
-                                protocol = cached.get('protocol','UDP')
+                                protocol = cached.get('protocol', 'UDP')
 
                     self.controllers.append({
                         'controller': {
@@ -244,7 +244,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
                         'serial_no': v['controller'],
                         'address': v.get('address', ''),
                         'port': v.get('port', 60000),
-                        'protocol': v.get('protocol','UDP'),
+                        'protocol': v.get('protocol', 'UDP'),
                         'configured': False,
                     },
                     'doors': None,
@@ -270,7 +270,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         else:
             controller = it['controller']
 
-            (schema,placeholders,errors) = super().step_controller(controller, self.options, user_input)
+            (schema, placeholders, errors) = super().step_controller(controller, self.options, user_input)
 
             if user_input is None or errors:
                 return self.async_show_form(step_id="controller",

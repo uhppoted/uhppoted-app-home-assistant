@@ -3,6 +3,7 @@ from uhppoted import uhppote
 
 Controller = namedtuple('Controller', 'id address protocol')
 
+
 class uhppoted:
 
     def __init__(self, bind, broadcast, listen, controllers, timeout, debug):

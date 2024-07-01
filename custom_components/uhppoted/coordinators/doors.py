@@ -25,9 +25,12 @@ from ..const import ATTR_DOOR_BUTTON
 from ..const import ATTR_DOOR_LOCK
 from ..const import ATTR_DOOR_OPEN
 
+from ..config import get_configured_controllers_ext
 from ..config import get_configured_doors
 from ..config import resolve_door
 from ..config import resolve_door_by_name
+
+from ..uhppoted import Controller
 
 
 class DoorsCoordinator(DataUpdateCoordinator):
@@ -39,6 +42,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         super().__init__(hass, _LOGGER, name="doors", update_interval=interval)
 
         self._options = options
+        self._controllers = get_configured_controllers_ext(options)
         self._uhppote = driver
         self._db = db
         self._state = {}
@@ -119,13 +123,18 @@ class DoorsCoordinator(DataUpdateCoordinator):
                     ATTR_AVAILABLE: False,
                 }
 
-        controllers = set()
+        _controllers = set()
         doors = {}
         for idx in contexts:
             door = resolve_door(self._options, idx)
             if door:
-                controllers.add(door[CONF_CONTROLLER_SERIAL_NUMBER])
+                _controllers.add(door[CONF_CONTROLLER_SERIAL_NUMBER])
                 doors[idx] = door
+
+        controllers = []
+        for controller in self._controllers:
+            if controller.id in _controllers:
+                controllers.append(controller)
 
         state = {}
         try:
@@ -135,7 +144,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 executor.map(lambda idx: self._get_door(lock, idx, doors[idx], state), contexts, timeout=1)
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller} door information ({err})')
+            _LOGGER.error(f'error retrieving controller door information ({err})')
 
         self._db.doors = self._state
 
@@ -145,8 +154,8 @@ class DoorsCoordinator(DataUpdateCoordinator):
         info = None
 
         try:
-            response = self._uhppote.get_status(controller)
-            if response.controller == controller:
+            response = self._uhppote.get_status(controller.id)
+            if response.controller == controller.id:
                 info = {
                     1: {
                         'open': response.door_1_open == True,
@@ -170,10 +179,10 @@ class DoorsCoordinator(DataUpdateCoordinator):
                     }
                 }
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller} door state ({err})')
+            _LOGGER.error(f'error retrieving controller {controller.id} door state ({err})')
 
         with lock:
-            state[controller] = info
+            state[controller.id] = info
 
     def _get_door(self, lock, idx, door, state):
         info = {
@@ -187,26 +196,33 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
         try:
             name = door[CONF_DOOR_ID]
-            controller = door[CONF_CONTROLLER_SERIAL_NUMBER]
+            controller_id = door[CONF_CONTROLLER_SERIAL_NUMBER]
             door_id = door[CONF_DOOR_NUMBER]
+
+            controller = Controller(controller_id, None, None)
+            for v in self._controllers:
+                if int(f'{v.id}') == int(f'{controller_id}'):
+                    controller = v
 
             _LOGGER.debug(f'fetch door {name} information')
 
             mode = None
             delay = None
 
-            response = self._uhppote.get_door_control(controller, door_id)
-            if response.controller == controller and response.door == door_id and controller in state and state[
-                    controller] != None:
+            response = self._uhppote.get_door_control(controller.id, door_id)
+            if response.controller == controller.id \
+               and response.door == door_id         \
+               and controller.id in state           \
+               and state[controller.id] != None:
                 mode = response.mode
                 delay = response.delay
 
                 info = {
                     ATTR_DOOR_MODE: mode,
                     ATTR_DOOR_DELAY: delay,
-                    ATTR_DOOR_OPEN: state[controller][door_id]['open'],
-                    ATTR_DOOR_BUTTON: state[controller][door_id]['button'],
-                    ATTR_DOOR_LOCK: state[controller][door_id]['locked'],
+                    ATTR_DOOR_OPEN: state[controller.id][door_id]['open'],
+                    ATTR_DOOR_BUTTON: state[controller.id][door_id]['button'],
+                    ATTR_DOOR_LOCK: state[controller.id][door_id]['locked'],
                     ATTR_AVAILABLE: True,
                 }
 

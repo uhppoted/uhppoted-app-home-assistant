@@ -8,6 +8,16 @@
       - [x] Controller entity protocol attribute
       - [x] startup (`_LOGGER.info(f'controllers:                 {defaults[CONF_CONTROLLERS]}')`)
       - [ ] Rework coordinators to use `Controller` tuple
+            - [ ] update
+                  - [x] controllers
+                  - [x] doors
+                  - [ ] cards
+                  - [ ] events
+            - [ ] set
+                  - [ ] controllers
+                  - [ ] doors
+                  - [ ] cards
+                  - [ ] events
       - [ ] Check controller.protocol from configuration.yaml
       - [ ] (eventually) remove `controllers` from driver
 

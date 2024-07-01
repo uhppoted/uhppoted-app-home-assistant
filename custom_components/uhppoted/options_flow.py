@@ -206,6 +206,7 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
         return self.async_show_form(step_id="events", data_schema=schema, errors=errors)
 
     async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
+
         def g(v):
             serial_no = v['controller']
             address = v.get('address', DEFAULT_CONTROLLER_ADDR)
@@ -238,7 +239,7 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
                             if cached['controller'] == int(f'{v}'):
                                 address = cached.get('address', '')
                                 port = cached.get('port', 60000)
-                                protocol = cached.get('protocol','UDP')
+                                protocol = cached.get('protocol', 'UDP')
 
                     self.controllers.append({
                         'controller': {
@@ -294,7 +295,7 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
         else:
             controller = it['controller']
 
-            (schema,placeholders,errors) = super().step_controller(controller, self.options, user_input)
+            (schema, placeholders, errors) = super().step_controller(controller, self.options, user_input)
 
             if user_input is None or errors:
                 return self.async_show_form(step_id="controller",
@@ -303,7 +304,6 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
                                             description_placeholders=placeholders)
             else:
                 return await self.async_step_controller()
-
 
     async def async_step_doors(self, user_input: Optional[Dict[str, Any]] = None):
 

@@ -23,6 +23,7 @@ from .const import DEFAULT_CONTROLLER_TIMEZONE
 
 from .config import validate_controller_id
 
+
 class UhppotedFlow:
 
     def __init__(self):
@@ -48,12 +49,12 @@ class UhppotedFlow:
             port = user_input[CONF_CONTROLLER_PORT]
             protocol = user_input[CONF_CONTROLLER_PROTOCOL]
             timezone = user_input[CONF_CONTROLLER_TIMEZONE]
-        
+
             try:
                 validate_controller_id(serial_no, name, None)
             except ValueError as err:
                 errors[CONF_CONTROLLER_ID] = f'{err}'
-        
+
             if not errors:
                 controllers = self.options[CONF_CONTROLLERS]
 
@@ -97,7 +98,10 @@ class UhppotedFlow:
             CONF_CONTROLLER_TIMEZONE: self._timezone,
         }
 
-        attributes = [CONF_CONTROLLER_ID, CONF_CONTROLLER_ADDR, CONF_CONTROLLER_PORT, CONF_CONTROLLER_PROTOCOL, CONF_CONTROLLER_TIMEZONE]
+        attributes = [
+            CONF_CONTROLLER_ID, CONF_CONTROLLER_ADDR, CONF_CONTROLLER_PORT, CONF_CONTROLLER_PROTOCOL,
+            CONF_CONTROLLER_TIMEZONE
+        ]
 
         if options != None:
             for v in options.get(CONF_CONTROLLERS, []):
@@ -106,31 +110,33 @@ class UhppotedFlow:
                         if k in v:
                             defaults[k] = v[k]
                     break
-        
+
         if user_input is not None:
             for k in attributes:
                 if k in user_input:
                     defaults[k] = user_input[k]
 
         schema = vol.Schema({
-            vol.Required(CONF_CONTROLLER_ID, default=defaults[CONF_CONTROLLER_ID]): str,
-            vol.Optional(CONF_CONTROLLER_ADDR, default=defaults[CONF_CONTROLLER_ADDR]): str,
-            vol.Optional(CONF_CONTROLLER_PORT, default=defaults[CONF_CONTROLLER_PORT]): int,
-            vol.Optional(CONF_CONTROLLER_PROTOCOL, default=defaults[CONF_CONTROLLER_PROTOCOL]): str,
-
+            vol.Required(CONF_CONTROLLER_ID, default=defaults[CONF_CONTROLLER_ID]):
+            str,
+            vol.Optional(CONF_CONTROLLER_ADDR, default=defaults[CONF_CONTROLLER_ADDR]):
+            str,
+            vol.Optional(CONF_CONTROLLER_PORT, default=defaults[CONF_CONTROLLER_PORT]):
+            int,
+            vol.Optional(CONF_CONTROLLER_PROTOCOL, default=defaults[CONF_CONTROLLER_PROTOCOL]):
+            str,
             vol.Optional(CONF_CONTROLLER_PROTOCOL, default='UDP'):
-                SelectSelector(
-                    SelectSelectorConfig(
-                        options=protocols,
-                        multiple=False,
-                        custom_value=False,
-                        mode=SelectSelectorMode.DROPDOWN)),
-
-            vol.Optional(CONF_CONTROLLER_TIMEZONE, default=defaults[CONF_CONTROLLER_TIMEZONE]): str,
+            SelectSelector(
+                SelectSelectorConfig(options=protocols,
+                                     multiple=False,
+                                     custom_value=False,
+                                     mode=SelectSelectorMode.DROPDOWN)),
+            vol.Optional(CONF_CONTROLLER_TIMEZONE, default=defaults[CONF_CONTROLLER_TIMEZONE]):
+            str,
         })
 
-        placeholders = { 
+        placeholders = {
             "serial_no": serial_no,
         }
 
-        return (schema,placeholders,errors)
+        return (schema, placeholders, errors)
