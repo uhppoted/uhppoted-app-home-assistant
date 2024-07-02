@@ -24,6 +24,7 @@ from ..const import ATTR_CARD_PERMISSIONS
 from ..const import ATTR_CARD_PIN
 
 from ..config import configure_cards
+from ..config import get_configured_controllers_ext
 from ..config import get_configured_controllers
 from ..config import get_configured_cards
 from ..config import resolve_permissions
@@ -40,6 +41,7 @@ class CardsCoordinator(DataUpdateCoordinator):
         super().__init__(hass, _LOGGER, name="cards", update_interval=interval)
 
         self._options = options
+        self._controllers = get_configured_controllers_ext(options)
         self._uhppote = driver
         self._db = db
         self._state = {}
@@ -300,14 +302,14 @@ class CardsCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"uhppoted API error {err}")
 
     async def _get_cards(self, contexts):
-        controllers = self._uhppote.controllers
         lock = threading.Lock()
+        controllers = self._controllers
 
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 executor.map(lambda card: self._get_card(controllers, lock, card), contexts, timeout=1)
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller} information ({err})')
+            _LOGGER.error(f'error retrieving card information ({err})')
 
         self._db.cards = self._state
 
@@ -330,28 +332,28 @@ class CardsCoordinator(DataUpdateCoordinator):
             PIN = None
 
             for controller in controllers:
-                response = self._uhppote.get_card(controller, card)
+                response = self._uhppote.get_card(controller.id, card)
 
-                if response.controller == controller and response.card_number == card:
+                if response.controller == controller.id and response.card_number == card:
                     if response.start_date and (not start_date or response.start_date < start_date):
                         start_date = response.start_date
 
                     if response.end_date != None and (not end_date or response.end_date > end_date):
                         end_date = response.end_date
 
-                    permissions[controller] = []
+                    permissions[controller.id] = []
 
                     if response.door_1 > 0:
-                        permissions[controller].append(1)
+                        permissions[controller.id].append(1)
 
                     if response.door_2 > 0:
-                        permissions[controller].append(2)
+                        permissions[controller.id].append(2)
 
                     if response.door_3 > 0:
-                        permissions[controller].append(3)
+                        permissions[controller.id].append(3)
 
                     if response.door_4 > 0:
-                        permissions[controller].append(4)
+                        permissions[controller.id].append(4)
 
                     if response.pin > 0:
                         PIN = response.pin

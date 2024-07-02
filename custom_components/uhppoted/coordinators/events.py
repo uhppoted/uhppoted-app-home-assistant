@@ -40,7 +40,7 @@ from ..const import EVENT_REASON_BUTTON_RELEASED
 
 from ..config import configure_cards
 from ..config import get_configured_controllers
-from ..config import get_configured_cards
+from ..config import get_configured_controllers_ext
 
 
 async def _listen(hass, addr, port, listener):
@@ -124,6 +124,7 @@ class EventsCoordinator(DataUpdateCoordinator):
 
         self._options = options
         self._uhppote = driver
+        self._controllers = get_configured_controllers_ext(options)
         self._db = db
         self._notify = notify
         self._listener_addr = options.get(CONF_EVENTS_DEST_ADDR, None)
@@ -197,58 +198,64 @@ class EventsCoordinator(DataUpdateCoordinator):
     async def _get_events(self, contexts):
         lock = threading.Lock()
 
+        controllers = []
+        for controller in self._controllers:
+            if controller.id in contexts:
+                controllers.append(controller)
+
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                executor.map(lambda controller: self._record_special_events(lock, controller), contexts, timeout=1)
-                executor.map(lambda controller: self._set_event_listener(lock, controller), contexts, timeout=1)
-                executor.map(lambda controller: self._get_controller_events(lock, controller), contexts, timeout=1)
+                executor.map(lambda controller: self._record_special_events(lock, controller), controllers, timeout=1)
+                executor.map(lambda controller: self._set_event_listener(lock, controller), controllers, timeout=1)
+                executor.map(lambda controller: self._get_controller_events(lock, controller), controllers, timeout=1)
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller} information ({err})')
+            _LOGGER.error(f'error retrieving event information ({err})')
 
         self._db.events = self._state['events']
 
         return self._db.events
 
     def _record_special_events(self, lock, controller):
-        _LOGGER.debug(f'enable controller {controller} record special events')
+        _LOGGER.debug(f'enable controller {controller.id} record special events')
 
         try:
-            response = self._uhppote.record_special_events(controller, True)
-            if response.controller == controller:
+            response = self._uhppote.record_special_events(controller.id, True)
+            if response.controller == controller.id:
                 if not response.updated:
-                    _LOGGER.warning('record special events not enabled for {controller}')
+                    _LOGGER.warning('record special events not enabled for {controller.id}')
 
         except Exception as err:
             _LOGGER.warning(f'error enabling controller {controller} record special events ({err})')
 
     def _set_event_listener(self, lock, controller):
         if self._listener_addr != None:
-            _LOGGER.debug(f'check controller {controller} event listener')
+            _LOGGER.debug(f'check controller {controller.id} event listener')
 
             match = re.match(r'^[0-9.]+:[0-9]+$', f'{self._listener_addr}')
             if match == None:
                 return
 
             try:
-                response = self._uhppote.get_listener(controller)
-                if response.controller == controller:
+                response = self._uhppote.get_listener(controller.id)
+                if response.controller == controller.id:
                     addr = f'{response.address}:{response.port}'
                     if addr != self._listener_addr:
-                        _LOGGER.warning(f'controller {controller} incorrect event listener address ({addr})')
+                        _LOGGER.warning(f'controller {controller.id} incorrect event listener address ({addr})')
                         host, port = self._listener_addr.split(':')
-                        response = self._uhppote.set_listener(controller, IPv4Address(host), int(port))
-                        if response.controller == controller:
+                        response = self._uhppote.set_listener(controller.id, IPv4Address(host), int(port))
+                        if response.controller == controller.id:
                             if response.ok:
                                 _LOGGER.warning(
-                                    f'controller {controller} event listener address updated ({self._listener_addr})')
+                                    f'controller {controller.id} event listener address updated ({self._listener_addr})'
+                                )
                             else:
-                                _LOGGER.warning(f'failed to set controller {controller} event listener address')
+                                _LOGGER.warning(f'failed to set controller {controller.id} event listener address')
 
             except Exception as err:
-                _LOGGER.warning(f'error setting controller {controller} event listener ({err})')
+                _LOGGER.warning(f'error setting controller {controller.id} event listener ({err})')
 
     def _get_controller_events(self, lock, controller):
-        _LOGGER.debug(f'fetch controller {controller} events')
+        _LOGGER.debug(f'fetch controller {controller.id} events')
 
         info = {
             ATTR_AVAILABLE: False,
@@ -256,8 +263,8 @@ class EventsCoordinator(DataUpdateCoordinator):
         }
 
         try:
-            response = self._uhppote.get_status(controller)
-            if response.controller == controller:
+            response = self._uhppote.get_status(controller.id)
+            if response.controller == controller.id:
                 info[ATTR_STATUS] = response
                 index = response.event_index
                 relays = response.relays
@@ -269,35 +276,35 @@ class EventsCoordinator(DataUpdateCoordinator):
                 }
                 events = []
 
-                if not controller in self._state['index']:
-                    self._state['index'][controller] = index
-                elif self._state['index'][controller] >= index:
-                    self._state['index'][controller] = index
+                if not controller.id in self._state['index']:
+                    self._state['index'][controller.id] = index
+                elif self._state['index'][controller.id] >= index:
+                    self._state['index'][controller.id] = index
                 else:
                     count = 0
-                    ix = self._state['index'][controller]
+                    ix = self._state['index'][controller.id]
                     while ix < index and count < _MAX_EVENTS:
                         count += 1
                         next = ix + 1
-                        response = self._uhppote.get_event(controller, next)
-                        if response.controller == controller and response.index == next:
+                        response = self._uhppote.get_event(controller.id, next)
+                        if response.controller == controller.id and response.index == next:
                             event = self.decode(response, relays)
                             events.append(event)
                             ix = response.index
 
-                    self._state['index'][controller] = ix
+                    self._state['index'][controller.id] = ix
 
-                events.extend(self.doorLocks(controller, relays))
-                events.extend(self.doorButtons(controller, buttons))
+                events.extend(self.doorLocks(controller.id, relays))
+                events.extend(self.doorButtons(controller.id, buttons))
 
                 info[ATTR_EVENTS] = events
                 info[ATTR_AVAILABLE] = True
 
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller} events ({err})')
+            _LOGGER.error(f'error retrieving controller {controller.id} events ({err})')
 
         with lock:
-            self._state['events'][controller] = info
+            self._state['events'][controller.id] = info
 
     def decode(self, evt, relays):
         # yapf: disable
@@ -312,38 +319,38 @@ class EventsCoordinator(DataUpdateCoordinator):
                      evt.reason)
         # yapf: enable
 
-    def doorLocks(self, controller, relays):
+    def doorLocks(self, controller_id, relays):
         contexts = set(self.async_contexts())
         events = []
 
-        if controller in contexts:
+        if controller_id in contexts:
             timestamp = datetime.datetime.now()
 
-            if controller in self._state['relays']:
+            if controller_id in self._state['relays']:
                 for door in [1, 2, 3, 4]:
                     mask = _MASK[door]
-                    if self._state['relays'][controller] & mask != relays & mask:
+                    if self._state['relays'][controller_id] & mask != relays & mask:
                         reason = EVENT_REASON_DOOR_UNLOCKED if relays & mask == mask else EVENT_REASON_DOOR_LOCKED
-                        events.append(Event(controller, -1, None, None, door, None, None, timestamp, reason))
+                        events.append(Event(controller_id, -1, None, None, door, None, None, timestamp, reason))
 
-            self._state['relays'][controller] = relays
+            self._state['relays'][controller_id] = relays
 
         return events
 
-    def doorButtons(self, controller, buttons):
+    def doorButtons(self, controller_id, buttons):
         contexts = set(self.async_contexts())
         events = []
 
-        if controller in contexts:
+        if controller_id in contexts:
             timestamp = datetime.datetime.now()
 
-            if controller in self._state['buttons']:
+            if controller_id in self._state['buttons']:
                 for door in [1, 2, 3, 4]:
-                    if self._state['buttons'][controller][door] != buttons[door] and not buttons[door]:
+                    if self._state['buttons'][controller_id][door] != buttons[door] and not buttons[door]:
                         events.append(
-                            Event(controller, -1, None, None, door, None, None, timestamp,
+                            Event(controller_id, -1, None, None, door, None, None, timestamp,
                                   EVENT_REASON_BUTTON_RELEASED))
 
-            self._state['buttons'][controller] = buttons
+            self._state['buttons'][controller_id] = buttons
 
         return events
