@@ -88,7 +88,7 @@ class uhppoted:
 
     def delete_card(self, controller, card):
         (addr, timeout) = self._lookup(controller)
-        return api.delete_card(controller, card, dest_addr=addr, timeout=timeout)
+        return self.api.delete_card(controller, card, dest_addr=addr, timeout=timeout)
 
     def record_special_events(self, controller, enable):
         (addr, timeout) = self._lookup(controller)

@@ -33,6 +33,8 @@ from ..config import get_configured_controllers
 from ..config import get_configured_controllers_ext
 from ..config import get_configured_cards
 
+from ..uhppoted import Controller
+
 
 class ControllersCoordinator(DataUpdateCoordinator):
     _state: Dict[int, Dict]
@@ -57,10 +59,11 @@ class ControllersCoordinator(DataUpdateCoordinator):
     def unload(self):
         pass
 
-    def set_datetime(self, controller, time):
-        response = self._uhppote.set_time(controller, time)
+    def set_datetime(self, controller_id, time):
+        controller = self._resolve(controller_id)
+        response = self._uhppote.set_time(controller.id, time)
 
-        if response.controller == controller:
+        if response.controller == controller.id:
             return response
         else:
             return None
@@ -181,3 +184,10 @@ class ControllersCoordinator(DataUpdateCoordinator):
             self._state[controller.id].update({
                 ATTR_CONTROLLER_LISTENER: listener,
             })
+
+    def _resolve(self, controller_id):
+        for controller in self._controllers:
+            if controller.id == controller_id:
+                return controller
+
+        return Controller(int(f'{controller_id}'), None, None)

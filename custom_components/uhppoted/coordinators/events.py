@@ -42,6 +42,8 @@ from ..config import configure_cards
 from ..config import get_configured_controllers
 from ..config import get_configured_controllers_ext
 
+from ..uhppoted import Controller
+
 
 async def _listen(hass, addr, port, listener):
     loop = asyncio.get_running_loop()
@@ -354,3 +356,10 @@ class EventsCoordinator(DataUpdateCoordinator):
             self._state['buttons'][controller_id] = buttons
 
         return events
+
+    def _resolve(self, controller_id):
+        for controller in self._controllers:
+            if controller.id == controller_id:
+                return controller
+
+        return Controller(int(f'{controller_id}'), None, None)

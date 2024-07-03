@@ -1,24 +1,32 @@
 # TODO
 
 - [x] Missing 'port' label in controller configuration
+
 - [ ] TCP transport (cf. https://github.com/uhppoted/uhppote-core/issues/17)
       - [x] Add TCP/UDP selector to configuration page
       - [x] Add protocol field to controller data
       - [x] Restore protocol field
       - [x] Controller entity protocol attribute
       - [x] startup (`_LOGGER.info(f'controllers:                 {defaults[CONF_CONTROLLERS]}')`)
-      - [ ] Rework coordinators to use `Controller` tuple
+      - [x] Rework coordinators to use `Controller` tuple
             - [x] update
                   - [x] controllers
                   - [x] doors
                   - [x] cards
                   - [x] events
-            - [ ] set
-                  - [ ] controllers
-                  - [ ] doors
-                  - [ ] cards
-                  - [ ] events
+            - [x] set
+                  - [x] controllers
+                  - [x] doors
+                  - [x] cards
+                  - [x] events
+            - [x] services
+                  - [x] unlock-door
+                  - [x] add-card
+                  - [x] delete-card
       - [ ] Check that controller.protocol from configuration.yaml is being used
+      - [ ] Remove `get_configured_controllers`
+      - [ ] CHANGELOG
+      - [ ] README
       - [ ] (eventually) remove `controllers` from driver
 
 - [ ] DataCoordinator

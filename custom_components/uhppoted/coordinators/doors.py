@@ -56,36 +56,42 @@ class DoorsCoordinator(DataUpdateCoordinator):
     def unload(self):
         pass
 
-    def set_door_mode(self, controller, door, mode):
-        response = self._uhppote.get_door_control(controller, door)
-        if response.controller == controller and response.door == door:
+    def set_door_mode(self, controller_id, door, mode):
+        controller = self._resolve(controller_id)
+
+        response = self._uhppote.get_door_control(controller.id, door)
+        if response.controller == controller.id and response.door == door:
             delay = response.delay
-            response = self._uhppote.set_door_control(controller, door, mode, delay)
+            response = self._uhppote.set_door_control(controller.id, door, mode, delay)
 
-            if response.controller != controller or response.door != door:
+            if response.controller != controller.id or response.door != door:
                 raise ValueError(f'invalid response to set-door-control')
             else:
                 return response
 
         return None
 
-    def set_door_delay(self, controller, door, delay):
-        response = self._uhppote.get_door_control(controller, door)
-        if response.controller == controller and response.door == door:
+    def set_door_delay(self, controller_id, door, delay):
+        controller = self._resolve(controller_id)
+
+        response = self._uhppote.get_door_control(controller.id, door)
+        if response.controller == controller.id and response.door == door:
             mode = response.mode
-            response = self._uhppote.set_door_control(controller, door, mode, delay)
+            response = self._uhppote.set_door_control(controller.id, door, mode, delay)
 
-            if response.controller != controller or response.door != door:
+            if response.controller != controller.id or response.door != door:
                 raise ValueError(f'invalid response to set-door-control')
             else:
                 return response
 
         return None
 
-    def unlock_door(self, controller, door) -> None:
-        response = self._uhppote.open_door(controller, door)
+    def unlock_door(self, controller_id, door) -> None:
+        controller = self._resolve(controller_id)
 
-        if response.controller != controller:
+        response = self._uhppote.open_door(controller.id, door)
+
+        if response.controller != controller.id:
             raise ValueError(f'invalid response to open-door')
         else:
             return response
@@ -93,9 +99,9 @@ class DoorsCoordinator(DataUpdateCoordinator):
     def unlock_door_by_name(self, door):
         record = resolve_door_by_name(self._options, door)
         if record:
-            controller = record[CONF_CONTROLLER_SERIAL_NUMBER]
+            controller = self._resolve(record[CONF_CONTROLLER_SERIAL_NUMBER])
             doorno = record[CONF_DOOR_NUMBER]
-            response = self.unlock_door(controller, doorno)
+            response = self.unlock_door(controller.id, doorno)
             return response.opened
 
         return False
@@ -231,3 +237,10 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
         with lock:
             self._state[idx].update(info)
+
+    def _resolve(self, controller_id):
+        for controller in self._controllers:
+            if controller.id == controller_id:
+                return controller
+
+        return Controller(int(f'{controller_id}'), None, None)
