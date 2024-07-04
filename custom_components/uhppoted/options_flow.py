@@ -206,25 +206,6 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
         return self.async_show_form(step_id="events", data_schema=schema, errors=errors)
 
     async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
-
-        def g(v):
-            serial_no = v['controller']
-            address = v.get('address', DEFAULT_CONTROLLER_ADDR)
-
-            if self.options and CONF_CONTROLLERS in self.options:
-                for c in self.options[CONF_CONTROLLERS]:
-                    if f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}' == f'{serial_no}':
-                        if c[CONF_CONTROLLER_ID] != '':
-                            return {
-                                'label': f'{serial_no} ({c[CONF_CONTROLLER_ID]})',
-                                'value': f'{serial_no}',
-                            }
-                        break
-            return {
-                'label': f'{serial_no}',
-                'value': f'{serial_no}',
-            }
-
         errors: Dict[str, str] = {}
 
         if user_input is not None:
@@ -273,16 +254,12 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
         except ValueError as err:
             errors['base'] = f'{err}'
 
-        schema = vol.Schema({
-            vol.Required(CONF_CONTROLLERS, default=[f'{v}' for v in configured]):
-            SelectSelector(
-                SelectSelectorConfig(options=[g(v) for v in controllers],
-                                     multiple=True,
-                                     custom_value=False,
-                                     mode=SelectSelectorMode.LIST)),
-        })
+        (schema, placeholders, _) = super().step_controllers(controllers, configured, self.options, user_input)
 
-        return self.async_show_form(step_id="controllers", data_schema=schema, errors=errors)
+        return self.async_show_form(step_id="controllers",
+                                    data_schema=schema,
+                                    errors=errors,
+                                    description_placeholders=placeholders)
 
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
         it = next((v for v in self.controllers if not v['controller']['configured']), None)

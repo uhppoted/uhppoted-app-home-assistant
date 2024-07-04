@@ -34,6 +34,69 @@ class UhppotedFlow:
 
         self._timezone = defaults.get(CONF_TIMEZONE, DEFAULT_CONTROLLER_TIMEZONE)
 
+    def step_controllers(self, controllers, selected, options, user_input):
+        #     errors: Dict[str, str] = {}
+        #
+        #     if user_input is not None:
+        #         if not errors:
+        #             for v in user_input[CONF_CONTROLLERS]:
+        #                 address = ''
+        #                 port = 60000
+        #                 if 'controllers' in self.cache:
+        #                     for cached in self.cache['controllers']:
+        #                         if cached['controller'] == int(f'{v}'):
+        #                             address = cached.get('address', '')
+        #                             port = cached.get('port', 60000)
+        #                             protocol = cached.get('protocol', 'UDP')
+        #
+        #                 self.controllers.append({
+        #                     'controller': {
+        #                         'unique_id': uuid.uuid4(),
+        #                         'name': '',
+        #                         'serial_no': v,
+        #                         'address': address,
+        #                         'port': port,
+        #                         'protocol': protocol,
+        #                         'configured': False,
+        #                     },
+        #                     'doors': None,
+        #                 })
+        #
+        #             return await self.async_step_controller()
+        #
+        #     controllers = get_all_controllers(self._controllers, self.options)
+        #
+        #     self.cache['controllers'] = controllers
+
+        def g(v):
+            serial_no = v['controller']
+            address = v.get('address', DEFAULT_CONTROLLER_ADDR)
+
+            if options and CONF_CONTROLLERS in options:
+                for c in options[CONF_CONTROLLERS]:
+                    if int(f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}') == int(f'{serial_no}'):
+                        if c[CONF_CONTROLLER_ID] != '':
+                            return {
+                                'label': f'{serial_no} ({c[CONF_CONTROLLER_ID]})',
+                                'value': f'{serial_no}',
+                            }
+                        break
+            return {
+                'label': f'{serial_no}',
+                'value': f'{serial_no}',
+            }
+
+        schema = vol.Schema({
+            vol.Required(CONF_CONTROLLERS, default=[f'{v}' for v in selected]):
+            SelectSelector(
+                SelectSelectorConfig(options=[g(v) for v in controllers],
+                                     multiple=True,
+                                     custom_value=False,
+                                     mode=SelectSelectorMode.LIST)),
+        })
+
+        return (schema, None, None)
+
     def step_controller(self, controller, options, user_input):
         serial_no = controller['serial_no']
         address = controller.get('address', DEFAULT_CONTROLLER_ADDR)

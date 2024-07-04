@@ -252,16 +252,14 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
 
             return await self.async_step_controller()
 
-        schema = vol.Schema({
-            vol.Required(CONF_CONTROLLERS, default=[f"{v['controller']}" for v in controllers]):
-            SelectSelector(
-                SelectSelectorConfig(options=[f"{v['controller']}" for v in controllers],
-                                     multiple=True,
-                                     custom_value=False,
-                                     mode=SelectSelectorMode.LIST)),
-        })
+        selected = [v['controller'] for v in controllers]
 
-        return self.async_show_form(step_id="controllers", data_schema=schema, errors=errors)
+        (schema, placeholders, _) = super().step_controllers(controllers, selected, self.options, user_input)
+
+        return self.async_show_form(step_id="controllers",
+                                    data_schema=schema,
+                                    errors=errors,
+                                    description_placeholders=placeholders)
 
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
         it = next((v for v in self.controllers if not v['controller']['configured']), None)

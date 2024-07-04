@@ -55,12 +55,13 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
     if 'uhppoted' in config:
         c = config['uhppoted']
+        topics = [
+            CONF_BIND_ADDR, CONF_BROADCAST_ADDR, CONF_LISTEN_ADDR, CONF_DEBUG, CONF_TIMEZONE, CONF_TIMEOUT,
+            CONF_MAX_CARDS, CONF_PREFERRED_CARDS, CONF_PIN_ENABLED, CONF_POLL_CONTROLLERS, CONF_POLL_DOORS,
+            CONF_POLL_CARDS, CONF_POLL_EVENTS, CONF_CONTROLLERS
+        ]
 
-        for v in [
-                CONF_BIND_ADDR, CONF_BROADCAST_ADDR, CONF_LISTEN_ADDR, CONF_DEBUG, CONF_TIMEZONE, CONF_TIMEOUT,
-                CONF_MAX_CARDS, CONF_PREFERRED_CARDS, CONF_PIN_ENABLED, CONF_POLL_CONTROLLERS, CONF_POLL_DOORS,
-                CONF_POLL_CARDS, CONF_POLL_EVENTS, CONF_CONTROLLERS
-        ]:
+        for v in topics:
             if v in c:
                 defaults[v] = c[v]
 
