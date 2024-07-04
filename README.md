@@ -174,6 +174,7 @@ uhppoted:
 7. For each controller:
    - choose a unique name e.g. _Main_, _Controller #1_, etc.
    - _(optional)_ set the controller IP address
+   - _(optional)_ set the controller protocol (defaults to _UDP_).
    - _(optional)_ set the controller timezone (defaults to _Local_)
 8. For each controller, select the doors to manage with _Home Assistant_
 9. For each selected door:

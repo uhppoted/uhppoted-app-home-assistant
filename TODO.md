@@ -10,10 +10,12 @@
       - [x] startup (`_LOGGER.info(f'controllers:                 {defaults[CONF_CONTROLLERS]}')`)
       - [x] Rework coordinators to use `Controller` tuple
       - [x] Check that controller.protocol from configuration.yaml is being used
-      - [ ] Remove `get_configured_controllers`
-      - [ ] CHANGELOG
-      - [ ] README
+      - [ ] Commonalise config-/options-flow controllers step
+      - [x] CHANGELOG
+      - [x] README
       - [ ] (eventually) remove `controllers` from driver
+      - (?) Remove `get_configured_controllers`
+      - (?) Remove port from config-/options-flow
 
 - [ ] DataCoordinator
       - [ ] communalize data

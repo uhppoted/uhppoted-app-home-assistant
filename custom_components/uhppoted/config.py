@@ -210,7 +210,7 @@ def get_all_controllers(predefined, options):
         serial_no = v.get('controller', 0)
         address = v.get('address', '')
         port = v.get('port', 60000)
-        protocol = v.get('protocol','UDP')
+        protocol = v.get('protocol', 'UDP')
 
         if serial_no > 0 and address != '':
             k = serial_no
