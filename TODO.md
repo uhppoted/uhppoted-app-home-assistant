@@ -10,12 +10,14 @@
       - [x] startup (`_LOGGER.info(f'controllers:                 {defaults[CONF_CONTROLLERS]}')`)
       - [x] Rework coordinators to use `Controller` tuple
       - [x] Check that controller.protocol from configuration.yaml is being used
-      - [ ] Commonalise config-/options-flow controllers step
       - [x] CHANGELOG
       - [x] README
-      - [ ] (eventually) remove `controllers` from driver
       - (?) Remove `get_configured_controllers`
       - (?) Remove port from config-/options-flow
+      - [ ] (eventually) remove `controllers` from driver
+
+- [ ] Commonalise config-/options-flow controllers step
+      - [ ] Fix duplicate controllers -> multiple door steps (i.e. clean up options)
 
 - [ ] DataCoordinator
       - [ ] communalize data
@@ -32,6 +34,12 @@
       - [ ] Use _self.options_ struct and _self.configured_ list
       - [ ] Use options for defaults (Ref. https://developers.home-assistant.io/docs/data_entry_flow_index/#defaults--suggestions)
       - (?) Single instance only (https://developers.home-assistant.io/blog/2024/02/26/single-instance-only-manifest-option)
+      - [ ] automatically skip last step if there are no cards configured (or on the controller)
+            (maybe display note)
+
+- [ ] options-flow
+      - [ ] automatically skip last step if there are no cards configured (or on the controller)
+            (maybe display note)
 
 - [ ] Controller
       - [ ] Rework as Device

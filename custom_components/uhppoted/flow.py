@@ -22,7 +22,7 @@ from .const import DEFAULT_CONTROLLER_ADDR
 from .const import DEFAULT_CONTROLLER_TIMEZONE
 
 from .config import validate_controller_id
-
+from .config import validate_all_controllers
 
 class UhppotedFlow:
 
@@ -34,39 +34,37 @@ class UhppotedFlow:
 
         self._timezone = defaults.get(CONF_TIMEZONE, DEFAULT_CONTROLLER_TIMEZONE)
 
-    def step_controllers(self, controllers, selected, options, user_input):
-        #     errors: Dict[str, str] = {}
-        #
-        #     if user_input is not None:
-        #         if not errors:
-        #             for v in user_input[CONF_CONTROLLERS]:
-        #                 address = ''
-        #                 port = 60000
-        #                 if 'controllers' in self.cache:
-        #                     for cached in self.cache['controllers']:
-        #                         if cached['controller'] == int(f'{v}'):
-        #                             address = cached.get('address', '')
-        #                             port = cached.get('port', 60000)
-        #                             protocol = cached.get('protocol', 'UDP')
-        #
-        #                 self.controllers.append({
-        #                     'controller': {
-        #                         'unique_id': uuid.uuid4(),
-        #                         'name': '',
-        #                         'serial_no': v,
-        #                         'address': address,
-        #                         'port': port,
-        #                         'protocol': protocol,
-        #                         'configured': False,
-        #                     },
-        #                     'doors': None,
-        #                 })
-        #
-        #             return await self.async_step_controller()
-        #
-        #     controllers = get_all_controllers(self._controllers, self.options)
-        #
-        #     self.cache['controllers'] = controllers
+    def step_controllers(self, controllers, selected, options, user_input, cache):
+        errors: Dict[str, str] = {}
+
+        if user_input is not None:
+            for v in user_input[CONF_CONTROLLERS]:
+                address = ''
+                port = 60000
+                protocol = 'UDP'
+
+                if 'controllers' in cache:
+                    for cached in cache['controllers']:
+                        if cached['controller'] == int(f'{v}'):
+                            address = cached.get('address', '')
+                            port = cached.get('port', 60000)
+                            protocol = cached.get('protocol', 'UDP')
+
+                self.controllers.append({
+                    'controller': {
+                        'serial_no': v,
+                        'address': address,
+                        'port': port,
+                        'protocol': protocol,
+                        'configured': False,
+                    },
+                    'doors': None,
+                })
+
+        try:
+            validate_all_controllers(options)
+        except ValueError as err:
+            errors['base'] = f'{err}'
 
         def g(v):
             serial_no = v['controller']
@@ -95,7 +93,9 @@ class UhppotedFlow:
                                      mode=SelectSelectorMode.LIST)),
         })
 
-        return (schema, None, None)
+        placeholders = None
+
+        return (schema, placeholders, errors)
 
     def step_controller(self, controller, options, user_input):
         serial_no = controller['serial_no']
@@ -146,7 +146,7 @@ class UhppotedFlow:
 
                 options.update({CONF_CONTROLLERS: controllers})
 
-                controller['name'] = name  # FIXME ?? (from config-flow, but not sure why - might be legacy stuff)
+                controller['name'] = name  # used to associate doors with controllers by name in config-flow
                 controller['configured'] = True
 
         controller_id = controller.get('name', None)

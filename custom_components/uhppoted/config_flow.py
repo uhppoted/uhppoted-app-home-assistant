@@ -76,6 +76,7 @@ from .options_flow import UhppotedOptionsFlow
 
 from .config import validate_events_addr
 from .config import validate_controller_id
+from .config import validate_all_controllers
 from .config import validate_door_id
 from .config import validate_door_duplicates
 from .config import validate_card_id
@@ -203,35 +204,6 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         return self.async_show_form(step_id="events", data_schema=schema, errors=errors)
 
     async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
-        errors: Dict[str, str] = {}
-
-        if user_input is not None:
-            if not errors:
-                for v in user_input[CONF_CONTROLLERS]:
-                    address = ''
-                    port = 60000
-                    if 'controllers' in self.cache:
-                        for cached in self.cache['controllers']:
-                            if cached['controller'] == int(f'{v}'):
-                                address = cached.get('address', '')
-                                port = cached.get('port', 60000)
-                                protocol = cached.get('protocol', 'UDP')
-
-                    self.controllers.append({
-                        'controller': {
-                            'unique_id': uuid.uuid4(),
-                            'name': '',
-                            'serial_no': v,
-                            'address': address,
-                            'port': port,
-                            'protocol': protocol,
-                            'configured': False,
-                        },
-                        'doors': None,
-                    })
-
-                return await self.async_step_controller()
-
         controllers = get_all_controllers(self._controllers, self.options)
 
         self.cache['controllers'] = controllers
@@ -240,7 +212,6 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
             for v in controllers:
                 self.controllers.append({
                     'controller': {
-                        'name': '',
                         'serial_no': v['controller'],
                         'address': v.get('address', ''),
                         'port': v.get('port', 60000),
@@ -254,17 +225,25 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
 
         selected = [v['controller'] for v in controllers]
 
-        (schema, placeholders, _) = super().step_controllers(controllers, selected, self.options, user_input)
+        (schema, placeholders, errors) = super().step_controllers(controllers, selected, self.options, user_input, self.cache)
 
-        return self.async_show_form(step_id="controllers",
-                                    data_schema=schema,
-                                    errors=errors,
-                                    description_placeholders=placeholders)
+        # NTS: ignore errors - for display only
+        if user_input is None:
+            return self.async_show_form(step_id="controllers",
+                                        data_schema=schema,
+                                        errors=errors,
+                                        description_placeholders=placeholders)
+        else:
+            return await self.async_step_controller()
 
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
         it = next((v for v in self.controllers if not v['controller']['configured']), None)
         if it == None:
-            return await self.async_step_doors()
+            try:
+                validate_all_controllers(self.options)
+                return await self.async_step_doors()
+            except ValueError as err:
+                return await self.async_step_controllers()
         else:
             controller = it['controller']
 

@@ -206,37 +206,7 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
         return self.async_show_form(step_id="events", data_schema=schema, errors=errors)
 
     async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
-        errors: Dict[str, str] = {}
-
-        if user_input is not None:
-            if not errors:
-                for v in user_input[CONF_CONTROLLERS]:
-                    address = ''
-                    port = 60000
-                    protocol = 'UDP'
-
-                    if 'controllers' in self.cache:
-                        for cached in self.cache['controllers']:
-                            if cached['controller'] == int(f'{v}'):
-                                address = cached.get('address', '')
-                                port = cached.get('port', 60000)
-                                protocol = cached.get('protocol', 'UDP')
-
-                    self.controllers.append({
-                        'controller': {
-                            'serial_no': v,
-                            'address': address,
-                            'port': port,
-                            'protocol': protocol,
-                            'configured': False,
-                        },
-                        'doors': None,
-                    })
-
-                return await self.async_step_controller()
-
         controllers = get_all_controllers(self._controllers, self.options)
-
         if len(controllers) < 1:
             return await self.async_step_door()
 
@@ -249,17 +219,17 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
 
         configured = sorted(list(configured), reverse=True)
 
-        try:
-            validate_all_controllers(self.options)
-        except ValueError as err:
-            errors['base'] = f'{err}'
+        (schema, placeholders, errors) = super().step_controllers(controllers, configured, self.options, user_input, self.cache)
 
-        (schema, placeholders, _) = super().step_controllers(controllers, configured, self.options, user_input)
+        # NTS: ignore errors - for display only
+        if user_input is None:
+            return self.async_show_form(step_id="controllers",
+                                        data_schema=schema,
+                                        errors=errors,
+                                        description_placeholders=placeholders)
+        else:
+            return await self.async_step_controller()
 
-        return self.async_show_form(step_id="controllers",
-                                    data_schema=schema,
-                                    errors=errors,
-                                    description_placeholders=placeholders)
 
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
         it = next((v for v in self.controllers if not v['controller']['configured']), None)
