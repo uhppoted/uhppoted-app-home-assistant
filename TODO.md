@@ -1,23 +1,15 @@
 # TODO
 
-- [x] Missing 'port' label in controller configuration
+- [ ] Commonalise config-/options-flow controllers step
+      - [x] Fix duplicate controllers -> multiple door steps (i.e. clean up options)
+      - [ ] config-flow: duplicate controllers - tick only selected controllers
+      - [ ] Ravenclaw unavailable ???
+      - [ ] Fix logic so that e.g. return await self.async_step_controller isn't called twice on first entry
+      - [ ] Remove port from config-/options-flow
+      - [ ] # FIXME for doors list logic - should probably use options though
 
 - [ ] TCP transport (cf. https://github.com/uhppoted/uhppote-core/issues/17)
-      - [x] Add TCP/UDP selector to configuration page
-      - [x] Add protocol field to controller data
-      - [x] Restore protocol field
-      - [x] Controller entity protocol attribute
-      - [x] startup (`_LOGGER.info(f'controllers:                 {defaults[CONF_CONTROLLERS]}')`)
-      - [x] Rework coordinators to use `Controller` tuple
-      - [x] Check that controller.protocol from configuration.yaml is being used
-      - [x] CHANGELOG
-      - [x] README
-      - (?) Remove `get_configured_controllers`
-      - (?) Remove port from config-/options-flow
       - [ ] (eventually) remove `controllers` from driver
-
-- [ ] Commonalise config-/options-flow controllers step
-      - [ ] Fix duplicate controllers -> multiple door steps (i.e. clean up options)
 
 - [ ] DataCoordinator
       - [ ] communalize data

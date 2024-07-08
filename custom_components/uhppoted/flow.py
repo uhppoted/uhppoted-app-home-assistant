@@ -24,6 +24,7 @@ from .const import DEFAULT_CONTROLLER_TIMEZONE
 from .config import validate_controller_id
 from .config import validate_all_controllers
 
+
 class UhppotedFlow:
 
     def __init__(self):
@@ -50,16 +51,22 @@ class UhppotedFlow:
                             port = cached.get('port', 60000)
                             protocol = cached.get('protocol', 'UDP')
 
-                self.controllers.append({
-                    'controller': {
-                        'serial_no': v,
-                        'address': address,
-                        'port': port,
-                        'protocol': protocol,
-                        'configured': False,
-                    },
-                    'doors': None,
-                })
+                for c in self.controllers:
+                    controller = c.get('controller', None)
+                    if controller and int(f"{controller['serial_no']}") == int(f'{v}'):
+                        controller['configured'] = False
+                        break
+                else:
+                    self.controllers.append({
+                        'controller': {
+                            'serial_no': v,
+                            'address': address,
+                            'port': port,
+                            'protocol': protocol,
+                            'configured': False,
+                        },
+                        'doors': None,
+                    })
 
         try:
             validate_all_controllers(options)
@@ -125,6 +132,13 @@ class UhppotedFlow:
                     if int(f'{v[CONF_CONTROLLER_SERIAL_NUMBER]}') == int(f'{serial_no}'):
                         if user_input[CONF_CONTROLLER_ID].strip() == '-':
                             controllers.remove(v)
+
+                            # FIXME for doors selection - should probably use options though
+                            for c in self.controllers:
+                                cc = c.get('controller', None)
+                                if cc and int(f"{cc['serial_no']}") == int(f'{serial_no}'):
+                                    self.controllers.remove(c)
+
                         else:
                             v[CONF_CONTROLLER_ID] = name
                             v[CONF_CONTROLLER_ADDR] = address

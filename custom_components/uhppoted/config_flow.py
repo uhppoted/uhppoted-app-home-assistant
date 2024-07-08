@@ -225,9 +225,10 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
 
         selected = [v['controller'] for v in controllers]
 
-        (schema, placeholders, errors) = super().step_controllers(controllers, selected, self.options, user_input, self.cache)
+        (schema, placeholders, errors) = super().step_controllers(controllers, selected, self.options, user_input,
+                                                                  self.cache)
 
-        # NTS: ignore errors - for display only
+        # NTS: errors are for display only
         if user_input is None:
             return self.async_show_form(step_id="controllers",
                                         data_schema=schema,

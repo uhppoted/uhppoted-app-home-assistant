@@ -219,9 +219,10 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
 
         configured = sorted(list(configured), reverse=True)
 
-        (schema, placeholders, errors) = super().step_controllers(controllers, configured, self.options, user_input, self.cache)
+        (schema, placeholders, errors) = super().step_controllers(controllers, configured, self.options, user_input,
+                                                                  self.cache)
 
-        # NTS: ignore errors - for display only
+        # NTS: errors are for display only
         if user_input is None:
             return self.async_show_form(step_id="controllers",
                                         data_schema=schema,
@@ -229,7 +230,6 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
                                         description_placeholders=placeholders)
         else:
             return await self.async_step_controller()
-
 
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
         it = next((v for v in self.controllers if not v['controller']['configured']), None)
