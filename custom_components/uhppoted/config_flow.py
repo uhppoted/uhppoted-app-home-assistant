@@ -35,6 +35,7 @@ from .const import CONF_CONTROLLER_ID
 from .const import CONF_CONTROLLER_SERIAL_NUMBER
 from .const import CONF_CONTROLLER_ADDR
 from .const import CONF_CONTROLLER_PORT
+from .const import CONF_CONTROLLER_PROTOCOL
 from .const import CONF_CONTROLLER_TIMEZONE
 
 from .const import CONF_DOORS
@@ -88,6 +89,7 @@ from .config import get_broadcast_addresses
 from .config import get_listen_addresses
 from .config import get_IPv4_addresses
 from .config import get_all_controllers
+from .config import get_configured_controllers
 from .config import get_all_cards
 from .config import default_card_start_date
 from .config import default_card_end_date
@@ -223,7 +225,9 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
 
             return await self.async_step_controller()
 
-        selected = [v['controller'] for v in controllers]
+        selected = get_configured_controllers(self.options)
+        if len(selected) == 0:
+            selected = [v['controller'] for v in controllers]
 
         (schema, placeholders, errors) = super().step_controllers(controllers, selected, self.options, user_input,
                                                                   self.cache)

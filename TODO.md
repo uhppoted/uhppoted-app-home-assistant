@@ -2,7 +2,7 @@
 
 - [ ] Commonalise config-/options-flow controllers step
       - [x] Fix duplicate controllers -> multiple door steps (i.e. clean up options)
-      - [ ] config-flow: duplicate controllers - tick only selected controllers
+      - [x] config-flow: duplicate controllers - tick only selected controllers
       - [ ] Ravenclaw unavailable ???
       - [ ] Fix logic so that e.g. return await self.async_step_controller isn't called twice on first entry
       - [ ] Remove port from config-/options-flow
