@@ -11,22 +11,28 @@ from ..coordinators.coordinators import Coordinators
 
 
 class Services():
-    COORDINATORS = None
+    SERVICES = dict()
 
     @classmethod
-    def initialise(clazz, hass, options):
-        hass.services.async_register(DOMAIN, "unlock_door", lambda v: unlock_door(options, v))
-        hass.services.async_register(DOMAIN, "add_card", lambda v: add_card(options, v))
-        hass.services.async_register(DOMAIN, "delete_card", lambda v: delete_card(options, v))
+    def initialise(clazz, hass, id, options):
+        if not Services.SERVICES:
+            hass.services.async_register(DOMAIN, "unlock_door", lambda v: unlock_door(v))
+            hass.services.async_register(DOMAIN, "add_card", lambda v: add_card(v))
+            hass.services.async_register(DOMAIN, "delete_card", lambda v: delete_card(v))
+
+            Services.SERVICES[id] = True
 
     @classmethod
-    def unload(clazz, hass):
-        hass.services.async_remove(DOMAIN, 'unlock_door')
-        hass.services.async_remove(DOMAIN, 'add_card')
-        hass.services.async_remove(DOMAIN, 'delete_card')
+    def unload(clazz, hass, id):
+        Services.SERVICES.pop(id, None)
+
+        if not Services.SERVICES:
+            hass.services.async_remove(DOMAIN, 'unlock_door')
+            hass.services.async_remove(DOMAIN, 'add_card')
+            hass.services.async_remove(DOMAIN, 'delete_card')
 
 
-def unlock_door(options, call):
+def unlock_door(call):
     _LOGGER.debug('service call:unlock-door', call.data)
 
     try:
@@ -40,7 +46,7 @@ def unlock_door(options, call):
         _LOGGER.warning(f'error executing unlock-door service call ({err})')
 
 
-def add_card(options, call):
+def add_card(call):
     _LOGGER.debug('service call:add-card', call.data)
 
     try:
@@ -55,7 +61,7 @@ def add_card(options, call):
         _LOGGER.warning(f'error executing add-card service call ({err})')
 
 
-def delete_card(options, call):
+def delete_card(call):
     _LOGGER.debug('service call:delete-card', call.data)
 
     try:

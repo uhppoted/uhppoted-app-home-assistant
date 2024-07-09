@@ -100,7 +100,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "switch"))
     hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "text"))
 
-    Services.initialise(hass, entry.options)
+    Services.initialise(hass, entry.entry_id, entry.options)
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
@@ -121,7 +121,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     ]
 
     # ... pre-unload: remove service endpoints
-    Services.unload(hass)
+    Services.unload(hass, entry.entry_id)
 
     # ... unload
     ok = await hass.config_entries.async_unload_platforms(entry, platforms)
