@@ -33,9 +33,9 @@ from .card import CardHolder
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     options = entry.options
-    controllers = Coordinators.controllers()
-    doors = Coordinators.doors()
-    cards = Coordinators.cards()
+    controllers = Coordinators.controllers(entry.entry_id)
+    doors = Coordinators.doors(entry.entry_id)
+    cards = Coordinators.cards(entry.entry_id)
     entities = []
 
     def f(unique_id, controller, serial_no, address):

@@ -26,7 +26,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         PIN = defaults[CONF_PIN_ENABLED] == True
 
     options = entry.options
-    cards = Coordinators.cards()
+    cards = Coordinators.cards(entry.entry_id)
     entities = []
 
     def h(card, name, unique_id):

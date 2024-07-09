@@ -18,8 +18,8 @@ from .door import DoorUnlock
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     options = entry.options
+    doors = Coordinators.doors(entry.entry_id)
     entities = []
-    doors = Coordinators.doors()
 
     def g(unique_id, controller, serial_no, door, door_no):
         entities.extend([DoorUnlock(doors, unique_id, controller, serial_no, door, door_no)])

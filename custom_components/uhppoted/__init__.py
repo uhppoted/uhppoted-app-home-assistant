@@ -88,7 +88,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
 
-    Coordinators.initialise(hass, entry.options)
+    Coordinators.initialise(hass, entry.entry_id, entry.options)
 
     hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "sensor"))
     hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "datetime"))
@@ -127,7 +127,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     ok = await hass.config_entries.async_unload_platforms(entry, platforms)
 
     # ... post-unload: shut down data-coordinators
-    Coordinators.unload()
+    Coordinators.unload(entry.entry_id)
 
     return ok
 

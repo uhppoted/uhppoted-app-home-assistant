@@ -17,47 +17,45 @@ from .db import DB
 
 
 class Coordinators():
-    COORDINATORS = None
+    COORDINATORS = dict()
 
     @classmethod
-    def initialise(clazz, hass, options):
-        Coordinators.COORDINATORS = Coordinators(hass, options)
+    def initialise(clazz, hass, id, options):
+        Coordinators.COORDINATORS[id] = Coordinators(hass, options)
 
     @classmethod
-    def unload(clazz):
-        coordinators = Coordinators.COORDINATORS
-        Coordinators.COORDINATORS = None
-
+    def unload(clazz, id):
+        coordinators = Coordinators.COORDINATORS.pop(id, None)
         if coordinators:
             coordinators._unload()
 
     @classmethod
-    def controllers(clazz):
-        coordinators = Coordinators.COORDINATORS
+    def controllers(clazz, id):
+        coordinators = Coordinators.COORDINATORS.get(id)
         if coordinators:
             return coordinators._controllers
 
         return None
 
     @classmethod
-    def doors(clazz):
-        coordinators = Coordinators.COORDINATORS
+    def doors(clazz, id):
+        coordinators = Coordinators.COORDINATORS.get(id)
         if coordinators:
             return coordinators._doors
 
         return None
 
     @classmethod
-    def cards(clazz):
-        coordinators = Coordinators.COORDINATORS
+    def cards(clazz, id):
+        coordinators = Coordinators.COORDINATORS.get(id)
         if coordinators:
             return coordinators._cards
 
         return None
 
     @classmethod
-    def events(clazz):
-        coordinators = Coordinators.COORDINATORS
+    def events(clazz, id):
+        coordinators = Coordinators.COORDINATORS.get(id)
         if coordinators:
             return coordinators._events
 

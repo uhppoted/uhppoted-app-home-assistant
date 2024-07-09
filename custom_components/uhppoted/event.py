@@ -25,7 +25,7 @@ from .card import CardSwiped
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     options = entry.options
-    events = Coordinators.events()
+    events = Coordinators.events(entry.entry_id)
     entities = []
 
     def f(unique_id, controller, serial_no, address):

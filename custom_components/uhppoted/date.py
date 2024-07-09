@@ -19,7 +19,7 @@ from .card import CardEndDate
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     options = entry.options
     entities = []
-    cards = Coordinators.cards()
+    cards = Coordinators.cards(entry.entry_id)
 
     def f(card, name, unique_id):
         entities.extend([

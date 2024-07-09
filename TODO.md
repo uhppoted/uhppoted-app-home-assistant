@@ -4,7 +4,10 @@
       - [x] Fix duplicate controllers -> multiple door steps (i.e. clean up options)
       - [x] config-flow: duplicate controllers - tick only selected controllers
       - [ ] Ravenclaw unavailable ???
+            - [x] Rework coordinators to support multiple uhppoted's
+            - [ ] Rework services to support multiple uhppoted's
       - [ ] Fix logic so that e.g. return await self.async_step_controller isn't called twice on first entry
+      - [ ] Move self.controllers into flow superclass
       - [ ] Remove port from config-/options-flow
       - [ ] # FIXME for doors list logic - should probably use options though
 

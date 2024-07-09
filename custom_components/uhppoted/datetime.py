@@ -22,7 +22,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     options = entry.options
     entities = []
 
-    controllers = Coordinators.controllers()
+    controllers = Coordinators.controllers(entry.entry_id)
 
     def f(unique_id, controller, serial_no, address):
         entities.extend([
