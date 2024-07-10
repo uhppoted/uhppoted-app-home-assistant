@@ -6,8 +6,8 @@
       - [x] Rework coordinators to support multiple uhppoted's
       - [x] Rework services to support multiple uhppoted's
       - [x] Remove port from config-/options-flow UI
-      - [ ] Fix logic so that e.g. return await self.async_step_controller isn't called twice on first entry
-      - [ ] Move self.controllers into flow superclass
+      - [x] Move self.controllers into flow superclass
+      - [ ] # FIXME <sigh> self._controllers...
       - [ ] # FIXME for doors list logic - should probably use options though
 
 - [ ] TCP transport (cf. https://github.com/uhppoted/uhppote-core/issues/17)

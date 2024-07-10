@@ -124,7 +124,6 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
 
         self.data = {}
         self.options = {}
-        self.controllers = []
         self.doors = []
         self.configuration = {'cards': []}
         self.cache = {}

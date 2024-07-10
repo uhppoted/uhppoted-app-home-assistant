@@ -28,7 +28,12 @@ from .config import validate_all_controllers
 class UhppotedFlow:
 
     def __init__(self):
+        self._controllers = []
         self._timezone = DEFAULT_CONTROLLER_TIMEZONE
+
+        # FIXME <sigh> what was I thinking ???
+        #       self._controllers is for configuration.yaml and self.controllers is for actually selected controllers
+        self.controllers = []
 
     def initialise(self, defaults):
         defaults = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}

@@ -104,12 +104,10 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
         self._timeout = DEFAULT_TIMEOUT
         self._max_cards = DEFAULT_MAX_CARDS
         self._preferred_cards = DEFAULT_PREFERRED_CARDS
-        self._controllers = []
 
         self.config_entry = entry
         self.data = dict(entry.data)
         self.options = copy.deepcopy(dict(entry.options))
-        self.controllers = []
         self.doors = []
         self.configuration = {'doors': []}
         self.cache = {}
