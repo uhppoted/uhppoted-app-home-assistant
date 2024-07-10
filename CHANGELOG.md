@@ -5,6 +5,10 @@
 ### Added
 1. Implements support for (optional) TCP connections to controllers.
 
+### Updated
+1. Fixed support for multiple _uhppoted_ instances.
+2. Removed _port_ from config- and option-flow UI (can still be configured in _configuration.yaml_).
+
 
 ## [0.8.8.1](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.8.1) - 2024-04-17
 

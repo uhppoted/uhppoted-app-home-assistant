@@ -116,7 +116,7 @@ class UhppotedFlow:
         if user_input is not None:
             name = user_input[CONF_CONTROLLER_ID]
             address = user_input[CONF_CONTROLLER_ADDR]
-            port = user_input[CONF_CONTROLLER_PORT]
+            # port = user_input[CONF_CONTROLLER_PORT]
             protocol = user_input[CONF_CONTROLLER_PROTOCOL]
             timezone = user_input[CONF_CONTROLLER_TIMEZONE]
 
@@ -198,11 +198,8 @@ class UhppotedFlow:
             str,
             vol.Optional(CONF_CONTROLLER_ADDR, default=defaults[CONF_CONTROLLER_ADDR]):
             str,
-            vol.Optional(CONF_CONTROLLER_PORT, default=defaults[CONF_CONTROLLER_PORT]):
-            int,
+            # vol.Optional(CONF_CONTROLLER_PORT, default=defaults[CONF_CONTROLLER_PORT]): int,
             vol.Optional(CONF_CONTROLLER_PROTOCOL, default=defaults[CONF_CONTROLLER_PROTOCOL]):
-            str,
-            vol.Optional(CONF_CONTROLLER_PROTOCOL, default='UDP'):
             SelectSelector(
                 SelectSelectorConfig(options=protocols,
                                      multiple=False,
