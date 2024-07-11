@@ -23,22 +23,24 @@ from .const import DEFAULT_CONTROLLER_TIMEZONE
 
 from .config import validate_controller_id
 from .config import validate_all_controllers
+from .config import get_all_controllers
 
 
 class UhppotedFlow:
 
     def __init__(self):
-        self._controllers = []
+        self._defaults = {}
+        self._controllers = []  # list of selected controllers to configure
         self._timezone = DEFAULT_CONTROLLER_TIMEZONE
 
-        # FIXME <sigh> what was I thinking ???
-        #       self._controllers is for configuration.yaml and self.controllers is for actually selected controllers
-        self.controllers = []
-
     def initialise(self, defaults):
-        defaults = self.hass.data[DOMAIN] if DOMAIN in self.hass.data else {}
-
+        self._defaults = self.hass.data.get(DOMAIN, {})
         self._timezone = defaults.get(CONF_TIMEZONE, DEFAULT_CONTROLLER_TIMEZONE)
+
+    def _get_all_controllers(self, options):
+        preconfigured = self._defaults.get(CONF_CONTROLLERS, [])
+
+        return get_all_controllers(preconfigured, options)
 
     def step_controllers(self, controllers, selected, options, user_input, cache):
         errors: Dict[str, str] = {}
@@ -56,13 +58,13 @@ class UhppotedFlow:
                             port = cached.get('port', 60000)
                             protocol = cached.get('protocol', 'UDP')
 
-                for c in self.controllers:
+                for c in self._controllers:
                     controller = c.get('controller', None)
                     if controller and int(f"{controller['serial_no']}") == int(f'{v}'):
                         controller['configured'] = False
                         break
                 else:
-                    self.controllers.append({
+                    self._controllers.append({
                         'controller': {
                             'serial_no': v,
                             'address': address,
@@ -139,10 +141,10 @@ class UhppotedFlow:
                             controllers.remove(v)
 
                             # FIXME for doors selection - should probably use options though
-                            for c in self.controllers:
+                            for c in self._controllers:
                                 cc = c.get('controller', None)
                                 if cc and int(f"{cc['serial_no']}") == int(f'{serial_no}'):
-                                    self.controllers.remove(c)
+                                    self._controllers.remove(c)
 
                         else:
                             v[CONF_CONTROLLER_ID] = name

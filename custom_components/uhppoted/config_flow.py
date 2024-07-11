@@ -88,7 +88,6 @@ from .config import get_bind_addresses
 from .config import get_broadcast_addresses
 from .config import get_listen_addresses
 from .config import get_IPv4_addresses
-from .config import get_all_controllers
 from .config import get_configured_controllers
 from .config import get_all_cards
 from .config import default_card_start_date
@@ -120,7 +119,6 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         self._timeout = defaults.get(CONF_TIMEOUT, DEFAULT_TIMEOUT)
         self._max_cards = defaults.get(CONF_MAX_CARDS, DEFAULT_MAX_CARDS)
         self._preferred_cards = defaults.get(CONF_PREFERRED_CARDS, DEFAULT_PREFERRED_CARDS)
-        self._controllers = defaults.get(CONF_CONTROLLERS, [])
 
         self.data = {}
         self.options = {}
@@ -205,13 +203,13 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         return self.async_show_form(step_id="events", data_schema=schema, errors=errors)
 
     async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
-        controllers = get_all_controllers(self._controllers, self.options)
+        controllers = self._get_all_controllers(self.options)
 
         self.cache['controllers'] = controllers
 
         if len(controllers) < 2:
             for v in controllers:
-                self.controllers.append({
+                self._controllers.append({
                     'controller': {
                         'serial_no': v['controller'],
                         'address': v.get('address', ''),
@@ -241,7 +239,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
             return await self.async_step_controller()
 
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
-        it = next((v for v in self.controllers if not v['controller']['configured']), None)
+        it = next((v for v in self._controllers if not v['controller']['configured']), None)
         if it == None:
             try:
                 validate_all_controllers(self.options)
@@ -262,7 +260,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
                 return await self.async_step_controller()
 
     async def async_step_doors(self, user_input: Optional[Dict[str, Any]] = None):
-        it = next((v for v in self.controllers if not v['doors']), None)
+        it = next((v for v in self._controllers if not v['doors']), None)
         if it == None:
             return await self.async_step_door()
         else:
@@ -315,7 +313,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         def f(v):
             return len(v['doors']) > 0 and not v['configured']
 
-        it = next((v for v in self.controllers if f(v['doors'])), None)
+        it = next((v for v in self._controllers if f(v['doors'])), None)
         if it == None:
             return await self.async_step_cards()
         else:
