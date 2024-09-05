@@ -2,8 +2,12 @@ VERSION ?= v0.8.8.1
 DIST    ?= development
 
 .PHONY: docker
+.PHONY: update
 
 SHARE="/usr/local/etc/com.github.uhppoted/home-assistant"
+
+update:
+	echo "Nothing to do"
 
 format: 
 	yapf -ri custom_components/uhppoted

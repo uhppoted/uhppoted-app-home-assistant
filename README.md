@@ -45,6 +45,17 @@ doors and maybe a ten or so access cards - so, not a large mansion [~~or an offi
 ---
 <img width="800" src="doc/images/cards.png">
 
+## Release Notes
+
+### Current Release
+
+**[v0.8.9](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.9) - 2024-09-06**
+
+1. Added support for (optional) TCP connections to controllers.
+2. Fixed support for multiple _uhppoted_ instances.
+3. Removed _port_ from config- and option-flow UI (can still be configured in _configuration.yaml_).
+
+
 ## Installation
 
 ### Alpha Release
