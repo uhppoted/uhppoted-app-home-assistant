@@ -3,7 +3,7 @@
 ## [0.8.9](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.9) - 2024-09-06
 
 ### Added
-1. Implements support for (optional) TCP connections to controllers.
+1. Implements (optional) support for TCP/IP connections to controllers.
 
 ### Updated
 1. Fixed support for multiple _uhppoted_ instances.

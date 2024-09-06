@@ -124,7 +124,7 @@ class Coordinators():
                                          lambda evt: self._on_event(hass, evt))
 
     def __del__(self):
-        self.unload()
+        self._unload()
 
     def _unload(self):
         self._controllers.unload()

@@ -1,16 +1,8 @@
 # TODO
 
+- [x] TCP transport (cf. https://github.com/uhppoted/uhppote-core/issues/17)
 - [x] Commonalise config-/options-flow controllers step
-      - [x] Fix duplicate controllers -> multiple door steps (i.e. clean up options)
-      - [x] config-flow: duplicate controllers - tick only selected controllers
-      - [x] Rework coordinators to support multiple uhppoted's
-      - [x] Rework services to support multiple uhppoted's
-      - [x] Remove port from config-/options-flow UI
-      - [x] Move self.controllers into flow superclass
-      - [x] # FIXME <sigh> self._controllers...
-
-- [ ] TCP transport (cf. https://github.com/uhppoted/uhppote-core/issues/17)
-      - [ ] (eventually) remove `controllers` from driver
+- [ ] (eventually) remove `controllers` from driver
 
 - [ ] DataCoordinator
       - [ ] communalize data
