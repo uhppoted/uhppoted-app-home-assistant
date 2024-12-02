@@ -5,7 +5,7 @@ services:
     volumes:
       - /config
       - ../../custom_components/uhppoted:/config/custom_components/uhppoted
-    restart: unless-stopped
+    restart: no
     privileged: false
     network_mode: "bridge"
     ports:
