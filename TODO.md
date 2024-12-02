@@ -1,7 +1,12 @@
 # TODO
 
-- [x] TCP transport (cf. https://github.com/uhppoted/uhppote-core/issues/17)
-- [x] Commonalise config-/options-flow controllers step
+- [ ] Fix `async_config_entry_first_refresh` warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
+```
+home-assistant  | 2024-12-02 22:56:22.977 WARNING (MainThread) [homeassistant.helpers.frame] Detected that custom integration 'uhppoted' uses `async_config_entry_first_refresh`, which is only supported when entry state is ConfigEntryState.SETUP_IN_PROGRESS, but it is in state ConfigEntryState.LOADED, This will stop working in Home Assistant 2025.11 at custom_components/uhppoted/sensor.py, line 64: await controllers.async_config_entry_first_refresh(), please report it to the author of the 'uhppoted' custom integration
+```
+
+
+
 - [ ] (eventually) remove `controllers` from driver
 
 - [ ] DataCoordinator

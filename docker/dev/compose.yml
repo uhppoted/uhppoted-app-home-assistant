@@ -1,0 +1,13 @@
+services:
+  home-assistant:
+    container_name: home-assistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    volumes:
+      - /config
+      - ../../custom_components/uhppoted:/config/custom_components/uhppoted
+    restart: unless-stopped
+    privileged: false
+    network_mode: "bridge"
+    ports:
+       - "8124:8123"
+
