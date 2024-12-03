@@ -12,7 +12,7 @@ from homeassistant.components.button import ButtonEntity
 from homeassistant.components.number import NumberEntity
 from homeassistant.components.event import EventEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.const import TIME_SECONDS
+from homeassistant.const import UnitOfTime
 
 from .const import ATTR_AVAILABLE
 from .const import ATTR_DOOR_CONTROLLER
@@ -655,7 +655,7 @@ class DoorDelay(CoordinatorEntity, NumberEntity):
     _attr_native_max_value = 60
     _attr_native_min_value = 1
     _attr_native_step = 1
-    _attr_native_unit_of_measurement = TIME_SECONDS
+    _attr_native_unit_of_measurement = UnitOfTime.SECONDS
 
     def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
         super().__init__(coordinator, context=unique_id)
