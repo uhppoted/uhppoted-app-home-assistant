@@ -553,23 +553,24 @@ class CardSwiped(CoordinatorEntity, EventEntity):
     def _update(self):
         _LOGGER.debug(f'card:{self.card} swipe event')
         try:
-            for idx in self.coordinator.data:
-                if ATTR_EVENTS not in self.coordinator.data[idx]:
-                    pass
-                elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
-                    pass
-                else:
-                    events = self.coordinator.data[idx][ATTR_EVENTS]
-                    for e in events:
-                        if e.card == self.card and e.reason in CARD_EVENTS:
-                            self._events.appendleft(CARD_EVENTS[e.reason])
+            if self.coordinator.data:
+                for idx in self.coordinator.data:
+                    if ATTR_EVENTS not in self.coordinator.data[idx]:
+                        pass
+                    elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
+                        pass
+                    else:
+                        events = self.coordinator.data[idx][ATTR_EVENTS]
+                        for e in events:
+                            if e.card == self.card and e.reason in CARD_EVENTS:
+                                self._events.appendleft(CARD_EVENTS[e.reason])
 
-            # ... because Home Assistant coalesces multiple events in an update cycle
-            if len(self._events) > 0:
-                event = self._events.pop()
-                self._trigger_event(event)
+                # ... because Home Assistant coalesces multiple events in an update cycle
+                if len(self._events) > 0:
+                    event = self._events.pop()
+                    self._trigger_event(event)
 
-            self._available = True
+                self._available = True
 
         except (Exception):
             self._available = False

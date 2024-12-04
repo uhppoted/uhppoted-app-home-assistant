@@ -4,7 +4,7 @@ services:
     image: "ghcr.io/home-assistant/home-assistant:stable"
     volumes:
       - /config
-      - ../../custom_components/uhppoted:/config/custom_components/uhppoted
+      - ../../../custom_components/uhppoted:/config/custom_components/uhppoted
     restart: no
     privileged: false
     network_mode: "bridge"

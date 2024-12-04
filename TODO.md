@@ -1,11 +1,34 @@
 # TODO
 
+- [x] Fix TIME_SECONDS deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
+
 - [ ] Fix `async_config_entry_first_refresh` warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
 ```
-home-assistant  | 2024-12-02 22:56:22.977 WARNING (MainThread) [homeassistant.helpers.frame] Detected that custom integration 'uhppoted' uses `async_config_entry_first_refresh`, which is only supported when entry state is ConfigEntryState.SETUP_IN_PROGRESS, but it is in state ConfigEntryState.LOADED, This will stop working in Home Assistant 2025.11 at custom_components/uhppoted/sensor.py, line 64: await controllers.async_config_entry_first_refresh(), please report it to the author of the 'uhppoted' custom integration
+WARNING (MainThread) [homeassistant.helpers.frame] Detected that custom integration 'uhppoted' uses `async_config_entry_first_refresh`, which is only supported when entry state is ConfigEntryState.SETUP_IN_PROGRESS, but it is in state ConfigEntryState.LOADED, This will stop working in Home Assistant 2025.11 at custom_components/uhppoted/sensor.py, line 64: await controllers.async_config_entry_first_refresh(), please report it to the author of the 'uhppoted' custom integration
 ```
 
+- [x] Fix `async_forward_entry_setup` deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
+   - [x] sensor
+   - [x] datetime
+   - [x] select
+   - [x] number
+   - [x] button
+   - [x] event
+   - [x] date
+   - [x] switch
+   - [x] text
 
+```
+WARNING (MainThread) [homeassistant.helpers.frame] Detected code that calls async_forward_entry_setup for integration uhppoted with title: uhppoted and entry_id: 01JE4WNTH9W34BP3R20RJ09CVZ, during setup without awaiting async_forward_entry_setup, which can cause the setup lock to be released before the setup is done. This will stop working in Home Assistant 2025.1. Please report this issue.
+
+WARNING (MainThread) [homeassistant.helpers.frame] Detected that custom integration 'uhppoted' calls async_forward_entry_setup for integration, uhppoted with title: uhppoted and entry_id: 01JE4XFEANW34BP3R20RJ09CVZ, which is deprecated and will stop working in Home Assistant 2025.6, await async_forward_entry_setups instead at custom_components/uhppoted/__init__.py, line 104: await hass.config_entries.async_forward_entry_setup(entry, "button"), please report it to the author of the 'uhppoted' custom integration
+```
+- [ ] early refresh
+- [ ] configuration.yaml
+- [ ] timeouts
+```
+home-assistant-2024.11.3  | 2024-12-04 00:17:41.956 WARNING (ThreadPoolExecutor-35_0) [custom_components.uhppoted.coordinators.events] error enabling controller Controller(id=405419896, address='192.168.1.100:60000', protocol='UDP') record special events (timed out)
+```
 
 - [ ] (eventually) remove `controllers` from driver
 

@@ -49,6 +49,9 @@ docker-run:
 docker-hass:
 	docker exec -it home-assistant bash
 
+docker-2024:
+	cd docker/dev/2024.11.3 && docker compose up --build
+
 # hass:
 # 	hass -c config
 

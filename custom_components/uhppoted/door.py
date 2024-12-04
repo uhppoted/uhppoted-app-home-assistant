@@ -111,19 +111,20 @@ class DoorInfo(CoordinatorEntity, SensorEntity):
     def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door} info')
         try:
-            idx = self._unique_id
+            if self.coordinator.data:
+                idx = self._unique_id
 
-            if idx not in self.coordinator.data:
-                self._available = False
-            elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
-                self._available = False
-            else:
-                state = self.coordinator.data[idx]
+                if idx not in self.coordinator.data:
+                    self._available = False
+                elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
+                    self._available = False
+                else:
+                    state = self.coordinator.data[idx]
 
-                self._available = state[ATTR_AVAILABLE]
-                self._open = state.get(ATTR_DOOR_OPEN, None)
-                self._button = state.get(ATTR_DOOR_BUTTON, None)
-                self._locked = state.get(ATTR_DOOR_LOCK, None)
+                    self._available = state[ATTR_AVAILABLE]
+                    self._open = state.get(ATTR_DOOR_OPEN, None)
+                    self._button = state.get(ATTR_DOOR_BUTTON, None)
+                    self._locked = state.get(ATTR_DOOR_LOCK, None)
 
         except (Exception):
             self._available = False
@@ -181,18 +182,19 @@ class DoorOpen(CoordinatorEntity, SensorEntity):
     def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door}.open state')
         try:
-            idx = self._unique_id
+            if self.coordinator.data:
+                idx = self._unique_id
 
-            if idx not in self.coordinator.data:
-                self._available = False
-            elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
-                self._available = False
-            elif ATTR_DOOR_OPEN not in self.coordinator.data[idx]:
-                self._available = False
-            else:
-                state = self.coordinator.data[idx]
-                self._open = state[ATTR_DOOR_OPEN]
-                self._available = state[ATTR_AVAILABLE]
+                if idx not in self.coordinator.data:
+                    self._available = False
+                elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
+                    self._available = False
+                elif ATTR_DOOR_OPEN not in self.coordinator.data[idx]:
+                    self._available = False
+                else:
+                    state = self.coordinator.data[idx]
+                    self._open = state[ATTR_DOOR_OPEN]
+                    self._available = state[ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False
@@ -250,18 +252,19 @@ class DoorLock(CoordinatorEntity, SensorEntity):
     def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door}.lock state')
         try:
-            idx = self._unique_id
+            if self.coordinator.data:
+                idx = self._unique_id
 
-            if idx not in self.coordinator.data:
-                self._available = False
-            elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
-                self._available = False
-            elif ATTR_DOOR_LOCK not in self.coordinator.data[idx]:
-                self._available = False
-            else:
-                state = self.coordinator.data[idx]
-                self._locked = state[ATTR_DOOR_LOCK]
-                self._available = state[ATTR_AVAILABLE]
+                if idx not in self.coordinator.data:
+                    self._available = False
+                elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
+                    self._available = False
+                elif ATTR_DOOR_LOCK not in self.coordinator.data[idx]:
+                    self._available = False
+                else:
+                    state = self.coordinator.data[idx]
+                    self._locked = state[ATTR_DOOR_LOCK]
+                    self._available = state[ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False
@@ -320,18 +323,19 @@ class DoorButton(CoordinatorEntity, SensorEntity):
     def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door} button state')
         try:
-            idx = self._unique_id
+            if self.coordinator.data:
+                idx = self._unique_id
 
-            if idx not in self.coordinator.data:
-                self._available = False
-            elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
-                self._available = False
-            elif ATTR_DOOR_BUTTON not in self.coordinator.data[idx]:
-                self._available = False
-            else:
-                state = self.coordinator.data[idx]
-                self._pressed = state[ATTR_DOOR_BUTTON]
-                self._available = state[ATTR_AVAILABLE]
+                if idx not in self.coordinator.data:
+                    self._available = False
+                elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
+                    self._available = False
+                elif ATTR_DOOR_BUTTON not in self.coordinator.data[idx]:
+                    self._available = False
+                else:
+                    state = self.coordinator.data[idx]
+                    self._pressed = state[ATTR_DOOR_BUTTON]
+                    self._available = state[ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False
@@ -380,29 +384,30 @@ class DoorOpened(CoordinatorEntity, EventEntity):
     def _update(self):
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door}.open.event')
         try:
-            idx = self.serial_no
-            door = self._door_id
+            if self.coordinator.data:
+                idx = self.serial_no
+                door = self._door_id
 
-            if idx not in self.coordinator.data:
-                self._available = False
-            elif ATTR_EVENTS not in self.coordinator.data[idx]:
-                self._available = False
-            elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
-                self._available = False
-            else:
-                events = self.coordinator.data[idx][ATTR_EVENTS]
-                for e in events:
-                    if e.door == door and e.reason == _REASON_DOOR_OPEN:
-                        self._events.appendleft('OPENED')
-                    if e.door == door and e.reason == _REASON_DOOR_CLOSED:
-                        self._events.appendleft('CLOSED')
+                if idx not in self.coordinator.data:
+                    self._available = False
+                elif ATTR_EVENTS not in self.coordinator.data[idx]:
+                    self._available = False
+                elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
+                    self._available = False
+                else:
+                    events = self.coordinator.data[idx][ATTR_EVENTS]
+                    for e in events:
+                        if e.door == door and e.reason == _REASON_DOOR_OPEN:
+                            self._events.appendleft('OPENED')
+                        if e.door == door and e.reason == _REASON_DOOR_CLOSED:
+                            self._events.appendleft('CLOSED')
 
-                self._available = True
+                    self._available = True
 
-            # ... because Home Assistant coalesces multiple events in an update cycle
-            if len(self._events) > 0:
-                event = self._events.pop()
-                self._trigger_event(event)
+                # ... because Home Assistant coalesces multiple events in an update cycle
+                if len(self._events) > 0:
+                    event = self._events.pop()
+                    self._trigger_event(event)
 
         except (Exception):
             self._available = False
@@ -451,29 +456,30 @@ class DoorButtonPressed(CoordinatorEntity, EventEntity):
     def _update(self):
         _LOGGER.debug(f'controller:{self.controller} update door {self.door}.button.event state')
         try:
-            idx = self.serial_no
-            door = self._door_id
+            if self.coordinator.data:
+                idx = self.serial_no
+                door = self._door_id
 
-            if idx not in self.coordinator.data:
-                self._available = False
-            elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
-                self._available = False
-            else:
-                if ATTR_EVENTS in self.coordinator.data[idx]:
-                    events = self.coordinator.data[idx][ATTR_EVENTS]
-                    for e in events:
-                        if e.door == door and e.reason == _REASON_BUTTON_PRESSED:
-                            self._events.appendleft('PRESSED')
+                if idx not in self.coordinator.data:
+                    self._available = False
+                elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
+                    self._available = False
+                else:
+                    if ATTR_EVENTS in self.coordinator.data[idx]:
+                        events = self.coordinator.data[idx][ATTR_EVENTS]
+                        for e in events:
+                            if e.door == door and e.reason == _REASON_BUTTON_PRESSED:
+                                self._events.appendleft('PRESSED')
 
-                        if e.door == door and e.reason == _REASON_BUTTON_RELEASED:
-                            self._events.appendleft('RELEASED')
+                            if e.door == door and e.reason == _REASON_BUTTON_RELEASED:
+                                self._events.appendleft('RELEASED')
 
-                self._available = True
+                    self._available = True
 
-            # ... because Home Assistant coalesces multiple events in an update cycle
-            if len(self._events) > 0:
-                event = self._events.pop()
-                self._trigger_event(event)
+                # ... because Home Assistant coalesces multiple events in an update cycle
+                if len(self._events) > 0:
+                    event = self._events.pop()
+                    self._trigger_event(event)
 
         except (Exception):
             self._available = False
@@ -522,28 +528,29 @@ class DoorUnlocked(CoordinatorEntity, EventEntity):
     def _update(self):
         _LOGGER.debug(f'controller:{self.controller} update door {self.door}.unlocked.event state')
         try:
-            idx = self.serial_no
-            door = self._door_id
+            if self.coordinator.data:
+                idx = self.serial_no
+                door = self._door_id
 
-            if idx not in self.coordinator.data:
-                self._available = False
-            elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
-                self._available = False
-            else:
-                if ATTR_EVENTS in self.coordinator.data[idx]:
-                    events = self.coordinator.data[idx][ATTR_EVENTS]
-                    for e in events:
-                        if e.door == door and e.reason == _REASON_DOOR_LOCKED:
-                            self._events.appendleft('LOCKED')
-                        elif e.door == door and e.reason == _REASON_DOOR_UNLOCKED:
-                            self._events.appendleft('UNLOCKED')
+                if idx not in self.coordinator.data:
+                    self._available = False
+                elif not self.coordinator.data[idx][ATTR_AVAILABLE]:
+                    self._available = False
+                else:
+                    if ATTR_EVENTS in self.coordinator.data[idx]:
+                        events = self.coordinator.data[idx][ATTR_EVENTS]
+                        for e in events:
+                            if e.door == door and e.reason == _REASON_DOOR_LOCKED:
+                                self._events.appendleft('LOCKED')
+                            elif e.door == door and e.reason == _REASON_DOOR_UNLOCKED:
+                                self._events.appendleft('UNLOCKED')
 
-                self._available = True
+                    self._available = True
 
-            # ... because Home Assistant coalesces multiple events in an update cycle
-            if len(self._events) > 0:
-                event = self._events.pop()
-                self._trigger_event(event)
+                # ... because Home Assistant coalesces multiple events in an update cycle
+                if len(self._events) > 0:
+                    event = self._events.pop()
+                    self._trigger_event(event)
 
         except (Exception):
             self._available = False

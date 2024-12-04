@@ -34,6 +34,18 @@ from .coordinators.coordinators import Coordinators
 from .services.services import Services
 from .config import get_all_doors
 
+PLATFORMS = [
+    Platform.DATETIME,
+    Platform.BUTTON,
+    Platform.NUMBER,
+    Platform.SELECT,
+    Platform.DATE,
+    Platform.SWITCH,
+    Platform.TEXT,
+    Platform.EVENT,
+    Platform.SENSOR,
+]
+
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     defaults = {
@@ -88,18 +100,13 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
 
+    # ... pre-load: start data coordinators
     Coordinators.initialise(hass, entry.entry_id, entry.options)
 
-    hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "sensor"))
-    hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "datetime"))
-    hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "select"))
-    hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "number"))
-    hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "button"))
-    hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "event"))
-    hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "date"))
-    hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "switch"))
-    hass.async_create_task(hass.config_entries.async_forward_entry_setup(entry, "text"))
+    # ... load entities
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+    # ... post-load: start services and register unload listener
     Services.initialise(hass, entry.entry_id, entry.options)
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
@@ -108,23 +115,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    platforms = [
-        Platform.SENSOR,
-        Platform.DATETIME,
-        Platform.SELECT,
-        Platform.NUMBER,
-        Platform.BUTTON,
-        Platform.EVENT,
-        Platform.DATE,
-        Platform.SWITCH,
-        Platform.TEXT,
-    ]
-
     # ... pre-unload: remove service endpoints
     Services.unload(hass, entry.entry_id)
 
     # ... unload
-    ok = await hass.config_entries.async_unload_platforms(entry, platforms)
+    ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
     # ... post-unload: shut down data-coordinators
     Coordinators.unload(entry.entry_id)

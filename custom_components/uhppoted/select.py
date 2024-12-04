@@ -27,5 +27,5 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         ])
 
     configure_doors(options, g)
-    await doors.async_config_entry_first_refresh()
+    # await doors.async_config_entry_first_refresh()
     async_add_entities(entities, update_before_add=True)
