@@ -1,7 +1,7 @@
 services:
   home-assistant:
-    container_name: home-assistant-2024.11.3
-    image: "ghcr.io/home-assistant/home-assistant:2024.11.3"
+    container_name: home-assistant-2023.12.0
+    image: "ghcr.io/home-assistant/home-assistant:2023.12.0b0"
     volumes:
       - /config
       - ./configuration.yaml:/config/configuration.yaml

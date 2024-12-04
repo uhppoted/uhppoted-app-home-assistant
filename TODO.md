@@ -6,6 +6,10 @@
 - [x] HA2023.12.0
 - [x] Fix `async_config_entry_first_refresh` warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
       - https://developers.home-assistant.io/blog/2024/08/05/coordinator_async_setup
+- [x] Docker compose scripts
+      - [x] HA2023.12.0b0
+      - [ ] HA2024.11.3
+      - [ ] stable
 - [ ] HACS
 
 - [ ] frequent timeouts
