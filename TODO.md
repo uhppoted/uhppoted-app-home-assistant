@@ -10,7 +10,7 @@
       - [x] HA2023.12.0b0
       - [ ] HA2024.11.3
       - [ ] stable
-- [ ] HACS
+- [ ] Add _hacs.json_ file (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/10)
 
 - [ ] frequent timeouts
 ```
