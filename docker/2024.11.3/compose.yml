@@ -4,10 +4,11 @@ services:
     image: "ghcr.io/home-assistant/home-assistant:stable"
     volumes:
       - /config
-      - ../../../custom_components/uhppoted:/config/custom_components/uhppoted
+      - ./configuration.yaml:/config/configuration.yaml
+      - ../../custom_components/uhppoted:/config/custom_components/uhppoted
     restart: no
     privileged: false
     network_mode: "bridge"
     ports:
-       - "8124:8123"
+       - "8123:8123"
 
