@@ -103,6 +103,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # ... pre-load: start data coordinators
     Coordinators.initialise(hass, entry.entry_id, entry.options)
 
+    await Coordinators.controllers(entry.entry_id).async_config_entry_first_refresh()
+    await Coordinators.doors(entry.entry_id).async_config_entry_first_refresh()
+    await Coordinators.cards(entry.entry_id).async_config_entry_first_refresh()
+    await Coordinators.events(entry.entry_id).async_config_entry_first_refresh()
+
     # ... load entities
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 

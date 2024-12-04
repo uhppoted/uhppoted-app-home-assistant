@@ -4,14 +4,11 @@
 - [x] Fix `async_forward_entry_setup` deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
 - [x] configuration.yaml
 - [x] HA2023.12.0
+- [x] Fix `async_config_entry_first_refresh` warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
+      - https://developers.home-assistant.io/blog/2024/08/05/coordinator_async_setup
+- [ ] HACS
 
-- [ ] Fix `async_config_entry_first_refresh` warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
-```
-WARNING (MainThread) [homeassistant.helpers.frame] Detected that custom integration 'uhppoted' uses `async_config_entry_first_refresh`, which is only supported when entry state is ConfigEntryState.SETUP_IN_PROGRESS, but it is in state ConfigEntryState.LOADED, This will stop working in Home Assistant 2025.11 at custom_components/uhppoted/sensor.py, line 64: await controllers.async_config_entry_first_refresh(), please report it to the author of the 'uhppoted' custom integration
-```
-
-- [ ] early refresh
-- [ ] timeouts
+- [ ] frequent timeouts
 ```
 home-assistant-2024.11.3  | 2024-12-04 00:17:41.956 WARNING (ThreadPoolExecutor-35_0) [custom_components.uhppoted.coordinators.events] error enabling controller Controller(id=405419896, address='192.168.1.100:60000', protocol='UDP') record special events (timed out)
 ```

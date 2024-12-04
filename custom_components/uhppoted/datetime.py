@@ -28,5 +28,4 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         entities.extend([ControllerDateTime(controllers, unique_id, controller, serial_no)])
 
     configure_controllers(options, f)
-    # await controllers.async_config_entry_first_refresh()
     async_add_entities(entities, update_before_add=True)
