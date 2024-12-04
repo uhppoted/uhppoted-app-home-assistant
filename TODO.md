@@ -2,13 +2,14 @@
 
 - [x] Fix TIME_SECONDS deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
 - [x] Fix `async_forward_entry_setup` deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
+- [x] configuration.yaml
+- [x] HA2023.12.0
 
 - [ ] Fix `async_config_entry_first_refresh` warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
 ```
 WARNING (MainThread) [homeassistant.helpers.frame] Detected that custom integration 'uhppoted' uses `async_config_entry_first_refresh`, which is only supported when entry state is ConfigEntryState.SETUP_IN_PROGRESS, but it is in state ConfigEntryState.LOADED, This will stop working in Home Assistant 2025.11 at custom_components/uhppoted/sensor.py, line 64: await controllers.async_config_entry_first_refresh(), please report it to the author of the 'uhppoted' custom integration
 ```
 
-- [ ] configuration.yaml
 - [ ] early refresh
 - [ ] timeouts
 ```
