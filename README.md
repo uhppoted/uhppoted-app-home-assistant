@@ -19,8 +19,6 @@ doors and maybe a ten or so access cards - so, not a large mansion [~~or an offi
 **Contents**
 1. [Screenshots](#screenshots)
 2. [Installation](#installation)
-    - [Alpha release](#alpha-release)
-    - [Building from source](#building-from-source)
 3. [Configuration](#configuration)
     - [Entities](#entities)
        - [controllers](#controllers)
@@ -79,8 +77,8 @@ Installing via [HACS](https://www.hacs.xyz/) is by far the simplest:
 
 Alternative installation methods are described in the [Installation Guide](INSTALL.md):
 - [Docker](INSTALL.md#docker)
-- [Manual installation](INSTALL.md#manual_installation)
-- [Building from source](INSTALL.md#building_from_source)
+- [Manual installation](INSTALL.md#manual-installation)
+- [Building from source](INSTALL.md#building-from-source)
 
 ## Configuration
 

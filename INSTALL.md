@@ -2,8 +2,8 @@
 
 - [HACS](#hacs)
 - [Docker](#docker)
-- [Manual Installation](#manual_installation)
-- [Building from source](#building_from_source)
+- [Manual Installation](#manual-installation)
+- [Building from source](#building-from-source)
 
 
 ### HACS
@@ -22,9 +22,10 @@ Installing via [HACS](https://www.hacs.xyz/) is by far the simplest:
 
 The repository includes a sample _Docker Compose_ [`compose.yml`](https://github.com/uhppoted/uhppoted-app-home-assistant/docker/compose/compose.yml) script.
 
-1. Copy the [`compose.yml`](https://github.com/uhppoted/uhppoted-app-home-assistant/docker/compose/compose.yml) to an _install_ folder.
-2. Copy the [`configuration.yaml`](https://github.com/uhppoted/uhppoted-app-home-assistant/docker/compose/configuration.yaml) file to
-   the _install_ folder.
+1. Copy the [`compose.yml`](https://github.com/uhppoted/uhppoted-app-home-assistant/blob/main/docker/compose/compose.yml) 
+   to an _install_ folder.
+2. Copy the [`configuration.yaml`](https://github.com/uhppoted/uhppoted-app-home-assistant/blob/main/docker/compose/configuration.yaml) 
+   file to the _install_ folder.
 3. Download and unzip the latest release of _uhppoted-app-home-assistant_ from the
    [Releases](https://github.com/uhppoted/uhppoted-app-home-assistant/releases) page to the install folder.
 4. Edit the `compose.yml` file as required.
