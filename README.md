@@ -58,11 +58,11 @@ doors and maybe a ten or so access cards - so, not a large mansion [~~or an offi
 
 ### Alpha Release
 
-**NOTE**: The _Alpha_ release is entirely **use at your own risk/discretion**. It is functional but a long way from either finished
-or even pretty, and has had **very limited** testing - you probably won't lock yourself out of your own home (_unless of course it's
-late at night and pouring with rain, in which case it's inevitable_) but please do have a backup plan (which may or may not include
-a fire axe). It is also reasonably likely that future releases may require you to reconfigure your system again i.e. it is for the
-brave and adventurous who like living on the edge.
+**NOTE**: The _Alpha_ release is entirely **use at your own risk/discretion**. It is functional but not even vaguely pretty and
+is a long way from finished. It has had **very limited** testing - nobody has as yet reported being locked out of their own home
+but that may just be because it wasn't late at night and pouring with rain, but please do have a backup plan (which may or may
+not include a fire axe). It is also reasonably likely that future releases may require you to reconfigure your system again i.e.
+it is for the brave and adventurous who enjoy living on the edge.
 
 Installing via [HACS](https://www.hacs.xyz) is by far the simplest:
 
