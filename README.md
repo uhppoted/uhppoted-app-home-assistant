@@ -47,11 +47,11 @@ doors and maybe a ten or so access cards - so, not a large mansion [~~or an offi
 
 ### Current Release
 
-**[v0.8.9](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.9) - 2024-09-06**
+**[v0.8.9.3](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.9.3) - 2024-12-05**
 
-1. Added support for (optional) TCP connections to controllers.
-2. Fixed support for multiple _uhppoted_ instances.
-3. Removed _port_ from config- and option-flow UI (can still be configured in _configuration.yaml_).
+1. Fixed deprecation warnings in _Home Assistant_ 2024.11.3.
+2. Added _hacs.json_ file for HACS v2.0.
+3. Added sample _Docker_ `compose.yml` scripts.
 
 
 ## Installation
@@ -69,12 +69,13 @@ Installing via [HACS](https://www.hacs.xyz) is by far the simplest:
 1. [Install](https://www.hacs.xyz/docs/use/) the HACS integration.
 2. Open the _HACS_ tab in the _Home Assistant_ sidebar. and add the 
    [_uhppoted-app-home-assistant_](https://github.com/uhppoted/uhppoted-app-home-assistant)
-   github repository as a custom repository (under the menu).
-3. Open the _Settings_ tab in the _Home Assistant_ sidebar.
-4. Open the _Devices and Integrations_ section.
-5. Select _Add integration_ and choose _uhppoted_.
-6. Step through the configuration flow to set up the initial system configuration
-7. Add/edit the entities to the desktop.
+   github repository as a custom repository (under the _Home Assistant Community Store_ menu).
+3. Restart _Home Assistant_ to complete the initial installation.
+4. Open the _Settings_ tab in the _Home Assistant_ sidebar.
+5. Open the _Devices and Integrations_ section.
+6. Select _Add integration_ and choose _uhppoted_.
+7. Step through the configuration flow to set up the initial system configuration
+8. Add/edit the entities to the desktop.
 
 Alternative installation methods are described in the [Installation Guide](INSTALL.md):
 - [Docker](INSTALL.md#docker)

@@ -1,4 +1,4 @@
-VERSION ?= v0.8.9.2
+VERSION ?= v0.8.9.3
 DIST    ?= development
 
 .PHONY: docker
@@ -39,7 +39,6 @@ publish: release
 	gh release create "$(VERSION)" \
 	                  "./dist/uhppoted-app-home-assistant_$(VERSION)-alpha.tar.gz" \
 	                  "./dist/uhppoted-app-home-assistant_$(VERSION)-alpha.zip" \
-	                  "./dist/uhppoted.zip" \
 	                  --draft --prerelease --title "$(VERSION)-alpha" --notes-file release-notes.md
 
 docker-build:

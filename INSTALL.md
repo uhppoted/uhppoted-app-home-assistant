@@ -10,13 +10,15 @@
 
 Installing via [HACS](https://www.hacs.xyz/) is by far the simplest:
 1. [Install](https://www.hacs.xyz/docs/use/) the HACS integration.
-2. Open the _HACS_ tab in the _Home Assistant_ sidebar. and add the [_uhppoted-app-home-assistant_](https://github.com/uhppoted/uhppoted-app-home-assistant)
-   github repository as a custom repository (under the menu).
-3. Open the _Settings_ tab in the _Home Assistant_ sidebar.
-4. Open the _Devices and Integrations_ section.
-5. Select _Add integration_ and choose _uhppoted_.
-6. Step through the configuration flow to set up the initial system configuration
-7. Add/edit the entities to the desktop.
+2. Open the _HACS_ tab in the _Home Assistant_ sidebar. and add the
+   [_uhppoted-app-home-assistant_](https://github.com/uhppoted/uhppoted-app-home-assistant) github repository
+  as a custom repository (under the _Home Assistant Community Store_ menu).
+3. Restart _Home Assistant_ to complete the initial installation.
+4. Open the _Settings_ tab in the _Home Assistant_ sidebar.
+5. Open the _Devices and Integrations_ section.
+6. Select _Add integration_ and choose _uhppoted_.
+7. Step through the configuration flow to set up the initial system configuration
+8. Add/edit the entities to the desktop.
 
 ### Docker
 
