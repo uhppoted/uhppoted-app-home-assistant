@@ -14,10 +14,10 @@ logger:
   logs:
     homeassistant.components.cloud: debug
 
-uhppoted:
-    debug: false
-    timezone: CEST
-    timeout: 2.5
-    preferred_cards:
-    card_PINs: true
+# uhppoted:
+#     debug: false
+#     timezone: CEST
+#     timeout: 2.5
+#     preferred_cards:
+#     card_PINs: true
 

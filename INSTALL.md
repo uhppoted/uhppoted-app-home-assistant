@@ -19,6 +19,7 @@ Installing via [HACS](https://www.hacs.xyz/) is by far the simplest:
 6. Select _Add integration_ and choose _uhppoted_.
 7. Step through the configuration flow to set up the initial system configuration
 8. Add/edit the entities to the desktop.
+9. You may need to restart _Home Assistant_ after completing the initial system configuration.
 
 ### Docker
 
@@ -37,7 +38,8 @@ The repository includes a sample _Docker Compose_ [`compose.yml`](https://github
 8. Open the _Devices and Integrations_ section.
 9. Select _Add integration_ and choose _uhppoted_.
 10. Step through the configuration flow to set up the initial system configuration
-11. Add/edit the entities to the desktop.
+11. You may need to restart _Home Assistant_ after completing the initial system configuration.
+12. Add/edit the entities to the desktop.
 
 ### Manual Installation
 
