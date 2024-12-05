@@ -1,0 +1,13 @@
+services:
+  home-assistant:
+    container_name: home-assistant-HACS
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    volumes:
+      - /config
+      - ./configuration.yaml:/config/configuration.yaml
+    restart: no
+    privileged: false
+    network_mode: "bridge"
+    ports:
+       - "8123:8123"
+
