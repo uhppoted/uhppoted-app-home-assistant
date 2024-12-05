@@ -9,7 +9,7 @@
 - [x] Docker compose scripts
 - [x] Add _hacs.json_ file (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/10)
 - [x] Update README installation section:
-- [ ] Release 0.8.9.2 and test HACS
+- [ ] Release and test HACS
 
 - [ ] (eventually) remove `controllers` from driver
 
