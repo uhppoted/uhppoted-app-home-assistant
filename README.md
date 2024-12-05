@@ -58,16 +58,17 @@ doors and maybe a ten or so access cards - so, not a large mansion [~~or an offi
 
 ### Alpha Release
 
-**NOTE**: The _Alpha_ release is a first release and is entirely **use at your own risk/discretion**. It has had
-**very limited** testing - you probably won't lock yourself out of your own home (_unless of course it's late at
-night and pouring with rain, in which case it's inevitable_) but please do have a backup plan (which may or may
-not include a fire axe). It is also reasonably likely that future releases may require you to reconfigure your
-system again i.e. it is for the brave and adventurous who like living on the edge.
+**NOTE**: The _Alpha_ release is entirely **use at your own risk/discretion**. It is functional but a long way from either finished
+or even pretty, and has had **very limited** testing - you probably won't lock yourself out of your own home (_unless of course it's
+late at night and pouring with rain, in which case it's inevitable_) but please do have a backup plan (which may or may not include
+a fire axe). It is also reasonably likely that future releases may require you to reconfigure your system again i.e. it is for the
+brave and adventurous who like living on the edge.
 
-Installing via [HACS](https://www.hacs.xyz/) is by far the simplest:
+Installing via [HACS](https://www.hacs.xyz) is by far the simplest:
 
 1. [Install](https://www.hacs.xyz/docs/use/) the HACS integration.
-2. Open the _HACS_ tab in the _Home Assistant_ sidebar. and add the [_uhppoted-app-home-assistant_](https://github.com/uhppoted/uhppoted-app-home-assistant)
+2. Open the _HACS_ tab in the _Home Assistant_ sidebar. and add the 
+   [_uhppoted-app-home-assistant_](https://github.com/uhppoted/uhppoted-app-home-assistant)
    github repository as a custom repository (under the menu).
 3. Open the _Settings_ tab in the _Home Assistant_ sidebar.
 4. Open the _Devices and Integrations_ section.
