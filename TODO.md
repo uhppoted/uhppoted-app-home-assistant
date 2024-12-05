@@ -7,16 +7,15 @@
 - [x] Fix `async_config_entry_first_refresh` warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
       - https://developers.home-assistant.io/blog/2024/08/05/coordinator_async_setup
 - [x] Docker compose scripts
-      - [x] HA2023.12.0b0
-      - [ ] HA2024.11.3
-      - [ ] stable
-- [x] Add _hacs.json_ file (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/10)
+- [ ] Add _hacs.json_ file (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/10)
+      - https://github.com/hacs/integration/releases
+- [ ] Update README installation section:
+      - Docker 
+      - HACS
+- [ ] Release 0.8.9.2 and test HACS
+
 
 - [ ] frequent timeouts
-```
-home-assistant-2024.11.3  | 2024-12-04 00:17:41.956 WARNING (ThreadPoolExecutor-35_0) [custom_components.uhppoted.coordinators.events] error enabling controller Controller(id=405419896, address='192.168.1.100:60000', protocol='UDP') record special events (timed out)
-```
-
 - [ ] (eventually) remove `controllers` from driver
 
 - [ ] DataCoordinator
