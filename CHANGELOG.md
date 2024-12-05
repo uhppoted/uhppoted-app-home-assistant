@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## [0.8.9.4](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.9.4) - 2024-12-05
 
 ### Added
 1. Docker compose scripts.
