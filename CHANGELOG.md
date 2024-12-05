@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Added
+1. Docker compose scripts.
+2. _hacs.json_ file for HACS integration.
+
+### Updated
+1. Fixed deprecated TIME_SECONDS units.
+2. Fixed deprecated `async_forward_entry_setup`
+3. Fixed deprecated `async_config_entry_first_refresh`
+
 
 ## [0.8.9](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.9) - 2024-09-06
 

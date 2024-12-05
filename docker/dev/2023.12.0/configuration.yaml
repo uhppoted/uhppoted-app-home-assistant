@@ -20,7 +20,7 @@ uhppoted:
     listen_address: 192.168.1.100:60001
     debug: false
     timezone: CEST
-    timeout: 1.23
+    timeout: 2.5
     max_cards: 7
     preferred_cards:
         - 8165535

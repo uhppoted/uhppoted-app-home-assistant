@@ -5,7 +5,7 @@ services:
     volumes:
       - /config
       - ./configuration.yaml:/config/configuration.yaml
-      - ../../custom_components/uhppoted:/config/custom_components/uhppoted
+      - ../../../custom_components/uhppoted:/config/custom_components/uhppoted
     restart: no
     privileged: false
     network_mode: "bridge"

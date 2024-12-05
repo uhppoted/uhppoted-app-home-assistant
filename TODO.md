@@ -7,11 +7,12 @@
 - [x] Fix `async_config_entry_first_refresh` warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
       - https://developers.home-assistant.io/blog/2024/08/05/coordinator_async_setup
 - [x] Docker compose scripts
-- [ ] Add _hacs.json_ file (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/10)
-      - https://github.com/hacs/integration/releases
+- [x] Add _hacs.json_ file (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/10)
+
 - [ ] Update README installation section:
       - Docker 
       - HACS
+
 - [ ] Release 0.8.9.2 and test HACS
 
 
