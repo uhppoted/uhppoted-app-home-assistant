@@ -9,7 +9,7 @@ Development status: _ALPHA_
 
 ---
 _uhppoted-app-home-assistant_ is an experimental _Home Assistant_ custom component for the UHPPOTE access controllers,
-leveraging the [_uhppoted-python_](https://github.com/uhppoted/uhppoted-python) library. It turns out that an access
+leveraging the [_uhppoted-lib-python_](https://github.com/uhppoted/uhppoted-lib-python) library. It turns out that an access
 control system has quite a lot more moving parts than e.g. your average thermostat, and the current implementation, 
 although functional and usable, is intended more for the (brave) early adopter.
 
