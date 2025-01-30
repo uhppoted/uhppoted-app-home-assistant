@@ -47,7 +47,7 @@ doors and maybe a ten or so access cards - so, not a large mansion [~~or an offi
 
 ### Current Release
 
-**[v0.8.10](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.10) - 2025-01-31**
+**[v0.8.10](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.10) - 2025-01-30**
 
 1. Fixed deprecation warnings in _Home Assistant_ 2024.11.3.
 2. Added _hacs.json_ file for HACS v2.0.

@@ -7,7 +7,10 @@ DIST    ?= development
 SHARE="/usr/local/etc/com.github.uhppoted/home-assistant"
 
 update:
-	echo "Nothing to do"
+	@echo "update: nothing to do"
+
+update-release:
+	@echo "update-release: nothing to do"
 
 format: 
 	yapf -ri custom_components/uhppoted
