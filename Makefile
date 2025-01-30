@@ -24,14 +24,15 @@ build: format
 build-all: format
 
 release: build-all
+	rm -rf dist/*
 	mkdir -p dist/$(DIST)
 	rsync -av --delete \
           --exclude '.DS_Store'   \
           --exclude '__pycache__' \
           --exclude '.style.yapf' \
           custom_components/uhppoted dist/$(DIST)/
-	tar --directory=dist/$(DIST) --exclude=".DS_Store" -cvzf dist/$(DIST).tar.gz uhppoted
-	cd dist/$(DIST); zip -x .DS_Store --recurse-paths ../$(DIST).zip .
+	tar --directory=dist/$(DIST) --exclude=".DS_Store" -cvzf dist/$(DIST)-alpha.tar.gz uhppoted
+	cd dist/$(DIST); zip -x .DS_Store --recurse-paths ../$(DIST)-alpha.zip .
 	cd dist/$(DIST); zip -x .DS_Store --recurse-paths ../uhppoted.zip .
 
 publish: release
