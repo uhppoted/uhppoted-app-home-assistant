@@ -15,9 +15,9 @@ logger:
     homeassistant.components.cloud: debug
 
 uhppoted:
-    bind_address: 192.168.1.100
-    broadcast_address: 192.168.1.255:60000
-    listen_address: 192.168.1.100:60001
+    bind_address: 0.0.0.0
+    broadcast_address: 255.255.255.255:60000
+    listen_address: 0.0.0.0:60001
     debug: false
     timezone: CEST
     timeout: 1.23

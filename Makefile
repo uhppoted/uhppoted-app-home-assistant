@@ -43,15 +43,18 @@ publish: release
 
 docker-build:
 	docker run --detach --name home-assistant --restart=unless-stopped --publish 8123:8123 \
-               --env TZ=America/New York \
+               --env "TZ=America/New York" \
                --mount type=bind,source=$(SHARE),target=/config \
                ghcr.io/home-assistant/home-assistant:stable
 
-docker-run:
+docker-hass:
 	docker start home-assistant
 
-docker-hass:
+docker-hass-it:
 	docker exec -it home-assistant bash
+
+docker:
+	cd docker/dev/stable && docker compose up --build
 
 docker-2024:
 	cd docker/dev/2024.11.3 && docker compose up --build

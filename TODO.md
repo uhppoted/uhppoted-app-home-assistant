@@ -1,15 +1,6 @@
 # TODO
 
-- [x] Fix TIME_SECONDS deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
-- [x] Fix `async_forward_entry_setup` deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
-- [x] configuration.yaml
-- [x] HA2023.12.0
-- [x] Fix `async_config_entry_first_refresh` warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/12)
-      - https://developers.home-assistant.io/blog/2024/08/05/coordinator_async_setup
-- [x] Docker compose scripts
-- [x] Add _hacs.json_ file (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/10)
-- [x] Update README installation section:
-- [x] Release and test HACS
+- [x] Update to uhppoted-lib-python v0.8.10
 
 - [ ] (eventually) remove `controllers` from driver
 

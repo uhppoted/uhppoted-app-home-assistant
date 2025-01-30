@@ -1,8 +1,11 @@
+import logging
+
 from collections import namedtuple
 from uhppoted import uhppote
 
-Controller = namedtuple('Controller', 'id address protocol')
+_LOGGER = logging.getLogger(__name__)
 
+Controller = namedtuple('Controller', 'id address protocol')
 
 class uhppoted:
 
@@ -42,7 +45,7 @@ class uhppoted:
 
     def set_listener(self, controller, address, port):
         (c, timeout) = self._lookup(controller)
-        return self._api.set_listener(c, address, port, timeout=timeout)
+        return self._api.set_listener(c, address, port, interval=0, timeout=timeout)
 
     def get_door_control(self, controller, door):
         (c, timeout) = self._lookup(controller)
