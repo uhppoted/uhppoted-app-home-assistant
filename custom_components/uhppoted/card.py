@@ -34,6 +34,8 @@ from .const import CARD_EVENTS
 from .config import default_card_start_date
 from .config import default_card_end_date
 
+from .coordinators.coordinators import Coordinators
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -564,6 +566,27 @@ class CardSwiped(CoordinatorEntity, EventEntity):
                         for e in events:
                             if e.card == self.card and e.reason in CARD_EVENTS:
                                 self._events.appendleft(CARD_EVENTS[e.reason])
+
+                                self.hass.bus.fire(
+                                    'uhppoted.card.swipe.decorated', {
+                                        'entity_id': self.entity_id,
+                                        'timestamp': e.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+                                        'card': e.card,
+                                        'person': Coordinators.lookup('cards', e.card),
+                                        'controller': {
+                                            'id': e.controller,
+                                            'name': Coordinators.lookup('controllers', e.controller),
+                                        },
+                                        'door': {
+                                            'id': e.door,
+                                            'name': Coordinators.lookup('doors', f'{e.controller}.{e.door}'),
+                                        },
+                                        'access': {
+                                            'granted': e.access_granted,
+                                            'code': e.reason,
+                                            'description': Coordinators.lookup('events', f'{e.reason}'),
+                                        }
+                                    })
 
                 # ... because Home Assistant coalesces multiple events in an update cycle
                 if len(self._events) > 0:

@@ -1,6 +1,23 @@
 # TODO
 
-- [x] Update to uhppoted-lib-python v0.8.10
+- [ ] Decorate card swipe event (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/13)
+       - [ ] fire card.swipe.decorated event
+             - [ ] opt-in in config-flow
+       - [ ] automation to handle card.swipe.decorated event
+       - [ ] add automation to config-flow
+       - [ ] Lovelace card to display events
+       - [ ] add Lovelace card to config-flow
+       - (?) logbook integration
+
+- [ ] (maybe) don't fire events on controller time updated
+```
+uhppoted.controller.alpha.datetime changed to 26 March 2025 at 03:59 11:59:04 - 3 seconds ago
+```
+
+- [ ] warning
+```
+ WARNING (MainThread) [homeassistant.helpers.frame] Detected that custom integration 'uhppoted' sets option flow config_entry explicitly, which is deprecated at custom_components/uhppoted/options_flow.py, line 107: self.config_entry = entry. This will stop working in Home Assistant 2025.12, please report it to the author of the 'uhppoted' custom integration
+```
 
 - [ ] (eventually) remove `controllers` from driver
 

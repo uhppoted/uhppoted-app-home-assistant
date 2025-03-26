@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import logging
 
 from ..const import DOMAIN
 from ..const import CONF_POLL_CONTROLLERS
@@ -14,6 +15,8 @@ from .doors import DoorsCoordinator
 from .cards import CardsCoordinator
 from .events import EventsCoordinator
 from .db import DB
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class Coordinators():
@@ -92,6 +95,30 @@ class Coordinators():
                 if coordinators._cards.delete_card(card):
                     deleted = True
         return deleted
+
+    @classmethod
+    def lookup(clazz, table, key):
+        if table == 'controllers':
+            for coordinators in Coordinators.COORDINATORS.values():
+                if coordinators and coordinators._controllers:
+                    return coordinators._controllers.lookup(key)
+
+        if table == 'doors':
+            for coordinators in Coordinators.COORDINATORS.values():
+                if coordinators and coordinators._doors:
+                    return coordinators._doors.lookup(key)
+
+        if table == 'cards':
+            for coordinators in Coordinators.COORDINATORS.values():
+                if coordinators and coordinators._cards:
+                    return coordinators._cards.lookup(key)
+
+        if table == 'events':
+            for coordinators in Coordinators.COORDINATORS.values():
+                if coordinators and coordinators._events:
+                    return coordinators._events.lookup(key)
+
+        return '(unknown)'
 
     def __init__(self, hass, options):
         poll_controllers = None

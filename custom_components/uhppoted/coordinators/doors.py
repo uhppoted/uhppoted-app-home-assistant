@@ -29,6 +29,7 @@ from ..config import get_configured_controllers_ext
 from ..config import get_configured_doors
 from ..config import resolve_door
 from ..config import resolve_door_by_name
+from ..config import lookup_door
 
 from ..uhppoted import Controller
 
@@ -52,6 +53,9 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
     def __del__(self):
         self.unload()
+
+    def lookup(self, key):
+        return lookup_door(self._options, key)
 
     def unload(self):
         pass

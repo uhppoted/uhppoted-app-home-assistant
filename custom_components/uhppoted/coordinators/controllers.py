@@ -33,6 +33,8 @@ from ..config import get_configured_controllers
 from ..config import get_configured_controllers_ext
 from ..config import get_configured_cards
 
+from ..config import lookup_controller
+
 from ..uhppoted import Controller
 
 
@@ -55,6 +57,9 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
     def __del__(self):
         self.unload()
+
+    def lookup(self, key):
+        return lookup_controller(self._options, key)
 
     def unload(self):
         pass

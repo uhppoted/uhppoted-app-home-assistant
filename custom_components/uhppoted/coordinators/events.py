@@ -41,6 +41,7 @@ from ..const import EVENT_REASON_BUTTON_RELEASED
 from ..config import configure_cards
 from ..config import get_configured_controllers
 from ..config import get_configured_controllers_ext
+from ..config import lookup_event
 
 from ..uhppoted import Controller
 
@@ -152,6 +153,9 @@ class EventsCoordinator(DataUpdateCoordinator):
 
     def __del__(self):
         self.unload()
+
+    def lookup(self, key):
+        return lookup_event(self._options, key)
 
     def unload(self):
         try:
