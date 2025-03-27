@@ -51,3 +51,35 @@ uhppoted:
             timeout: 0.56
             protocol: TCP
 
+template:
+  - trigger:
+      - platform: event
+        event_type: uhppoted.card.swipe.decorated
+    sensor:
+      - name: "Decorated Card Swipe"
+        unique_id: decorated_card_swipe_sensor
+        state: "{{ trigger.event.data.controller.id }}.{{trigger.event.data.index}}"
+        attributes:
+          card:  "{{ trigger.event.data.card | string }}"
+          person: "{{ trigger.event.data.person }}"
+          controller_id: "{{ trigger.event.data.controller.id | string }}"
+          controller_name: "{{ trigger.event.data.controller.name }}"
+          door_id: "{{ trigger.event.data.door.id }}"
+          door_name: "{{ trigger.event.data.door.name }}"
+          access_granted: "{{ 'GRANTED' if trigger.event.data.access.granted else 'DENIED' }}"
+          access_code: "{{ trigger.event.data.access.code }}"
+          access_description: "{{ trigger.event.data.access.description }}"
+          timestamp: "{{ trigger.event.data.timestamp }}"
+
+automation:
+  - alias: "Log decorated card swipe event"
+    description: "Logs a decorated card swipe to the console"
+    trigger:
+      platform: event
+      event_type: uhppoted.card.swipe.decorated
+    action:
+      - service: system_log.write
+        data_template:
+          message: >
+            Card swipe: {{ trigger.event.data | to_json }}
+          level: info

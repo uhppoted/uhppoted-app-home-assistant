@@ -11,4 +11,5 @@ services:
     network_mode: "bridge"
     ports:
        - "8123:8123"
+       - "60001:60001/udp"
 

@@ -1,8 +1,10 @@
 # TODO
 
 - [ ] Decorate card swipe event (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/13)
-       - [ ] fire card.swipe.decorated event
-             - [ ] opt-in in config-flow
+       - [x] fire card.swipe.decorated event
+             - [x] event index
+             - [x] controller-id.event-index
+       - [ ] opt-in in config-flow
        - [ ] automation to handle card.swipe.decorated event
        - [ ] add automation to config-flow
        - [ ] Lovelace card to display events

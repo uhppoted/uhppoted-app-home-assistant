@@ -570,6 +570,7 @@ class CardSwiped(CoordinatorEntity, EventEntity):
                                 self.hass.bus.fire(
                                     'uhppoted.card.swipe.decorated', {
                                         'entity_id': self.entity_id,
+                                        'index': e.index,
                                         'timestamp': e.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
                                         'card': e.card,
                                         'person': Coordinators.lookup('cards', e.card),
