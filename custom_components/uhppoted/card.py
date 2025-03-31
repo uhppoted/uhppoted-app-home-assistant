@@ -33,6 +33,10 @@ from .const import CARD_EVENTS
 
 from .config import default_card_start_date
 from .config import default_card_end_date
+from .config import lookup_controller
+from .config import lookup_card
+from .config import lookup_door
+from .config import lookup_event
 
 from .coordinators.coordinators import Coordinators
 
@@ -520,7 +524,7 @@ class CardSwiped(CoordinatorEntity, EventEntity):
     _attr_has_entity_name: True
     _attr_event_types = list(CARD_EVENTS.values())
 
-    def __init__(self, coordinator, unique_id, card, name):
+    def __init__(self, coordinator, unique_id, card, name, options):
         super().__init__(coordinator)
 
         _LOGGER.debug(f'card {card} swipe event')
@@ -530,6 +534,7 @@ class CardSwiped(CoordinatorEntity, EventEntity):
         self._unique_id = unique_id
         self._name = f'uhppoted.card.{card}.swipe.event'.lower()
         self._events = deque([], 16)
+        self._options = options
         self._available = False
 
     @property
@@ -570,22 +575,26 @@ class CardSwiped(CoordinatorEntity, EventEntity):
                                 self.hass.bus.fire(
                                     'uhppoted.card.swipe.decorated', {
                                         'entity_id': self.entity_id,
-                                        'index': e.index,
-                                        'timestamp': e.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-                                        'card': e.card,
-                                        'person': Coordinators.lookup('cards', e.card),
+                                        'event': {
+                                            'index': e.index,
+                                            'timestamp': e.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+                                        },
+                                        'card': {
+                                            'card': e.card,
+                                            'name': lookup_card(self._options, e.card),
+                                        },
                                         'controller': {
                                             'id': e.controller,
-                                            'name': Coordinators.lookup('controllers', e.controller),
+                                            'name': lookup_controller(self._options, e.controller),
                                         },
                                         'door': {
                                             'id': e.door,
-                                            'name': Coordinators.lookup('doors', f'{e.controller}.{e.door}'),
+                                            'name': lookup_door(self._options, f'{e.controller}.{e.door}'),
                                         },
                                         'access': {
                                             'granted': e.access_granted,
                                             'code': e.reason,
-                                            'description': Coordinators.lookup('events', f'{e.reason}'),
+                                            'description': lookup_event(self._options, f'{e.reason}'),
                                         }
                                     })
 

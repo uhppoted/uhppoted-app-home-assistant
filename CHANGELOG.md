@@ -1,6 +1,9 @@
 # CHANGELOG
 
-## Unreleased
+## [0.8.10.1](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.10.1) - 2025-03-31
+
+### Added
+1. Added decorated event `uhppoted.card.swipe.decorated`.
 
 
 ## [0.8.10](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.10) - 2025-01-30

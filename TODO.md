@@ -9,7 +9,6 @@
        - [ ] add automation to config-flow
        - [ ] Lovelace card to display events
        - [ ] add Lovelace card to config-flow
-       - (?) logbook integration
 
 - [ ] (maybe) don't fire events on controller time updated
 ```

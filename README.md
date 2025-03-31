@@ -14,7 +14,7 @@ control system has quite a lot more moving parts than e.g. your average thermost
 although functional and usable, is intended more for the (brave) early adopter.
 
 The current version is most suited to a small'ish home ACS i.e. a couple of controllers with half a dozen
-doors and maybe a ten or so access cards - so, not a large mansion [~~or an office building~~](https://github.com/uhppoted/uhppoted-app-home-assistant/issues/1).
+doors and maybe a ten or so access cards - so, not e.g. a large mansion, minor palace [~~or office building~~](https://github.com/uhppoted/uhppoted-app-home-assistant/issues/1).
 
 **Contents**
 1. [Screenshots](#screenshots)
@@ -30,6 +30,7 @@ doors and maybe a ten or so access cards - so, not a large mansion [~~or an offi
    - [`unlock-door`](#unlock-door)
    - [`add-card`](#add-card)
    - [`delete-card`](#delete-card)
+5. [Decorated events](#decorated-events)
 
 
 ---
@@ -275,4 +276,57 @@ Example:
 service: uhppoted.delete_card
 data:
   card: 10058400
+```
+
+## Decorated events
+
+Decorated events are custom events intended for use with template sensors and automation. The events are associated with 
+the similarly named entity event, but include additional information. 
+
+### `uhppoted.card.swipe.event.decorated`
+Sample event:
+```
+event_type: uhppoted.card.swipe.decorated
+data:
+  entity_id: event.uhppoted_card_8165535_swipe_event
+  event:
+    index: 74
+    timestamp: "2025-03-31 10:54:07"
+  card:
+    card: 10058400
+    name: Hermione
+  controller:
+    id: 405419896
+    name: Alpha
+  door:
+    id: 1
+    name: Gryffindor
+  access:
+    granted: true
+    code: 1
+    description: swipe valid
+...
+```
+
+Sample template sensor:
+```
+template:
+  - trigger:
+      - platform: event
+        event_type: uhppoted.card.swipe.decorated
+    sensor:
+      - name: "Card Swipe"
+        unique_id: decorated_card_swipe_sensor
+        state: "{{ trigger.event.data.controller.id }}.{{trigger.event.data.event.index}}"
+        attributes:
+          timestamp: "{{ trigger.event.data.event.timestamp }}"
+          card:  "#{{ trigger.event.data.card.card | string }}"
+          name: "{{ trigger.event.data.card.name }}"
+          controller_id: "{{ trigger.event.data.controller.id | string }}"
+          controller_name: "{{ trigger.event.data.controller.name }}"
+          door_id: "{{ trigger.event.data.door.id }}"
+          door_name: "{{ trigger.event.data.door.name }}"
+          access_granted: "{{ 'GRANTED' if trigger.event.data.access.granted else 'DENIED' }}"
+          access_code: "{{ trigger.event.data.access.code }}"
+          access_description: "{{ trigger.event.data.access.description }}"
 ```

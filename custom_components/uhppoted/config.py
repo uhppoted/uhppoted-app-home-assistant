@@ -95,6 +95,7 @@ _REASONS = {
     '45': 'remote open door (USB reader)',
 }
 
+
 def normalise(v):
     return re.sub(r'\s+', '', f'{v}', flags=re.UNICODE).lower()
 
@@ -640,4 +641,3 @@ def lookup_card(options, key):
 
 def lookup_event(options, key):
     return _REASONS.get(f'{key}', '(unknown)')
-

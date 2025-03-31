@@ -42,7 +42,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     def h(card, name, unique_id):
         entities.extend([
-            CardSwiped(events, unique_id, card, name),
+            CardSwiped(events, unique_id, card, name, options),
         ])
 
     configure_controllers(options, f)

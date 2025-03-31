@@ -96,30 +96,6 @@ class Coordinators():
                     deleted = True
         return deleted
 
-    @classmethod
-    def lookup(clazz, table, key):
-        if table == 'controllers':
-            for coordinators in Coordinators.COORDINATORS.values():
-                if coordinators and coordinators._controllers:
-                    return coordinators._controllers.lookup(key)
-
-        if table == 'doors':
-            for coordinators in Coordinators.COORDINATORS.values():
-                if coordinators and coordinators._doors:
-                    return coordinators._doors.lookup(key)
-
-        if table == 'cards':
-            for coordinators in Coordinators.COORDINATORS.values():
-                if coordinators and coordinators._cards:
-                    return coordinators._cards.lookup(key)
-
-        if table == 'events':
-            for coordinators in Coordinators.COORDINATORS.values():
-                if coordinators and coordinators._events:
-                    return coordinators._events.lookup(key)
-
-        return '(unknown)'
-
     def __init__(self, hass, options):
         poll_controllers = None
         poll_doors = None

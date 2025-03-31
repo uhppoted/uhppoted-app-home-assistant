@@ -58,10 +58,11 @@ template:
     sensor:
       - name: "Decorated Card Swipe"
         unique_id: decorated_card_swipe_sensor
-        state: "{{ trigger.event.data.controller.id }}.{{trigger.event.data.index}}"
+        state: "{{ trigger.event.data.controller.id }}.{{trigger.event.data.event.index}}"
         attributes:
-          card:  "{{ trigger.event.data.card | string }}"
-          person: "{{ trigger.event.data.person }}"
+          timestamp: "{{ trigger.event.data.event.timestamp }}"
+          card:  "#{{ trigger.event.data.card.card | string }}"
+          name: "{{ trigger.event.data.card.name }}"
           controller_id: "{{ trigger.event.data.controller.id | string }}"
           controller_name: "{{ trigger.event.data.controller.name }}"
           door_id: "{{ trigger.event.data.door.id }}"
@@ -69,7 +70,6 @@ template:
           access_granted: "{{ 'GRANTED' if trigger.event.data.access.granted else 'DENIED' }}"
           access_code: "{{ trigger.event.data.access.code }}"
           access_description: "{{ trigger.event.data.access.description }}"
-          timestamp: "{{ trigger.event.data.timestamp }}"
 
 automation:
   - alias: "Log decorated card swipe event"

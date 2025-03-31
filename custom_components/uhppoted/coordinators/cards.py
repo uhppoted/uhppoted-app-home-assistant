@@ -30,7 +30,6 @@ from ..config import get_configured_cards
 from ..config import resolve_permissions
 from ..config import default_card_start_date
 from ..config import default_card_end_date
-from ..config import lookup_card
 
 from ..uhppoted import Controller
 
@@ -54,9 +53,6 @@ class CardsCoordinator(DataUpdateCoordinator):
 
     def __del__(self):
         self.unload()
-
-    def lookup(self, key):
-        return lookup_card(self._options, key)
 
     def unload(self):
         pass
