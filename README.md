@@ -288,7 +288,7 @@ Sample event:
 ```
 event_type: uhppoted.card.swipe.decorated
 data:
-  entity_id: event.uhppoted_card_8165535_swipe_event
+  entity_id: event.uhppoted_card_10058400_swipe_event
   event:
     index: 74
     timestamp: "2025-03-31 10:54:07"

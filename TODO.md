@@ -20,6 +20,7 @@ uhppoted.controller.alpha.datetime changed to 26 March 2025 at 03:59 11:59:04 - 
  WARNING (MainThread) [homeassistant.helpers.frame] Detected that custom integration 'uhppoted' sets option flow config_entry explicitly, which is deprecated at custom_components/uhppoted/options_flow.py, line 107: self.config_entry = entry. This will stop working in Home Assistant 2025.12, please report it to the author of the 'uhppoted' custom integration
 ```
 
+- [ ] https://www.hacs.xyz/docs/publish/action/
 - [ ] (eventually) remove `controllers` from driver
 
 - [ ] DataCoordinator
