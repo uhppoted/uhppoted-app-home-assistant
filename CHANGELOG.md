@@ -4,6 +4,10 @@
 
 ### Added
 1. Added decorated event `uhppoted.card.swipe.decorated`.
+2. Added check for HAVERSION < 2024.11.99' for deprecated _options-flow_ behaviour.
+
+### Notes
+1. As from the next release a minimum version of 2025.1 (updated _options-flow_ behaviour)
 
 
 ## [0.8.10](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.10) - 2025-01-30

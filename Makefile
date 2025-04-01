@@ -1,4 +1,4 @@
-VERSION ?= v0.8.10.1
+VERSION ?= v0.8.10.2
 DIST    ?= development
 
 .PHONY: docker

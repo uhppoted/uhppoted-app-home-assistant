@@ -1,8 +1,8 @@
-import copy
 import logging
 import uuid
 import voluptuous as vol
 
+from copy import deepcopy
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -14,6 +14,9 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.selector import SelectSelector
 from homeassistant.helpers.selector import SelectSelectorConfig
 from homeassistant.helpers.selector import SelectSelectorMode
+from homeassistant.const import __version__ as HAVERSION
+
+from awesomeversion import AwesomeVersion
 
 from .const import DOMAIN
 from .const import CONF_BIND_ADDR
@@ -104,9 +107,11 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
         self._max_cards = DEFAULT_MAX_CARDS
         self._preferred_cards = DEFAULT_PREFERRED_CARDS
 
-        self.config_entry = entry
+        if AwesomeVersion(HAVERSION) < '2024.11.99':
+            self.config_entry = config_entry
+
         self.data = dict(entry.data)
-        self.options = copy.deepcopy(dict(entry.options))
+        self.options = deepcopy(dict(entry.options))
         self.doors = []
         self.configuration = {'doors': []}
         self.cache = {}

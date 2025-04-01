@@ -10,15 +10,12 @@
        - [ ] Lovelace card to display events
        - [ ] add Lovelace card to config-flow
 
-- [ ] (maybe) don't fire events on controller time updated
-```
-uhppoted.controller.alpha.datetime changed to 26 March 2025 at 03:59 11:59:04 - 3 seconds ago
-```
-
-- [ ] warning
+- [x] Fix deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/15)
 ```
  WARNING (MainThread) [homeassistant.helpers.frame] Detected that custom integration 'uhppoted' sets option flow config_entry explicitly, which is deprecated at custom_components/uhppoted/options_flow.py, line 107: self.config_entry = entry. This will stop working in Home Assistant 2025.12, please report it to the author of the 'uhppoted' custom integration
 ```
+    - https://developers.home-assistant.io/blog/2024/11/12/options-flow
+    - https://github.com/thomluther/ha-anker-solix/issues/164
 
 - [ ] https://www.hacs.xyz/docs/publish/action/
 - [ ] (eventually) remove `controllers` from driver
