@@ -621,9 +621,11 @@ def lookup_door(options, key):
         doors = options[CONF_DOORS]
 
         for controller in controllers:
-            for door in doors:
-                if f'{controller[CONF_CONTROLLER_SERIAL_NUMBER]}.{door[CONF_DOOR_NUMBER]}' == f'{key}':
-                    return f'{door[CONF_DOOR_ID]}'
+            if f'{key}'.startswith(f'{controller[CONF_CONTROLLER_SERIAL_NUMBER]}.'):
+                for door in doors:
+                    if f'{door[CONF_DOOR_CONTROLLER]}' == f'{controller[CONF_CONTROLLER_ID]}':
+                        if f'{controller[CONF_CONTROLLER_SERIAL_NUMBER]}.{door[CONF_DOOR_NUMBER]}' == f'{key}':
+                            return f'{door[CONF_DOOR_ID]}'
 
     return '(unknown)'
 
