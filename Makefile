@@ -1,4 +1,4 @@
-VERSION ?= v0.8.10.2
+VERSION ?= v0.8.10.3
 DIST    ?= development
 
 .PHONY: docker
@@ -63,7 +63,7 @@ docker-hass-it:
 docker:
 	cd docker/dev/stable && docker compose up --build
 
-docker-2024:
+docker-2024.11.3:
 	cd docker/dev/2024.11.3 && docker compose up --build
 
 # hass:
