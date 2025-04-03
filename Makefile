@@ -14,12 +14,15 @@ update-release:
 
 format: 
 	yapf -ri custom_components/uhppoted
-#	yapf -ri tests
+	yapf -ri tests
 
 translate:
 	python3 -m script.translations develop
 
 build: format
+
+test: build
+	source .tests/bin/activate && python3 -m unittest tests/uhppoted/*.py 
 
 build-all: format
 

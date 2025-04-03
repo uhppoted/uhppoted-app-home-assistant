@@ -1,6 +1,5 @@
 .DS_Store
+.tests
 __pycache__
 dist
 release-notes.md
-
-
