@@ -280,21 +280,21 @@ data:
 
 ## Decorated events
 
-Decorated events are custom events intended for use with template sensors and automation. The events are associated with 
-the similarly named entity event, but include additional information. 
+Decorated events are custom events intended for use with template sensors and automation and include the additional
+event information associated with each event.
 
 ### `uhppoted.card.swipe.event.decorated`
 Sample event:
 ```
 event_type: uhppoted.card.swipe.decorated
 data:
-  entity_id: event.uhppoted_card_10058400_swipe_event
   event:
     index: 74
     timestamp: "2025-03-31 10:54:07"
   card:
     card: 10058400
     name: Hermione
+    configured: true
   controller:
     id: 405419896
     name: Alpha

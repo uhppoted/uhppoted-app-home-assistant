@@ -29,6 +29,7 @@ from uhppoted import decode
 from uhppoted.decode import unpack_uint8
 from uhppoted.decode import unpack_bool
 
+from ..const import DOMAIN
 from ..const import CONF_LISTEN_ADDR
 from ..const import CONF_EVENTS_DEST_ADDR
 from ..const import ATTR_AVAILABLE
@@ -37,10 +38,16 @@ from ..const import ATTR_STATUS
 from ..const import EVENT_REASON_DOOR_LOCKED
 from ..const import EVENT_REASON_DOOR_UNLOCKED
 from ..const import EVENT_REASON_BUTTON_RELEASED
+from ..const import CARD_EVENTS
 
 from ..config import configure_cards
 from ..config import get_configured_controllers
 from ..config import get_configured_controllers_ext
+
+from ..config import lookup_controller
+from ..config import lookup_card
+from ..config import lookup_door
+from ..config import lookup_event
 
 from ..uhppoted import Controller
 
@@ -180,6 +187,9 @@ class EventsCoordinator(DataUpdateCoordinator):
             self._db.events = self._state['events']
             self.async_set_updated_data(self._db.events)
 
+            if event.reason in CARD_EVENTS:
+                self._on_card_swipe(event)
+
             if self._notify:
                 self._notify(event)
 
@@ -294,6 +304,9 @@ class EventsCoordinator(DataUpdateCoordinator):
                             events.append(event)
                             ix = response.index
 
+                            if event.reason in CARD_EVENTS:
+                                self._on_card_swipe(event)
+
                     self._state['index'][controller.id] = ix
 
                 events.extend(self.doorLocks(controller.id, relays))
@@ -363,3 +376,34 @@ class EventsCoordinator(DataUpdateCoordinator):
                 return controller
 
         return Controller(int(f'{controller_id}'), None, None)
+
+    def _on_card_swipe(self, event):
+        entity_id = f'sensor.uhppoted_card_{event.card}_info'
+        state = self.hass.states.get(entity_id)
+
+        swipe = {
+            'event': {
+                'index': event.index,
+                'timestamp': event.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+            },
+            'card': {
+                'card': event.card,
+                'name': lookup_card(self._options, event.card),
+                'configured': True if state else False,
+            },
+            'controller': {
+                'id': event.controller,
+                'name': lookup_controller(self._options, event.controller),
+            },
+            'door': {
+                'id': event.door,
+                'name': lookup_door(self._options, f'{event.controller}.{event.door}'),
+            },
+            'access': {
+                'granted': event.access_granted,
+                'code': event.reason,
+                'description': lookup_event(self._options, f'{event.reason}'),
+            }
+        }
+
+        self.hass.bus.fire('uhppoted.card.swipe.decorated', swipe)

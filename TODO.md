@@ -1,5 +1,7 @@
 # TODO
 
+- [x] Fix deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/15)
+
 - [ ] Decorated events door lookup error (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/17#event-17118124970)
       - [x] door lookup
       - [x] unit test
@@ -9,18 +11,15 @@
        - [x] fire card.swipe.decorated event
              - [x] event index
              - [x] controller-id.event-index
-       - [ ] opt-in in config-flow
+             - [x] fire event for all card events
+             - [x] add _configured_ field
+       - [ ] CardSwipeEvent
+       - [ ] opt-in/out in config-flow
        - [ ] automation to handle card.swipe.decorated event
        - [ ] add automation to config-flow
        - [ ] Lovelace card to display events
        - [ ] add Lovelace card to config-flow
 
-- [x] Fix deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/15)
-```
- WARNING (MainThread) [homeassistant.helpers.frame] Detected that custom integration 'uhppoted' sets option flow config_entry explicitly, which is deprecated at custom_components/uhppoted/options_flow.py, line 107: self.config_entry = entry. This will stop working in Home Assistant 2025.12, please report it to the author of the 'uhppoted' custom integration
-```
-    - https://developers.home-assistant.io/blog/2024/11/12/options-flow
-    - https://github.com/thomluther/ha-anker-solix/issues/164
 
 - [ ] https://www.hacs.xyz/docs/publish/action/
 - [ ] (eventually) remove `controllers` from driver

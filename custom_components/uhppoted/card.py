@@ -559,6 +559,7 @@ class CardSwiped(CoordinatorEntity, EventEntity):
 
     def _update(self):
         _LOGGER.debug(f'card:{self.card} swipe event')
+
         try:
             if self.coordinator.data:
                 for idx in self.coordinator.data:
@@ -571,32 +572,6 @@ class CardSwiped(CoordinatorEntity, EventEntity):
                         for e in events:
                             if e.card == self.card and e.reason in CARD_EVENTS:
                                 self._events.appendleft(CARD_EVENTS[e.reason])
-
-                                self.hass.bus.fire(
-                                    'uhppoted.card.swipe.decorated', {
-                                        'entity_id': self.entity_id,
-                                        'event': {
-                                            'index': e.index,
-                                            'timestamp': e.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-                                        },
-                                        'card': {
-                                            'card': e.card,
-                                            'name': lookup_card(self._options, e.card),
-                                        },
-                                        'controller': {
-                                            'id': e.controller,
-                                            'name': lookup_controller(self._options, e.controller),
-                                        },
-                                        'door': {
-                                            'id': e.door,
-                                            'name': lookup_door(self._options, f'{e.controller}.{e.door}'),
-                                        },
-                                        'access': {
-                                            'granted': e.access_granted,
-                                            'code': e.reason,
-                                            'description': lookup_event(self._options, f'{e.reason}'),
-                                        }
-                                    })
 
                 # ... because Home Assistant coalesces multiple events in an update cycle
                 if len(self._events) > 0:
