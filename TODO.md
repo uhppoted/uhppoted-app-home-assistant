@@ -13,7 +13,6 @@
              - [x] controller-id.event-index
              - [x] fire event for all card events
              - [x] add _configured_ field
-       - [ ] CardSwipeEvent
        - [ ] opt-in/out in config-flow
        - [ ] automation to handle card.swipe.decorated event
        - [ ] add automation to config-flow
