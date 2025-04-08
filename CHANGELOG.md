@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Updated
+1. Fired `uhppoted.card.swipe.decorated` event for all card events.
+2. Added (provisional) `card.configured` field to `uhppoted.card.swipe.decorated`
+3. Included unit tests in github workflow.
+
 
 ## [0.8.10.2](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.10.2) - 2025-04-03
 
