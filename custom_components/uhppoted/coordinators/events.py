@@ -44,10 +44,10 @@ from ..config import configure_cards
 from ..config import get_configured_controllers
 from ..config import get_configured_controllers_ext
 
-from ..config import lookup_controller
-from ..config import lookup_card
-from ..config import lookup_door
-from ..config import lookup_event
+from ..lookup import lookup_controller
+from ..lookup import lookup_card
+from ..lookup import lookup_door
+from ..lookup import lookup_event
 
 from ..uhppoted import Controller
 
@@ -378,8 +378,10 @@ class EventsCoordinator(DataUpdateCoordinator):
         return Controller(int(f'{controller_id}'), None, None)
 
     def _on_card_swipe(self, event):
-        entity_id = f'sensor.uhppoted_card_{event.card}_info'
-        state = self.hass.states.get(entity_id)
+        controller = lookup_controller(self._options, event.controller)
+        card = lookup_card(self._options, event.card)
+        door = lookup_door(self._options, f'{event.controller}.{event.door}')
+        evt = lookup_event(self._options, f'{event.reason}')
 
         swipe = {
             'event': {
@@ -388,21 +390,21 @@ class EventsCoordinator(DataUpdateCoordinator):
             },
             'card': {
                 'card': event.card,
-                'name': lookup_card(self._options, event.card),
-                'configured': True if state else False,
+                'name': '(unknown)' if card is None else card.name,
+                'configured': False if card is None else True,
             },
             'controller': {
                 'id': event.controller,
-                'name': lookup_controller(self._options, event.controller),
+                'name': '(unknown)' if controller is None else controller.name,
             },
             'door': {
                 'id': event.door,
-                'name': lookup_door(self._options, f'{event.controller}.{event.door}'),
+                'name': '(unknown)' if door is None else door.name,
             },
             'access': {
                 'granted': event.access_granted,
                 'code': event.reason,
-                'description': lookup_event(self._options, f'{event.reason}'),
+                'description': '(unknown)' if evt is None else evt.reason,
             }
         }
 

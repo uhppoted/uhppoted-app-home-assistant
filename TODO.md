@@ -1,11 +1,7 @@
 # TODO
 
 - [x] Fix deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/15)
-
 - [x] Decorated events door lookup error (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/17#event-17118124970)
-      - [x] door lookup
-      - [x] unit test
-      - [x] include unit tests in github workflow
 
 - [ ] Decorate card swipe event (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/13)
        - [x] fire card.swipe.decorated event
@@ -13,7 +9,6 @@
              - [x] controller-id.event-index
              - [x] fire event for all card events
              - [x] add _configured_ field
-             - [ ] use hass.state for lookup
        - [ ] opt-in/out in config-flow
        - [ ] automation to handle card.swipe.decorated event
        - [ ] add automation to config-flow

@@ -6,7 +6,7 @@ Tests the lookup for decorated events.
 
 import unittest
 
-from custom_components.uhppoted import config
+from custom_components.uhppoted import lookup
 
 OPTIONS = {
     'cards': [{
@@ -82,19 +82,19 @@ class TestDecoratedEventLookup(unittest.TestCase):
         '''
         # yapf: disable
         tests = [
-            { 'door': '405419896.1', 'expected': 'Gryffindor' },
-            { 'door': '405419896.2', 'expected': 'Hufflepuff' },
-            { 'door': '405419896.3', 'expected': 'Ravenclaw'  },
-            { 'door': '405419896.4', 'expected': 'Slytherin'  },
-            { 'door': '303986753.1', 'expected': 'Great Hall' },
-            { 'door': '303986753.2', 'expected': 'Dungeon'    },
-            { 'door': '303986753.3', 'expected': 'Kitchen'    },
-            { 'door': '303986753.4', 'expected': '(unknown)'  },
+            { 'door': '405419896.1', 'expected': lookup.Door(1,'Gryffindor') },
+            { 'door': '405419896.2', 'expected': lookup.Door(2,'Hufflepuff') },
+            { 'door': '405419896.3', 'expected': lookup.Door(3,'Ravenclaw')  },
+            { 'door': '405419896.4', 'expected': lookup.Door(4,'Slytherin')  },
+            { 'door': '303986753.1', 'expected': lookup.Door(1,'Great Hall') },
+            { 'door': '303986753.2', 'expected': lookup.Door(2,'Dungeon')    },
+            { 'door': '303986753.3', 'expected': lookup.Door(3,'Kitchen')    },
+            { 'door': '303986753.4', 'expected': None  },
         ]
         # yapf: enable
 
         for test in tests:
-            self.assertEqual(config.lookup_door(OPTIONS, test['door']), test['expected'])
+            self.assertEqual(lookup.lookup_door(OPTIONS, test['door']), test['expected'])
 
 
 if __name__ == '__main__':

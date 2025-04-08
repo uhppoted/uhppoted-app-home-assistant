@@ -59,42 +59,6 @@ from .uhppoted import Controller
 
 _LOGGER = logging.getLogger(__name__)
 
-_REASONS = {
-    '1': 'swipe valid',
-    '2': 'swipe open',
-    '3': 'swipe close',
-    '5': 'swipe:denied (system)',
-    '6': 'no access rights',
-    '7': 'incorrect password',
-    '8': 'anti-passback',
-    '9': 'more cards',
-    '10': 'first card open',
-    '11': 'door is normally closed',
-    '12': 'interlock',
-    '13': 'not in allowed time period',
-    '15': 'invalid timezone',
-    '18': 'access denied',
-    '20': 'push button ok',
-    '23': 'door opened',
-    '24': 'door closed',
-    '25': 'door opened (supervisor password)',
-    '28': 'controller power on',
-    '29': 'controller reset',
-    '31': 'pushbutton invalid (door locked)',
-    '32': 'pushbutton invalid (offline)',
-    '33': 'pushbutton invalid (interlock)',
-    '34': 'pushbutton invalid (threat)',
-    '37': 'door open too long',
-    '38': 'forced open',
-    '39': 'fire',
-    '40': 'forced closed',
-    '41': 'theft prevention',
-    '42': '24x7 zone',
-    '43': 'emergency',
-    '44': 'remote open door',
-    '45': 'remote open door (USB reader)',
-}
-
 
 def normalise(v):
     return re.sub(r'\s+', '', f'{v}', flags=re.UNICODE).lower()
@@ -603,43 +567,3 @@ def resolve_door_by_name(options, name):
                         }
 
     return None
-
-
-def lookup_controller(options, key):
-    if CONF_CONTROLLERS in options:
-        controllers = options[CONF_CONTROLLERS]
-        for controller in controllers:
-            if f'{controller[CONF_CONTROLLER_SERIAL_NUMBER]}' == f'{key}':
-                return f'{controller[CONF_CONTROLLER_ID]}'
-
-    return '(unknown)'
-
-
-def lookup_door(options, key):
-    if CONF_CONTROLLERS in options and CONF_DOORS in options:
-        controllers = options[CONF_CONTROLLERS]
-        doors = options[CONF_DOORS]
-
-        for controller in controllers:
-            if f'{key}'.startswith(f'{controller[CONF_CONTROLLER_SERIAL_NUMBER]}.'):
-                for door in doors:
-                    if f'{door[CONF_DOOR_CONTROLLER]}' == f'{controller[CONF_CONTROLLER_ID]}':
-                        if f'{controller[CONF_CONTROLLER_SERIAL_NUMBER]}.{door[CONF_DOOR_NUMBER]}' == f'{key}':
-                            return f'{door[CONF_DOOR_ID]}'
-
-    return '(unknown)'
-
-
-def lookup_card(options, key):
-    if CONF_CARDS in options:
-        cards = options[CONF_CARDS]
-
-        for card in cards:
-            if f'{card[CONF_CARD_NUMBER]}' == f'{key}':
-                return f'{card[CONF_CARD_NAME]}'
-
-    return '(unknown)'
-
-
-def lookup_event(options, key):
-    return _REASONS.get(f'{key}', '(unknown)')

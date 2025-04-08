@@ -33,10 +33,6 @@ from .const import CARD_EVENTS
 
 from .config import default_card_start_date
 from .config import default_card_end_date
-from .config import lookup_controller
-from .config import lookup_card
-from .config import lookup_door
-from .config import lookup_event
 
 from .coordinators.coordinators import Coordinators
 
