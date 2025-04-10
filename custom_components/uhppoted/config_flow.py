@@ -54,6 +54,8 @@ from .const import CONF_CARD_STARTDATE
 from .const import CONF_CARD_ENDDATE
 from .const import CONF_CARD_DOORS
 
+from .const import CONF_EVENTS
+
 from .const import DEFAULT_BIND_ADDRESS
 from .const import DEFAULT_BROADCAST_ADDRESS
 from .const import DEFAULT_LISTEN_ADDRESS
@@ -82,6 +84,7 @@ from .config import validate_door_id
 from .config import validate_door_duplicates
 from .config import validate_card_id
 from .config import validate_all_cards
+from .config import validate_events
 
 from .config import get_IPv4
 from .config import get_bind_addresses

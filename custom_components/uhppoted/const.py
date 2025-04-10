@@ -42,6 +42,8 @@ CONF_CARD_STARTDATE = 'card_startdate'
 CONF_CARD_ENDDATE = 'card_enddate'
 CONF_CARD_DOORS = 'card_doors'
 
+CONF_EVENTS = 'events'
+
 ATTR_AVAILABLE = 'available'
 ATTR_NETMASK = 'netmask'
 ATTR_GATEWAY = 'gateway'

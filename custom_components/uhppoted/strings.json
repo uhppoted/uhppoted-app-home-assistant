@@ -28,7 +28,7 @@
             },
 
             "events_listener": {
-                "title": "UHPPOTE IPv4 - events configuration",
+                "title": "UHPPOTE IPv4 - events listener configuration",
                 "description": "Network settings for controller events",
                 "data": {
                     "events_destination_address": "controller set-events-listener address"
@@ -121,6 +121,20 @@
                     "card3_name": "Name of person issued with card e.g. Rodri",
                     "card4_name": "Name of person issued with card e.g. Andy"
                 }
+           },
+
+           "events": {
+                "title": "Events",
+                "description": "Opt-in/out for events",
+                "data": {
+                    "events": "Select the events and event entities to be included in the system:",
+                    "card.swipe": "card swipe event entities",
+                    "card.swipe.decorated": "decorated card swipe events"
+                },
+                "data_description": {
+                    "card.swipe": "Event entities for card swipes (for UI).",
+                    "card.swipe.decorated": "Decorated card swipe events (for automation)."
+                }
             }
         },
         
@@ -153,7 +167,8 @@
                     "IPv4": "Network settings",
                     "controllers": "Controllers",
                     "doors": "Doors",
-                    "cards": "Access cards"
+                    "cards": "Access cards",
+                    "events": "Events"
                 }
             },
 
@@ -175,7 +190,7 @@
             },
 
             "events_listener": {
-                "title": "UHPPOTE IPv4 - events configuration",
+                "title": "UHPPOTE IPv4 - events listener configuration",
                 "description": "Network settings for controller events",
                 "data": {
                     "events_destination_address": "controller set-events-listener address"
@@ -268,7 +283,21 @@
                     "card3_name": "Name of person issued with card e.g. Rodri (- to remove)",
                     "card4_name": "Name of person issued with card e.g. Andy (- to remove)"
                 }
-           }
+           },
+
+           "events": {
+                "title": "Events",
+                "description": "Opt-in/out for events",
+                "data": {
+                    "events": "Select the events and event entities to be included in the system:",
+                    "card.swipe": "card swipe event entities",
+                    "card.swipe.decorated": "decorated card swipe events"
+                },
+                "data_description": {
+                    "card.swipe": "Event entities for card swipes (for UI).",
+                    "card.swipe.decorated": "Decorated card swipe events (for automation)."
+                }
+           },
        },
         "error": {
             "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",

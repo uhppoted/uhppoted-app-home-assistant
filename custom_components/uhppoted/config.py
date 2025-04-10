@@ -130,6 +130,11 @@ def validate_all_cards(options):
     pass
 
 
+def validate_events(events):
+    _LOGGER.warning(f'>>>>> events {events}')
+    raise ValueError(f'** NOT IMPLEMENTED ***')
+
+
 def get_IPv4(defaults):
     bind = '0.0.0.0'
     broadcast = '255.255.255.255:60000'

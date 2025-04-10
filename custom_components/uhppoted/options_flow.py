@@ -51,6 +51,8 @@ from .const import CONF_CARD_STARTDATE
 from .const import CONF_CARD_ENDDATE
 from .const import CONF_CARD_DOORS
 
+from .const import CONF_EVENTS
+
 from .const import DEFAULT_BIND_ADDRESS
 from .const import DEFAULT_BROADCAST_ADDRESS
 from .const import DEFAULT_LISTEN_ADDRESS
@@ -78,6 +80,7 @@ from .config import validate_card_id
 from .config import validate_all_controllers
 from .config import validate_all_doors
 from .config import validate_all_cards
+from .config import validate_events
 
 from .config import get_bind_addresses
 from .config import get_broadcast_addresses
@@ -136,7 +139,7 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
         })
 
         return self.async_show_menu(step_id="init",
-                                    menu_options=['IPv4', 'controllers', 'doors', 'cards'],
+                                    menu_options=['IPv4', 'controllers', 'doors', 'cards', 'events'],
                                     description_placeholders={})
 
     async def async_step_IPv4(self, user_input: Optional[Dict[str, Any]] = None):
@@ -449,7 +452,7 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
         if item == None:
             try:
                 validate_all_cards(self.options)
-                return self.async_create_entry(title="uhppoted", data=self.options)
+                return await self.async_step_events()
             except ValueError as err:
                 self.configuration['cards'] = []
                 return await self.async_step_cards()
@@ -525,3 +528,38 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
                                     data_schema=schema,
                                     errors=errors,
                                     description_placeholders=placeholders)
+
+
+    async def async_step_events(self, user_input: Optional[Dict[str, Any]] = None):
+        errors: Dict[str, str] = {}
+
+        if user_input is not None:
+            events = user_input.get(CONF_EVENTS)
+
+            try:
+                validate_events(events)
+            except ValueError as err:
+                errors[CONF_EVENTS] = f'{err}'
+
+            if not errors:
+                # self.options.update([[CONF_EVENTS, events]])
+                return self.async_create_entry(title="uhppoted", data=self.options)
+
+        events = [ 
+           { 'label': 'card.swipe', 'value': 'card.swipe' },
+           { 'label': 'card.swipe.decorated', 'value': 'card.swipe.decorated' },
+        ]
+
+        defaults = [ 'card.swipe', 'card.swipe.decorated' ]
+
+        select = SelectSelectorConfig(options=events,
+                                      multiple=True,
+                                      custom_value=False,
+                                      mode=SelectSelectorMode.LIST) # yapf: disable
+
+        schema = vol.Schema({
+            vol.Optional(CONF_EVENTS, default=defaults): SelectSelector(select),
+        })
+
+        return self.async_show_form(step_id="events", data_schema=schema, errors=errors)
+
