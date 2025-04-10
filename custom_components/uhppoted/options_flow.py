@@ -145,7 +145,7 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
         if user_input is not None:
             if not errors:
                 self.options.update(user_input)
-                return await self.async_step_events()
+                return await self.async_step_events_listener()
 
         bind = self.options.get(CONF_BIND_ADDR, self._bind)
         broadcast = self.options.get(CONF_BROADCAST_ADDR, self._broadcast)
@@ -176,7 +176,7 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
 
         return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
 
-    async def async_step_events(self, user_input: Optional[Dict[str, Any]] = None):
+    async def async_step_events_listener(self, user_input: Optional[Dict[str, Any]] = None):
         errors: Dict[str, str] = {}
 
         if user_input is not None:
@@ -204,7 +204,7 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
             vol.Optional(CONF_EVENTS_DEST_ADDR, default=addr): SelectSelector(select),
         })
 
-        return self.async_show_form(step_id="events", data_schema=schema, errors=errors)
+        return self.async_show_form(step_id="events_listener", data_schema=schema, errors=errors)
 
     async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
         controllers = self._get_all_controllers(self.options)
