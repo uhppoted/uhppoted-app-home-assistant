@@ -2,6 +2,13 @@
 
 - [x] Fix deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/15)
 - [x] Decorated events door lookup error (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/17#event-17118124970)
+- [ ] anti-passback (cf. https://github.com/uhppoted/uhppoted/issues/60)
+      - [ ] get-antipassback
+      - [ ] set-antipassback
+      - [ ] config-flow
+      - [ ] options-flow
+      - [ ] CHANGELOG
+      - [ ] README
 
 - [ ] Decorate card swipe event (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/13)
        - [x] fire card.swipe.decorated event

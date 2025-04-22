@@ -17,9 +17,14 @@ from .const import CONF_CONTROLLER_PORT
 from .const import CONF_CONTROLLER_PROTOCOL
 from .const import CONF_CONTROLLER_TIMEZONE
 
+from .const import CONF_INTERLOCKS
+from .const import CONF_ANTIPASSBACK
+
 from .const import DEFAULT_CONTROLLER_ID
 from .const import DEFAULT_CONTROLLER_ADDR
 from .const import DEFAULT_CONTROLLER_TIMEZONE
+from .const import DEFAULT_INTERLOCKS
+from .const import DEFAULT_ANTIPASSBACK
 
 from .config import validate_controller_id
 from .config import validate_all_controllers
@@ -32,6 +37,8 @@ class UhppotedFlow:
         self._defaults = {}
         self._controllers = []  # list of selected controllers to configure
         self._timezone = DEFAULT_CONTROLLER_TIMEZONE
+        self._interlocks = DEFAULT_INTERLOCKS
+        self._antipassback = DEFAULT_ANTIPASSBACK
 
     def initialise(self, defaults):
         self._defaults = self.hass.data.get(DOMAIN, {})
@@ -219,5 +226,28 @@ class UhppotedFlow:
         placeholders = {
             "serial_no": serial_no,
         }
+
+        return (schema, placeholders, errors)
+
+    def step_controllers_optins(self, options, user_input):
+        attributes = [CONF_INTERLOCKS, CONF_ANTIPASSBACK]
+
+        defaults = {
+            CONF_INTERLOCKS: options.get(CONF_INTERLOCKS, self._interlocks),
+            CONF_ANTIPASSBACK: options.get(CONF_ANTIPASSBACK, self._antipassback),
+        }
+
+        errors: Dict[str, str] = {}
+        if user_input is not None:
+            for k in attributes:
+                if k in user_input:
+                    defaults[k] = user_input[k]
+
+        schema = vol.Schema({
+            vol.Optional(CONF_INTERLOCKS, default=defaults[CONF_INTERLOCKS]): bool,
+            vol.Optional(CONF_ANTIPASSBACK, default=defaults[CONF_ANTIPASSBACK]): bool,
+        })
+
+        placeholders = None
 
         return (schema, placeholders, errors)

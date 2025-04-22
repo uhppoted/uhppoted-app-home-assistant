@@ -35,6 +35,9 @@ from .const import CONF_CONTROLLER_ADDR
 from .const import CONF_CONTROLLER_PORT
 from .const import CONF_CONTROLLER_TIMEZONE
 
+from .const import CONF_INTERLOCKS
+from .const import CONF_ANTIPASSBACK
+
 from .const import CONF_DOORS
 from .const import CONF_DOOR_UNIQUE_ID
 from .const import CONF_DOOR_ID
@@ -237,7 +240,7 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
         if it == None:
             try:
                 validate_all_controllers(self.options)
-                return await self.async_step_doors()
+                return await self.async_step_controllers_optins()
             except ValueError as err:
                 return await self.async_step_controllers()
         else:
@@ -252,6 +255,26 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
                                             description_placeholders=placeholders)
             else:
                 return await self.async_step_controller()
+
+    async def async_step_controllers_optins(self, user_input: Optional[Dict[str, Any]] = None):
+        (schema, placeholders, errors) = super().step_controllers_optins(self.options, user_input)
+
+        # NTS: errors are for display only
+        if user_input is None or errors:
+            return self.async_show_form(step_id="controllers_optins",
+                                        data_schema=schema,
+                                        errors=errors,
+                                        description_placeholders=placeholders)
+        else:
+            interlocks = user_input.get(CONF_INTERLOCKS, False)
+            antipassback = user_input.get(CONF_ANTIPASSBACK, False)
+
+            self.options.update([
+                [CONF_INTERLOCKS, interlocks],
+                [CONF_ANTIPASSBACK, antipassback],
+            ])
+
+            return await self.async_step_doors()
 
     async def async_step_doors(self, user_input: Optional[Dict[str, Any]] = None):
 

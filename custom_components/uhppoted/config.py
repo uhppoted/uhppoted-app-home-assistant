@@ -26,6 +26,9 @@ from .const import CONF_CONTROLLER_PORT
 from .const import CONF_CONTROLLER_PROTOCOL
 from .const import CONF_CONTROLLER_TIMEOUT
 
+from .const import CONF_INTERLOCKS
+from .const import CONF_ANTIPASSBACK
+
 from .const import CONF_DOORS
 from .const import CONF_DOOR_UNIQUE_ID
 from .const import CONF_DOOR_ID
@@ -460,6 +463,32 @@ def configure_driver(options, defaults={}):
         controllers = []
 
     return uhppoted(bind, broadcast, listen, controllers, timeout, debug)
+
+
+def configure_interlocks(options, g):
+    interlocks = options.get(CONF_INTERLOCKS, False)
+    controllers = options[CONF_CONTROLLERS]
+
+    if interlocks:
+        for c in controllers:
+            controller = f'{c[CONF_CONTROLLER_ID]}'.strip()
+            serial_no = f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip()
+            unique_id = f'controller_{controller}_interlocks'.strip()
+
+            g(unique_id, controller, serial_no)
+
+
+def configure_antipassback(options, g):
+    antipassback = options.get(CONF_ANTIPASSBACK, False)
+    controllers = options[CONF_CONTROLLERS]
+
+    if antipassback:
+        for c in controllers:
+            controller = f'{c[CONF_CONTROLLER_ID]}'.strip()
+            serial_no = f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip()
+            unique_id = f'controller_{controller}_antipassback'.strip()
+
+            g(unique_id, controller, serial_no)
 
 
 def default_card_start_date():

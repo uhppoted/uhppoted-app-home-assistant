@@ -45,7 +45,7 @@ class DoorInfo(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, unique_id, controller, serial_no, door, door_id):
         super().__init__(coordinator, context=unique_id)
 
-        _LOGGER.debug(f'controller {controller}: door:{door}')
+        _LOGGER.debug(f'controller {controller}  door:{door}')
 
         self._unique_id = unique_id
         self.controller = controller

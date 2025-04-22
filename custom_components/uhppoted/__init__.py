@@ -22,6 +22,9 @@ from .const import CONF_POLL_CARDS
 from .const import CONF_POLL_EVENTS
 from .const import CONF_CONTROLLERS
 
+from .const import CONF_INTERLOCKS
+from .const import CONF_ANTIPASSBACK
+
 from .const import DEFAULT_TIMEOUT
 from .const import DEFAULT_POLL_CONTROLLERS
 from .const import DEFAULT_POLL_DOORS

@@ -7,6 +7,7 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 from homeassistant.core import callback
+from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.datetime import DateTimeEntity
 from homeassistant.components.event import EventEntity
@@ -178,6 +179,116 @@ class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self.controller} date/time')
+
+
+class Interlock(CoordinatorEntity, SelectEntity):
+    _attr_icon = 'mdi:lock-plus'
+    _attr_has_entity_name: True
+
+    def __init__(self, coordinator, unique_id, controller, serial_no):
+        super().__init__(coordinator, context=unique_id)
+
+        _LOGGER.debug(f'interlock {controller}')
+
+        # self._unique_id = unique_id
+        self._controller = controller
+        self._serial_no = int(f'{serial_no}')
+
+        self._name = f'uhppoted.controller.{controller}.interlock'.lower()
+        self._mode = 0
+        self._available = False
+
+    @property
+    def unique_id(self) -> str:
+        return f'uhppoted.controller.{self._controller}.interlock'.lower()
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def available(self) -> bool:
+        return self._available
+
+    @property
+    def options(self):
+        return ['NONE', 'DOORS 1&2', 'DOORS 3&4', 'DOORS 1&2,3&4', 'DOORS 1,2&3', 'DOORS 1,2,3&4']
+
+    @property
+    def current_option(self) -> Optional[str]:
+        if self._available:
+            if self._mode == 0:
+                return 'NONE'
+            elif self._mode == 1:
+                return 'DOORS 1&2'
+            elif self._mode == 2:
+                return 'DOORS 3&4'
+            elif self._mode == 3:
+                return 'DOORS 1&2,3&4'
+            elif self._mode == 4:
+                return 'DOORS 1,2&3'
+            elif self._mode == 8:
+                return 'DOORS 1,2,3&4'
+            else:
+                return 'UNKNOWN'
+
+        return None
+
+    async def async_select_option(self, option):
+        pass
+        # if option == 'NONE':
+        #     self._mode = 0
+        # elif option == 'DOORS 1&2':
+        #     self._mode = 1
+        # elif option == 'DOORS 3&4':
+        #     self._mode = 2
+        # elif option == 'DOORS 1&2,3&4':
+        #     self._mode = 3
+        # elif option == 'DOORS 1,2&3':
+        #     self._mode = 4
+        # elif option == 'DOORS 1,2,3&4':
+        #     self._mode = 8
+        #
+        # try:
+        #     controller = self._serial_no
+        #     door = self._door_id
+        #     mode = self._mode
+        #     response = self.coordinator.set_interlocks(controller, mode)
+        #
+        #     if response:
+        #         await self.coordinator.async_request_refresh()
+        #
+        # except (Exception):
+        #     self._available = False
+        #     _LOGGER.exception(f'error setting controller {self.controller} interlock mode')
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
+    async def async_update(self):
+        self._update()
+
+    def _update(self):
+        _LOGGER.debug(f'controller:{self._controller} update door interlocks mode')
+        try:
+            idx = self.unique_id
+        #
+        #     if not self.coordinator.data or idx not in self.coordinator.data:
+        #         self._available = False
+        #     elif ATTR_DOOR_DELAY not in self.coordinator.data[idx]:
+        #         self._available = False
+        #     else:
+        #         state = self.coordinator.data[idx]
+        #         self._mode = state[ATTR_DOOR_MODE]
+        #         self._available = state[ATTR_AVAILABLE]
+            self._mode = 0
+            self._available = True
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self._controller} interlock mode')
 
 
 class ControllerEvent(CoordinatorEntity, EventEntity):

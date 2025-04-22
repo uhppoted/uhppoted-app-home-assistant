@@ -69,6 +69,19 @@
                 }
             },
 
+            "controllers_optins": {
+                "title": "Controller opt-ins",
+                "description": "Optional controller behaviours",
+                "data": {
+                    "interlocks": "Door interlocks",
+                    "antipassback": "Card anti-passback"
+                },
+                "data_description": {
+                    "interlocks": "Include door interlocks in configured entities",
+                    "antipassback": "Include card anti-passback in configured entities"
+                }
+            },
+
             "doors": {
                 "title": "Doors for controller {controller}",
                 "data": {
@@ -213,6 +226,19 @@
                     "controller_port": "Controller UDP port (optional) e.g. 60000",
                     "controller_protocol": "UDP or TCP. Defaults to UDP",
                     "controller_timezone": "Controller timezone (optional) e.g. Europe/Berlin"
+                }
+            },
+
+            "controllers_optins": {
+                "title": "Controller opt-ins",
+                "description": "Optional controller behaviours",
+                "data": {
+                    "interlocks": "Door interlocks",
+                    "antipassback": "Card anti-passback"
+                },
+                "data_description": {
+                    "interlocks": "Include door interlocks in configured entities",
+                    "antipassback": "Include card anti-passback in configured entities"
                 }
             },
 

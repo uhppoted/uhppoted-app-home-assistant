@@ -28,6 +28,13 @@ CONF_CONTROLLER_PROTOCOL = 'controller_protocol'
 CONF_CONTROLLER_TIMEZONE = 'controller_timezone'
 CONF_CONTROLLER_TIMEOUT = 'controller_timeout'
 
+# controller opt-ins
+CONF_CONTROLLERS_OPTINS = 'controllers_optins'
+CONF_INTERLOCKS = 'interlocks'
+CONF_ANTIPASSBACK = 'antipassback'
+CONF_INTERLOCKS_UNIQUE_ID = 'interlocks_unique_id'
+CONF_ANTIPASSBACK_UNIQUE_ID = 'antipassback_unique_id'
+
 CONF_DOORS = 'doors'
 CONF_DOOR_UNIQUE_ID = 'door_unique_id'
 CONF_DOOR_ID = 'door_id'
@@ -90,6 +97,9 @@ DEFAULT_POLL_EVENTS = 30  # seconds
 DEFAULT_CONTROLLER_ID = ''
 DEFAULT_CONTROLLER_ADDR = ''
 DEFAULT_CONTROLLER_TIMEZONE = 'LOCAL'
+
+DEFAULT_INTERLOCKS = False
+DEFAULT_ANTIPASSBACK = False
 
 DEFAULT_DOOR1 = ''
 DEFAULT_DOOR2 = ''
