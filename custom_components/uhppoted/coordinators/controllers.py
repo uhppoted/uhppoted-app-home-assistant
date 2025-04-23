@@ -27,6 +27,7 @@ from ..const import ATTR_GATEWAY
 from ..const import ATTR_FIRMWARE
 from ..const import ATTR_CONTROLLER_DATETIME
 from ..const import ATTR_CONTROLLER_LISTENER
+from ..const import ATTR_CONTROLLER_INTERLOCK
 
 from ..config import configure_cards
 from ..config import get_configured_controllers
@@ -48,6 +49,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         self._controllers = get_configured_controllers_ext(options)
         self._uhppote = driver
         self._db = db
+        self._lock = threading.Lock()
         self._state = {}
         self._initialised = False
 
@@ -68,6 +70,19 @@ class ControllersCoordinator(DataUpdateCoordinator):
         else:
             return None
 
+    def set_interlock(self, controller_id, interlock):
+        controller = self._resolve(controller_id)
+        response = self._uhppote.set_interlock(controller.id, interlock)
+
+        if response.controller == controller.id:
+            if response.ok and controller.id in self._state:
+                with self._lock:
+                    self._state[controller.id].update({ATTR_CONTROLLER_INTERLOCK: interlock})
+
+            return response
+        else:
+            return None
+
     async def _async_update_data(self):
         try:
             contexts = set(self.async_contexts())
@@ -83,7 +98,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"uhppoted API error {err}")
 
     async def _get_controllers(self, contexts):
-        lock = threading.Lock()
+        lock = self._lock # threading.Lock()
 
         for v in contexts:
             if not v in self._state:
@@ -101,6 +116,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 executor.map(lambda controller: self._get_controller(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_datetime(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_listener(lock, controller), controllers, timeout=1)
+                executor.map(lambda controller: self._get_interlock(lock, controller), controllers, timeout=1)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller information ({err})')
 
@@ -183,6 +199,23 @@ class ControllersCoordinator(DataUpdateCoordinator):
         with lock:
             self._state[controller.id].update({
                 ATTR_CONTROLLER_LISTENER: listener,
+            })
+
+    def _get_interlock(self, lock, controller):
+        _LOGGER.debug(f'fetch controller interlock {controller.id}')
+
+        interlock = -1
+
+        try:
+            if state := self._state.get(controller.id):
+                interlock = state.get(ATTR_CONTROLLER_INTERLOCK,-1)
+
+        except Exception as err:
+            _LOGGER.error(f'error retrieving controller {controller.id} interlock ({err})')
+
+        with lock:
+            self._state[controller.id].update({
+                ATTR_CONTROLLER_INTERLOCK: interlock,
             })
 
     def _resolve(self, controller_id):

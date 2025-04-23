@@ -3,12 +3,15 @@
 - [x] Fix deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/15)
 - [x] Decorated events door lookup error (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/17#event-17118124970)
 - [ ] anti-passback (cf. https://github.com/uhppoted/uhppoted/issues/60)
+      - [x] set-interlock
+            - [ ] persist interlock across restarts
       - [ ] get-antipassback
       - [ ] set-antipassback
       - [ ] config-flow
       - [ ] options-flow
       - [ ] CHANGELOG
       - [ ] README
+      - (?) per-controller interlock/anti-passback
 
 - [ ] Decorate card swipe event (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/13)
        - [x] fire card.swipe.decorated event
@@ -17,6 +20,7 @@
              - [x] fire event for all card events
              - [x] add _configured_ field
        - [ ] opt-in/out in config-flow
+       - (?) per-card swipe events
        - [ ] automation to handle card.swipe.decorated event
        - [ ] add automation to config-flow
        - [ ] Lovelace card to display events

@@ -92,6 +92,10 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
         return self._api.get_event(c, index, timeout=timeout)
 
+    def set_interlock(self, controller, interlock):
+        (c, timeout) = self._lookup(controller)
+        return self._api.set_interlock(c, interlock, timeout=timeout)
+
     def _lookup(self, controller):
         for v in self._controllers:
             if controller == v['controller']:

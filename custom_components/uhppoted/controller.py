@@ -22,6 +22,7 @@ from .const import ATTR_FIRMWARE
 from .const import ATTR_CONTROLLER
 from .const import ATTR_CONTROLLER_DATETIME
 from .const import ATTR_CONTROLLER_LISTENER
+from .const import ATTR_CONTROLLER_INTERLOCK
 from .const import ATTR_EVENTS
 from .const import EVENTS
 
@@ -235,32 +236,35 @@ class Interlock(CoordinatorEntity, SelectEntity):
         return None
 
     async def async_select_option(self, option):
-        pass
-        # if option == 'NONE':
-        #     self._mode = 0
-        # elif option == 'DOORS 1&2':
-        #     self._mode = 1
-        # elif option == 'DOORS 3&4':
-        #     self._mode = 2
-        # elif option == 'DOORS 1&2,3&4':
-        #     self._mode = 3
-        # elif option == 'DOORS 1,2&3':
-        #     self._mode = 4
-        # elif option == 'DOORS 1,2,3&4':
-        #     self._mode = 8
-        #
-        # try:
-        #     controller = self._serial_no
-        #     door = self._door_id
-        #     mode = self._mode
-        #     response = self.coordinator.set_interlocks(controller, mode)
-        #
-        #     if response:
-        #         await self.coordinator.async_request_refresh()
-        #
-        # except (Exception):
-        #     self._available = False
-        #     _LOGGER.exception(f'error setting controller {self.controller} interlock mode')
+        _LOGGER.debug(f'controller:{self._controller}  set interlock {option}')
+        
+        modes = {
+        'NONE': 0,
+        'DOORS 1&2': 1,
+        'DOORS 3&4': 2,
+        'DOORS 1&2,3&4': 3,
+        'DOORS 1,2&3': 4,
+        'DOORS 1,2,3&4': 8,
+        }
+        
+        try:
+            controller = self._serial_no
+            mode = modes.get(option,None)
+
+            if mode != None:
+                response = self.coordinator.set_interlock(controller, mode)
+            
+                _LOGGER.warning(f'controller:{self._controller}  set interlock {response}')
+        
+                if response and response.ok:
+                    self._mode = mode
+
+                self._available = True
+                await self.coordinator.async_request_refresh()
+        
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error setting controller {self._controller} interlock mode')
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -271,20 +275,18 @@ class Interlock(CoordinatorEntity, SelectEntity):
         self._update()
 
     def _update(self):
-        _LOGGER.debug(f'controller:{self._controller} update door interlocks mode')
+        _LOGGER.debug(f'controller:{self._controller} update door interlock mode')
         try:
-            idx = self.unique_id
-        #
-        #     if not self.coordinator.data or idx not in self.coordinator.data:
-        #         self._available = False
-        #     elif ATTR_DOOR_DELAY not in self.coordinator.data[idx]:
-        #         self._available = False
-        #     else:
-        #         state = self.coordinator.data[idx]
-        #         self._mode = state[ATTR_DOOR_MODE]
-        #         self._available = state[ATTR_AVAILABLE]
-            self._mode = 0
-            self._available = True
+            idx = self._serial_no
+
+            if not self.coordinator.data or idx not in self.coordinator.data:
+                self._available = False
+            elif ATTR_CONTROLLER_INTERLOCK not in self.coordinator.data[idx]:
+                self._available = False
+            else:
+                state = self.coordinator.data[idx]
+                self._mode = state[ATTR_CONTROLLER_INTERLOCK]
+                self._available = state[ATTR_AVAILABLE]
 
         except (Exception):
             self._available = False
