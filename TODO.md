@@ -4,7 +4,7 @@
 - [x] Decorated events door lookup error (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/17#event-17118124970)
 - [ ] anti-passback (cf. https://github.com/uhppoted/uhppoted/issues/60)
       - [x] set-interlock
-            - [ ] persist interlock across restarts
+            - [x] persist interlock across restarts
       - [ ] get-antipassback
       - [ ] set-antipassback
       - [ ] config-flow

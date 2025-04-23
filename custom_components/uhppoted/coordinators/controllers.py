@@ -98,7 +98,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"uhppoted API error {err}")
 
     async def _get_controllers(self, contexts):
-        lock = self._lock # threading.Lock()
+        lock = self._lock  # threading.Lock()
 
         for v in contexts:
             if not v in self._state:
@@ -208,7 +208,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
         try:
             if state := self._state.get(controller.id):
-                interlock = state.get(ATTR_CONTROLLER_INTERLOCK,-1)
+                interlock = state.get(ATTR_CONTROLLER_INTERLOCK, -1)
 
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} interlock ({err})')

@@ -11,6 +11,7 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.datetime import DateTimeEntity
 from homeassistant.components.event import EventEntity
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import ATTR_AVAILABLE
@@ -25,6 +26,15 @@ from .const import ATTR_CONTROLLER_LISTENER
 from .const import ATTR_CONTROLLER_INTERLOCK
 from .const import ATTR_EVENTS
 from .const import EVENTS
+
+INTERLOCKS = {
+    'NONE': 0,
+    'DOORS 1&2': 1,
+    'DOORS 3&4': 2,
+    'DOORS 1&2,3&4': 3,
+    'DOORS 1,2&3': 4,
+    'DOORS 1,2,3&4': 8,
+}
 
 
 class ControllerInfo(CoordinatorEntity, SensorEntity):
@@ -182,7 +192,7 @@ class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} date/time')
 
 
-class Interlock(CoordinatorEntity, SelectEntity):
+class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
     _attr_icon = 'mdi:lock-plus'
     _attr_has_entity_name: True
 
@@ -235,33 +245,45 @@ class Interlock(CoordinatorEntity, SelectEntity):
 
         return None
 
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+
+        if state := await self.async_get_last_state():
+            self._mode = INTERLOCKS.get(state.state, -1)
+
+            # async_dispatcher_connect(self._hass, DATA_UPDATED, self._schedule_immediate_update)
+            try:
+                controller = self._serial_no
+                if self._mode != -1:
+                    if response := self.coordinator.set_interlock(controller, self._mode):
+                        _LOGGER.warning(f'controller:{self._controller}  set interlock {response}')
+                        if not response.ok:
+                            self._mode = -1
+
+                    await self.coordinator.async_request_refresh()
+            except (Exception):
+                _LOGGER.exception(f'error initialising controller {self._controller} interlock mode')
+
+    # @callback
+    # def _schedule_immediate_update(self):
+    #     _LOGGER.warning(f'>>>>>>>>>>>>>>>>>>>>>>>>>> _schedule_immediate_update')
+    #     self.async_schedule_update_ha_state(True)
+
     async def async_select_option(self, option):
         _LOGGER.debug(f'controller:{self._controller}  set interlock {option}')
-        
-        modes = {
-        'NONE': 0,
-        'DOORS 1&2': 1,
-        'DOORS 3&4': 2,
-        'DOORS 1&2,3&4': 3,
-        'DOORS 1,2&3': 4,
-        'DOORS 1,2,3&4': 8,
-        }
-        
+
         try:
             controller = self._serial_no
-            mode = modes.get(option,None)
 
-            if mode != None:
-                response = self.coordinator.set_interlock(controller, mode)
-            
-                _LOGGER.warning(f'controller:{self._controller}  set interlock {response}')
-        
-                if response and response.ok:
-                    self._mode = mode
+            if mode := INTERLOCKS.get(option, None):
+                if response := self.coordinator.set_interlock(controller, mode):
+                    _LOGGER.warning(f'controller:{self._controller}  set interlock {response}')
+                    if response.ok:
+                        self._mode = mode
 
-                self._available = True
-                await self.coordinator.async_request_refresh()
-        
+                    self._available = True
+                    await self.coordinator.async_request_refresh()
+
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error setting controller {self._controller} interlock mode')

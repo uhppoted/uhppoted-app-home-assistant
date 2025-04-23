@@ -20,7 +20,7 @@ uhppoted:
     listen_address: 0.0.0.0:60001
     debug: false
     timezone: CEST
-    timeout: 1.23
+    timeout: 5
     max_cards: 7
     preferred_cards:
         - 8165535

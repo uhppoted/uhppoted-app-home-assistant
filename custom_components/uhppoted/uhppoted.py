@@ -30,7 +30,7 @@ class uhppoted:
 
     def get_controller(self, controller):
         (c, timeout) = self._lookup(controller)
-        return self._api.get_controller(c, timeout=self._timeout)
+        return self._api.get_controller(c, timeout=timeout)
 
     def get_time(self, controller):
         (c, timeout) = self._lookup(controller)
