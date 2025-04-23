@@ -266,7 +266,6 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
 
     # @callback
     # def _schedule_immediate_update(self):
-    #     _LOGGER.warning(f'>>>>>>>>>>>>>>>>>>>>>>>>>> _schedule_immediate_update')
     #     self.async_schedule_update_ha_state(True)
 
     async def async_select_option(self, option):

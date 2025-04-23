@@ -438,9 +438,11 @@ def configure_driver(options, defaults={}):
     bind = options[CONF_BIND_ADDR]
     broadcast = options[CONF_BROADCAST_ADDR]
     listen = options[CONF_LISTEN_ADDR]
-    timeout = options.get(CONF_TIMEOUT, defaults.get(CONF_TIMEOUT, DEFAULT_TIMEOUT))
     debug = options[CONF_DEBUG]
 
+    # NTS: timeout is not configured in either config-flow or options-flow
+    # timeout = options.get(CONF_TIMEOUT, defaults.get(CONF_TIMEOUT, DEFAULT_TIMEOUT))
+    timeout = defaults.get(CONF_TIMEOUT, DEFAULT_TIMEOUT)
     timeouts = dict([[v['controller'], v.get('timeout', timeout)] for v in defaults.get(CONF_CONTROLLERS, [])])
 
     def f(v):
