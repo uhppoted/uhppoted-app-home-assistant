@@ -1,13 +1,15 @@
 # TODO
 
 - [ ] Weird timeout behaviour
+
 - [x] Fix deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/15)
 - [x] Decorated events door lookup error (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/17#event-17118124970)
 - [ ] anti-passback (cf. https://github.com/uhppoted/uhppoted/issues/60)
       - [x] set-interlock
             - [x] persist interlock across restarts
-            - [ ] retry set-interlock on every update
             - [ ] keep 'persisted' value until changed by select_option
+            - [ ] set-interlock on start or last updated > 1 hour i.e. if 'not known' or uncertain
+            - [ ] fix unique_id
       - [ ] get-antipassback
       - [ ] set-antipassback
       - [ ] config-flow

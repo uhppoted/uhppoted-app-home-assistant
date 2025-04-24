@@ -28,6 +28,7 @@ from ..const import ATTR_FIRMWARE
 from ..const import ATTR_CONTROLLER_DATETIME
 from ..const import ATTR_CONTROLLER_LISTENER
 from ..const import ATTR_CONTROLLER_INTERLOCK
+from ..const import ATTR_CONTROLLER_INTERLOCK_SETTING
 
 from ..config import configure_cards
 from ..config import get_configured_controllers
@@ -75,9 +76,13 @@ class ControllersCoordinator(DataUpdateCoordinator):
         response = self._uhppote.set_interlock(controller.id, interlock)
 
         if response.controller == controller.id:
-            if response.ok and controller.id in self._state:
+            if controller.id in self._state:
                 with self._lock:
-                    self._state[controller.id].update({ATTR_CONTROLLER_INTERLOCK: interlock})
+                    self._state[controller.id].update({ATTR_CONTROLLER_INTERLOCK_SETTING: interlock})
+                    if response.ok:
+                        self._state[controller.id].update({ATTR_CONTROLLER_INTERLOCK: interlock})
+                    else:
+                        self._state[controller.id].update({ATTR_CONTROLLER_INTERLOCK: -1})
 
             return response
         else:

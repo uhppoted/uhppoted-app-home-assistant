@@ -12,6 +12,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.datetime import DateTimeEntity
 from homeassistant.components.event import EventEntity
 from homeassistant.helpers.restore_state import RestoreEntity
+from homeassistant.helpers.restore_state import ExtraStoredData
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import ATTR_AVAILABLE
@@ -192,6 +193,31 @@ class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} date/time')
 
 
+class InterlockExtraStoredData(ExtraStoredData):
+
+    @classmethod
+    def from_dict(cls, restored: dict[str, Any]) -> "InterlockExtraStoredData":
+        interlock = restored.get("interlock", -1)
+        return cls(interlock)
+
+    def __init__(self, interlock: int):
+        self._interlock = interlock
+
+    def as_dict(self) -> dict:
+        return {'interlock': self._interlock}
+
+    @property
+    def interlock(self) -> int:
+        return self._interlock
+
+    @interlock.setter
+    def interlock(self, interlock: int) -> None:
+        if interlock == 0 or interlock == 1 or interlock == 2 or interlock == 3 or interlock == 4:
+            self._interlock = interlock
+        else:
+            self._interlock = -1
+
+
 class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
     _attr_icon = 'mdi:lock-plus'
     _attr_has_entity_name: True
@@ -206,7 +232,8 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
         self._serial_no = int(f'{serial_no}')
 
         self._name = f'uhppoted.controller.{controller}.interlock'.lower()
-        self._mode = 0
+        self._mode = -1
+        self._extra = InterlockExtraStoredData(-1)
         self._available = False
 
     @property
@@ -245,24 +272,20 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
 
         return None
 
+    @property
+    def extra_restore_state_data(self) -> ExtraStoredData | None:
+        return self._extra
+
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
 
         if state := await self.async_get_last_state():
             self._mode = INTERLOCKS.get(state.state, -1)
 
-            # async_dispatcher_connect(self._hass, DATA_UPDATED, self._schedule_immediate_update)
-            try:
-                controller = self._serial_no
-                if self._mode != -1:
-                    if response := self.coordinator.set_interlock(controller, self._mode):
-                        _LOGGER.warning(f'controller:{self._controller}  set interlock {response}')
-                        if not response.ok:
-                            self._mode = -1
+        if v := await self.async_get_last_extra_data():
+            self._extra = InterlockExtraStoredData.from_dict(v.as_dict())
 
-                    await self.coordinator.async_request_refresh()
-            except (Exception):
-                _LOGGER.exception(f'error initialising controller {self._controller} interlock mode')
+        # async_dispatcher_connect(self._hass, DATA_UPDATED, self._schedule_immediate_update)
 
     # @callback
     # def _schedule_immediate_update(self):
@@ -272,9 +295,10 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
         _LOGGER.debug(f'controller:{self._controller}  set interlock {option}')
 
         try:
-            controller = self._serial_no
-
             if mode := INTERLOCKS.get(option, None):
+                self._extra.interlock = mode
+
+                controller = self._serial_no
                 if response := self.coordinator.set_interlock(controller, mode):
                     _LOGGER.warning(f'controller:{self._controller}  set interlock {response}')
                     if response.ok:
