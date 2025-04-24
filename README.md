@@ -115,6 +115,8 @@ Alternative installation methods are described in the [Installation Guide](INSTA
 1. `uhppoted.controller.{controller}.info`
 2. `uhppoted.controller.{controller}.datetime`
 3. `uhppoted.controller.{controller}.event`
+4. `uhppoted.controller.{controller}.interlock`
+5. `uhppoted.controller.{controller}.antipasback`
 
 
 #### Doors

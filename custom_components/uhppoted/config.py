@@ -475,7 +475,7 @@ def configure_interlocks(options, g):
         for c in controllers:
             controller = f'{c[CONF_CONTROLLER_ID]}'.strip()
             serial_no = f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip()
-            unique_id = f'controller_{controller}_interlocks'.strip()
+            unique_id = f'{c.get("controller_unique_id")}.interlock'.strip()
 
             g(unique_id, controller, serial_no)
 
@@ -488,7 +488,7 @@ def configure_antipassback(options, g):
         for c in controllers:
             controller = f'{c[CONF_CONTROLLER_ID]}'.strip()
             serial_no = f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip()
-            unique_id = f'controller_{controller}_antipassback'.strip()
+            unique_id = f'{c.get("controller_unique_id")}.antipassback'.strip()
 
             g(unique_id, controller, serial_no)
 

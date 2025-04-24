@@ -25,16 +25,25 @@ from .const import ATTR_CONTROLLER
 from .const import ATTR_CONTROLLER_DATETIME
 from .const import ATTR_CONTROLLER_LISTENER
 from .const import ATTR_CONTROLLER_INTERLOCK
+from .const import ATTR_CONTROLLER_ANTIPASSBACK
 from .const import ATTR_EVENTS
 from .const import EVENTS
 
-INTERLOCKS = {
+INTERLOCK = {
     'NONE': 0,
     'DOORS 1&2': 1,
     'DOORS 3&4': 2,
     'DOORS 1&2,3&4': 3,
     'DOORS 1,2&3': 4,
     'DOORS 1,2,3&4': 8,
+}
+
+ANTIPASSBACK = {
+    'DISABLED': 0,
+    '(1:2);(3:4)': 1,
+    '(1,3):(2,4)': 2,
+    '1:(2,3)': 3,
+    '1:(2,3,4)': 4,
 }
 
 
@@ -193,151 +202,6 @@ class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
             _LOGGER.exception(f'error retrieving controller {self.controller} date/time')
 
 
-class InterlockExtraStoredData(ExtraStoredData):
-
-    @classmethod
-    def from_dict(cls, restored: dict[str, Any]) -> "InterlockExtraStoredData":
-        interlock = restored.get("interlock", -1)
-        return cls(interlock)
-
-    def __init__(self, interlock: int):
-        self._interlock = interlock
-
-    def as_dict(self) -> dict:
-        return {'interlock': self._interlock}
-
-    @property
-    def interlock(self) -> int:
-        return self._interlock
-
-    @interlock.setter
-    def interlock(self, interlock: int) -> None:
-        if interlock == 0 or interlock == 1 or interlock == 2 or interlock == 3 or interlock == 4:
-            self._interlock = interlock
-        else:
-            self._interlock = -1
-
-
-class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
-    _attr_icon = 'mdi:lock-plus'
-    _attr_has_entity_name: True
-
-    def __init__(self, coordinator, unique_id, controller, serial_no):
-        super().__init__(coordinator, context=unique_id)
-
-        _LOGGER.debug(f'interlock {controller}')
-
-        # self._unique_id = unique_id
-        self._controller = controller
-        self._serial_no = int(f'{serial_no}')
-
-        self._name = f'uhppoted.controller.{controller}.interlock'.lower()
-        self._mode = -1
-        self._extra = InterlockExtraStoredData(-1)
-        self._available = False
-
-    @property
-    def unique_id(self) -> str:
-        return f'uhppoted.controller.{self._controller}.interlock'.lower()
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def available(self) -> bool:
-        return self._available
-
-    @property
-    def options(self):
-        return ['NONE', 'DOORS 1&2', 'DOORS 3&4', 'DOORS 1&2,3&4', 'DOORS 1,2&3', 'DOORS 1,2,3&4']
-
-    @property
-    def current_option(self) -> Optional[str]:
-        if self._available:
-            if self._mode == 0:
-                return 'NONE'
-            elif self._mode == 1:
-                return 'DOORS 1&2'
-            elif self._mode == 2:
-                return 'DOORS 3&4'
-            elif self._mode == 3:
-                return 'DOORS 1&2,3&4'
-            elif self._mode == 4:
-                return 'DOORS 1,2&3'
-            elif self._mode == 8:
-                return 'DOORS 1,2,3&4'
-            else:
-                return 'UNKNOWN'
-
-        return None
-
-    @property
-    def extra_restore_state_data(self) -> ExtraStoredData | None:
-        return self._extra
-
-    async def async_added_to_hass(self) -> None:
-        await super().async_added_to_hass()
-
-        if state := await self.async_get_last_state():
-            self._mode = INTERLOCKS.get(state.state, -1)
-
-        if v := await self.async_get_last_extra_data():
-            self._extra = InterlockExtraStoredData.from_dict(v.as_dict())
-
-        # async_dispatcher_connect(self._hass, DATA_UPDATED, self._schedule_immediate_update)
-
-    # @callback
-    # def _schedule_immediate_update(self):
-    #     self.async_schedule_update_ha_state(True)
-
-    async def async_select_option(self, option):
-        _LOGGER.debug(f'controller:{self._controller}  set interlock {option}')
-
-        try:
-            if mode := INTERLOCKS.get(option, None):
-                self._extra.interlock = mode
-
-                controller = self._serial_no
-                if response := self.coordinator.set_interlock(controller, mode):
-                    _LOGGER.warning(f'controller:{self._controller}  set interlock {response}')
-                    if response.ok:
-                        self._mode = mode
-
-                    self._available = True
-                    await self.coordinator.async_request_refresh()
-
-        except (Exception):
-            self._available = False
-            _LOGGER.exception(f'error setting controller {self._controller} interlock mode')
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        self._update()
-        self.async_write_ha_state()
-
-    async def async_update(self):
-        self._update()
-
-    def _update(self):
-        _LOGGER.debug(f'controller:{self._controller} update door interlock mode')
-        try:
-            idx = self._serial_no
-
-            if not self.coordinator.data or idx not in self.coordinator.data:
-                self._available = False
-            elif ATTR_CONTROLLER_INTERLOCK not in self.coordinator.data[idx]:
-                self._available = False
-            else:
-                state = self.coordinator.data[idx]
-                self._mode = state[ATTR_CONTROLLER_INTERLOCK]
-                self._available = state[ATTR_AVAILABLE]
-
-        except (Exception):
-            self._available = False
-            _LOGGER.exception(f'error retrieving controller {self._controller} interlock mode')
-
-
 class ControllerEvent(CoordinatorEntity, EventEntity):
     _attr_icon = 'mdi:lock-alert'
     _attr_has_entity_name: True
@@ -400,3 +264,227 @@ class ControllerEvent(CoordinatorEntity, EventEntity):
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self.controller} events')
+
+
+class InterlockExtraStoredData(ExtraStoredData):
+
+    @classmethod
+    def from_dict(cls, restored: dict[str, Any]) -> "InterlockExtraStoredData":
+        interlock = restored.get("interlock", -1)
+        return cls(interlock)
+
+    def __init__(self, interlock: int):
+        self._interlock = interlock
+
+    def as_dict(self) -> dict:
+        return {'interlock': self._interlock}
+
+    @property
+    def interlock(self) -> int:
+        return self._interlock
+
+    @interlock.setter
+    def interlock(self, interlock: int) -> None:
+        if interlock == 0 or interlock == 1 or interlock == 2 or interlock == 3 or interlock == 4:
+            self._interlock = interlock
+        else:
+            self._interlock = -1
+
+
+class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
+    _attr_icon = 'mdi:lock-plus'
+    _attr_has_entity_name: True
+
+    def __init__(self, coordinator, unique_id, controller, serial_no):
+        super().__init__(coordinator, context=unique_id)
+
+        _LOGGER.debug(f'interlock {controller}')
+
+        self._unique_id = unique_id
+        self._controller = controller
+        self._serial_no = int(f'{serial_no}')
+
+        self._name = f'uhppoted.controller.{controller}.interlock'.lower()
+        self._mode = -1
+        self._extra = InterlockExtraStoredData(-1)
+        self._available = False
+
+    @property
+    def unique_id(self) -> str:
+        return self._unique_id
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def available(self) -> bool:
+        return self._available
+
+    @property
+    def options(self):
+        return list(INTERLOCK.keys())
+
+    @property
+    def current_option(self) -> Optional[str]:
+        lookup = {v: k for k, v in INTERLOCK.items()}
+        if self._available:
+            return lookup.get(self._mode, 'UNKNOWN')
+
+        return None
+
+    @property
+    def extra_restore_state_data(self) -> ExtraStoredData | None:
+        return self._extra
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+
+        if state := await self.async_get_last_state():
+            self._mode = INTERLOCK.get(state.state, -1)
+
+        if v := await self.async_get_last_extra_data():
+            self._extra = InterlockExtraStoredData.from_dict(v.as_dict())
+
+        # async_dispatcher_connect(self._hass, DATA_UPDATED, self._schedule_immediate_update)
+
+    # @callback
+    # def _schedule_immediate_update(self):
+    #     self.async_schedule_update_ha_state(True)
+
+    async def async_select_option(self, option):
+        _LOGGER.debug(f'controller:{self._controller}  set interlock {option}')
+
+        try:
+            if mode := INTERLOCK.get(option, None):
+                self._extra.interlock = mode
+
+                controller = self._serial_no
+                if response := self.coordinator.set_interlock(controller, mode):
+                    _LOGGER.warning(f'controller:{self._controller}  set interlock {response}')
+                    if response.ok:
+                        self._mode = mode
+
+                    self._available = True
+                    await self.coordinator.async_request_refresh()
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error setting controller {self._controller} interlock mode')
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
+    async def async_update(self):
+        self._update()
+
+    def _update(self):
+        _LOGGER.debug(f'controller:{self._controller} update door interlock mode')
+        try:
+            idx = self._serial_no
+
+            if not self.coordinator.data or idx not in self.coordinator.data:
+                self._available = False
+            elif ATTR_CONTROLLER_INTERLOCK not in self.coordinator.data[idx]:
+                self._available = False
+            else:
+                state = self.coordinator.data[idx]
+                self._mode = state[ATTR_CONTROLLER_INTERLOCK]
+                self._available = state[ATTR_AVAILABLE]
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self._controller} interlock mode')
+
+
+class AntiPassback(CoordinatorEntity, SelectEntity):
+    _attr_icon = 'mdi:lock-plus'
+    _attr_has_entity_name: True
+
+    def __init__(self, coordinator, unique_id, controller, serial_no):
+        super().__init__(coordinator, context=unique_id)
+
+        _LOGGER.debug(f'antipassback {controller}')
+
+        self._unique_id = unique_id
+        self._controller = controller
+        self._serial_no = int(f'{serial_no}')
+
+        self._name = f'uhppoted.controller.{controller}.antipassback'.lower()
+        self._mode = -1
+        self._available = False
+
+    @property
+    def unique_id(self) -> str:
+        return self._unique_id
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def available(self) -> bool:
+        return self._available
+
+    @property
+    def options(self):
+        return list(ANTIPASSBACK.keys())
+
+    @property
+    def current_option(self) -> Optional[str]:
+        lookup = {v: k for k, v in ANTIPASSBACK.items()}
+        if self._available:
+            return lookup.get(self._mode, 'UNKNOWN')
+
+        return None
+
+    async def async_select_option(self, option):
+        _LOGGER.debug(f'controller:{self._controller}  set anti-passback {option}')
+
+        try:
+            if mode := ANTIPASSBACK.get(option, None):
+                controller = self._serial_no
+                if response := self.coordinator.set_antipassback(controller, mode):
+                    if response.ok:
+                        self._mode = mode
+                    else:
+                        self._mode = -1
+
+                    self._available = True
+                    await self.coordinator.async_request_refresh()
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error setting controller {self._controller} anti-passback mode')
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update()
+        self.async_write_ha_state()
+
+    async def async_update(self):
+        self._update()
+
+    def _update(self):
+        _LOGGER.debug(f'controller:{self._controller} update anti-passback mode')
+        try:
+            idx = self._serial_no
+
+            _LOGGER.debug(f'>>>>>>>>>>>>>>>>>>>> awoogah/1')
+            if not self.coordinator.data or idx not in self.coordinator.data:
+                _LOGGER.debug(f'>>>>>>>>>>>>>>>>>>>> awoogah/2')
+                self._available = False
+            elif ATTR_CONTROLLER_ANTIPASSBACK not in self.coordinator.data[idx]:
+                _LOGGER.debug(f'>>>>>>>>>>>>>>>>>>>> awoogah/3')
+                self._available = False
+            else:
+                _LOGGER.debug(f'>>>>>>>>>>>>>>>>>>>> awoogah/4')
+                state = self.coordinator.data[idx]
+                self._mode = state[ATTR_CONTROLLER_ANTIPASSBACK]
+                self._available = state[ATTR_AVAILABLE]
+
+        except (Exception):
+            self._available = False
+            _LOGGER.exception(f'error retrieving controller {self._controller} anti-passback mode')

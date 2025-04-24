@@ -1,12 +1,28 @@
 import logging
 
 from collections import namedtuple
+from dataclasses import dataclass
 from uhppoted import uhppote
 
 _LOGGER = logging.getLogger(__name__)
 
 Controller = namedtuple('Controller', 'id address protocol')
 
+#FIXME remove when uhppoted-lib is published
+@dataclass
+class GetAntiPassbackResponse:
+    controller: int
+    antipassback: int
+
+
+#FIXME remove when uhppoted-lib is published
+@dataclass
+class SetAntiPassbackResponse:
+    controller: int
+    ok: bool
+
+#FIXME remove when uhppoted-lib is published
+ANTIPASSBACK = {}
 
 class uhppoted:
 
@@ -95,6 +111,22 @@ class uhppoted:
     def set_interlock(self, controller, interlock):
         (c, timeout) = self._lookup(controller)
         return self._api.set_interlock(c, interlock, timeout=timeout)
+
+    def get_antipassback(self, controller):
+        # FIXME
+        # (c, timeout) = self._lookup(controller)
+        # return self._api.get_antipassback(c, timeout=timeout)
+
+        antipassback = ANTIPASSBACK.get(controller,0)
+        return GetAntiPassbackResponse(controller,antipassback)
+
+    def set_antipassback(self, controller, antipassback):
+        # FIXME
+        # (c, timeout) = self._lookup(controller)
+        # return self._api.set_antipassback(c, antipassback, timeout=timeout)
+
+        ANTIPASSBACK[controller] = antipassback
+        return SetAntiPassbackResponse(controller,True)
 
     def _lookup(self, controller):
         for v in self._controllers:

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+1. Added (optional) _controller interlock_ settting to manage controller door interlocks.
+2. Added (optional) _controller anti-passback_ settting to manage controller card anti-passback.
+
 ### Updated
 1. Fixed logic around request timeout initialisation.
 

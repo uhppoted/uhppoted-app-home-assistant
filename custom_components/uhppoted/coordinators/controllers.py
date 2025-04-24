@@ -29,6 +29,7 @@ from ..const import ATTR_CONTROLLER_DATETIME
 from ..const import ATTR_CONTROLLER_LISTENER
 from ..const import ATTR_CONTROLLER_INTERLOCK
 from ..const import ATTR_CONTROLLER_INTERLOCK_SETTING
+from ..const import ATTR_CONTROLLER_ANTIPASSBACK
 
 from ..config import configure_cards
 from ..config import get_configured_controllers
@@ -88,6 +89,15 @@ class ControllersCoordinator(DataUpdateCoordinator):
         else:
             return None
 
+    def set_antipassback(self, controller_id, antipassback):
+        controller = self._resolve(controller_id)
+        response = self._uhppote.set_antipassback(controller.id, antipassback)
+
+        if response.controller == controller.id:
+            return response
+        else:
+            return None
+
     async def _async_update_data(self):
         try:
             contexts = set(self.async_contexts())
@@ -122,6 +132,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 executor.map(lambda controller: self._get_datetime(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_listener(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_interlock(lock, controller), controllers, timeout=1)
+                executor.map(lambda controller: self._get_antipassback(lock, controller), controllers, timeout=1)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller information ({err})')
 
@@ -221,6 +232,24 @@ class ControllersCoordinator(DataUpdateCoordinator):
         with lock:
             self._state[controller.id].update({
                 ATTR_CONTROLLER_INTERLOCK: interlock,
+            })
+
+    def _get_antipassback(self, lock, controller):
+        _LOGGER.debug(f'fetch controller anti-passback {controller.id}')
+
+        antipassback = -1
+
+        try:
+            response = self._uhppote.get_antipassback(controller.id)
+            if response.controller == controller.id:
+                antipassback = response.antipassback
+
+        except Exception as err:
+            _LOGGER.error(f'error retrieving controller {controller.id} anti-passback ({err})')
+
+        with lock:
+            self._state[controller.id].update({
+                ATTR_CONTROLLER_ANTIPASSBACK: antipassback,
             })
 
     def _resolve(self, controller_id):

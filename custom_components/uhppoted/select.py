@@ -18,6 +18,7 @@ from .config import configure_antipassback
 
 from .door import DoorMode
 from .controller import Interlock
+from .controller import AntiPassback
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
@@ -36,13 +37,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
             Interlock(controllers, unique_id, controller, serial_no),
         ])
 
-    # def i(unique_id, controller, serial_no):
-    #       entities.extend([
-    #             AntiPassback(controllers, unique_id, controller, serial_no),
-    #       ])
+    def i(unique_id, controller, serial_no):
+        entities.extend([
+            AntiPassback(controllers, unique_id, controller, serial_no),
+        ])
 
     configure_doors(options, g)
     configure_interlocks(options, h)
-    # configure_antipassback(options,i)
+    configure_antipassback(options, i)
 
     async_add_entities(entities, update_before_add=True)

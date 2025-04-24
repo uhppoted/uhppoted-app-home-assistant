@@ -7,15 +7,16 @@
 - [ ] anti-passback (cf. https://github.com/uhppoted/uhppoted/issues/60)
       - [x] set-interlock
             - [x] persist interlock across restarts
-            - [ ] keep 'persisted' value until changed by select_option
+            - [x] fix unique_id
+            - [ ] replace coordinator weirdness with fake get-interlock API
             - [ ] set-interlock on start or last updated > 1 hour i.e. if 'not known' or uncertain
-            - [ ] fix unique_id
-      - [ ] get-antipassback
-      - [ ] set-antipassback
-      - [ ] config-flow
-      - [ ] options-flow
-      - [ ] CHANGELOG
-      - [ ] README
+      - [x] get-antipassback
+      - [x] set-antipassback
+      - [x] config-flow
+      - [x] options-flow
+      - [x] CHANGELOG
+      - [x] README
+      - [ ] Replace #FIXME with real _get/set-antipassback_ when updated uhppoted-lib-python is published
       - (?) per-controller interlock/anti-passback
 
 - [ ] Decorate card swipe event (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/13)
