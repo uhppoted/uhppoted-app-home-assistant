@@ -204,6 +204,7 @@ configurable settings comprises:
 | `cards_poll_interval`       | Interval at which to fetch card information (seconds)            | 30                |
 | `events_poll_interval`      | Interval at which to fetch missed/synthetic events (seconds)     | 30                |
 | `controllers`               | List of off-LAN controllers (see above)                          | -none-            |
+| `cache.expiry.interlock`    | Cache expiry for cached controller door interlock mode (seconds) | 900               |
 
 e.g.
 ```
@@ -238,6 +239,9 @@ uhppoted:
             port: 54321
             protocol: TCP
             timeout: 0.56
+    cache:
+        expiry:
+           interlock: 300
 ```
 
 

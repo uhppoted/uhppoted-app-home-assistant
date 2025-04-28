@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from uhppoted import uhppote
 
+from .const import CONF_CACHE_EXPIRY_INTERLOCK
+
 _LOGGER = logging.getLogger(__name__)
 _CACHE_EXPIRY_INTERLOCK = 900 # 15 minutes
 
@@ -39,6 +41,9 @@ class uhppoted:
         self._api = uhppote.Uhppote(bind, broadcast, listen, debug)
         self._timeout = timeout
         self._controllers = controllers
+        self._caching = {
+           CONF_CACHE_EXPIRY_INTERLOCK: _CACHE_EXPIRY_INTERLOCK,
+        }
 
     @property
     def api(self):
@@ -47,6 +52,14 @@ class uhppoted:
     @property
     def controllers(self):
         return [v['controller'] for v in self._controllers]
+
+    @property
+    def caching(self) -> int:
+        return self._caching
+
+    @caching.setter
+    def caching(self, expiry: {}) -> None:
+        self._caching |= expiry
 
     @staticmethod
     def get_all_controllers(bind, broadcast, listen, debug):
@@ -122,7 +135,8 @@ class uhppoted:
         if record := _CACHE.get(key, None):
             now = datetime.now()
             dt = now - record['touched']
-            if dt.total_seconds() < _CACHE_EXPIRY_INTERLOCK:
+            expiry = self.caching.get(CONF_CACHE_EXPIRY_INTERLOCK, _CACHE_EXPIRY_INTERLOCK)
+            if dt.total_seconds() < expiry:
                 return GetInterlockResponse(controller, record.get('interlock', -1))
 
         return GetInterlockResponse(controller, -1)

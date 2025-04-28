@@ -10,7 +10,7 @@
             - [x] replace coordinator weirdness with fake get-interlock API
             - [x] set-interlock on startup
             - [x] set-interlock on last updated > CACHE_EXPIRY
-            - [ ] add cache expiry to configuration.yaml
+            - [x] add cache expiry to configuration.yaml
       - [x] get-antipassback
       - [x] set-antipassback
       - [x] config-flow

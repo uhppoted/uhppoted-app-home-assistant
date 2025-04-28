@@ -50,6 +50,9 @@ uhppoted:
             port: 54321
             timeout: 0.56
             protocol: TCP
+    cache:
+        expiry:
+            interlock: 120
 
 template:
   - trigger:

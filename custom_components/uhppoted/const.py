@@ -49,6 +49,9 @@ CONF_CARD_STARTDATE = 'card_startdate'
 CONF_CARD_ENDDATE = 'card_enddate'
 CONF_CARD_DOORS = 'card_doors'
 
+CONF_CACHE_EXPIRY_INTERLOCK = 'cache.expiry.interlock'
+
+
 ATTR_AVAILABLE = 'available'
 ATTR_NETMASK = 'netmask'
 ATTR_GATEWAY = 'gateway'
@@ -113,6 +116,8 @@ DEFAULT_MAX_CARDS = 10
 DEFAULT_MAX_CARD_INDEX = 20000
 DEFAULT_MAX_CARD_ERRORS = 5
 DEFAULT_PREFERRED_CARDS = []
+
+DEFAULT_CACHE_EXPIRY_INTERLOCK = 900 # 900 seconds/15 minutes
 
 ERR_INVALID_CONTROLLER_ID = 'invalid_controller_id'
 ERR_DUPLICATE_CONTROLLER_ID = 'duplicate_controller_id'
