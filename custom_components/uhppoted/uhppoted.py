@@ -2,11 +2,19 @@ import logging
 
 from collections import namedtuple
 from dataclasses import dataclass
+from datetime import datetime
 from uhppoted import uhppote
 
 _LOGGER = logging.getLogger(__name__)
 
 Controller = namedtuple('Controller', 'id address protocol')
+
+
+@dataclass
+class GetInterlockResponse:
+    controller: int
+    interlock: int
+
 
 #FIXME remove when uhppoted-lib is published
 @dataclass
@@ -21,8 +29,9 @@ class SetAntiPassbackResponse:
     controller: int
     ok: bool
 
-#FIXME remove when uhppoted-lib is published
-ANTIPASSBACK = {}
+
+CACHE = {}
+
 
 class uhppoted:
 
@@ -108,25 +117,50 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
         return self._api.get_event(c, index, timeout=timeout)
 
+    def get_interlock(self, controller):
+        if record := CACHE.get(f'controller.{controller}.interlock', None):
+            return GetInterlockResponse(controller, record.get('interlock', -1))
+
+        return GetInterlockResponse(controller, -1)
+
     def set_interlock(self, controller, interlock):
+        key = f'controller.{controller}.interlock'
+
+        if not mode in [0,1,2,3,4,8]:
+            del CACHE[key]
+
         (c, timeout) = self._lookup(controller)
-        return self._api.set_interlock(c, interlock, timeout=timeout)
+
+        if response := self._api.set_interlock(c, interlock, timeout=timeout):
+            if response.ok:
+                CACHE[key] = {
+                    'interlock': interlock,
+                    'touched': datetime.now(),
+                }
+
+        return response
 
     def get_antipassback(self, controller):
         # FIXME
         # (c, timeout) = self._lookup(controller)
         # return self._api.get_antipassback(c, timeout=timeout)
 
-        antipassback = ANTIPASSBACK.get(controller,0)
-        return GetAntiPassbackResponse(controller,antipassback)
+        if record := CACHE.get(f'controller.{controller}.antipassback', None):
+            return GetAntiPassbackResponse(controller, record.get('antipassback', -1))
+
+        return GetAntiPassbackResponse(controller, 0)
 
     def set_antipassback(self, controller, antipassback):
         # FIXME
         # (c, timeout) = self._lookup(controller)
         # return self._api.set_antipassback(c, antipassback, timeout=timeout)
 
-        ANTIPASSBACK[controller] = antipassback
-        return SetAntiPassbackResponse(controller,True)
+        CACHE[f'controller.{controller}.antipassback'] = {
+            'antipassback': antipassback,
+            'touched': datetime.now(),
+        }
+
+        return SetAntiPassbackResponse(controller, True)
 
     def _lookup(self, controller):
         for v in self._controllers:

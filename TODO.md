@@ -1,23 +1,25 @@
 # TODO
 
-- [ ] Weird timeout behaviour
-
+- [ ] get/set-antipassback: remove #FIXME when uhppoted-lib-python updated (cf. https://github.com/uhppoted/uhppoted/issues/60)
 - [x] Fix deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/15)
 - [x] Decorated events door lookup error (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/17#event-17118124970)
 - [ ] anti-passback (cf. https://github.com/uhppoted/uhppoted/issues/60)
       - [x] set-interlock
             - [x] persist interlock across restarts
             - [x] fix unique_id
-            - [ ] replace coordinator weirdness with fake get-interlock API
-            - [ ] set-interlock on start or last updated > 1 hour i.e. if 'not known' or uncertain
+            - [x] replace coordinator weirdness with fake get-interlock API
+            - [x] set-interlock on startup
+            - [ ] set-interlock on last updated > 1 hour
       - [x] get-antipassback
       - [x] set-antipassback
       - [x] config-flow
       - [x] options-flow
       - [x] CHANGELOG
       - [x] README
-      - [ ] Replace #FIXME with real _get/set-antipassback_ when updated uhppoted-lib-python is published
       - (?) per-controller interlock/anti-passback
+
+- [ ] Weird timeout behaviour
+      - (?) use cache and background fetch
 
 - [ ] Decorate card swipe event (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/13)
        - [x] fire card.swipe.decorated event

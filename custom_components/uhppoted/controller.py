@@ -337,20 +337,24 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
     def extra_restore_state_data(self) -> ExtraStoredData | None:
         return self._extra
 
+    # Sets the controller door interlock mode on startup
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
 
-        if state := await self.async_get_last_state():
-            self._mode = INTERLOCK.get(state.state, -1)
+        async def _task(controller, mode):
+            try:
+                self.coordinator.set_interlock(controller, mode)
+            except Exception as err:
+                _LOGGER.warning(f'set-interlock on startup failed ({err})')
+
+        # if state := await self.async_get_last_state():
+        #     self._mode = INTERLOCK.get(state.state, -1)
 
         if v := await self.async_get_last_extra_data():
             self._extra = InterlockExtraStoredData.from_dict(v.as_dict())
-
-        # async_dispatcher_connect(self._hass, DATA_UPDATED, self._schedule_immediate_update)
-
-    # @callback
-    # def _schedule_immediate_update(self):
-    #     self.async_schedule_update_ha_state(True)
+            controller = self._serial_no
+            mode = self._extra.interlock
+            self.hass.async_create_background_task(_task(controller, mode), name='uhppoted::set controller door interlock on startup')
 
     async def async_select_option(self, option):
         _LOGGER.debug(f'controller:{self._controller}  set interlock {option}')
@@ -361,7 +365,6 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
 
                 controller = self._serial_no
                 if response := self.coordinator.set_interlock(controller, mode):
-                    _LOGGER.warning(f'controller:{self._controller}  set interlock {response}')
                     if response.ok:
                         self._mode = mode
 
@@ -472,15 +475,11 @@ class AntiPassback(CoordinatorEntity, SelectEntity):
         try:
             idx = self._serial_no
 
-            _LOGGER.debug(f'>>>>>>>>>>>>>>>>>>>> awoogah/1')
             if not self.coordinator.data or idx not in self.coordinator.data:
-                _LOGGER.debug(f'>>>>>>>>>>>>>>>>>>>> awoogah/2')
                 self._available = False
             elif ATTR_CONTROLLER_ANTIPASSBACK not in self.coordinator.data[idx]:
-                _LOGGER.debug(f'>>>>>>>>>>>>>>>>>>>> awoogah/3')
                 self._available = False
             else:
-                _LOGGER.debug(f'>>>>>>>>>>>>>>>>>>>> awoogah/4')
                 state = self.coordinator.data[idx]
                 self._mode = state[ATTR_CONTROLLER_ANTIPASSBACK]
                 self._available = state[ATTR_AVAILABLE]

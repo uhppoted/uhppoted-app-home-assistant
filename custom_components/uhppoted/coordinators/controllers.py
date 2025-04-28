@@ -77,14 +77,6 @@ class ControllersCoordinator(DataUpdateCoordinator):
         response = self._uhppote.set_interlock(controller.id, interlock)
 
         if response.controller == controller.id:
-            if controller.id in self._state:
-                with self._lock:
-                    self._state[controller.id].update({ATTR_CONTROLLER_INTERLOCK_SETTING: interlock})
-                    if response.ok:
-                        self._state[controller.id].update({ATTR_CONTROLLER_INTERLOCK: interlock})
-                    else:
-                        self._state[controller.id].update({ATTR_CONTROLLER_INTERLOCK: -1})
-
             return response
         else:
             return None
@@ -223,8 +215,9 @@ class ControllersCoordinator(DataUpdateCoordinator):
         interlock = -1
 
         try:
-            if state := self._state.get(controller.id):
-                interlock = state.get(ATTR_CONTROLLER_INTERLOCK, -1)
+            response = self._uhppote.get_interlock(controller.id)
+            if response.controller == controller.id:
+                interlock = response.interlock
 
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} interlock ({err})')
