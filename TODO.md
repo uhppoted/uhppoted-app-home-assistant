@@ -3,13 +3,14 @@
 - [ ] get/set-antipassback: remove #FIXME when uhppoted-lib-python updated (cf. https://github.com/uhppoted/uhppoted/issues/60)
 - [x] Fix deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/15)
 - [x] Decorated events door lookup error (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/17#event-17118124970)
-- [ ] anti-passback (cf. https://github.com/uhppoted/uhppoted/issues/60)
+- [x] anti-passback (cf. https://github.com/uhppoted/uhppoted/issues/60)
       - [x] set-interlock
             - [x] persist interlock across restarts
             - [x] fix unique_id
             - [x] replace coordinator weirdness with fake get-interlock API
             - [x] set-interlock on startup
-            - [ ] set-interlock on last updated > 1 hour
+            - [x] set-interlock on last updated > CACHE_EXPIRY
+            - [ ] add cache expiry to configuration.yaml
       - [x] get-antipassback
       - [x] set-antipassback
       - [x] config-flow

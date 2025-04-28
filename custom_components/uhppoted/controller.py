@@ -341,20 +341,17 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
 
-        async def _task(controller, mode):
-            try:
-                self.coordinator.set_interlock(controller, mode)
-            except Exception as err:
-                _LOGGER.warning(f'set-interlock on startup failed ({err})')
-
         # if state := await self.async_get_last_state():
         #     self._mode = INTERLOCK.get(state.state, -1)
 
         if v := await self.async_get_last_extra_data():
             self._extra = InterlockExtraStoredData.from_dict(v.as_dict())
-            controller = self._serial_no
-            mode = self._extra.interlock
-            self.hass.async_create_background_task(_task(controller, mode), name='uhppoted::set controller door interlock on startup')
+            if self._extra.interlock in INTERLOCK.values():
+                controller = self._serial_no
+                mode = self._extra.interlock
+                self.hass.async_create_background_task(
+                    self._background_set_timeout(controller, mode),
+                    name='uhppoted::set controller door interlock on startup')
 
     async def async_select_option(self, option):
         _LOGGER.debug(f'controller:{self._controller}  set interlock {option}')
@@ -397,9 +394,22 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
                 self._mode = state[ATTR_CONTROLLER_INTERLOCK]
                 self._available = state[ATTR_AVAILABLE]
 
+                if self._available and self._mode not in INTERLOCK.values() and self._extra.interlock in INTERLOCK.values():
+                    controller = self._serial_no
+                    mode = self._extra.interlock
+                    self.hass.async_create_background_task(
+                        self._background_set_timeout(controller, mode), 
+                        name='uhppoted::set controller door interlock on startup')
+
         except (Exception):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self._controller} interlock mode')
+
+    async def _background_set_timeout(self, controller, mode):
+        try:
+            self.coordinator.set_interlock(controller, mode)
+        except Exception as err:
+            _LOGGER.warning(f'set-interlock on startup failed ({err})')
 
 
 class AntiPassback(CoordinatorEntity, SelectEntity):

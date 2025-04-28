@@ -6,9 +6,9 @@ from datetime import datetime
 from uhppoted import uhppote
 
 _LOGGER = logging.getLogger(__name__)
+_CACHE_EXPIRY_INTERLOCK = 900 # 15 minutes
 
 Controller = namedtuple('Controller', 'id address protocol')
-
 
 @dataclass
 class GetInterlockResponse:
@@ -30,8 +30,7 @@ class SetAntiPassbackResponse:
     ok: bool
 
 
-CACHE = {}
-
+_CACHE = {}
 
 class uhppoted:
 
@@ -118,25 +117,29 @@ class uhppoted:
         return self._api.get_event(c, index, timeout=timeout)
 
     def get_interlock(self, controller):
-        if record := CACHE.get(f'controller.{controller}.interlock', None):
-            return GetInterlockResponse(controller, record.get('interlock', -1))
+        key = f'controller.{controller}.interlock'
+
+        if record := _CACHE.get(key, None):
+            now = datetime.now()
+            dt = now - record['touched']
+            if dt.total_seconds() < _CACHE_EXPIRY_INTERLOCK:
+                return GetInterlockResponse(controller, record.get('interlock', -1))
 
         return GetInterlockResponse(controller, -1)
 
     def set_interlock(self, controller, interlock):
         key = f'controller.{controller}.interlock'
 
-        if not mode in [0,1,2,3,4,8]:
-            del CACHE[key]
-
         (c, timeout) = self._lookup(controller)
+        response = self._api.set_interlock(c, interlock, timeout=timeout)
 
-        if response := self._api.set_interlock(c, interlock, timeout=timeout):
-            if response.ok:
-                CACHE[key] = {
-                    'interlock': interlock,
-                    'touched': datetime.now(),
-                }
+        if response and not response.ok:
+            del _CACHE[key]
+        else:
+            _CACHE[key] = {
+                'interlock': interlock,
+                'touched': datetime.now(),
+            }
 
         return response
 
@@ -145,7 +148,7 @@ class uhppoted:
         # (c, timeout) = self._lookup(controller)
         # return self._api.get_antipassback(c, timeout=timeout)
 
-        if record := CACHE.get(f'controller.{controller}.antipassback', None):
+        if record := _CACHE.get(f'controller.{controller}.antipassback', None):
             return GetAntiPassbackResponse(controller, record.get('antipassback', -1))
 
         return GetAntiPassbackResponse(controller, 0)
@@ -155,7 +158,7 @@ class uhppoted:
         # (c, timeout) = self._lookup(controller)
         # return self._api.set_antipassback(c, antipassback, timeout=timeout)
 
-        CACHE[f'controller.{controller}.antipassback'] = {
+        _CACHE[f'controller.{controller}.antipassback'] = {
             'antipassback': antipassback,
             'touched': datetime.now(),
         }
