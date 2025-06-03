@@ -2,4 +2,5 @@
 .tests
 __pycache__
 dist
+workdir
 release-notes.md

@@ -63,6 +63,9 @@ docker-hass-it:
 docker:
 	cd docker/dev/stable && docker compose up --build
 
+docker-restart:
+	docker restart home-assistant-stable && docker logs -f home-assistant-stable
+
 docker-2024.11.3:
 	cd docker/dev/2024.11.3 && docker compose up --build
 
