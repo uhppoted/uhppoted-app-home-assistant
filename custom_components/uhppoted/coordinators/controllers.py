@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import concurrent.futures
+import asyncio
 import threading
 import datetime
 import logging
@@ -168,11 +169,8 @@ class ControllersCoordinator(DataUpdateCoordinator):
     def _get_datetime(self, lock, controller):
         _LOGGER.debug(f'fetch controller datetime {controller.id}')
 
-        sysdatetime = None
-
-        try:
-            response = self._uhppote.get_time(controller.id)
-            if response.controller == controller.id:
+        def g(response):
+            if response and response.controller == controller.id:
                 year = response.datetime.year
                 month = response.datetime.month
                 day = response.datetime.day
@@ -181,7 +179,29 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 second = response.datetime.second
                 tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
 
-                sysdatetime = datetime.datetime(year, month, day, hour, minute, second, 0, tz)
+                return datetime.datetime(year, month, day, hour, minute, second, 0, tz)
+
+            return None
+
+        def callback(response):
+            try:
+                sysdatetime = g(response)
+                with lock:
+                    self._state[controller.id].update({
+                        ATTR_CONTROLLER_DATETIME: sysdatetime,
+                    })
+
+                _LOGGER.debug(f'get-date/time {controller.id} {sysdatetime}')
+                self.async_set_updated_data(self._state)
+
+            except Exception as err:
+                _LOGGER.error(f'error updating internal controller {controller.id} date/time ({err})')
+
+        sysdatetime = None
+
+        try:
+            response = self._uhppote.get_time(controller.id, callback)
+            sysdatetime = g(response)
 
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} date/time ({err})')

@@ -4,30 +4,15 @@
 - [x] Fix deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/15)
 - [x] Decorated events door lookup error (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/17#event-17118124970)
 - [x] anti-passback (cf. https://github.com/uhppoted/uhppoted/issues/60)
-      - [x] set-interlock
-            - [x] persist interlock across restarts
-            - [x] fix unique_id
-            - [x] replace coordinator weirdness with fake get-interlock API
-            - [x] set-interlock on startup
-            - [x] set-interlock on last updated > CACHE_EXPIRY
-            - [x] add cache expiry to configuration.yaml
-      - [x] get-antipassback
-      - [x] set-antipassback
-      - [x] config-flow
-      - [x] options-flow
-      - [x] CHANGELOG
-      - [x] README
-      - (?) per-controller interlock/anti-passback
 
-- [ ] Weird timeout behaviour
-      - (?) use cache and background fetch
+- [ ] Weird timeout behaviour (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/1)
+      - [x] background fetch queue
+            - [x] stop queue on shutdown
+            - [x] callback on response
+      - [ ] cache
 
 - [ ] Decorate card swipe event (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/13)
        - [x] fire card.swipe.decorated event
-             - [x] event index
-             - [x] controller-id.event-index
-             - [x] fire event for all card events
-             - [x] add _configured_ field
        - [ ] opt-in/out in config-flow
        - (?) per-card swipe events
        - [ ] automation to handle card.swipe.decorated event
@@ -84,6 +69,7 @@
 
 ## To Be Done
 
+- (?) per-controller interlock/anti-passback opt-in
 - (?) Only set PIN in _options-flow_
 - [ ] Custom card
 - [ ] Discovery

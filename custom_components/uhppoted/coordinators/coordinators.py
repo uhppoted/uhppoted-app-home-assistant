@@ -123,13 +123,20 @@ class Coordinators():
         self._controllers = ControllersCoordinator(hass, options, poll_controllers, self._driver, self._db)
         self._doors = DoorsCoordinator(hass, options, poll_doors, self._driver, self._db)
         self._cards = CardsCoordinator(hass, options, poll_cards, self._driver, self._db)
-        self._events = EventsCoordinator(hass, options, poll_events, self._driver, self._db,
+        self._events = EventsCoordinator(hass, 
+                                         options, 
+                                         poll_events, 
+                                         self._driver, 
+                                         self._db,
                                          lambda evt: self._on_event(hass, evt))
+
+        self._driver.start(hass)
 
     def __del__(self):
         self._unload()
 
     def _unload(self):
+        self._driver.stop(hass)
         self._controllers.unload()
         self._doors.unload()
         self._cards.unload()

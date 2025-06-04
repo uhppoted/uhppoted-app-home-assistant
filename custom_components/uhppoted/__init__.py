@@ -21,6 +21,8 @@ from .const import CONF_POLL_DOORS
 from .const import CONF_POLL_CARDS
 from .const import CONF_POLL_EVENTS
 from .const import CONF_CONTROLLERS
+
+from .const import CONF_CACHE_EXPIRY_DATETIME
 from .const import CONF_CACHE_EXPIRY_INTERLOCK
 
 from .const import CONF_INTERLOCKS
@@ -33,6 +35,8 @@ from .const import DEFAULT_POLL_CARDS
 from .const import DEFAULT_POLL_EVENTS
 from .const import DEFAULT_MAX_CARDS
 from .const import DEFAULT_PREFERRED_CARDS
+
+from .const import DEFAULT_CACHE_EXPIRY_DATETIME
 from .const import DEFAULT_CACHE_EXPIRY_INTERLOCK
 
 from .coordinators.coordinators import Coordinators
@@ -68,6 +72,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_POLL_CARDS: DEFAULT_POLL_CARDS,  # 30s
         CONF_POLL_EVENTS: DEFAULT_POLL_EVENTS,  # 30s
         CONF_CONTROLLERS: [],
+
+        CONF_CACHE_EXPIRY_DATETIME: DEFAULT_CACHE_EXPIRY_DATETIME,
         CONF_CACHE_EXPIRY_INTERLOCK: DEFAULT_CACHE_EXPIRY_INTERLOCK,
     }
 
@@ -76,7 +82,10 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         topics = [
             CONF_BIND_ADDR, CONF_BROADCAST_ADDR, CONF_LISTEN_ADDR, CONF_DEBUG, CONF_TIMEZONE, CONF_TIMEOUT,
             CONF_MAX_CARDS, CONF_PREFERRED_CARDS, CONF_PIN_ENABLED, CONF_POLL_CONTROLLERS, CONF_POLL_DOORS,
-            CONF_POLL_CARDS, CONF_POLL_EVENTS, CONF_CONTROLLERS, CONF_CACHE_EXPIRY_INTERLOCK,
+            CONF_POLL_CARDS, CONF_POLL_EVENTS, CONF_CONTROLLERS, 
+
+            CONF_CACHE_EXPIRY_DATETIME,
+            CONF_CACHE_EXPIRY_INTERLOCK,
         ]
 
         for v in topics:
@@ -85,6 +94,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
         if caching := c.get('cache', None):
             if expiry := caching.get('expiry', None):
+                defaults[CONF_CACHE_EXPIRY_DATETIME] = expiry.get('datetime', DEFAULT_CACHE_EXPIRY_DATETIME)
                 defaults[CONF_CACHE_EXPIRY_INTERLOCK] = expiry.get('interlock', DEFAULT_CACHE_EXPIRY_INTERLOCK)
 
     _LOGGER.info(f'default bind address:        {defaults[CONF_BIND_ADDR]}')
@@ -101,6 +111,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     _LOGGER.info(f'poll interval - cards:       {defaults[CONF_POLL_CARDS]}s')
     _LOGGER.info(f'poll interval - events:      {defaults[CONF_POLL_EVENTS]}s')
     _LOGGER.info(f'controllers:                 {defaults[CONF_CONTROLLERS]}')
+
+    _LOGGER.info(f'cache.expiry - date/time:    {defaults[CONF_CACHE_EXPIRY_DATETIME]}')
     _LOGGER.info(f'cache.expiry - interlock:    {defaults[CONF_CACHE_EXPIRY_INTERLOCK]}')
 
     hass.data.setdefault(DOMAIN, defaults)

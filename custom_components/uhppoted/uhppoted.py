@@ -1,13 +1,18 @@
+import asyncio
 import logging
 
 from collections import namedtuple
 from dataclasses import dataclass
 from datetime import datetime
+from asyncio import Queue
+
 from uhppoted import uhppote
 
+from .const import CONF_CACHE_EXPIRY_DATETIME
 from .const import CONF_CACHE_EXPIRY_INTERLOCK
 
 _LOGGER = logging.getLogger(__name__)
+_CACHE_EXPIRY_DATETIME = 300 # 5 minutes
 _CACHE_EXPIRY_INTERLOCK = 900 # 15 minutes
 
 Controller = namedtuple('Controller', 'id address protocol')
@@ -41,7 +46,9 @@ class uhppoted:
         self._api = uhppote.Uhppote(bind, broadcast, listen, debug)
         self._timeout = timeout
         self._controllers = controllers
+        self.queue = Queue()
         self._caching = {
+           CONF_CACHE_EXPIRY_DATETIME: _CACHE_EXPIRY_DATETIME,
            CONF_CACHE_EXPIRY_INTERLOCK: _CACHE_EXPIRY_INTERLOCK,
         }
 
@@ -65,17 +72,72 @@ class uhppoted:
     def get_all_controllers(bind, broadcast, listen, debug):
         return uhppote.Uhppote(bind, broadcast, listen, debug).get_all_controllers()
 
+    async def worker(self):
+        while True:
+            task = await self.queue.get()
+            try:
+                await task()
+            except Exception as exc:
+                _LOGGER.warning(f"{exc}")
+            finally:
+                self.queue.task_done()
+
+    def start(self, hass):
+        self._thread = hass.loop.create_task(self.worker())
+
+    def stop(self, hass):
+        if self._thread:
+            self._thread.cancel()
+
+    async def ye_olde_taskke(self,g, key, message, callback=None):
+        try:
+            if response := g():
+                _LOGGER.info(f"{message} ok")
+
+                _CACHE[key] = {
+                    'response': response,
+                    'touched': datetime.now(),
+                }
+
+                if callback:
+                    callback(response)
+        except Exception as exc:
+            _LOGGER.warning(f"{message} ({exc})")
+
     def get_controller(self, controller):
         (c, timeout) = self._lookup(controller)
         return self._api.get_controller(c, timeout=timeout)
 
-    def get_time(self, controller):
+    def get_time(self, controller, callback=None):
+        key = f'controller.{controller}.datetime'
         (c, timeout) = self._lookup(controller)
-        return self._api.get_time(c, timeout=timeout)
+        g = lambda: self._api.get_time(c, timeout=timeout)
+
+        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"get-time {controller}", callback))
+
+        if record := _CACHE.get(key, None):
+            now = datetime.now()
+            dt = now - record['touched']
+            expiry = self.caching.get(CONF_CACHE_EXPIRY_DATETIME, _CACHE_EXPIRY_DATETIME)
+            if dt.total_seconds() < expiry:
+                return record.get('response')
+
+        return None
 
     def set_time(self, controller, time):
+        key = f'controller.{controller}.datetime'
         (c, timeout) = self._lookup(controller)
-        return self._api.set_time(c, time, timeout=timeout)
+        response = self._api.set_time(c, time, timeout=timeout)
+
+        if response is None:
+            del _CACHE[key]
+        else:
+            _CACHE[key] = {
+                'response': uhppoted.GetTimeResponse(response.controller, response.datetime),
+                'touched': datetime.now(),
+            }
+
+        return response
 
     def get_listener(self, controller):
         (c, timeout) = self._lookup(controller)

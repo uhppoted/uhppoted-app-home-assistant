@@ -43,6 +43,7 @@ from .const import CONF_CARD_STARTDATE
 from .const import CONF_CARD_ENDDATE
 from .const import CONF_CARD_DOORS
 
+from .const import CONF_CACHE_EXPIRY_DATETIME
 from .const import CONF_CACHE_EXPIRY_INTERLOCK
 
 from .const import DEFAULT_TIMEOUT
@@ -50,6 +51,8 @@ from .const import DEFAULT_MAX_CARDS
 from .const import DEFAULT_MAX_CARD_INDEX
 from .const import DEFAULT_MAX_CARD_ERRORS
 from .const import DEFAULT_PREFERRED_CARDS
+
+from .const import DEFAULT_CACHE_EXPIRY_DATETIME
 from .const import DEFAULT_CACHE_EXPIRY_INTERLOCK
 
 from .const import ERR_INVALID_CONTROLLER_ID
@@ -470,7 +473,8 @@ def configure_driver(options, defaults={}):
     driver = uhppoted(bind, broadcast, listen, controllers, timeout, debug)
 
     driver.caching = {
-        CONF_CACHE_EXPIRY_INTERLOCK: defaults.get(CONF_CACHE_EXPIRY_INTERLOCK, DEFAULT_CACHE_EXPIRY_INTERLOCK)
+        CONF_CACHE_EXPIRY_DATETIME: defaults.get(CONF_CACHE_EXPIRY_DATETIME, DEFAULT_CACHE_EXPIRY_DATETIME),
+        CONF_CACHE_EXPIRY_INTERLOCK: defaults.get(CONF_CACHE_EXPIRY_INTERLOCK, DEFAULT_CACHE_EXPIRY_INTERLOCK),
     }
 
     return driver
