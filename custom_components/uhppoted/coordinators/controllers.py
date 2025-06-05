@@ -1,4 +1,5 @@
 from __future__ import annotations
+from collections import namedtuple
 
 import concurrent.futures
 import asyncio
@@ -136,21 +137,50 @@ class ControllersCoordinator(DataUpdateCoordinator):
     def _get_controller(self, lock, controller):
         _LOGGER.debug(f'fetch controller info {controller.id}')
 
-        available = False
+        def g(response):
+            if response and response.controller == controller.id:
+                address = f'{response.ip_address}'
+                netmask = f'{response.subnet_mask}'
+                gateway = f'{response.gateway}'
+                firmware = f'{response.version} {response.date:%Y-%m-%d}'
+
+                return namedtuple('reply', ['address', 'netmask', 'gateway', 'firmware'])(address, netmask, gateway,
+                                                                                          firmware)
+
+            return None
+
+        def callback(response):
+            try:
+                if reply := g(response):
+                    _LOGGER.debug(f'get-controller {controller.id} {reply}')
+                    with lock:
+                        self._state[controller.id].update({
+                            ATTR_CONTROLLER_ADDRESS: reply.address,
+                            ATTR_NETMASK: reply.netmask,
+                            ATTR_GATEWAY: reply.gateway,
+                            ATTR_FIRMWARE: reply.firmware,
+                            ATTR_AVAILABLE: True,
+                        })
+
+                    self.async_set_updated_data(self._state)
+
+            except Exception as err:
+                _LOGGER.error(f'error updating internal controller {controller.id} information ({err})')
 
         address = None
         protocol = controller.protocol
         netmask = None
         gateway = None
         firmware = None
+        available = False
 
         try:
-            response = self._uhppote.get_controller(controller.id)
-            if response.controller == controller.id:
-                address = f'{response.ip_address}'
-                netmask = f'{response.subnet_mask}'
-                gateway = f'{response.gateway}'
-                firmware = f'{response.version} {response.date:%Y-%m-%d}'
+            response = self._uhppote.get_controller(controller.id, callback)
+            if reply := g(response):
+                address = reply.address
+                netmask = reply.netmask
+                gateway = reply.gateway
+                firmware = reply.firmware
                 available = True
 
         except Exception as err:
@@ -159,10 +189,10 @@ class ControllersCoordinator(DataUpdateCoordinator):
         with lock:
             self._state[controller.id].update({
                 ATTR_CONTROLLER_ADDRESS: address,
-                ATTR_CONTROLLER_PROTOCOL: protocol,
                 ATTR_NETMASK: netmask,
                 ATTR_GATEWAY: gateway,
                 ATTR_FIRMWARE: firmware,
+                ATTR_CONTROLLER_PROTOCOL: protocol,
                 ATTR_AVAILABLE: available,
             })
 
@@ -179,20 +209,21 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 second = response.datetime.second
                 tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
 
-                return datetime.datetime(year, month, day, hour, minute, second, 0, tz)
+                return namedtuple('reply', ['datetime'])(datetime.datetime(year, month, day, hour, minute, second, 0,
+                                                                           tz))
 
             return None
 
         def callback(response):
             try:
-                sysdatetime = g(response)
-                with lock:
-                    self._state[controller.id].update({
-                        ATTR_CONTROLLER_DATETIME: sysdatetime,
-                    })
+                if reply := g(response):
+                    _LOGGER.debug(f'get-date/time {controller.id} {reply.datetime}')
+                    with lock:
+                        self._state[controller.id].update({
+                            ATTR_CONTROLLER_DATETIME: reply.datetime,
+                        })
 
-                _LOGGER.debug(f'get-date/time {controller.id} {sysdatetime}')
-                self.async_set_updated_data(self._state)
+                    self.async_set_updated_data(self._state)
 
             except Exception as err:
                 _LOGGER.error(f'error updating internal controller {controller.id} date/time ({err})')
@@ -201,7 +232,8 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
         try:
             response = self._uhppote.get_time(controller.id, callback)
-            sysdatetime = g(response)
+            if reply := g(response):
+                sysdatetime = reply.datetime
 
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} date/time ({err})')

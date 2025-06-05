@@ -8,14 +8,18 @@ from asyncio import Queue
 
 from uhppoted import uhppote
 
+from .const import CONF_CACHE_EXPIRY_CONTROLLER
 from .const import CONF_CACHE_EXPIRY_DATETIME
 from .const import CONF_CACHE_EXPIRY_INTERLOCK
 
 _LOGGER = logging.getLogger(__name__)
-_CACHE_EXPIRY_DATETIME = 300 # 5 minutes
-_CACHE_EXPIRY_INTERLOCK = 900 # 15 minutes
+
+_CACHE_EXPIRY_CONTROLLER = 300  # 5 minutes
+_CACHE_EXPIRY_DATETIME = 300  # 5 minutes
+_CACHE_EXPIRY_INTERLOCK = 900  # 15 minutes
 
 Controller = namedtuple('Controller', 'id address protocol')
+
 
 @dataclass
 class GetInterlockResponse:
@@ -39,6 +43,7 @@ class SetAntiPassbackResponse:
 
 _CACHE = {}
 
+
 class uhppoted:
 
     def __init__(self, bind, broadcast, listen, controllers, timeout, debug):
@@ -48,8 +53,9 @@ class uhppoted:
         self._controllers = controllers
         self.queue = Queue()
         self._caching = {
-           CONF_CACHE_EXPIRY_DATETIME: _CACHE_EXPIRY_DATETIME,
-           CONF_CACHE_EXPIRY_INTERLOCK: _CACHE_EXPIRY_INTERLOCK,
+            CONF_CACHE_EXPIRY_CONTROLLER: _CACHE_EXPIRY_CONTROLLER,
+            CONF_CACHE_EXPIRY_DATETIME: _CACHE_EXPIRY_DATETIME,
+            CONF_CACHE_EXPIRY_INTERLOCK: _CACHE_EXPIRY_INTERLOCK,
         }
 
     @property
@@ -89,7 +95,7 @@ class uhppoted:
         if self._thread:
             self._thread.cancel()
 
-    async def ye_olde_taskke(self,g, key, message, callback=None):
+    async def ye_olde_taskke(self, g, key, message, callback=None):
         try:
             if response := g():
                 _LOGGER.info(f"{message} ok")
@@ -104,16 +110,29 @@ class uhppoted:
         except Exception as exc:
             _LOGGER.warning(f"{message} ({exc})")
 
-    def get_controller(self, controller):
+    def get_controller(self, controller, callback):
+        key = f'controller.{controller}.controller'
         (c, timeout) = self._lookup(controller)
-        return self._api.get_controller(c, timeout=timeout)
+
+        g = lambda: self._api.get_controller(c, timeout=timeout)
+
+        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get-controller':<15} {controller}", callback))
+
+        if record := _CACHE.get(key, None):
+            now = datetime.now()
+            dt = now - record['touched']
+            expiry = self.caching.get(CONF_CACHE_EXPIRY_CONTROLLER, _CACHE_EXPIRY_CONTROLLER)
+            if dt.total_seconds() < expiry:
+                return record.get('response')
+
+        return None
 
     def get_time(self, controller, callback=None):
         key = f'controller.{controller}.datetime'
         (c, timeout) = self._lookup(controller)
         g = lambda: self._api.get_time(c, timeout=timeout)
 
-        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"get-time {controller}", callback))
+        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get-time':<15} {controller}", callback))
 
         if record := _CACHE.get(key, None):
             now = datetime.now()

@@ -349,9 +349,8 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
             if self._extra.interlock in INTERLOCK.values():
                 controller = self._serial_no
                 mode = self._extra.interlock
-                self.hass.async_create_background_task(
-                    self._background_set_timeout(controller, mode),
-                    name='uhppoted::set controller door interlock on startup')
+                self.hass.async_create_background_task(self._background_set_timeout(controller, mode),
+                                                       name='uhppoted::set controller door interlock on startup')
 
     async def async_select_option(self, option):
         _LOGGER.debug(f'controller:{self._controller}  set interlock {option}')
@@ -394,12 +393,12 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
                 self._mode = state[ATTR_CONTROLLER_INTERLOCK]
                 self._available = state[ATTR_AVAILABLE]
 
-                if self._available and self._mode not in INTERLOCK.values() and self._extra.interlock in INTERLOCK.values():
+                if self._available and self._mode not in INTERLOCK.values(
+                ) and self._extra.interlock in INTERLOCK.values():
                     controller = self._serial_no
                     mode = self._extra.interlock
-                    self.hass.async_create_background_task(
-                        self._background_set_timeout(controller, mode), 
-                        name='uhppoted::set controller door interlock on startup')
+                    self.hass.async_create_background_task(self._background_set_timeout(controller, mode),
+                                                           name='uhppoted::set controller door interlock on startup')
 
         except (Exception):
             self._available = False

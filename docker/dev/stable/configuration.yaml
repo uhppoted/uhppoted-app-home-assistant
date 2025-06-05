@@ -52,6 +52,7 @@ uhppoted:
             protocol: TCP
     cache:
         expiry:
+            controller: 90
             datetime: 120
             interlock: 120
 

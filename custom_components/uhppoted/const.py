@@ -50,9 +50,9 @@ CONF_CARD_ENDDATE = 'card_enddate'
 CONF_CARD_DOORS = 'card_doors'
 
 # cache expiry
+CONF_CACHE_EXPIRY_CONTROLLER = 'cache.expiry.controller'
 CONF_CACHE_EXPIRY_DATETIME = 'cache.expiry.datetime'
 CONF_CACHE_EXPIRY_INTERLOCK = 'cache.expiry.interlock'
-
 
 ATTR_AVAILABLE = 'available'
 ATTR_NETMASK = 'netmask'
@@ -119,8 +119,9 @@ DEFAULT_MAX_CARD_INDEX = 20000
 DEFAULT_MAX_CARD_ERRORS = 5
 DEFAULT_PREFERRED_CARDS = []
 
+DEFAULT_CACHE_EXPIRY_CONTROLLER = 300  # 300 seconds/5 minutes
 DEFAULT_CACHE_EXPIRY_DATETIME = 300  # 300 seconds/5 minutes
-DEFAULT_CACHE_EXPIRY_INTERLOCK = 900 # 900 seconds/15 minutes
+DEFAULT_CACHE_EXPIRY_INTERLOCK = 900  # 900 seconds/15 minutes
 
 ERR_INVALID_CONTROLLER_ID = 'invalid_controller_id'
 ERR_DUPLICATE_CONTROLLER_ID = 'duplicate_controller_id'
