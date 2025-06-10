@@ -408,7 +408,7 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
         try:
             self.coordinator.set_interlock(controller, mode)
         except Exception as err:
-            _LOGGER.warning(f'set-interlock on startup failed ({err})')
+            _LOGGER.warning(f'set-interlock failed ({err})')
 
 
 class AntiPassback(CoordinatorEntity, SelectEntity):

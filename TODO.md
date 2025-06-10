@@ -10,6 +10,18 @@
             - [x] stop queue on shutdown
             - [x] callback on response
       - [ ] cache
+            - [x] get-controller
+            - [x] get-time
+            - [x] get_listener
+            - [ ] get_door_control
+            - [ ] get_status
+            - [ ] get_cards
+            - [ ] get_card
+            - [ ] get_card_by_index
+            - [ ] put_card
+            - [ ] get_event
+            - [ ] get_interlock
+            - [ ] get_antipassback
 
 - [ ] Decorate card swipe event (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/13)
        - [x] fire card.swipe.decorated event

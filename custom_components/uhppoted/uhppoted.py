@@ -7,16 +7,16 @@ from datetime import datetime
 from asyncio import Queue
 
 from uhppoted import uhppote
+from uhppoted.structs import GetTimeResponse
+from uhppoted.structs import GetListenerResponse
 
+from . import const
 from .const import CONF_CACHE_EXPIRY_CONTROLLER
+from .const import CONF_CACHE_EXPIRY_LISTENER
 from .const import CONF_CACHE_EXPIRY_DATETIME
 from .const import CONF_CACHE_EXPIRY_INTERLOCK
 
 _LOGGER = logging.getLogger(__name__)
-
-_CACHE_EXPIRY_CONTROLLER = 300  # 5 minutes
-_CACHE_EXPIRY_DATETIME = 300  # 5 minutes
-_CACHE_EXPIRY_INTERLOCK = 900  # 15 minutes
 
 Controller = namedtuple('Controller', 'id address protocol')
 
@@ -43,6 +43,13 @@ class SetAntiPassbackResponse:
 
 _CACHE = {}
 
+_DEFAULT_CACHE_EXPIRY = {
+    CONF_CACHE_EXPIRY_CONTROLLER: const.DEFAULT_CACHE_EXPIRY_CONTROLLER,
+    CONF_CACHE_EXPIRY_LISTENER: const.DEFAULT_CACHE_EXPIRY_LISTENER,
+    CONF_CACHE_EXPIRY_DATETIME: const.DEFAULT_CACHE_EXPIRY_DATETIME,
+    CONF_CACHE_EXPIRY_INTERLOCK: const.DEFAULT_CACHE_EXPIRY_INTERLOCK,
+}
+
 
 class uhppoted:
 
@@ -52,11 +59,7 @@ class uhppoted:
         self._timeout = timeout
         self._controllers = controllers
         self.queue = Queue()
-        self._caching = {
-            CONF_CACHE_EXPIRY_CONTROLLER: _CACHE_EXPIRY_CONTROLLER,
-            CONF_CACHE_EXPIRY_DATETIME: _CACHE_EXPIRY_DATETIME,
-            CONF_CACHE_EXPIRY_INTERLOCK: _CACHE_EXPIRY_INTERLOCK,
-        }
+        self._caching = {}
 
     @property
     def api(self):
@@ -110,6 +113,16 @@ class uhppoted:
         except Exception as exc:
             _LOGGER.warning(f"{message} ({exc})")
 
+    def get(self, key, expiry_key):
+        if record := _CACHE.get(key, None):
+            expiry = self.caching.get(expiry_key, _DEFAULT_CACHE_EXPIRY.get(expiry_key, 60))
+            now = datetime.now()
+            dt = now - record['touched']
+            if dt.total_seconds() < expiry:
+                return record.get('response')
+
+        return None
+
     def get_controller(self, controller, callback):
         key = f'controller.{controller}.controller'
         (c, timeout) = self._lookup(controller)
@@ -118,14 +131,7 @@ class uhppoted:
 
         self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get-controller':<15} {controller}", callback))
 
-        if record := _CACHE.get(key, None):
-            now = datetime.now()
-            dt = now - record['touched']
-            expiry = self.caching.get(CONF_CACHE_EXPIRY_CONTROLLER, _CACHE_EXPIRY_CONTROLLER)
-            if dt.total_seconds() < expiry:
-                return record.get('response')
-
-        return None
+        return self.get(key, CONF_CACHE_EXPIRY_CONTROLLER)
 
     def get_time(self, controller, callback=None):
         key = f'controller.{controller}.datetime'
@@ -134,37 +140,46 @@ class uhppoted:
 
         self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get-time':<15} {controller}", callback))
 
-        if record := _CACHE.get(key, None):
-            now = datetime.now()
-            dt = now - record['touched']
-            expiry = self.caching.get(CONF_CACHE_EXPIRY_DATETIME, _CACHE_EXPIRY_DATETIME)
-            if dt.total_seconds() < expiry:
-                return record.get('response')
-
-        return None
+        return self.get(key, CONF_CACHE_EXPIRY_DATETIME)
 
     def set_time(self, controller, time):
         key = f'controller.{controller}.datetime'
         (c, timeout) = self._lookup(controller)
-        response = self._api.set_time(c, time, timeout=timeout)
 
+        response = self._api.set_time(c, time, timeout=timeout)
         if response is None:
             del _CACHE[key]
         else:
             _CACHE[key] = {
-                'response': uhppoted.GetTimeResponse(response.controller, response.datetime),
+                'response': GetTimeResponse(response.controller, response.datetime),
                 'touched': datetime.now(),
             }
 
         return response
 
-    def get_listener(self, controller):
+    def get_listener(self, controller, callback=None):
+        key = f'controller.{controller}.listener'
         (c, timeout) = self._lookup(controller)
-        return self._api.get_listener(c, timeout=timeout)
+        g = lambda: self._api.get_listener(c, timeout=timeout)
+
+        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get_listener':<15} {controller}", callback))
+
+        return self.get(key, CONF_CACHE_EXPIRY_LISTENER)
 
     def set_listener(self, controller, address, port):
+        key = f'controller.{controller}.listener'
         (c, timeout) = self._lookup(controller)
-        return self._api.set_listener(c, address, port, interval=0, timeout=timeout)
+
+        response = self._api.set_listener(c, address, port, interval=0, timeout=timeout)
+        if response is None or not response.ok:
+            del _CACHE[key]
+        else:
+            _CACHE[key] = {
+                'response': GetListenerResponse(response.controller, address, port, 0),
+                'touched': datetime.now(),
+            }
+
+        return response
 
     def get_door_control(self, controller, door):
         (c, timeout) = self._lookup(controller)
@@ -213,14 +228,7 @@ class uhppoted:
     def get_interlock(self, controller):
         key = f'controller.{controller}.interlock'
 
-        if record := _CACHE.get(key, None):
-            now = datetime.now()
-            dt = now - record['touched']
-            expiry = self.caching.get(CONF_CACHE_EXPIRY_INTERLOCK, _CACHE_EXPIRY_INTERLOCK)
-            if dt.total_seconds() < expiry:
-                return GetInterlockResponse(controller, record.get('interlock', -1))
-
-        return GetInterlockResponse(controller, -1)
+        return self.get(key, CONF_CACHE_EXPIRY_INTERLOCK)
 
     def set_interlock(self, controller, interlock):
         key = f'controller.{controller}.interlock'
@@ -232,7 +240,7 @@ class uhppoted:
             del _CACHE[key]
         else:
             _CACHE[key] = {
-                'interlock': interlock,
+                'response': GetInterlockResponse(controller, interlock),
                 'touched': datetime.now(),
             }
 

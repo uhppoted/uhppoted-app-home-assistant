@@ -23,6 +23,7 @@ from .const import CONF_POLL_EVENTS
 from .const import CONF_CONTROLLERS
 
 from .const import CONF_CACHE_EXPIRY_CONTROLLER
+from .const import CONF_CACHE_EXPIRY_LISTENER
 from .const import CONF_CACHE_EXPIRY_DATETIME
 from .const import CONF_CACHE_EXPIRY_INTERLOCK
 
@@ -38,6 +39,7 @@ from .const import DEFAULT_MAX_CARDS
 from .const import DEFAULT_PREFERRED_CARDS
 
 from .const import DEFAULT_CACHE_EXPIRY_CONTROLLER
+from .const import DEFAULT_CACHE_EXPIRY_LISTENER
 from .const import DEFAULT_CACHE_EXPIRY_DATETIME
 from .const import DEFAULT_CACHE_EXPIRY_INTERLOCK
 
@@ -74,7 +76,10 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_POLL_CARDS: DEFAULT_POLL_CARDS,  # 30s
         CONF_POLL_EVENTS: DEFAULT_POLL_EVENTS,  # 30s
         CONF_CONTROLLERS: [],
+
+        # caching
         CONF_CACHE_EXPIRY_CONTROLLER: DEFAULT_CACHE_EXPIRY_CONTROLLER,
+        CONF_CACHE_EXPIRY_LISTENER: DEFAULT_CACHE_EXPIRY_LISTENER,
         CONF_CACHE_EXPIRY_DATETIME: DEFAULT_CACHE_EXPIRY_DATETIME,
         CONF_CACHE_EXPIRY_INTERLOCK: DEFAULT_CACHE_EXPIRY_INTERLOCK,
     }
@@ -96,7 +101,10 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
             CONF_POLL_CARDS,
             CONF_POLL_EVENTS,
             CONF_CONTROLLERS,
+
+            # caching
             CONF_CACHE_EXPIRY_CONTROLLER,
+            CONF_CACHE_EXPIRY_LISTENER,
             CONF_CACHE_EXPIRY_DATETIME,
             CONF_CACHE_EXPIRY_INTERLOCK,
         ]
@@ -126,7 +134,9 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     _LOGGER.info(f'poll interval - events:      {defaults[CONF_POLL_EVENTS]}s')
     _LOGGER.info(f'controllers:                 {defaults[CONF_CONTROLLERS]}')
 
-    _LOGGER.info(f'cache.expiry - date/time:    {defaults[CONF_CACHE_EXPIRY_CONTROLLER]}')
+    # caching
+    _LOGGER.info(f'cache.expiry - controller:   {defaults[CONF_CACHE_EXPIRY_CONTROLLER]}')
+    _LOGGER.info(f'cache.expiry - listener:     {defaults[CONF_CACHE_EXPIRY_LISTENER]}')
     _LOGGER.info(f'cache.expiry - date/time:    {defaults[CONF_CACHE_EXPIRY_DATETIME]}')
     _LOGGER.info(f'cache.expiry - interlock:    {defaults[CONF_CACHE_EXPIRY_INTERLOCK]}')
 

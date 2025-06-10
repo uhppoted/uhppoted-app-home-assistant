@@ -53,6 +53,7 @@ uhppoted:
     cache:
         expiry:
             controller: 90
+            listener: 300
             datetime: 120
             interlock: 120
 

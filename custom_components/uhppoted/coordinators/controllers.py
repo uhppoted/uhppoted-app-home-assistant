@@ -246,12 +246,32 @@ class ControllersCoordinator(DataUpdateCoordinator):
     def _get_listener(self, lock, controller):
         _LOGGER.debug(f'fetch controller event listener {controller.id}')
 
+        def g(response):
+            if response and response.controller == controller.id:
+                return namedtuple('reply', ['listener'])(f'{response.address}:{response.port}')
+
+            return None
+
+        def callback(response):
+            try:
+                if reply := g(response):
+                    _LOGGER.debug(f'get-listener {controller.id} {reply.listener}')
+                    with lock:
+                        self._state[controller.id].update({
+                            ATTR_CONTROLLER_LISTENER: reply.listener,
+                        })
+
+                    self.async_set_updated_data(self._state)
+
+            except Exception as err:
+                _LOGGER.error(f'error updating internal controller {controller.id} event listener ({err})')
+
         listener = None
 
         try:
-            response = self._uhppote.get_listener(controller.id)
-            if response.controller == controller.id:
-                listener = f'{response.address}:{response.port}'
+            response = self._uhppote.get_listener(controller.id, callback)
+            if reply := g(response):
+                listener = reply.listener
 
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} event listener ({err})')
@@ -268,7 +288,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
         try:
             response = self._uhppote.get_interlock(controller.id)
-            if response.controller == controller.id:
+            if response and response.controller == controller.id:
                 interlock = response.interlock
 
         except Exception as err:

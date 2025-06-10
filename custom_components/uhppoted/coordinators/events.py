@@ -247,21 +247,24 @@ class EventsCoordinator(DataUpdateCoordinator):
             if match == None:
                 return
 
+            addr = None
+
             try:
                 response = self._uhppote.get_listener(controller.id)
-                if response.controller == controller.id:
+                if response and response.controller == controller.id:
                     addr = f'{response.address}:{response.port}'
-                    if addr != self._listener_addr:
-                        _LOGGER.warning(f'controller {controller.id} incorrect event listener address ({addr})')
-                        host, port = self._listener_addr.split(':')
-                        response = self._uhppote.set_listener(controller.id, IPv4Address(host), int(port))
-                        if response.controller == controller.id:
-                            if response.ok:
-                                _LOGGER.warning(
-                                    f'controller {controller.id} event listener address updated ({self._listener_addr})'
-                                )
-                            else:
-                                _LOGGER.warning(f'failed to set controller {controller.id} event listener address')
+
+                if addr != self._listener_addr:
+                    _LOGGER.warning(f'controller {controller.id} incorrect event listener address ({addr})')
+                    host, port = self._listener_addr.split(':')
+                    response = self._uhppote.set_listener(controller.id, IPv4Address(host), int(port))
+
+                    if response and response.controller == controller.id:
+                        if response.ok:
+                            _LOGGER.warning(
+                                f'controller {controller.id} event listener address updated ({self._listener_addr})')
+                        else:
+                            _LOGGER.warning(f'failed to set controller {controller.id} event listener address')
 
             except Exception as err:
                 _LOGGER.warning(f'error setting controller {controller.id} event listener ({err})')
