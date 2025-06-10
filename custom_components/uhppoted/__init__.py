@@ -25,6 +25,7 @@ from .const import CONF_CONTROLLERS
 from .const import CONF_CACHE_EXPIRY_CONTROLLER
 from .const import CONF_CACHE_EXPIRY_LISTENER
 from .const import CONF_CACHE_EXPIRY_DATETIME
+from .const import CONF_CACHE_EXPIRY_DOORS
 from .const import CONF_CACHE_EXPIRY_INTERLOCK
 
 from .const import CONF_INTERLOCKS
@@ -41,6 +42,7 @@ from .const import DEFAULT_PREFERRED_CARDS
 from .const import DEFAULT_CACHE_EXPIRY_CONTROLLER
 from .const import DEFAULT_CACHE_EXPIRY_LISTENER
 from .const import DEFAULT_CACHE_EXPIRY_DATETIME
+from .const import DEFAULT_CACHE_EXPIRY_DOORS
 from .const import DEFAULT_CACHE_EXPIRY_INTERLOCK
 
 from .coordinators.coordinators import Coordinators
@@ -81,6 +83,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_CACHE_EXPIRY_CONTROLLER: DEFAULT_CACHE_EXPIRY_CONTROLLER,
         CONF_CACHE_EXPIRY_LISTENER: DEFAULT_CACHE_EXPIRY_LISTENER,
         CONF_CACHE_EXPIRY_DATETIME: DEFAULT_CACHE_EXPIRY_DATETIME,
+        CONF_CACHE_EXPIRY_DOORS: DEFAULT_CACHE_EXPIRY_DOORS,
         CONF_CACHE_EXPIRY_INTERLOCK: DEFAULT_CACHE_EXPIRY_INTERLOCK,
     }
 
@@ -106,6 +109,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
             CONF_CACHE_EXPIRY_CONTROLLER,
             CONF_CACHE_EXPIRY_LISTENER,
             CONF_CACHE_EXPIRY_DATETIME,
+            CONF_CACHE_EXPIRY_DOORS,
             CONF_CACHE_EXPIRY_INTERLOCK,
         ]
 
@@ -116,7 +120,9 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         if caching := c.get('cache', None):
             if expiry := caching.get('expiry', None):
                 defaults[CONF_CACHE_EXPIRY_CONTROLLER] = expiry.get('controller', DEFAULT_CACHE_EXPIRY_CONTROLLER)
+                defaults[CONF_CACHE_EXPIRY_LISTENER] = expiry.get('listener', DEFAULT_CACHE_EXPIRY_LISTENER)
                 defaults[CONF_CACHE_EXPIRY_DATETIME] = expiry.get('datetime', DEFAULT_CACHE_EXPIRY_DATETIME)
+                defaults[CONF_CACHE_EXPIRY_DOORS] = expiry.get('doors', DEFAULT_CACHE_EXPIRY_DOORS)
                 defaults[CONF_CACHE_EXPIRY_INTERLOCK] = expiry.get('interlock', DEFAULT_CACHE_EXPIRY_INTERLOCK)
 
     _LOGGER.info(f'default bind address:        {defaults[CONF_BIND_ADDR]}')
@@ -138,6 +144,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     _LOGGER.info(f'cache.expiry - controller:   {defaults[CONF_CACHE_EXPIRY_CONTROLLER]}')
     _LOGGER.info(f'cache.expiry - listener:     {defaults[CONF_CACHE_EXPIRY_LISTENER]}')
     _LOGGER.info(f'cache.expiry - date/time:    {defaults[CONF_CACHE_EXPIRY_DATETIME]}')
+    _LOGGER.info(f'cache.expiry - doors:        {defaults[CONF_CACHE_EXPIRY_DOORS]}')
     _LOGGER.info(f'cache.expiry - interlock:    {defaults[CONF_CACHE_EXPIRY_INTERLOCK]}')
 
     hass.data.setdefault(DOMAIN, defaults)

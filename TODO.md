@@ -5,7 +5,7 @@
 - [x] Decorated events door lookup error (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/17#event-17118124970)
 - [x] anti-passback (cf. https://github.com/uhppoted/uhppoted/issues/60)
 
-- [ ] Weird timeout behaviour (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/1)
+- [ ] Weird timeout behaviour (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/18)
       - [x] background fetch queue
             - [x] stop queue on shutdown
             - [x] callback on response
@@ -13,7 +13,7 @@
             - [x] get-controller
             - [x] get-time
             - [x] get_listener
-            - [ ] get_door_control
+            - [x] get_door_control
             - [ ] get_status
             - [ ] get_cards
             - [ ] get_card

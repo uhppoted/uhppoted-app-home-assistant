@@ -1,4 +1,5 @@
 from __future__ import annotations
+from collections import namedtuple
 
 import concurrent.futures
 import threading
@@ -60,7 +61,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         controller = self._resolve(controller_id)
 
         response = self._uhppote.get_door_control(controller.id, door)
-        if response.controller == controller.id and response.door == door:
+        if response and response.controller == controller.id and response.door == door:
             delay = response.delay
             response = self._uhppote.set_door_control(controller.id, door, mode, delay)
 
@@ -75,7 +76,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         controller = self._resolve(controller_id)
 
         response = self._uhppote.get_door_control(controller.id, door)
-        if response.controller == controller.id and response.door == door:
+        if response and response.controller == controller.id and response.door == door:
             mode = response.mode
             response = self._uhppote.set_door_control(controller.id, door, mode, delay)
 
@@ -191,6 +192,46 @@ class DoorsCoordinator(DataUpdateCoordinator):
             state[controller.id] = info
 
     def _get_door(self, lock, idx, door, state):
+        name = door[CONF_DOOR_ID]
+        controller_id = door[CONF_CONTROLLER_SERIAL_NUMBER]
+        door_id = door[CONF_DOOR_NUMBER]
+
+        def g(response):
+            if response and response.controller == controller.id and response.door == door_id:
+                mode = response.mode
+                delay = response.delay
+                open = None
+                button = None
+                locked = None
+
+                if controller.id in state and state[controller.id] != None:
+                    open = state[controller.id][door_id]['open']
+                    button = state[controller.id][door_id]['button']
+                    locked = state[controller.id][door_id]['locked']
+
+                return namedtuple('reply', ['mode', 'delay', 'open', 'button', 'locked'])(mode, delay, open, button,
+                                                                                          locked)
+
+            return None
+
+        def callback(response):
+            try:
+                if reply := g(response):
+                    with lock:
+                        self._state[idx].update({
+                            ATTR_DOOR_MODE: reply.mode,
+                            ATTR_DOOR_DELAY: reply.delay,
+                            ATTR_DOOR_OPEN: reply.open,
+                            ATTR_DOOR_BUTTON: reply.button,
+                            ATTR_DOOR_LOCK: reply.locked,
+                            ATTR_AVAILABLE: True,
+                        })
+
+                    self.async_set_updated_data(self._state)
+
+            except Exception as err:
+                _LOGGER.error(f'error updating internal controller {controller.id} information ({err})')
+
         info = {
             ATTR_AVAILABLE: False,
             ATTR_DOOR_MODE: None,
@@ -201,10 +242,6 @@ class DoorsCoordinator(DataUpdateCoordinator):
         }
 
         try:
-            name = door[CONF_DOOR_ID]
-            controller_id = door[CONF_CONTROLLER_SERIAL_NUMBER]
-            door_id = door[CONF_DOOR_NUMBER]
-
             controller = Controller(controller_id, None, None)
             for v in self._controllers:
                 if int(f'{v.id}') == int(f'{controller_id}'):
@@ -215,20 +252,14 @@ class DoorsCoordinator(DataUpdateCoordinator):
             mode = None
             delay = None
 
-            response = self._uhppote.get_door_control(controller.id, door_id)
-            if response.controller == controller.id \
-               and response.door == door_id         \
-               and controller.id in state           \
-               and state[controller.id] != None:
-                mode = response.mode
-                delay = response.delay
-
+            response = self._uhppote.get_door_control(controller.id, door_id, callback)
+            if reply := g(response):
                 info = {
-                    ATTR_DOOR_MODE: mode,
-                    ATTR_DOOR_DELAY: delay,
-                    ATTR_DOOR_OPEN: state[controller.id][door_id]['open'],
-                    ATTR_DOOR_BUTTON: state[controller.id][door_id]['button'],
-                    ATTR_DOOR_LOCK: state[controller.id][door_id]['locked'],
+                    ATTR_DOOR_MODE: reply.mode,
+                    ATTR_DOOR_DELAY: reply.delay,
+                    ATTR_DOOR_OPEN: reply.open,
+                    ATTR_DOOR_BUTTON: reply.button,
+                    ATTR_DOOR_LOCK: reply.locked,
                     ATTR_AVAILABLE: True,
                 }
 

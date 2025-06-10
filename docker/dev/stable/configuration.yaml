@@ -55,6 +55,7 @@ uhppoted:
             controller: 90
             listener: 300
             datetime: 120
+            doors: 180
             interlock: 120
 
 template:

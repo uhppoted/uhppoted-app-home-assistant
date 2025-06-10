@@ -9,11 +9,13 @@ from asyncio import Queue
 from uhppoted import uhppote
 from uhppoted.structs import GetTimeResponse
 from uhppoted.structs import GetListenerResponse
+from uhppoted.structs import GetDoorControlResponse
 
 from . import const
 from .const import CONF_CACHE_EXPIRY_CONTROLLER
 from .const import CONF_CACHE_EXPIRY_LISTENER
 from .const import CONF_CACHE_EXPIRY_DATETIME
+from .const import CONF_CACHE_EXPIRY_DOORS
 from .const import CONF_CACHE_EXPIRY_INTERLOCK
 
 _LOGGER = logging.getLogger(__name__)
@@ -47,6 +49,7 @@ _DEFAULT_CACHE_EXPIRY = {
     CONF_CACHE_EXPIRY_CONTROLLER: const.DEFAULT_CACHE_EXPIRY_CONTROLLER,
     CONF_CACHE_EXPIRY_LISTENER: const.DEFAULT_CACHE_EXPIRY_LISTENER,
     CONF_CACHE_EXPIRY_DATETIME: const.DEFAULT_CACHE_EXPIRY_DATETIME,
+    CONF_CACHE_EXPIRY_DOORS: const.DEFAULT_CACHE_EXPIRY_DOORS,
     CONF_CACHE_EXPIRY_INTERLOCK: const.DEFAULT_CACHE_EXPIRY_INTERLOCK,
 }
 
@@ -133,30 +136,6 @@ class uhppoted:
 
         return self.get(key, CONF_CACHE_EXPIRY_CONTROLLER)
 
-    def get_time(self, controller, callback=None):
-        key = f'controller.{controller}.datetime'
-        (c, timeout) = self._lookup(controller)
-        g = lambda: self._api.get_time(c, timeout=timeout)
-
-        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get-time':<15} {controller}", callback))
-
-        return self.get(key, CONF_CACHE_EXPIRY_DATETIME)
-
-    def set_time(self, controller, time):
-        key = f'controller.{controller}.datetime'
-        (c, timeout) = self._lookup(controller)
-
-        response = self._api.set_time(c, time, timeout=timeout)
-        if response is None:
-            del _CACHE[key]
-        else:
-            _CACHE[key] = {
-                'response': GetTimeResponse(response.controller, response.datetime),
-                'touched': datetime.now(),
-            }
-
-        return response
-
     def get_listener(self, controller, callback=None):
         key = f'controller.{controller}.listener'
         (c, timeout) = self._lookup(controller)
@@ -181,13 +160,54 @@ class uhppoted:
 
         return response
 
-    def get_door_control(self, controller, door):
+    def get_time(self, controller, callback=None):
+        key = f'controller.{controller}.datetime'
         (c, timeout) = self._lookup(controller)
-        return self._api.get_door_control(c, door, timeout=timeout)
+        g = lambda: self._api.get_time(c, timeout=timeout)
+
+        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get-time':<15} {controller}", callback))
+
+        return self.get(key, CONF_CACHE_EXPIRY_DATETIME)
+
+    def set_time(self, controller, time):
+        key = f'controller.{controller}.datetime'
+        (c, timeout) = self._lookup(controller)
+
+        response = self._api.set_time(c, time, timeout=timeout)
+        if response is None:
+            del _CACHE[key]
+        else:
+            _CACHE[key] = {
+                'response': GetTimeResponse(response.controller, response.datetime),
+                'touched': datetime.now(),
+            }
+
+        return response
+
+    def get_door_control(self, controller, door, callback=None):
+        key = f'controller.{controller}.door.{door}'
+        (c, timeout) = self._lookup(controller)
+        g = lambda: self._api.get_door_control(c, door, timeout=timeout)
+
+        self.queue.put_nowait(
+            lambda: self.ye_olde_taskke(g, key, f"{'get_door_control':<15} {controller} {door}", callback))
+
+        return self.get(key, CONF_CACHE_EXPIRY_DOORS)
 
     def set_door_control(self, controller, door, mode, delay):
+        key = f'controller.{controller}.door.{door}'
         (c, timeout) = self._lookup(controller)
-        return self._api.set_door_control(c, door, mode, delay, timeout=timeout)
+
+        response = self._api.set_door_control(c, door, mode, delay, timeout=timeout)
+        if response is None or not response.ok:
+            del _CACHE[key]
+        else:
+            _CACHE[key] = {
+                'response': GetDoorControlResponse(response.controller, response.door, response.mode, response.delay),
+                'touched': datetime.now(),
+            }
+
+        return response
 
     def open_door(self, controller, door):
         (c, timeout) = self._lookup(controller)

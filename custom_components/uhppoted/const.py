@@ -53,6 +53,7 @@ CONF_CARD_DOORS = 'card_doors'
 CONF_CACHE_EXPIRY_CONTROLLER = 'cache.expiry.controller'
 CONF_CACHE_EXPIRY_LISTENER = 'cache.expiry.listener'
 CONF_CACHE_EXPIRY_DATETIME = 'cache.expiry.datetime'
+CONF_CACHE_EXPIRY_DOORS = 'cache.expiry.doors'
 CONF_CACHE_EXPIRY_INTERLOCK = 'cache.expiry.interlock'
 
 ATTR_AVAILABLE = 'available'
@@ -123,6 +124,7 @@ DEFAULT_PREFERRED_CARDS = []
 DEFAULT_CACHE_EXPIRY_CONTROLLER = 300  # 300 seconds/5 minutes
 DEFAULT_CACHE_EXPIRY_LISTENER = 600  # 600 seconds/10 minutes
 DEFAULT_CACHE_EXPIRY_DATETIME = 300  # 300 seconds/5 minutes
+DEFAULT_CACHE_EXPIRY_DOORS = 600  # 600 seconds/10 minutes
 DEFAULT_CACHE_EXPIRY_INTERLOCK = 900  # 900 seconds/15 minutes
 
 ERR_INVALID_CONTROLLER_ID = 'invalid_controller_id'
