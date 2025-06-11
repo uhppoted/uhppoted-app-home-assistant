@@ -18,6 +18,7 @@ from .const import CONF_CACHE_EXPIRY_DATETIME
 from .const import CONF_CACHE_EXPIRY_DOORS
 from .const import CONF_CACHE_EXPIRY_STATUS
 from .const import CONF_CACHE_EXPIRY_INTERLOCK
+from .const import CONF_CACHE_EXPIRY_ANTIPASSBACK
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -53,6 +54,7 @@ _DEFAULT_CACHE_EXPIRY = {
     CONF_CACHE_EXPIRY_DOORS: const.DEFAULT_CACHE_EXPIRY_DOORS,
     CONF_CACHE_EXPIRY_STATUS: const.DEFAULT_CACHE_EXPIRY_STATUS,
     CONF_CACHE_EXPIRY_INTERLOCK: const.DEFAULT_CACHE_EXPIRY_INTERLOCK,
+    CONF_CACHE_EXPIRY_ANTIPASSBACK: const.DEFAULT_CACHE_EXPIRY_ANTIPASSBACK,
 }
 
 
@@ -215,7 +217,7 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
         return self._api.open_door(c, door, timeout=timeout)
 
-    def get_status(self, controller,callback = None):
+    def get_status(self, controller, callback=None):
         key = f'controller.{controller}.status'
         (c, timeout) = self._lookup(controller)
         g = lambda: self._api.get_status(c, timeout=timeout)
@@ -273,23 +275,36 @@ class uhppoted:
 
         return response
 
-    def get_antipassback(self, controller):
+    def get_antipassback(self, controller, callback=None):
+        key = f'controller.{controller}.antipassback'
+
         # FIXME
         # (c, timeout) = self._lookup(controller)
-        # return self._api.get_antipassback(c, timeout=timeout)
+        # g = lambda: self._api.get_antipassback(c, timeout=timeout)
+        #
+        # self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get_antipassback':<15} {controller}", callback))
 
-        if record := _CACHE.get(f'controller.{controller}.antipassback', None):
-            return GetAntiPassbackResponse(controller, record.get('antipassback', -1))
-
-        return GetAntiPassbackResponse(controller, 0)
+        if response := self.get(key, CONF_CACHE_EXPIRY_ANTIPASSBACK):
+            return response
+        else:
+            return GetAntiPassbackResponse(controller, 0)
 
     def set_antipassback(self, controller, antipassback):
+        key = f'controller.{controller}.antipassback'
         # FIXME
         # (c, timeout) = self._lookup(controller)
-        # return self._api.set_antipassback(c, antipassback, timeout=timeout)
+        # response = self._api.set_antipassback(c, antipassback, timeout=timeout)
+        #
+        # if response and not response.ok:
+        #     del _CACHE[key]
+        # else:
+        #     _CACHE[key] = {
+        #         'response': GetAntiPassbackResponse(controller, antipassback),
+        #         'touched': datetime.now(),
+        #     }
 
-        _CACHE[f'controller.{controller}.antipassback'] = {
-            'antipassback': antipassback,
+        _CACHE[key] = {
+            'response': GetAntiPassbackResponse(controller, antipassback),
             'touched': datetime.now(),
         }
 

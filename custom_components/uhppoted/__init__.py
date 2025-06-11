@@ -26,8 +26,9 @@ from .const import CONF_CACHE_EXPIRY_CONTROLLER
 from .const import CONF_CACHE_EXPIRY_LISTENER
 from .const import CONF_CACHE_EXPIRY_DATETIME
 from .const import CONF_CACHE_EXPIRY_DOORS
-from .const import CONF_CACHE_EXPIRY_INTERLOCK
 from .const import CONF_CACHE_EXPIRY_STATUS
+from .const import CONF_CACHE_EXPIRY_INTERLOCK
+from .const import CONF_CACHE_EXPIRY_ANTIPASSBACK
 
 from .const import CONF_INTERLOCKS
 from .const import CONF_ANTIPASSBACK
@@ -46,6 +47,7 @@ from .const import DEFAULT_CACHE_EXPIRY_DATETIME
 from .const import DEFAULT_CACHE_EXPIRY_DOORS
 from .const import DEFAULT_CACHE_EXPIRY_STATUS
 from .const import DEFAULT_CACHE_EXPIRY_INTERLOCK
+from .const import DEFAULT_CACHE_EXPIRY_ANTIPASSBACK
 
 from .coordinators.coordinators import Coordinators
 from .services.services import Services
@@ -87,6 +89,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_CACHE_EXPIRY_DATETIME: DEFAULT_CACHE_EXPIRY_DATETIME,
         CONF_CACHE_EXPIRY_DOORS: DEFAULT_CACHE_EXPIRY_DOORS,
         CONF_CACHE_EXPIRY_INTERLOCK: DEFAULT_CACHE_EXPIRY_INTERLOCK,
+        CONF_CACHE_EXPIRY_ANTIPASSBACK: DEFAULT_CACHE_EXPIRY_ANTIPASSBACK,
     }
 
     if 'uhppoted' in config:
@@ -113,6 +116,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
             CONF_CACHE_EXPIRY_DATETIME,
             CONF_CACHE_EXPIRY_DOORS,
             CONF_CACHE_EXPIRY_INTERLOCK,
+            CONF_CACHE_EXPIRY_ANTIPASSBACK,
         ]
 
         for v in topics:
@@ -127,6 +131,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
                 defaults[CONF_CACHE_EXPIRY_DOORS] = expiry.get('doors', DEFAULT_CACHE_EXPIRY_DOORS)
                 defaults[CONF_CACHE_EXPIRY_STATUS] = expiry.get('status', DEFAULT_CACHE_EXPIRY_STATUS)
                 defaults[CONF_CACHE_EXPIRY_INTERLOCK] = expiry.get('interlock', DEFAULT_CACHE_EXPIRY_INTERLOCK)
+                defaults[CONF_CACHE_EXPIRY_ANTIPASSBACK] = expiry.get('antipassback', DEFAULT_CACHE_EXPIRY_ANTIPASSBACK)
 
     _LOGGER.info(f'default bind address:        {defaults[CONF_BIND_ADDR]}')
     _LOGGER.info(f'default broadcast address:   {defaults[CONF_BROADCAST_ADDR]}')
@@ -150,6 +155,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     _LOGGER.info(f'cache.expiry - doors:        {defaults[CONF_CACHE_EXPIRY_DOORS]}')
     _LOGGER.info(f'cache.expiry - status:       {defaults[CONF_CACHE_EXPIRY_STATUS]}')
     _LOGGER.info(f'cache.expiry - interlock:    {defaults[CONF_CACHE_EXPIRY_INTERLOCK]}')
+    _LOGGER.info(f'cache.expiry - antipassback: {defaults[CONF_CACHE_EXPIRY_ANTIPASSBACK]}')
 
     hass.data.setdefault(DOMAIN, defaults)
 

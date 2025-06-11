@@ -456,7 +456,8 @@ class AntiPassback(CoordinatorEntity, SelectEntity):
         _LOGGER.debug(f'controller:{self._controller}  set anti-passback {option}')
 
         try:
-            if mode := ANTIPASSBACK.get(option, None):
+            mode = ANTIPASSBACK.get(option, None)
+            if mode is not None:
                 controller = self._serial_no
                 if response := self.coordinator.set_antipassback(controller, mode):
                     if response.ok:

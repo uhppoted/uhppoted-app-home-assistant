@@ -285,7 +285,7 @@ class EventsCoordinator(DataUpdateCoordinator):
                     4: response.door_4_button,
                 }
 
-                return namedtuple('reply', ['status', 'index', 'relays', 'buttons'])(status, index,relays, buttons)
+                return namedtuple('reply', ['status', 'index', 'relays', 'buttons'])(status, index, relays, buttons)
 
             return None
 
@@ -297,14 +297,13 @@ class EventsCoordinator(DataUpdateCoordinator):
             except Exception as err:
                 _LOGGER.error(f'error retrieving controller {controller.id} events ({err})')
 
-
         info = {
             ATTR_AVAILABLE: False,
             ATTR_EVENTS: [],
         }
 
         try:
-            response = self._uhppote.get_status(controller.id,callback)
+            response = self._uhppote.get_status(controller.id, callback)
             if reply := g(response):
                 info[ATTR_STATUS] = reply.status
                 index = reply.index

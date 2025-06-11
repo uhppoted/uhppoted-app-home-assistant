@@ -302,12 +302,32 @@ class ControllersCoordinator(DataUpdateCoordinator):
     def _get_antipassback(self, lock, controller):
         _LOGGER.debug(f'fetch controller anti-passback {controller.id}')
 
+        def g(response):
+            if response and response.controller == controller.id:
+                return namedtuple('reply', ['antipassback'])(response.antipassback)
+
+            return None
+
+        def callback(response):
+            try:
+                if reply := g(response):
+                    _LOGGER.debug(f'get-antipassback {controller.id} {reply.antipassback}')
+                    with lock:
+                        self._state[controller.id].update({
+                            ATTR_CONTROLLER_ANTIPASSBACK: reply.antipassback,
+                        })
+
+                    self.async_set_updated_data(self._state)
+
+            except Exception as err:
+                _LOGGER.error(f'error updating internal controller {controller.id} event listener ({err})')
+
         antipassback = -1
 
         try:
-            response = self._uhppote.get_antipassback(controller.id)
-            if response.controller == controller.id:
-                antipassback = response.antipassback
+            response = self._uhppote.get_antipassback(controller.id, callback)
+            if reply := g(response):
+                antipassback = reply.antipassback
 
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} anti-passback ({err})')

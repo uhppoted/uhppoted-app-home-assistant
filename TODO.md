@@ -10,16 +10,16 @@
             - [x] stop queue on shutdown
             - [x] callback on response
       - [ ] cache
-            - [ ] no cache for config-flow/options flow
             - [x] get-controller
             - [x] get-time
             - [x] get_listener
             - [x] get_door_control
             - [x] get_status
+            - [x] get_interlock
+            - [x] get_antipassback
             - [ ] get_card
             - [ ] get_event
-            - [ ] get_interlock
-            - [ ] get_antipassback
+            - [ ] no cache for config-flow/options flow
             - (?) get_cards
             - (?) get_card_by_index
 

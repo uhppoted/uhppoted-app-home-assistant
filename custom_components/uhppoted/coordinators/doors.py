@@ -158,6 +158,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         return self._db.doors
 
     def _get_controller(self, lock, state, controller):
+
         def g(response):
             if response and response.controller == controller.id:
                 info = {

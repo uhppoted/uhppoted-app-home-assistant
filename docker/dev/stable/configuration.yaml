@@ -58,6 +58,7 @@ uhppoted:
             doors: 180
             status: 90
             interlock: 120
+            antipassback: 120
 
 template:
   - trigger:
