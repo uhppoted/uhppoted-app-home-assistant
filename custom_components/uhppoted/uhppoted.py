@@ -16,6 +16,7 @@ from .const import CONF_CACHE_EXPIRY_CONTROLLER
 from .const import CONF_CACHE_EXPIRY_LISTENER
 from .const import CONF_CACHE_EXPIRY_DATETIME
 from .const import CONF_CACHE_EXPIRY_DOORS
+from .const import CONF_CACHE_EXPIRY_STATUS
 from .const import CONF_CACHE_EXPIRY_INTERLOCK
 
 _LOGGER = logging.getLogger(__name__)
@@ -50,6 +51,7 @@ _DEFAULT_CACHE_EXPIRY = {
     CONF_CACHE_EXPIRY_LISTENER: const.DEFAULT_CACHE_EXPIRY_LISTENER,
     CONF_CACHE_EXPIRY_DATETIME: const.DEFAULT_CACHE_EXPIRY_DATETIME,
     CONF_CACHE_EXPIRY_DOORS: const.DEFAULT_CACHE_EXPIRY_DOORS,
+    CONF_CACHE_EXPIRY_STATUS: const.DEFAULT_CACHE_EXPIRY_STATUS,
     CONF_CACHE_EXPIRY_INTERLOCK: const.DEFAULT_CACHE_EXPIRY_INTERLOCK,
 }
 
@@ -213,9 +215,14 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
         return self._api.open_door(c, door, timeout=timeout)
 
-    def get_status(self, controller):
+    def get_status(self, controller,callback = None):
+        key = f'controller.{controller}.status'
         (c, timeout) = self._lookup(controller)
-        return self._api.get_status(c, timeout=timeout)
+        g = lambda: self._api.get_status(c, timeout=timeout)
+
+        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get_status':<15} {controller}", callback))
+
+        return self.get(key, CONF_CACHE_EXPIRY_STATUS)
 
     def get_cards(self, controller):
         (c, timeout) = self._lookup(controller)

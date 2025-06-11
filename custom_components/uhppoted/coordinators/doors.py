@@ -158,11 +158,8 @@ class DoorsCoordinator(DataUpdateCoordinator):
         return self._db.doors
 
     def _get_controller(self, lock, state, controller):
-        info = None
-
-        try:
-            response = self._uhppote.get_status(controller.id)
-            if response.controller == controller.id:
+        def g(response):
+            if response and response.controller == controller.id:
                 info = {
                     1: {
                         'open': response.door_1_open == True,
@@ -185,6 +182,27 @@ class DoorsCoordinator(DataUpdateCoordinator):
                         'locked': response.relays & 0x08 == 0x00,
                     }
                 }
+
+                return namedtuple('reply', ['info'])(info)
+
+            return None
+
+        def callback(response):
+            try:
+                if reply := g(response):
+                    _LOGGER.debug(f'get-controller {controller.id} {reply}')
+                    with lock:
+                        state[controller.id] = reply.info
+
+            except Exception as err:
+                _LOGGER.error(f'error updating controller {controller.id} door state ({err})')
+
+        info = None
+
+        try:
+            response = self._uhppote.get_status(controller.id, callback)
+            if reply := g(response):
+                info = reply.info
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} door state ({err})')
 

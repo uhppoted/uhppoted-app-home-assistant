@@ -1,4 +1,5 @@
 from __future__ import annotations
+from collections import namedtuple
 
 import concurrent.futures
 import threading
@@ -272,15 +273,9 @@ class EventsCoordinator(DataUpdateCoordinator):
     def _get_controller_events(self, lock, controller):
         _LOGGER.debug(f'fetch controller {controller.id} events')
 
-        info = {
-            ATTR_AVAILABLE: False,
-            ATTR_EVENTS: [],
-        }
-
-        try:
-            response = self._uhppote.get_status(controller.id)
-            if response.controller == controller.id:
-                info[ATTR_STATUS] = response
+        def g(response):
+            if response and response.controller == controller.id:
+                status = response
                 index = response.event_index
                 relays = response.relays
                 buttons = {
@@ -289,6 +284,32 @@ class EventsCoordinator(DataUpdateCoordinator):
                     3: response.door_3_button,
                     4: response.door_4_button,
                 }
+
+                return namedtuple('reply', ['status', 'index', 'relays', 'buttons'])(status, index,relays, buttons)
+
+            return None
+
+        def callback(response):
+            try:
+                if reply := g(response):
+                    _LOGGER.debug(f'get-controller {controller.id} {reply}')
+
+            except Exception as err:
+                _LOGGER.error(f'error retrieving controller {controller.id} events ({err})')
+
+
+        info = {
+            ATTR_AVAILABLE: False,
+            ATTR_EVENTS: [],
+        }
+
+        try:
+            response = self._uhppote.get_status(controller.id,callback)
+            if reply := g(response):
+                info[ATTR_STATUS] = reply.status
+                index = reply.index
+                relays = reply.relays
+                buttons = reply.buttons
                 events = []
 
                 if not controller.id in self._state['index']:
