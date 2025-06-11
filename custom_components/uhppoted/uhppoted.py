@@ -203,7 +203,7 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
 
         response = self._api.set_door_control(c, door, mode, delay, timeout=timeout)
-        if response is None or not response.ok:
+        if response is None:
             del _CACHE[key]
         else:
             _CACHE[key] = {
