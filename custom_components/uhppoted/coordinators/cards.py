@@ -1,10 +1,12 @@
 from __future__ import annotations
+from collections import namedtuple
 
 import concurrent.futures
 import threading
 import datetime
 import logging
 import async_timeout
+import traceback
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import UpdateFailed
@@ -321,6 +323,31 @@ class CardsCoordinator(DataUpdateCoordinator):
     def _get_card(self, controllers, lock, card):
         _LOGGER.debug(f'fetch card {card} information')
 
+        def g(controller, response):
+            if response and response.controller == controller and response.card_number == card:
+                start_date = response.start_date
+                end_date = response.end_date
+                permissions = []
+                if response.door_1 > 0:
+                    permissions.append(1)
+
+                if response.door_2 > 0:
+                    permissions.append(2)
+
+                if response.door_3 > 0:
+                    permissions.append(3)
+
+                if response.door_4 > 0:
+                    permissions.append(4)
+
+                PIN = response.pin
+
+                reply = (start_date, end_date, permissions, PIN)
+
+                return namedtuple('reply', ['start_date', 'end_date', 'permissions', 'PIN'])(*reply)
+                    
+            return None
+
         info = {
             ATTR_AVAILABLE: False,
             ATTR_CARD_STARTDATE: None,
@@ -336,30 +363,17 @@ class CardsCoordinator(DataUpdateCoordinator):
 
             for controller in controllers:
                 response = self._uhppote.get_card(controller.id, card)
+                if reply := g(controller.id, response):
+                    if reply.start_date is not None and (not start_date or reply.start_date < start_date):
+                        start_date = reply.start_date
 
-                if response.controller == controller.id and response.card_number == card:
-                    if response.start_date and (not start_date or response.start_date < start_date):
-                        start_date = response.start_date
+                    if reply.end_date is not None and (not end_date or reply.end_date > end_date):
+                        end_date = reply.end_date
 
-                    if response.end_date != None and (not end_date or response.end_date > end_date):
-                        end_date = response.end_date
+                    permissions[controller.id] = reply.permissions
 
-                    permissions[controller.id] = []
-
-                    if response.door_1 > 0:
-                        permissions[controller.id].append(1)
-
-                    if response.door_2 > 0:
-                        permissions[controller.id].append(2)
-
-                    if response.door_3 > 0:
-                        permissions[controller.id].append(3)
-
-                    if response.door_4 > 0:
-                        permissions[controller.id].append(4)
-
-                    if response.pin > 0:
-                        PIN = response.pin
+                    if reply.PIN > 0:
+                        PIN = reply.PIN
 
             info = {
                 ATTR_CARD_STARTDATE: start_date,
@@ -369,8 +383,10 @@ class CardsCoordinator(DataUpdateCoordinator):
                 ATTR_AVAILABLE: True,
             }
 
-        except Exception as err:
-            _LOGGER.error(f'error retrieving card {card} information ({err})')
+        except Exception as exc:
+            tb = traceback.format_exc(exc)
+            print(tb, flush=True)
+            _LOGGER.error(f'error retrieving card {card} information ({exc})')
 
         with lock:
             self._state[card].update(info)

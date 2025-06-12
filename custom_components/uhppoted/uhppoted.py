@@ -15,7 +15,8 @@ from . import const
 from .const import CONF_CACHE_EXPIRY_CONTROLLER
 from .const import CONF_CACHE_EXPIRY_LISTENER
 from .const import CONF_CACHE_EXPIRY_DATETIME
-from .const import CONF_CACHE_EXPIRY_DOORS
+from .const import CONF_CACHE_EXPIRY_DOOR
+from .const import CONF_CACHE_EXPIRY_CARD
 from .const import CONF_CACHE_EXPIRY_STATUS
 from .const import CONF_CACHE_EXPIRY_INTERLOCK
 from .const import CONF_CACHE_EXPIRY_ANTIPASSBACK
@@ -51,7 +52,8 @@ _DEFAULT_CACHE_EXPIRY = {
     CONF_CACHE_EXPIRY_CONTROLLER: const.DEFAULT_CACHE_EXPIRY_CONTROLLER,
     CONF_CACHE_EXPIRY_LISTENER: const.DEFAULT_CACHE_EXPIRY_LISTENER,
     CONF_CACHE_EXPIRY_DATETIME: const.DEFAULT_CACHE_EXPIRY_DATETIME,
-    CONF_CACHE_EXPIRY_DOORS: const.DEFAULT_CACHE_EXPIRY_DOORS,
+    CONF_CACHE_EXPIRY_DOOR: const.DEFAULT_CACHE_EXPIRY_DOOR,
+    CONF_CACHE_EXPIRY_CARD: const.DEFAULT_CACHE_EXPIRY_CARD,
     CONF_CACHE_EXPIRY_STATUS: const.DEFAULT_CACHE_EXPIRY_STATUS,
     CONF_CACHE_EXPIRY_INTERLOCK: const.DEFAULT_CACHE_EXPIRY_INTERLOCK,
     CONF_CACHE_EXPIRY_ANTIPASSBACK: const.DEFAULT_CACHE_EXPIRY_ANTIPASSBACK,
@@ -136,7 +138,7 @@ class uhppoted:
 
         g = lambda: self._api.get_controller(c, timeout=timeout)
 
-        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get-controller':<15} {controller}", callback))
+        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get-controller':<16} {controller}", callback))
 
         return self.get(key, CONF_CACHE_EXPIRY_CONTROLLER)
 
@@ -145,7 +147,7 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
         g = lambda: self._api.get_listener(c, timeout=timeout)
 
-        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get_listener':<15} {controller}", callback))
+        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get_listener':<16} {controller}", callback))
 
         return self.get(key, CONF_CACHE_EXPIRY_LISTENER)
 
@@ -169,7 +171,7 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
         g = lambda: self._api.get_time(c, timeout=timeout)
 
-        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get-time':<15} {controller}", callback))
+        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get-time':<16} {controller}", callback))
 
         return self.get(key, CONF_CACHE_EXPIRY_DATETIME)
 
@@ -194,9 +196,9 @@ class uhppoted:
         g = lambda: self._api.get_door_control(c, door, timeout=timeout)
 
         self.queue.put_nowait(
-            lambda: self.ye_olde_taskke(g, key, f"{'get_door_control':<15} {controller} {door}", callback))
+            lambda: self.ye_olde_taskke(g, key, f"{'get_door_control':<16} {controller} {door}", callback))
 
-        return self.get(key, CONF_CACHE_EXPIRY_DOORS)
+        return self.get(key, CONF_CACHE_EXPIRY_DOOR)
 
     def set_door_control(self, controller, door, mode, delay):
         key = f'controller.{controller}.door.{door}'
@@ -222,7 +224,7 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
         g = lambda: self._api.get_status(c, timeout=timeout)
 
-        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get_status':<15} {controller}", callback))
+        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get_status':<16} {controller}", callback))
 
         return self.get(key, CONF_CACHE_EXPIRY_STATUS)
 
@@ -231,8 +233,22 @@ class uhppoted:
         return self._api.get_cards(c, timeout=timeout)
 
     def get_card(self, controller, card):
+        key = f'controller.{controller}.card.{card}'
         (c, timeout) = self._lookup(controller)
-        return self._api.get_card(c, card, timeout=timeout)
+        
+        try:
+            response = self._api.get_card(c, card, timeout=timeout)
+            if response is None:
+                del _CACHE[key]
+            else:
+                _CACHE[key] = {
+                    'response': response,
+                    'touched': datetime.now(),
+                }
+        except Exception as exc:
+            _LOGGER.error(f'error retrieving card {card} from controller {controller} ({exc})')
+
+        return self.get(key, CONF_CACHE_EXPIRY_CARD)
 
     def get_card_by_index(self, controller, index):
         (c, timeout) = self._lookup(controller)
@@ -282,7 +298,7 @@ class uhppoted:
         # (c, timeout) = self._lookup(controller)
         # g = lambda: self._api.get_antipassback(c, timeout=timeout)
         #
-        # self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get_antipassback':<15} {controller}", callback))
+        # self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, f"{'get_antipassback':<16} {controller}", callback))
 
         if response := self.get(key, CONF_CACHE_EXPIRY_ANTIPASSBACK):
             return response

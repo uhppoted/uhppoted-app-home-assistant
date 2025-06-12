@@ -54,11 +54,12 @@ uhppoted:
         expiry:
             controller: 90
             listener: 300
-            datetime: 120
-            doors: 180
-            status: 90
-            interlock: 120
-            antipassback: 120
+            datetime: 121
+            door: 180
+            card: 181
+            status: 91
+            interlock: 122
+            antipassback: 123
 
 template:
   - trigger:

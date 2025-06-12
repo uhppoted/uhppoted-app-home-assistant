@@ -18,10 +18,10 @@
             - [x] get_interlock
             - [x] get_antipassback
             - [ ] get_card
+                  - cache only (no callback)
+                  - remove name from state
+                  - store controller + card in coordinator and collate presented state from that
             - [ ] get_event
-            - [ ] no cache for config-flow/options flow
-            - (?) get_cards
-            - (?) get_card_by_index
             - [ ] set-door-control (just use configured/stored delay and mode)
 ```
 Traceback (most recent call last):

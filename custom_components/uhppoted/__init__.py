@@ -25,7 +25,8 @@ from .const import CONF_CONTROLLERS
 from .const import CONF_CACHE_EXPIRY_CONTROLLER
 from .const import CONF_CACHE_EXPIRY_LISTENER
 from .const import CONF_CACHE_EXPIRY_DATETIME
-from .const import CONF_CACHE_EXPIRY_DOORS
+from .const import CONF_CACHE_EXPIRY_DOOR
+from .const import CONF_CACHE_EXPIRY_CARD
 from .const import CONF_CACHE_EXPIRY_STATUS
 from .const import CONF_CACHE_EXPIRY_INTERLOCK
 from .const import CONF_CACHE_EXPIRY_ANTIPASSBACK
@@ -44,7 +45,8 @@ from .const import DEFAULT_PREFERRED_CARDS
 from .const import DEFAULT_CACHE_EXPIRY_CONTROLLER
 from .const import DEFAULT_CACHE_EXPIRY_LISTENER
 from .const import DEFAULT_CACHE_EXPIRY_DATETIME
-from .const import DEFAULT_CACHE_EXPIRY_DOORS
+from .const import DEFAULT_CACHE_EXPIRY_DOOR
+from .const import DEFAULT_CACHE_EXPIRY_CARD
 from .const import DEFAULT_CACHE_EXPIRY_STATUS
 from .const import DEFAULT_CACHE_EXPIRY_INTERLOCK
 from .const import DEFAULT_CACHE_EXPIRY_ANTIPASSBACK
@@ -87,7 +89,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_CACHE_EXPIRY_CONTROLLER: DEFAULT_CACHE_EXPIRY_CONTROLLER,
         CONF_CACHE_EXPIRY_LISTENER: DEFAULT_CACHE_EXPIRY_LISTENER,
         CONF_CACHE_EXPIRY_DATETIME: DEFAULT_CACHE_EXPIRY_DATETIME,
-        CONF_CACHE_EXPIRY_DOORS: DEFAULT_CACHE_EXPIRY_DOORS,
+        CONF_CACHE_EXPIRY_DOOR: DEFAULT_CACHE_EXPIRY_DOOR,
+        CONF_CACHE_EXPIRY_CARD: DEFAULT_CACHE_EXPIRY_CARD,
         CONF_CACHE_EXPIRY_INTERLOCK: DEFAULT_CACHE_EXPIRY_INTERLOCK,
         CONF_CACHE_EXPIRY_ANTIPASSBACK: DEFAULT_CACHE_EXPIRY_ANTIPASSBACK,
     }
@@ -114,7 +117,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
             CONF_CACHE_EXPIRY_CONTROLLER,
             CONF_CACHE_EXPIRY_LISTENER,
             CONF_CACHE_EXPIRY_DATETIME,
-            CONF_CACHE_EXPIRY_DOORS,
+            CONF_CACHE_EXPIRY_DOOR,
+            CONF_CACHE_EXPIRY_CARD,
             CONF_CACHE_EXPIRY_INTERLOCK,
             CONF_CACHE_EXPIRY_ANTIPASSBACK,
         ]
@@ -128,7 +132,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
                 defaults[CONF_CACHE_EXPIRY_CONTROLLER] = expiry.get('controller', DEFAULT_CACHE_EXPIRY_CONTROLLER)
                 defaults[CONF_CACHE_EXPIRY_LISTENER] = expiry.get('listener', DEFAULT_CACHE_EXPIRY_LISTENER)
                 defaults[CONF_CACHE_EXPIRY_DATETIME] = expiry.get('datetime', DEFAULT_CACHE_EXPIRY_DATETIME)
-                defaults[CONF_CACHE_EXPIRY_DOORS] = expiry.get('doors', DEFAULT_CACHE_EXPIRY_DOORS)
+                defaults[CONF_CACHE_EXPIRY_DOOR] = expiry.get('door', DEFAULT_CACHE_EXPIRY_DOOR)
+                defaults[CONF_CACHE_EXPIRY_CARD] = expiry.get('card', DEFAULT_CACHE_EXPIRY_CARD)
                 defaults[CONF_CACHE_EXPIRY_STATUS] = expiry.get('status', DEFAULT_CACHE_EXPIRY_STATUS)
                 defaults[CONF_CACHE_EXPIRY_INTERLOCK] = expiry.get('interlock', DEFAULT_CACHE_EXPIRY_INTERLOCK)
                 defaults[CONF_CACHE_EXPIRY_ANTIPASSBACK] = expiry.get('antipassback', DEFAULT_CACHE_EXPIRY_ANTIPASSBACK)
@@ -152,7 +157,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     _LOGGER.info(f'cache.expiry - controller:   {defaults[CONF_CACHE_EXPIRY_CONTROLLER]}')
     _LOGGER.info(f'cache.expiry - listener:     {defaults[CONF_CACHE_EXPIRY_LISTENER]}')
     _LOGGER.info(f'cache.expiry - date/time:    {defaults[CONF_CACHE_EXPIRY_DATETIME]}')
-    _LOGGER.info(f'cache.expiry - doors:        {defaults[CONF_CACHE_EXPIRY_DOORS]}')
+    _LOGGER.info(f'cache.expiry - door:         {defaults[CONF_CACHE_EXPIRY_DOOR]}')
+    _LOGGER.info(f'cache.expiry - card:         {defaults[CONF_CACHE_EXPIRY_CARD]}')
     _LOGGER.info(f'cache.expiry - status:       {defaults[CONF_CACHE_EXPIRY_STATUS]}')
     _LOGGER.info(f'cache.expiry - interlock:    {defaults[CONF_CACHE_EXPIRY_INTERLOCK]}')
     _LOGGER.info(f'cache.expiry - antipassback: {defaults[CONF_CACHE_EXPIRY_ANTIPASSBACK]}')

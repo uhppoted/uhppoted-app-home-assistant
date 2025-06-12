@@ -144,9 +144,10 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 gateway = f'{response.gateway}'
                 firmware = f'{response.version} {response.date:%Y-%m-%d}'
 
-                return namedtuple('reply', ['address', 'netmask', 'gateway', 'firmware'])(address, netmask, gateway,
-                                                                                          firmware)
+                reply = (address, netmask, gateway, firmware)
 
+                return namedtuple('reply', ['address', 'netmask', 'gateway', 'firmware'])(*reply)
+                    
             return None
 
         def callback(response):
