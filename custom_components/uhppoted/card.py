@@ -77,8 +77,8 @@ class CardInfo(CoordinatorEntity, SensorEntity):
             today = date.today()
             state = []
 
-            if self._cardholder.strip() != '':
-                state.append(self._cardholder)
+            # if self._cardholder.strip() != '':
+            #     state.append(self._cardholder)
 
             if self._start_date and self._start_date <= today and self._end_date and self._end_date >= today:
                 state.append('VALID')

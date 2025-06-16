@@ -8,6 +8,9 @@
 
 ### Updated
 1. Fixed logic around request timeout initialisation.
+2. Removed cardholder name from card start.
+3. Added cache and background queue to mitigate unavailability issues when running
+   virtualized (Docker/Proxmox).
 
 
 ## [0.8.10.3](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.10.3) - 2025-04-05
