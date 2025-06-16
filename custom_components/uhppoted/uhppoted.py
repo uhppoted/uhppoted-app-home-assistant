@@ -20,6 +20,7 @@ from .const import CONF_CACHE_EXPIRY_CARD
 from .const import CONF_CACHE_EXPIRY_STATUS
 from .const import CONF_CACHE_EXPIRY_INTERLOCK
 from .const import CONF_CACHE_EXPIRY_ANTIPASSBACK
+from .const import CONF_CACHE_EXPIRY_EVENT
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -57,6 +58,7 @@ _DEFAULT_CACHE_EXPIRY = {
     CONF_CACHE_EXPIRY_STATUS: const.DEFAULT_CACHE_EXPIRY_STATUS,
     CONF_CACHE_EXPIRY_INTERLOCK: const.DEFAULT_CACHE_EXPIRY_INTERLOCK,
     CONF_CACHE_EXPIRY_ANTIPASSBACK: const.DEFAULT_CACHE_EXPIRY_ANTIPASSBACK,
+    CONF_CACHE_EXPIRY_EVENT: const.DEFAULT_CACHE_EXPIRY_EVENT,
 }
 
 
@@ -267,8 +269,20 @@ class uhppoted:
         return self._api.record_special_events(c, enable, timeout=timeout)
 
     def get_event(self, controller, index):
+        key = f'controller.{controller}.event.{index}'
         (c, timeout) = self._lookup(controller)
-        return self._api.get_event(c, index, timeout=timeout)
+        
+        try:
+            response = self._api.get_event(c, index, timeout=timeout)
+            if response is not None:
+                _CACHE[key] = {
+                    'response': response,
+                    'touched': datetime.now(),
+                }
+        except Exception as exc:
+            _LOGGER.error(f'error retrieving event {index} from controller {controller} ({exc})')
+
+        return self.get(key, CONF_CACHE_EXPIRY_EVENT)
 
     def get_interlock(self, controller):
         key = f'controller.{controller}.interlock'

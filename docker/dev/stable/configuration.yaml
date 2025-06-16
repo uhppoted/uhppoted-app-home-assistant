@@ -60,6 +60,7 @@ uhppoted:
             status: 91
             interlock: 122
             antipassback: 123
+            event: 182
 
 template:
   - trigger:
