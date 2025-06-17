@@ -121,10 +121,10 @@ class CardInfo(CoordinatorEntity, SensorEntity):
                 self._available = False
             else:
                 state = self.coordinator.data[idx]
-                self._start_date = state[ATTR_CARD_STARTDATE]
-                self._end_date = state[ATTR_CARD_ENDDATE]
-                self._permissions = state[ATTR_CARD_PERMISSIONS]
-                self._available = state[ATTR_AVAILABLE]
+                self._start_date = state.get(ATTR_CARD_STARTDATE, None)
+                self._end_date = state.get(ATTR_CARD_ENDDATE, None)
+                self._permissions = state.get(ATTR_CARD_PERMISSIONS, None)
+                self._available = state.get(ATTR_AVAILABLE, False)
 
         except (Exception):
             self._available = False

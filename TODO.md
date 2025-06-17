@@ -1,6 +1,7 @@
 # TODO
 
 - [ ] get/set-antipassback: remove #FIXME when uhppoted-lib-python updated (cf. https://github.com/uhppoted/uhppoted/issues/60)
+
 - [x] Fix deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/15)
 - [x] Decorated events door lookup error (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/17#event-17118124970)
 - [x] anti-passback (cf. https://github.com/uhppoted/uhppoted/issues/60)

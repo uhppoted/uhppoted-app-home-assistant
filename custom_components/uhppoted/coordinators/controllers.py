@@ -147,7 +147,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 reply = (address, netmask, gateway, firmware)
 
                 return namedtuple('reply', ['address', 'netmask', 'gateway', 'firmware'])(*reply)
-                    
+
             return None
 
         def callback(response):

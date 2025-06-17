@@ -345,7 +345,7 @@ class CardsCoordinator(DataUpdateCoordinator):
                 reply = (start_date, end_date, permissions, PIN)
 
                 return namedtuple('reply', ['start_date', 'end_date', 'permissions', 'PIN'])(*reply)
-                    
+
             return None
 
         info = {
