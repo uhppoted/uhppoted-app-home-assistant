@@ -20,9 +20,11 @@
             - [ ] get_card
                   - [x] cache only
                   - [x] remove name from state
+                  - [x] add card number to info
                   - [ ] put-card
                   - store controller + card in coordinator and collate presented state from that
             - [x] flush cache
+            - [ ] README: Docker containers in bridge mode + UDP
             - [ ] set-door-control (just use configured/stored delay and mode)
 ```
 Traceback (most recent call last):

@@ -18,6 +18,7 @@ from .const import ATTR_AVAILABLE
 from .const import ATTR_CONTROLLER_SERIAL_NUMBER
 from .const import ATTR_DOOR_CONTROLLER
 from .const import ATTR_DOOR_NUMBER
+from .const import ATTR_CARD
 from .const import ATTR_CARD_HOLDER
 from .const import ATTR_CARD_STARTDATE
 from .const import ATTR_CARD_ENDDATE
@@ -97,7 +98,9 @@ class CardInfo(CoordinatorEntity, SensorEntity):
     @property
     def extra_state_attributes(self) -> Dict[str, Any]:
         permissions = ','.join(self._permissions) if self._permissions else None
+
         return {
+            ATTR_CARD: f'#{self.card}',
             ATTR_CARD_HOLDER: self._cardholder,
             ATTR_CARD_STARTDATE: self._start_date,
             ATTR_CARD_ENDDATE: self._end_date,
