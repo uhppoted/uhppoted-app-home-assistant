@@ -99,7 +99,15 @@ class uhppoted:
     def get_all_controllers(bind, broadcast, listen, debug):
         return uhppote.Uhppote(bind, broadcast, listen, debug).get_all_controllers()
 
-    async def worker(self):
+    def start(self, hass):
+        self._thread = hass.loop.create_task(self._worker())
+        self.queue.put_nowait(lambda: self._flush())
+
+    def stop(self, hass):
+        if self._thread:
+            self._thread.cancel()
+
+    async def _worker(self):
         while True:
             task = await self.queue.get()
             try:
@@ -108,13 +116,6 @@ class uhppoted:
                 _LOGGER.warning(f"{exc}")
             finally:
                 self.queue.task_done()
-
-    def start(self, hass):
-        self._thread = hass.loop.create_task(self.worker())
-
-    def stop(self, hass):
-        if self._thread:
-            self._thread.cancel()
 
     async def ye_olde_taskke(self, g, key, expiry, message, callback=None):
         try:
@@ -127,6 +128,18 @@ class uhppoted:
                     callback(response)
         except Exception as exc:
             _LOGGER.warning(f"{message} ({exc})")
+
+    async def _flush(self):
+        now = datetime.now()
+        expired = [ key for key, record in _CACHE.items() if record.expires < now ]
+          
+        if len(expired) > 0:
+            _LOGGER.warning(f'flushing cache - cached:{len(_CACHE)} expired:{len(expired)}')
+            for key in expired:
+                del _CACHE[key]
+
+        await asyncio.sleep(60)
+        self.queue.put_nowait(lambda: self._flush())
 
     def _put(self, response, key, expiry):
         lifetime = self.caching.get(expiry, _DEFAULT_CACHE_EXPIRY.get(expiry, 60))

@@ -67,9 +67,9 @@ template:
       - platform: event
         event_type: uhppoted.card.swipe.decorated
     sensor:
-      - name: "Decorated Card Swipe"
-        unique_id: decorated_card_swipe_sensor
-        state: "{{ trigger.event.data.controller.id }}.{{trigger.event.data.event.index}}"
+      - name: "uhppoted.card.swipe"
+        unique_id: uhppoted_card_swipe
+        state: "{{ trigger.event.data.controller.id }}.{{trigger.event.data.event.index}} {{ trigger.event.data.card.name }} {{ trigger.event.data.door.name }}"
         attributes:
           timestamp: "{{ trigger.event.data.event.timestamp }}"
           card:  "#{{ trigger.event.data.card.card | string }}"

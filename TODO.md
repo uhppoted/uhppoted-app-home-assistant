@@ -16,14 +16,13 @@
             - [x] get_status
             - [x] get_interlock
             - [x] get_antipassback
+            - [x] get_event
             - [ ] get_card
                   - [x] cache only
                   - [x] remove name from state
                   - [ ] put-card
                   - store controller + card in coordinator and collate presented state from that
-            - [ ] get_event
-                  - [x] cache only
-                  - [ ] flush events from cache
+            - [x] flush cache
             - [ ] set-door-control (just use configured/stored delay and mode)
 ```
 Traceback (most recent call last):
