@@ -17,11 +17,11 @@
             - [x] get_interlock
             - [x] get_antipassback
             - [x] get_event
-            - [ ] get_card
+            - [x] get_card
                   - [x] cache only
                   - [x] remove name from state
                   - [x] add card number to info
-                  - [ ] put-card
+                  - [x] put-card
                   - store controller + card in coordinator and collate presented state from that
             - [x] flush cache
             - [ ] README: Docker containers in bridge mode + UDP
@@ -45,6 +45,7 @@ home-assistant-stable  |   File "/usr/local/lib/uhppoted/src/uhppoted/udp.py", l
 home-assistant-stable  |     reply = sock.recv(1024)
 home-assistant-stable  | TimeoutError: timed out
 ```
+            - [ ] put-card: use configured/stored info
 
 - [ ] Decorate card swipe event (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/13)
        - [x] fire card.swipe.decorated event

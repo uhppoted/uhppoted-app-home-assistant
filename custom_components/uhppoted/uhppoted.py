@@ -11,6 +11,7 @@ from uhppoted import uhppote
 from uhppoted.structs import GetTimeResponse
 from uhppoted.structs import GetListenerResponse
 from uhppoted.structs import GetDoorControlResponse
+from uhppoted.structs import GetCardResponse
 
 from . import const
 from .const import CONF_CACHE_EXPIRY_CONTROLLER
@@ -131,8 +132,8 @@ class uhppoted:
 
     async def _flush(self):
         now = datetime.now()
-        expired = [ key for key, record in _CACHE.items() if record.expires < now ]
-          
+        expired = [key for key, record in _CACHE.items() if record.expires < now]
+
         if len(expired) > 0:
             _LOGGER.warning(f'flushing cache - cached:{len(_CACHE)} expired:{len(expired)}')
             for key in expired:
@@ -277,8 +278,15 @@ class uhppoted:
         return self._api.get_card_by_index(c, index, timeout=timeout)
 
     def put_card(self, controller, card, start_date, end_date, door1, door2, door3, door4, PIN):
+        key = f'controller.{controller}.card.{card}'
         (c, timeout) = self._lookup(controller)
-        return self._api.put_card(c, card, start_date, end_date, door1, door2, door3, door4, PIN, timeout=timeout)
+        response = self._api.put_card(c, card, start_date, end_date, door1, door2, door3, door4, PIN, timeout=timeout)
+
+        if response is not None and response.stored:
+            self._put(GetCardResponse(response.controller, card, start_date, end_date, door1, door2, door3, door4, PIN),
+                      key, CONF_CACHE_EXPIRY_CARD)
+
+        return response
 
     def delete_card(self, controller, card):
         (c, timeout) = self._lookup(controller)
