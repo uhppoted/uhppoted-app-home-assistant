@@ -59,8 +59,8 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
     def set_door_mode(self, controller_id, door, mode):
         controller = self._resolve(controller_id)
-
         response = self._uhppote.get_door_control(controller.id, door)
+
         if response and response.controller == controller.id and response.door == door:
             delay = response.delay
             response = self._uhppote.set_door_control(controller.id, door, mode, delay)
@@ -74,8 +74,8 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
     def set_door_delay(self, controller_id, door, delay):
         controller = self._resolve(controller_id)
-
         response = self._uhppote.get_door_control(controller.id, door)
+
         if response and response.controller == controller.id and response.door == door:
             mode = response.mode
             response = self._uhppote.set_door_control(controller.id, door, mode, delay)
@@ -89,7 +89,6 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
     def unlock_door(self, controller_id, door) -> None:
         controller = self._resolve(controller_id)
-
         response = self._uhppote.open_door(controller.id, door)
 
         if response.controller != controller.id:

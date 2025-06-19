@@ -18,38 +18,15 @@
             - [x] get_antipassback
             - [x] get_event
             - [x] get_card
-                  - [x] cache only
-                  - [x] remove name from state
-                  - [x] add card number to info
-                  - [x] put-card
-                  - store controller + card in coordinator and collate presented state from that
             - [x] flush cache
+            - [x] ~~set-door-control (just use configured/stored delay and mode)~~
             - [ ] README: Docker containers in bridge mode + UDP
-            - [ ] set-door-control (just use configured/stored delay and mode)
-```
-Traceback (most recent call last):
-home-assistant-stable  |   File "/config/custom_components/uhppoted/door.py", line 621, in async_select_option
-home-assistant-stable  |     response = self.coordinator.set_door_mode(controller, door, mode)
-home-assistant-stable  |   File "/config/custom_components/uhppoted/coordinators/doors.py", line 66, in set_door_mode
-home-assistant-stable  |     response = self._uhppote.set_door_control(controller.id, door, mode, delay)
-home-assistant-stable  |   File "/config/custom_components/uhppoted/uhppoted.py", line 205, in set_door_control
-home-assistant-stable  |     response = self._api.set_door_control(c, door, mode, delay, timeout=timeout)
-home-assistant-stable  |   File "/usr/local/lib/uhppoted/src/uhppoted/uhppote.py", line 351, in set_door_control
-home-assistant-stable  |     reply = self._send(request, addr, timeout, protocol)
-home-assistant-stable  |   File "/usr/local/lib/uhppoted/src/uhppoted/uhppote.py", line 1307, in _send
-home-assistant-stable  |     return self._udp.send(request, dest_addr=dest_addr, timeout=timeout)
-home-assistant-stable  |            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-home-assistant-stable  |   File "/usr/local/lib/uhppoted/src/uhppoted/udp.py", line 110, in send
-home-assistant-stable  |     return _read(sock, timeout=timeout, debug=self._debug)
-home-assistant-stable  |   File "/usr/local/lib/uhppoted/src/uhppoted/udp.py", line 176, in _read
-home-assistant-stable  |     reply = sock.recv(1024)
-home-assistant-stable  | TimeoutError: timed out
-```
-            - [ ] put-card: use configured/stored info
 
 - [ ] Decorate card swipe event (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/13)
        - [x] fire card.swipe.decorated event
        - [ ] opt-in/out in config-flow
+
+- [ ] decorated events
        - (?) per-card swipe events
        - [ ] automation to handle card.swipe.decorated event
        - [ ] add automation to config-flow

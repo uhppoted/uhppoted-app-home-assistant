@@ -632,3 +632,16 @@ def resolve_door_by_name(options, name):
                         }
 
     return None
+
+def resolve_door_by_id(options, controller_id, door_id):
+    if CONF_CONTROLLERS in options and CONF_DOORS in options:
+        controllers = options[CONF_CONTROLLERS]
+        doors = options[CONF_DOORS]
+
+        for controller in controllers:
+            if controller['controller_serial_number'] == f'{controller_id}':
+                for door in doors:
+                    if door['door_controller'] == controller['controller_id'] and door['door_number'] == door_id:
+                        return door
+
+    return None
