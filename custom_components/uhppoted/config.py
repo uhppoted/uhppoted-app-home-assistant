@@ -43,6 +43,7 @@ from .const import CONF_CARD_STARTDATE
 from .const import CONF_CARD_ENDDATE
 from .const import CONF_CARD_DOORS
 
+from .const import CONF_CACHE_ENABLED
 from .const import CONF_CACHE_EXPIRY_CONTROLLER
 from .const import CONF_CACHE_EXPIRY_LISTENER
 from .const import CONF_CACHE_EXPIRY_DATETIME
@@ -59,6 +60,7 @@ from .const import DEFAULT_MAX_CARD_INDEX
 from .const import DEFAULT_MAX_CARD_ERRORS
 from .const import DEFAULT_PREFERRED_CARDS
 
+from .const import DEFAULT_CACHE_ENABLED
 from .const import DEFAULT_CACHE_EXPIRY_CONTROLLER
 from .const import DEFAULT_CACHE_EXPIRY_LISTENER
 from .const import DEFAULT_CACHE_EXPIRY_DATETIME
@@ -486,7 +488,8 @@ def configure_driver(options, defaults={}):
 
     driver = uhppoted(bind, broadcast, listen, controllers, timeout, debug)
 
-    driver.caching = {
+    driver.cache_enabled = defaults.get(CONF_CACHE_ENABLED, DEFAULT_CACHE_ENABLED)
+    driver.cache_expiry = {
         CONF_CACHE_EXPIRY_CONTROLLER: defaults.get(CONF_CACHE_EXPIRY_CONTROLLER, DEFAULT_CACHE_EXPIRY_CONTROLLER),
         CONF_CACHE_EXPIRY_LISTENER: defaults.get(CONF_CACHE_EXPIRY_LISTENER, DEFAULT_CACHE_EXPIRY_LISTENER),
         CONF_CACHE_EXPIRY_DATETIME: defaults.get(CONF_CACHE_EXPIRY_DATETIME, DEFAULT_CACHE_EXPIRY_DATETIME),
@@ -632,6 +635,7 @@ def resolve_door_by_name(options, name):
                         }
 
     return None
+
 
 def resolve_door_by_id(options, controller_id, door_id):
     if CONF_CONTROLLERS in options and CONF_DOORS in options:

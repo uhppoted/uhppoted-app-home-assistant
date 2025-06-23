@@ -49,7 +49,8 @@ CONF_CARD_STARTDATE = 'card_startdate'
 CONF_CARD_ENDDATE = 'card_enddate'
 CONF_CARD_DOORS = 'card_doors'
 
-# cache expiry
+# caching
+CONF_CACHE_ENABLED = 'cache.enabled'
 CONF_CACHE_EXPIRY_CONTROLLER = 'cache.expiry.controller'
 CONF_CACHE_EXPIRY_LISTENER = 'cache.expiry.listener'
 CONF_CACHE_EXPIRY_DATETIME = 'cache.expiry.datetime'
@@ -125,6 +126,7 @@ DEFAULT_MAX_CARD_INDEX = 20000
 DEFAULT_MAX_CARD_ERRORS = 5
 DEFAULT_PREFERRED_CARDS = []
 
+DEFAULT_CACHE_ENABLED = True
 DEFAULT_CACHE_EXPIRY_CONTROLLER = 300  # 5 minutes
 DEFAULT_CACHE_EXPIRY_LISTENER = 600  # 10 minutes
 DEFAULT_CACHE_EXPIRY_DATETIME = 300  # 5 minutes

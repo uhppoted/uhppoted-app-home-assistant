@@ -78,7 +78,8 @@ class uhppoted:
         self._timeout = timeout
         self._controllers = controllers
         self.queue = Queue()
-        self._caching = {}
+        self._cache_enabled = True
+        self._cache_expiry = {}
 
     @property
     def api(self):
@@ -89,12 +90,20 @@ class uhppoted:
         return [v['controller'] for v in self._controllers]
 
     @property
-    def caching(self) -> int:
-        return self._caching
+    def cache_enabled(self) -> int:
+        return self._cache_enabled
 
-    @caching.setter
-    def caching(self, expiry: {}) -> None:
-        self._caching |= expiry
+    @cache_enabled.setter
+    def cache_enabled(self, enabled: True) -> None:
+        self._cache_enabled = enabled
+
+    @property
+    def cache_expiry(self) -> int:
+        return self._cache_expiry
+
+    @cache_expiry.setter
+    def cache_expiry(self, expiry: {}) -> None:
+        self._cache_expiry |= expiry
 
     @staticmethod
     def get_all_controllers(bind, broadcast, listen, debug):
@@ -143,7 +152,7 @@ class uhppoted:
         self.queue.put_nowait(lambda: self._flush())
 
     def _put(self, response, key, expiry):
-        lifetime = self.caching.get(expiry, _DEFAULT_CACHE_EXPIRY.get(expiry, 60))
+        lifetime = self.cache_expiry.get(expiry, _DEFAULT_CACHE_EXPIRY.get(expiry, 60))
         now = datetime.now()
         expires = now + timedelta(seconds=lifetime)
 
@@ -163,34 +172,37 @@ class uhppoted:
     def get_controller(self, controller, callback):
         key = f'controller.{controller}.controller'
         (c, timeout) = self._lookup(controller)
-
         g = lambda: self._api.get_controller(c, timeout=timeout)
 
-        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, CONF_CACHE_EXPIRY_CONTROLLER,
-                                                          f"{'get-controller':<16} {controller}", callback))
-
-        return self._get(key)
+        if self.cache_enabled:
+            self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, CONF_CACHE_EXPIRY_CONTROLLER,
+                                                              f"{'get-controller':<16} {controller}", callback))
+            return self._get(key)
+        else:
+            return g()
 
     def get_listener(self, controller, callback=None):
         key = f'controller.{controller}.listener'
         (c, timeout) = self._lookup(controller)
         g = lambda: self._api.get_listener(c, timeout=timeout)
 
-        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, CONF_CACHE_EXPIRY_LISTENER,
-                                                          f"{'get_listener':<16} {controller}", callback))
-
-        return self._get(key)
+        if self.cache_enabled:
+            self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, CONF_CACHE_EXPIRY_LISTENER,
+                                                              f"{'get_listener':<16} {controller}", callback))
+            return self._get(key)
+        else:
+            return g()
 
     def set_listener(self, controller, address, port):
         key = f'controller.{controller}.listener'
         (c, timeout) = self._lookup(controller)
-
         response = self._api.set_listener(c, address, port, interval=0, timeout=timeout)
 
-        if response is None or not response.ok:
-            self._delete(key)
-        else:
-            self._put(GetListenerResponse(response.controller, address, port, 0), key, CONF_CACHE_EXPIRY_LISTENER)
+        if self.cache_enabled:
+            if response is None or not response.ok:
+                self._delete(key)
+            else:
+                self._put(GetListenerResponse(response.controller, address, port, 0), key, CONF_CACHE_EXPIRY_LISTENER)
 
         return response
 
@@ -199,21 +211,23 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
         g = lambda: self._api.get_time(c, timeout=timeout)
 
-        self.queue.put_nowait(
-            lambda: self.ye_olde_taskke(g, key, CONF_CACHE_EXPIRY_DATETIME, f"{'get-time':<16} {controller}", callback))
-
-        return self._get(key)
+        if self.cache_enabled:
+            self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, CONF_CACHE_EXPIRY_DATETIME,
+                                                              f"{'get-time':<16} {controller}", callback))
+            return self._get(key)
+        else:
+            return g()
 
     def set_time(self, controller, time):
         key = f'controller.{controller}.datetime'
         (c, timeout) = self._lookup(controller)
-
         response = self._api.set_time(c, time, timeout=timeout)
 
-        if response is None:
-            self._delete(key)
-        else:
-            self._put(GetTimeResponse(response.controller, response.datetime), key, CONF_CACHE_EXPIRY_DATETIME)
+        if self.cache_enabled:
+            if response is None:
+                self._delete(key)
+            else:
+                self._put(GetTimeResponse(response.controller, response.datetime), key, CONF_CACHE_EXPIRY_DATETIME)
 
         return response
 
@@ -222,21 +236,24 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
         g = lambda: self._api.get_door_control(c, door, timeout=timeout)
 
-        self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, CONF_CACHE_EXPIRY_DOOR,
-                                                          f"{'get_door_control':<16} {controller} {door}", callback))
-
-        return self._get(key)
+        if self.cache_enabled:
+            self.queue.put_nowait(lambda: self.ye_olde_taskke(
+                g, key, CONF_CACHE_EXPIRY_DOOR, f"{'get_door_control':<16} {controller} {door}", callback))
+            return self._get(key)
+        else:
+            return g()
 
     def set_door_control(self, controller, door, mode, delay):
         key = f'controller.{controller}.door.{door}'
         (c, timeout) = self._lookup(controller)
-
         response = self._api.set_door_control(c, door, mode, delay, timeout=timeout)
-        if response is None:
-            self._delete(key)
-        else:
-            self._put(GetDoorControlResponse(response.controller, response.door, response.mode, response.delay), key,
-                      CONF_CACHE_EXPIRY_DOOR)
+
+        if self.cache_enabled:
+            if response is None:
+                self._delete(key)
+            else:
+                self._put(GetDoorControlResponse(response.controller, response.door, response.mode, response.delay),
+                          key, CONF_CACHE_EXPIRY_DOOR)
 
         return response
 
@@ -249,10 +266,12 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
         g = lambda: self._api.get_status(c, timeout=timeout)
 
-        self.queue.put_nowait(
-            lambda: self.ye_olde_taskke(g, key, CONF_CACHE_EXPIRY_STATUS, f"{'get_status':<16} {controller}", callback))
-
-        return self._get(key)
+        if self.cache_enabled:
+            self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, CONF_CACHE_EXPIRY_STATUS,
+                                                              f"{'get_status':<16} {controller}", callback))
+            return self._get(key)
+        else:
+            return g()
 
     def get_cards(self, controller):
         (c, timeout) = self._lookup(controller)
@@ -261,17 +280,21 @@ class uhppoted:
     def get_card(self, controller, card):
         key = f'controller.{controller}.card.{card}'
         (c, timeout) = self._lookup(controller)
+        g = lambda: self._api.get_card(c, card, timeout=timeout)
 
-        try:
-            response = self._api.get_card(c, card, timeout=timeout)
-            if response is None:
-                self._delete(key)
-            else:
-                self._put(response, key, CONF_CACHE_EXPIRY_CARD)
-        except Exception as exc:
-            _LOGGER.error(f'error retrieving card {card} from controller {controller} ({exc})')
+        if self.cache_enabled:
+            try:
+                response = g()
+                if response is None:
+                    self._delete(key)
+                else:
+                    self._put(response, key, CONF_CACHE_EXPIRY_CARD)
+            except Exception as exc:
+                _LOGGER.error(f'error retrieving card {card} from controller {controller} ({exc})')
 
-        return self._get(key)
+            return self._get(key)
+        else:
+            return g()
 
     def get_card_by_index(self, controller, index):
         (c, timeout) = self._lookup(controller)
@@ -282,15 +305,27 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
         response = self._api.put_card(c, card, start_date, end_date, door1, door2, door3, door4, PIN, timeout=timeout)
 
-        if response is not None and response.stored:
-            self._put(GetCardResponse(response.controller, card, start_date, end_date, door1, door2, door3, door4, PIN),
-                      key, CONF_CACHE_EXPIRY_CARD)
+        if self.cache_enabled:
+            if response is not None and response.stored:
+                self._put(
+                    GetCardResponse(response.controller, card, start_date, end_date, door1, door2, door3, door4, PIN),
+                    key, CONF_CACHE_EXPIRY_CARD)
 
         return response
 
     def delete_card(self, controller, card):
+        key = f'controller.{controller}.card.{card}'
         (c, timeout) = self._lookup(controller)
-        return self.api.delete_card(c, card, timeout=timeout)
+        g = lambda: self.api.delete_card(c, card, timeout=timeout)
+
+        if self.cache_enabled:
+            response = g()
+            if response and response.deleted:
+                self._delete(key)
+
+            return response
+        else:
+            return g()
 
     def record_special_events(self, controller, enable):
         (c, timeout) = self._lookup(controller)
@@ -299,15 +334,19 @@ class uhppoted:
     def get_event(self, controller, index):
         key = f'controller.{controller}.event.{index}'
         (c, timeout) = self._lookup(controller)
+        g = lambda: self._api.get_event(c, index, timeout=timeout)
 
-        try:
-            response = self._api.get_event(c, index, timeout=timeout)
-            if response is not None:  # events are never deleted
-                self._put(response, key, CONF_CACHE_EXPIRY_EVENT)
-        except Exception as exc:
-            _LOGGER.error(f'error retrieving event {index} from controller {controller} ({exc})')
+        if self.cache_enabled:
+            try:
+                response = self._api.get_event(c, index, timeout=timeout)
+                if response is not None:  # events are never deleted
+                    self._put(response, key, CONF_CACHE_EXPIRY_EVENT)
+            except Exception as exc:
+                _LOGGER.error(f'error retrieving event {index} from controller {controller} ({exc})')
 
-        return self._get(key)
+            return self._get(key)
+        else:
+            return g()
 
     def get_interlock(self, controller):
         key = f'controller.{controller}.interlock'
@@ -316,16 +355,19 @@ class uhppoted:
 
     def set_interlock(self, controller, interlock):
         key = f'controller.{controller}.interlock'
-
         (c, timeout) = self._lookup(controller)
-        response = self._api.set_interlock(c, interlock, timeout=timeout)
+        g = lambda: self._api.set_interlock(c, interlock, timeout=timeout)
 
-        if response is None or not response.ok:
-            self._delete(key)
+        if self.cache_enabled:
+            response = g()
+            if response is None or not response.ok:
+                self._delete(key)
+            else:
+                self._put(GetInterlockResponse(controller, interlock), key, CONF_CACHE_EXPIRY_INTERLOCK)
+
+            return response
         else:
-            self._put(GetInterlockResponse(controller, interlock), key, CONF_CACHE_EXPIRY_INTERLOCK)
-
-        return response
+            return g()
 
     def get_antipassback(self, controller, callback=None):
         key = f'controller.{controller}.antipassback'
@@ -334,7 +376,11 @@ class uhppoted:
         # (c, timeout) = self._lookup(controller)
         # g = lambda: self._api.get_antipassback(c, timeout=timeout)
         #
-        # self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key,CONF_CACHE_EXPIRY_ANTIPASSBACK, f"{'get_antipassback':<16} {controller}", callback))
+        # if self.cache_enabled:
+        #     self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key,CONF_CACHE_EXPIRY_ANTIPASSBACK, f"{'get_antipassback':<16} {controller}", callback))
+        #     return self._get(key)
+        # else:
+        #     return g()
 
         if response := self._get(key):
             return response
@@ -345,14 +391,19 @@ class uhppoted:
         key = f'controller.{controller}.antipassback'
         # FIXME
         # (c, timeout) = self._lookup(controller)
-        # response = self._api.set_antipassback(c, antipassback, timeout=timeout)
+        # g = lambda: self._api.set_antipassback(c, antipassback, timeout=timeout)
         #
-        # if response is None or not response.ok:
-        #     self._delete(key)
+        # if self.cache_enabled:
+        #     response = g()
+        #     if response is None or not response.ok:
+        #         self._delete(key)
+        #     else:
+        #         self._put(GetAntiPassbackResponse(controller, antipassback),
+        #                   key,
+        #                   CONF_CACHE_EXPIRY_ANTIPASSBACK)
+        #     return response
         # else:
-        #     self._put(GetAntiPassbackResponse(controller, antipassback),
-        #               key,
-        #               CONF_CACHE_EXPIRY_ANTIPASSBACK)
+        #     return g()
 
         self._put(GetAntiPassbackResponse(controller, antipassback), key, CONF_CACHE_EXPIRY_ANTIPASSBACK)
 

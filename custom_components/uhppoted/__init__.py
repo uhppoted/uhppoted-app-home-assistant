@@ -22,6 +22,7 @@ from .const import CONF_POLL_CARDS
 from .const import CONF_POLL_EVENTS
 from .const import CONF_CONTROLLERS
 
+from .const import CONF_CACHE_ENABLED
 from .const import CONF_CACHE_EXPIRY_CONTROLLER
 from .const import CONF_CACHE_EXPIRY_LISTENER
 from .const import CONF_CACHE_EXPIRY_DATETIME
@@ -43,6 +44,7 @@ from .const import DEFAULT_POLL_EVENTS
 from .const import DEFAULT_MAX_CARDS
 from .const import DEFAULT_PREFERRED_CARDS
 
+from .const import DEFAULT_CACHE_ENABLED
 from .const import DEFAULT_CACHE_EXPIRY_CONTROLLER
 from .const import DEFAULT_CACHE_EXPIRY_LISTENER
 from .const import DEFAULT_CACHE_EXPIRY_DATETIME
@@ -88,6 +90,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_CONTROLLERS: [],
 
         # caching
+        CONF_CACHE_ENABLED: DEFAULT_CACHE_ENABLED,
         CONF_CACHE_EXPIRY_CONTROLLER: DEFAULT_CACHE_EXPIRY_CONTROLLER,
         CONF_CACHE_EXPIRY_LISTENER: DEFAULT_CACHE_EXPIRY_LISTENER,
         CONF_CACHE_EXPIRY_DATETIME: DEFAULT_CACHE_EXPIRY_DATETIME,
@@ -118,6 +121,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
             CONF_CONTROLLERS,
 
             # caching
+            CONF_CACHE_ENABLED,
             CONF_CACHE_EXPIRY_CONTROLLER,
             CONF_CACHE_EXPIRY_LISTENER,
             CONF_CACHE_EXPIRY_DATETIME,
@@ -133,6 +137,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
                 defaults[v] = c[v]
 
         if caching := c.get('cache', None):
+            defaults[CONF_CACHE_ENABLED] = caching.get('enabled', DEFAULT_CACHE_ENABLED)
             if expiry := caching.get('expiry', None):
                 defaults[CONF_CACHE_EXPIRY_CONTROLLER] = expiry.get('controller', DEFAULT_CACHE_EXPIRY_CONTROLLER)
                 defaults[CONF_CACHE_EXPIRY_LISTENER] = expiry.get('listener', DEFAULT_CACHE_EXPIRY_LISTENER)
@@ -160,6 +165,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     _LOGGER.info(f'controllers:                 {defaults[CONF_CONTROLLERS]}')
 
     # caching
+    _LOGGER.info(f'cache.enabled: {defaults[CONF_CACHE_ENABLED]}')
     _LOGGER.info(f'cache.expiry - controller:   {defaults[CONF_CACHE_EXPIRY_CONTROLLER]}')
     _LOGGER.info(f'cache.expiry - listener:     {defaults[CONF_CACHE_EXPIRY_LISTENER]}')
     _LOGGER.info(f'cache.expiry - date/time:    {defaults[CONF_CACHE_EXPIRY_DATETIME]}')

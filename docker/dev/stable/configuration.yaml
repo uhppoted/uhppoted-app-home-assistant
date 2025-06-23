@@ -51,6 +51,7 @@ uhppoted:
             timeout: 0.56
             protocol: TCP
     cache:
+        enabled: true
         expiry:
             controller: 90
             listener: 300
