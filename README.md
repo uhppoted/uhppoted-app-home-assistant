@@ -31,6 +31,8 @@ doors and maybe a ten or so access cards - so, not e.g. a large mansion, minor p
    - [`add-card`](#add-card)
    - [`delete-card`](#delete-card)
 5. [Decorated events](#decorated-events)
+6. [Notes](#notes)
+   - [Docker](#docker)
 
 
 ---
@@ -204,7 +206,16 @@ configurable settings comprises:
 | `cards_poll_interval`       | Interval at which to fetch card information (seconds)            | 30                |
 | `events_poll_interval`      | Interval at which to fetch missed/synthetic events (seconds)     | 30                |
 | `controllers`               | List of off-LAN controllers (see above)                          | -none-            |
-| `cache.expiry.interlock`    | Cache expiry for cached controller door interlock mode (seconds) | 900               |
+| `cache.enabled`             | Enables the entity and background task queue                     | true              |
+| `cache.expiry.controller`   | Cache expiry time for cached controller entities (seconds)       | 300  (5 minutes)  |
+| `cache.expiry.listener`     | Cache expiry time for cached event listener (seconds)            | 600  (10 minutes) |
+| `cache.expiry.datetime`     | Cache expiry time for cached controller date/time (seconds)      | 300  (5 minutes)  |
+| `cache.expiry.door`         | Cache expiry time for cached door entities (seconds)             | 600  (10 minutes) |
+| `cache.expiry.card`         | Cache expiry time for cached card entities (seconds)             | 900  (15 minutes) |
+| `cache.expiry.status`       | Cache expiry time for cached controller status (seconds)         | 120  (2 minutes)  |
+| `cache.expiry.interlock`    | Cache expiry for cached controller door interlock mode (seconds) | 900  (15 minutes) |
+| `cache.expiry.antipassback` | Cache expiry time for cached anti-passback mode (seconds)        | 900  (15 minutes) |
+| `cache.expiry.event`        | Cache expiry time for cached event entities (seconds)            | 1800 (30 minutes) |
 
 e.g.
 ```
@@ -240,8 +251,17 @@ uhppoted:
             protocol: TCP
             timeout: 0.56
     cache:
+        enabled: true
         expiry:
-           interlock: 300
+            controller: 90
+            listener: 900
+            datetime: 120
+            door: 180
+            card: 180
+            status: 120
+            interlock: 600
+            antipassback: 600
+            event: 3600
 ```
 
 
@@ -336,3 +356,18 @@ template:
           access_code: "{{ trigger.event.data.access.code }}"
           access_description: "{{ trigger.event.data.access.description }}"
 ```
+
+## Notes
+
+### Docker
+
+In bridge neworking mode (used on _MacOS_ and _Windows_) the UDP transport in Docker drops UDP replies at a **significantly**
+higher rate than typically experienced on a LAN/WAN. In _uhppoted-app-home-assistant_ this manifests as entities going 
+intermittently and unecessarily _unavailable_ with a _timeout_ message in the logs. _Host_ mode networking (Linux/RaspberryPi)
+doesn't appear to suffer from the same problem.
+
+A cache layer and background scheduling upgrade which mitigates the problem to a more manageable level is included in release 
+v0.8.11 - the interim workaround is to configure the controllers to use the TCP transport, if supported (some older 
+controllers may not).
+
+Anecdotally, it seems this may also be a problem in _Proxmox_.

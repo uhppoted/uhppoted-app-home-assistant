@@ -7,20 +7,21 @@
 - [x] anti-passback (cf. https://github.com/uhppoted/uhppoted/issues/60)
 
 - [ ] Weird timeout behaviour (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/18)
-      - [x] background fetch queue
-      - [ ] cache
-            - [x] get-controller
-            - [x] get-time
-            - [x] get_listener
-            - [x] get_door_control
-            - [x] get_status
-            - [x] get_interlock
-            - [x] get_antipassback
-            - [x] get_event
-            - [x] get_card
-            - [x] flush cache
-            - [x] ~~set-door-control (just use configured/stored delay and mode)~~
-            - [ ] README: Docker containers in bridge mode + UDP
+   - [x] background fetch queue
+   - [x] cache
+      - [x] get-controller
+      - [x] get-time
+      - [x] get_listener
+      - [x] get_door_control
+      - [x] get_status
+      - [x] get_interlock
+      - [x] get_antipassback
+      - [x] get_event
+      - [x] get_card
+      - [x] flush cache
+      - [x] ~~set-door-control (just use configured/stored delay and mode)~~
+      - [x] README
+   - [ ] cache enabled/disabled in _configuration.yaml_
 
 - [ ] Decorate card swipe event (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/13)
        - [x] fire card.swipe.decorated event
