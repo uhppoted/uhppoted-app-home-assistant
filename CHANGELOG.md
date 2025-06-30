@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## [0.8.11](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.11) - 2025-07-01
 
 ### Added
 1. Added (optional) _controller interlock_ settting to manage controller door interlocks.

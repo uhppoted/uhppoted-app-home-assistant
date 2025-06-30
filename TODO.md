@@ -1,31 +1,19 @@
 # TODO
 
-- [ ] get/set-antipassback: remove #FIXME when uhppoted-lib-python updated (cf. https://github.com/uhppoted/uhppoted/issues/60)
+- [ ] get/set-antipassback: 
+      - remove #FIXME when uhppoted-lib-python updated (cf. https://github.com/uhppoted/uhppoted/issues/60)
+      - bump version to 0.8.11
 
 - [x] Fix deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/15)
 - [x] Decorated events door lookup error (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/17#event-17118124970)
 - [x] anti-passback (cf. https://github.com/uhppoted/uhppoted/issues/60)
-
 - [x] Weird timeout behaviour (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/18)
    - [x] background fetch queue
    - [x] cache
-      - [x] get-controller
-      - [x] get-time
-      - [x] get_listener
-      - [x] get_door_control
-      - [x] get_status
-      - [x] get_interlock
-      - [x] get_antipassback
-      - [x] get_event
-      - [x] get_card
-      - [x] flush cache
-      - [x] ~~set-door-control (just use configured/stored delay and mode)~~
-      - [x] README
-   - [x] cache enabled/disabled in _configuration.yaml_
 
 - [ ] Decorate card swipe event (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/13)
        - [x] fire card.swipe.decorated event
-       - [ ] opt-in/out in config-flow
+       - [ ] opt-in/out in configuration.yaml/config-flow
 
 - [ ] decorated events
        - (?) per-card swipe events
