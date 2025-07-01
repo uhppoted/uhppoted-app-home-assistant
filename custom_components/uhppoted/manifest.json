@@ -6,8 +6,8 @@
   "dependencies": [],
   "documentation": "https://github.com/uhppoted/uhppoted-app-home-assistant",
   "iot_class": "local_polling",
-  "requirements": [ "uhppoted>=0.8.10" ],
-  "version": "0.8.10.4",
+  "requirements": [ "uhppoted>=0.8.11" ],
+  "version": "0.8.11",
   "homekit": {},
   "ssdp": [],
   "zeroconf": []

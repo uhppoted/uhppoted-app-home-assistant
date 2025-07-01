@@ -371,43 +371,30 @@ class uhppoted:
 
     def get_antipassback(self, controller, callback=None):
         key = f'controller.{controller}.antipassback'
+        (c, timeout) = self._lookup(controller)
+        g = lambda: self._api.get_antipassback(c, timeout=timeout)
 
-        # FIXME
-        # (c, timeout) = self._lookup(controller)
-        # g = lambda: self._api.get_antipassback(c, timeout=timeout)
-        #
-        # if self.cache_enabled:
-        #     self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key,CONF_CACHE_EXPIRY_ANTIPASSBACK, f"{'get_antipassback':<16} {controller}", callback))
-        #     return self._get(key)
-        # else:
-        #     return g()
-
-        if response := self._get(key):
-            return response
+        if self.cache_enabled:
+            self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, CONF_CACHE_EXPIRY_ANTIPASSBACK,
+                                                              f"{'get_antipassback':<16} {controller}", callback))
+            return self._get(key)
         else:
-            return GetAntiPassbackResponse(controller, 0)
+            return g()
 
     def set_antipassback(self, controller, antipassback):
         key = f'controller.{controller}.antipassback'
-        # FIXME
-        # (c, timeout) = self._lookup(controller)
-        # g = lambda: self._api.set_antipassback(c, antipassback, timeout=timeout)
-        #
-        # if self.cache_enabled:
-        #     response = g()
-        #     if response is None or not response.ok:
-        #         self._delete(key)
-        #     else:
-        #         self._put(GetAntiPassbackResponse(controller, antipassback),
-        #                   key,
-        #                   CONF_CACHE_EXPIRY_ANTIPASSBACK)
-        #     return response
-        # else:
-        #     return g()
+        (c, timeout) = self._lookup(controller)
+        g = lambda: self._api.set_antipassback(c, antipassback, timeout=timeout)
 
-        self._put(GetAntiPassbackResponse(controller, antipassback), key, CONF_CACHE_EXPIRY_ANTIPASSBACK)
-
-        return SetAntiPassbackResponse(controller, True)
+        if self.cache_enabled:
+            response = g()
+            if response is None or not response.ok:
+                self._delete(key)
+            else:
+                self._put(GetAntiPassbackResponse(controller, antipassback), key, CONF_CACHE_EXPIRY_ANTIPASSBACK)
+            return response
+        else:
+            return g()
 
     def _lookup(self, controller):
         for v in self._controllers:
