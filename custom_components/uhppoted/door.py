@@ -618,7 +618,7 @@ class DoorMode(CoordinatorEntity, SelectEntity):
             controller = self._serial_no
             door = self._door_id
             mode = self._mode
-            response = self.coordinator.set_door_mode(controller, door, mode)
+            response = await self.coordinator.set_door_mode(controller, door, mode)
 
             if response:
                 await self.coordinator.async_request_refresh()
@@ -700,7 +700,7 @@ class DoorDelay(CoordinatorEntity, NumberEntity):
             controller = self._serial_no
             door = self._door_id
             delay = int(value)
-            response = self.coordinator.set_door_delay(controller, door, delay)
+            response = await self.coordinator.set_door_delay(controller, door, delay)
 
             if response:
                 await self.coordinator.async_request_refresh()

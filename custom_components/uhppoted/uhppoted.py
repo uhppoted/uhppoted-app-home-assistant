@@ -249,10 +249,10 @@ class uhppoted:
         else:
             return g()
 
-    def set_door_control(self, controller, door, mode, delay):
+    async def set_door(self, controller, door, mode, delay):
         key = f'controller.{controller}.door.{door}'
         (c, timeout) = self._lookup(controller)
-        response = self._api.set_door_control(c, door, mode, delay, timeout=timeout)
+        response = await self._asio.set_door_control(c, door, mode, delay, timeout=timeout)
 
         if self.cache_enabled:
             if response is None:

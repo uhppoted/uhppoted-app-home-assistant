@@ -3,7 +3,9 @@
 - [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
     - https://developers.home-assistant.io/docs/asyncio_working_with_async
     - [x] set-time
-    - [ ] set-door-control
+    - [x] set-door-mode
+    - [x] set-door-delay
+    - [ ] open-door
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
       - (?) store controller + card in coordinator and collate presented state from that
