@@ -13,6 +13,7 @@ from uhppoted.structs import GetTimeResponse
 from uhppoted.structs import GetListenerResponse
 from uhppoted.structs import GetDoorControlResponse
 from uhppoted.structs import GetCardResponse
+from uhppoted.structs import GetAntiPassbackResponse
 
 from . import const
 from .const import CONF_CACHE_EXPIRY_CONTROLLER
@@ -34,21 +35,6 @@ Controller = namedtuple('Controller', 'id address protocol')
 class GetInterlockResponse:
     controller: int
     interlock: int
-
-
-#FIXME remove when uhppoted-lib is published
-@dataclass
-class GetAntiPassbackResponse:
-    controller: int
-    antipassback: int
-
-
-#FIXME remove when uhppoted-lib is published
-@dataclass
-class SetAntiPassbackResponse:
-    controller: int
-    ok: bool
-
 
 @dataclass
 class CacheEntry:
