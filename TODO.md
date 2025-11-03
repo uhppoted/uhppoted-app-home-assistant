@@ -1,26 +1,27 @@
 # TODO
 
-- [x] get/set-antipassback: 
-- [x] Fix deprecation warning (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/15)
-- [x] Decorated events door lookup error (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/17#event-17118124970)
-- [x] anti-passback (cf. https://github.com/uhppoted/uhppoted/issues/60)
-- [x] Weird timeout behaviour (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/18)
-   - [x] background fetch queue
-   - [x] cache
+- [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
+    - https://developers.home-assistant.io/docs/asyncio_working_with_async
+    - [x] set-time
+    - [ ] set-door-control
 
-- [ ] Decorate card swipe event (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/13)
-       - [x] fire card.swipe.decorated event
+- [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
+      - (?) store controller + card in coordinator and collate presented state from that
+      - https://developers.home-assistant.io/docs/core/entity/#excluding-state-attributes-from-recorder-history
+      - https://www.home-assistant.io/integrations/logger
+      - https://community.home-assistant.io/t/make-recorder-logbook-and-history-includes-avaialable-for-editing-on-the-entities-page/212515
+      - https://community.home-assistant.io/t/recorder-retention-period-by-entity/267849/5
+      - https://www.reddit.com/r/homeassistant/comments/8aj8xg/is_there_a_way_to_prevent_specific_entities_form
+      - https://community.home-assistant.io/t/worth-disabling-unused-entities/350068
+      - https://community.home-assistant.io/t/how-to-prevent-a-log-entry-when-an-automation-is-executed/255876
+
+- [ ] Improve event handling (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/14)
        - [ ] opt-in/out in configuration.yaml/config-flow
-
-- [ ] decorated events
        - (?) per-card swipe events
        - [ ] automation to handle card.swipe.decorated event
        - [ ] add automation to config-flow
        - [ ] Lovelace card to display events
        - [ ] add Lovelace card to config-flow
-
-- [ ] Cache
-      - store controller + card in coordinator and collate presented state from that
 
 - [ ] https://www.hacs.xyz/docs/publish/action/
 - [ ] (eventually) remove `controllers` from driver

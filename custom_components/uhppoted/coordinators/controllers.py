@@ -65,9 +65,9 @@ class ControllersCoordinator(DataUpdateCoordinator):
     def unload(self):
         pass
 
-    def set_datetime(self, controller_id, time):
+    async def set_datetime(self, controller_id, time):
         controller = self._resolve(controller_id)
-        response = self._uhppote.set_time(controller.id, time)
+        response = await self._uhppote.set_time(controller.id, time)
 
         if response.controller == controller.id:
             return response

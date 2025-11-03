@@ -8,6 +8,7 @@ from asyncio import Queue
 from typing import Any
 
 from uhppoted import uhppote
+from uhppoted import uhppote_async
 from uhppoted.structs import GetTimeResponse
 from uhppoted.structs import GetListenerResponse
 from uhppoted.structs import GetDoorControlResponse
@@ -75,6 +76,7 @@ class uhppoted:
     def __init__(self, bind, broadcast, listen, controllers, timeout, debug):
         self._broadcast = broadcast
         self._api = uhppote.Uhppote(bind, broadcast, listen, debug)
+        self._asio = uhppote_async.UhppoteAsync(bind, broadcast, listen, debug)
         self._timeout = timeout
         self._controllers = controllers
         self.queue = Queue()
@@ -84,6 +86,10 @@ class uhppoted:
     @property
     def api(self):
         return self._api
+
+    @property
+    def asio(self):
+        return self._asio
 
     @property
     def controllers(self):
@@ -218,10 +224,10 @@ class uhppoted:
         else:
             return g()
 
-    def set_time(self, controller, time):
+    async def set_time(self, controller, time):
         key = f'controller.{controller}.datetime'
         (c, timeout) = self._lookup(controller)
-        response = self._api.set_time(c, time, timeout=timeout)
+        response = await self._asio.set_time(controller, time, timeout=timeout)
 
         if self.cache_enabled:
             if response is None:

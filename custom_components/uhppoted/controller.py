@@ -164,7 +164,7 @@ class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
             controller = self._serial_no
             tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
             localtime = utc.astimezone(tz)
-            response = self.coordinator.set_datetime(controller, localtime)
+            response = await self.coordinator.set_datetime(controller, localtime)
 
             if response:
                 await self.coordinator.async_request_refresh()
