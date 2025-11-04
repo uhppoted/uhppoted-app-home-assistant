@@ -5,10 +5,12 @@
     - [x] set-time
     - [x] set-door-mode
     - [x] set-door-delay
-    - [ ] open-door
+    - [x] open-door
     - [ ] set-interlock
     - [ ] set-antipassback
     - [ ] set-listener
+    - [ ] put-card
+    - [ ] delete-card
     - [ ] loading on startup
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)

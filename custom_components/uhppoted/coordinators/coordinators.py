@@ -65,12 +65,13 @@ class Coordinators():
         return None
 
     @classmethod
-    def unlock_door(clazz, door):
+    async def unlock_door(clazz, door):
         unlocked = False
 
         for coordinators in Coordinators.COORDINATORS.values():
             if coordinators and coordinators._doors:
-                if coordinators._doors.unlock_door_by_name(door):
+                response = await coordinators._doors.unlock_door_by_name(door)
+                if response:
                     unlocked = True
 
         return unlocked

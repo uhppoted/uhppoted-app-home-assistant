@@ -768,7 +768,7 @@ class DoorUnlock(CoordinatorEntity, ButtonEntity):
         try:
             controller = self._serial_no
             door = self._door_id
-            response = self.coordinator.unlock_door(controller, door)
+            response = await self.coordinator.unlock_door(controller, door)
 
             if response:
                 if response.opened:

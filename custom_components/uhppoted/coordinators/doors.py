@@ -87,21 +87,22 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
         return None
 
-    def unlock_door(self, controller_id, door) -> None:
+    async def unlock_door(self, controller_id, door) -> None:
         controller = self._resolve(controller_id)
-        response = self._uhppote.open_door(controller.id, door)
+        response = await self._uhppote.open_door(controller.id, door)
 
         if response.controller != controller.id:
             raise ValueError(f'invalid response to open-door')
         else:
             return response
 
-    def unlock_door_by_name(self, door):
+    async def unlock_door_by_name(self, door):
         record = resolve_door_by_name(self._options, door)
         if record:
             controller = self._resolve(record[CONF_CONTROLLER_SERIAL_NUMBER])
             doorno = record[CONF_DOOR_NUMBER]
-            response = self.unlock_door(controller.id, doorno)
+            response = await self.unlock_door(controller.id, doorno)
+
             return response.opened
 
         return False

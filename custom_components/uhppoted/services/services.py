@@ -16,7 +16,7 @@ class Services():
     @classmethod
     def initialise(clazz, hass, id, options):
         if not Services.SERVICES:
-            hass.services.async_register(DOMAIN, "unlock_door", lambda v: unlock_door(v))
+            hass.services.async_register(DOMAIN, "unlock_door", unlock_door)
             hass.services.async_register(DOMAIN, "add_card", lambda v: add_card(v))
             hass.services.async_register(DOMAIN, "delete_card", lambda v: delete_card(v))
 
@@ -32,13 +32,13 @@ class Services():
             hass.services.async_remove(DOMAIN, 'delete_card')
 
 
-def unlock_door(call):
+async def unlock_door(call):
     _LOGGER.debug('service call:unlock-door', call.data)
 
     try:
         door = call.data.get('door', None)
         if door:
-            if Coordinators.unlock_door(door):
+            if await Coordinators.unlock_door(door):
                 _LOGGER.info(f'service call:unlock-door opened door {door}')
             else:
                 _LOGGER.warning(f'service call:unlock-door did not open door {door}')

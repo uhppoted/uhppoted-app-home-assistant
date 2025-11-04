@@ -36,6 +36,7 @@ class GetInterlockResponse:
     controller: int
     interlock: int
 
+
 @dataclass
 class CacheEntry:
     response: Any
@@ -249,9 +250,11 @@ class uhppoted:
 
         return response
 
-    def open_door(self, controller, door):
+    async def open_door(self, controller, door):
         (c, timeout) = self._lookup(controller)
-        return self._api.open_door(c, door, timeout=timeout)
+        response = await self._asio.open_door(c, door, timeout=timeout)
+
+        return response
 
     def get_status(self, controller, callback=None):
         key = f'controller.{controller}.status'
