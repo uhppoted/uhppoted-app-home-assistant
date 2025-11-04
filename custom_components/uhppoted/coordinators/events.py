@@ -217,9 +217,13 @@ class EventsCoordinator(DataUpdateCoordinator):
                 controllers.append(controller)
 
         try:
+            await asyncio.gather(*[
+                self._set_event_listener(lock, c) for c in controllers
+            ])
+
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 executor.map(lambda controller: self._record_special_events(lock, controller), controllers, timeout=1)
-                executor.map(lambda controller: self._set_event_listener(lock, controller), controllers, timeout=1)
+                # executor.map(lambda controller: self._set_event_listener(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_controller_events(lock, controller), controllers, timeout=1)
         except Exception as err:
             _LOGGER.error(f'error retrieving event information ({err})')
@@ -240,7 +244,7 @@ class EventsCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.warning(f'error enabling controller {controller} record special events ({err})')
 
-    def _set_event_listener(self, lock, controller):
+    async def _set_event_listener(self, lock, controller):
         if self._listener_addr != None:
             _LOGGER.debug(f'check controller {controller.id} event listener')
 
@@ -258,7 +262,7 @@ class EventsCoordinator(DataUpdateCoordinator):
                 if addr != self._listener_addr:
                     _LOGGER.warning(f'controller {controller.id} incorrect event listener address ({addr})')
                     host, port = self._listener_addr.split(':')
-                    response = self._uhppote.set_listener(controller.id, IPv4Address(host), int(port))
+                    response = await self._uhppote.set_listener(controller.id, IPv4Address(host), int(port))
 
                     if response and response.controller == controller.id:
                         if response.ok:

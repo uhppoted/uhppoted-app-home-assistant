@@ -8,11 +8,14 @@
     - [x] open-door
     - [x] set-interlock
     - [x] set-antipassback
-    - [ ] set-listener
+    - [x] set-listener
+    - [ ] record-special-events
+    - [ ] get-controller-events
     - [ ] put-card
     - [ ] delete-card
     - [ ] loading on startup
     - [ ] fix set-interlock on startup
+    - [ ] fix _controller 405419896 incorrect event listener address (None)_
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
       - (?) store controller + card in coordinator and collate presented state from that

@@ -186,10 +186,10 @@ class uhppoted:
         else:
             return g()
 
-    def set_listener(self, controller, address, port):
+    async def set_listener(self, controller, address, port):
         key = f'controller.{controller}.listener'
         (c, timeout) = self._lookup(controller)
-        response = self._api.set_listener(c, address, port, interval=0, timeout=timeout)
+        response = await self._asio.set_listener(c, address, port, interval=0, timeout=timeout)
 
         if self.cache_enabled:
             if response is None or not response.ok:
