@@ -455,15 +455,16 @@ class AntiPassback(CoordinatorEntity, SelectEntity):
         return None
 
     async def async_select_option(self, option):
-        _LOGGER.debug(f'controller:{self._controller}  set anti-passback {option}')
+        _LOGGER.debug(f'controller:{self._controller}  set card anti-passback {option}')
 
         try:
             mode = ANTIPASSBACK.get(option, None)
             if mode is not None:
                 controller = self._serial_no
-                if response := self.coordinator.set_antipassback(controller, mode):
+                if response := await self.coordinator.set_antipassback(controller, mode):
                     if response.ok:
                         self._mode = mode
+                        _LOGGER.info(f'set card anti-passback mode {mode}')
                     else:
                         self._mode = -1
 

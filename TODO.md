@@ -7,7 +7,7 @@
     - [x] set-door-delay
     - [x] open-door
     - [x] set-interlock
-    - [ ] set-antipassback
+    - [x] set-antipassback
     - [ ] set-listener
     - [ ] put-card
     - [ ] delete-card

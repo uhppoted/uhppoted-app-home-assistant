@@ -373,20 +373,19 @@ class uhppoted:
         else:
             return g()
 
-    def set_antipassback(self, controller, antipassback):
+    async def set_antipassback(self, controller, antipassback):
         key = f'controller.{controller}.antipassback'
         (c, timeout) = self._lookup(controller)
-        g = lambda: self._api.set_antipassback(c, antipassback, timeout=timeout)
+        
+        response = await self._asio.set_antipassback(c, antipassback, timeout=timeout)
 
         if self.cache_enabled:
-            response = g()
             if response is None or not response.ok:
                 self._delete(key)
             else:
                 self._put(GetAntiPassbackResponse(controller, antipassback), key, CONF_CACHE_EXPIRY_ANTIPASSBACK)
-            return response
-        else:
-            return g()
+
+        return response
 
     def _lookup(self, controller):
         for v in self._controllers:

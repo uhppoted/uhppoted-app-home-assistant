@@ -83,9 +83,9 @@ class ControllersCoordinator(DataUpdateCoordinator):
         else:
             return None
 
-    def set_antipassback(self, controller_id, antipassback):
+    async def set_antipassback(self, controller_id, antipassback):
         controller = self._resolve(controller_id)
-        response = self._uhppote.set_antipassback(controller.id, antipassback)
+        response = await self._uhppote.set_antipassback(controller.id, antipassback)
 
         if response.controller == controller.id:
             return response
