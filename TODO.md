@@ -9,13 +9,27 @@
     - [x] set-interlock
     - [x] set-antipassback
     - [x] set-listener
-    - [ ] record-special-events
+    - [x] record-special-events
     - [ ] get-controller-events
     - [ ] put-card
     - [ ] delete-card
     - [ ] loading on startup
     - [ ] fix set-interlock on startup
     - [ ] fix _controller 405419896 incorrect event listener address (None)_
+    - [ ] fix:
+```
+2025-11-04 19:41:10.930 ERROR (MainThread) [homeassistant] Error doing job: Task exception was never retrieved (None)
+home-assistant-stable  | Traceback (most recent call last):
+home-assistant-stable  |   File "/config/custom_components/uhppoted/coordinators/events.py", line 58, in _listen
+home-assistant-stable  |     transport, protocol = await loop.create_datagram_endpoint(lambda: listener, local_addr=(addr, port))
+home-assistant-stable  |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+home-assistant-stable  |   File "/usr/local/lib/python3.13/asyncio/base_events.py", line 1467, in create_datagram_endpoint
+home-assistant-stable  |     raise exceptions[0]
+home-assistant-stable  |   File "/usr/local/lib/python3.13/asyncio/base_events.py", line 1451, in create_datagram_endpoint
+home-assistant-stable  |     sock.bind(local_address)
+home-assistant-stable  |     ~~~~~~~~~^^^^^^^^^^^^^^^
+home-assistant-stable  | OSError: [Errno 98] Address in use
+```
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
       - (?) store controller + card in coordinator and collate presented state from that

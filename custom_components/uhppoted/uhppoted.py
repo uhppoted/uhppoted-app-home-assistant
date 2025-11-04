@@ -322,9 +322,9 @@ class uhppoted:
         else:
             return g()
 
-    def record_special_events(self, controller, enable):
+    async def record_special_events(self, controller, enable):
         (c, timeout) = self._lookup(controller)
-        return self._api.record_special_events(c, enable, timeout=timeout)
+        return await self._api.record_special_events(c, enable, timeout=timeout)
 
     def get_event(self, controller, index):
         key = f'controller.{controller}.event.{index}'

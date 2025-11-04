@@ -211,19 +211,16 @@ class EventsCoordinator(DataUpdateCoordinator):
     async def _get_events(self, contexts):
         lock = threading.Lock()
 
-        controllers = []
-        for controller in self._controllers:
-            if controller.id in contexts:
-                controllers.append(controller)
+        controllers = [c for c in self._controllers if c.id in contexts]
+
+        tasks = []
+        tasks += [self._record_special_events(lock, c) for c in controllers]
+        tasks += [self._set_event_listener(lock, c) for c in controllers]
 
         try:
-            await asyncio.gather(*[
-                self._set_event_listener(lock, c) for c in controllers
-            ])
+            await asyncio.gather(*tasks)
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                executor.map(lambda controller: self._record_special_events(lock, controller), controllers, timeout=1)
-                # executor.map(lambda controller: self._set_event_listener(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_controller_events(lock, controller), controllers, timeout=1)
         except Exception as err:
             _LOGGER.error(f'error retrieving event information ({err})')
@@ -232,13 +229,15 @@ class EventsCoordinator(DataUpdateCoordinator):
 
         return self._db.events
 
-    def _record_special_events(self, lock, controller):
+    async def _record_special_events(self, lock, controller):
         _LOGGER.debug(f'enable controller {controller.id} record special events')
 
         try:
-            response = self._uhppote.record_special_events(controller.id, True)
+            response = await self._uhppote.record_special_events(controller.id, True)
             if response.controller == controller.id:
-                if not response.updated:
+                if response.updated:
+                    _LOGGER.info('record special events enabled for {controller.id}')
+                else:
                     _LOGGER.warning('record special events not enabled for {controller.id}')
 
         except Exception as err:
