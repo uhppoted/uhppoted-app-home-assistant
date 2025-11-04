@@ -348,21 +348,18 @@ class uhppoted:
 
         return self._get(key)
 
-    def set_interlock(self, controller, interlock):
+    async def set_interlock(self, controller, interlock):
         key = f'controller.{controller}.interlock'
         (c, timeout) = self._lookup(controller)
-        g = lambda: self._api.set_interlock(c, interlock, timeout=timeout)
+        response = await self._asio.set_interlock(c, interlock, timeout=timeout)
 
         if self.cache_enabled:
-            response = g()
             if response is None or not response.ok:
                 self._delete(key)
             else:
                 self._put(GetInterlockResponse(controller, interlock), key, CONF_CACHE_EXPIRY_INTERLOCK)
 
-            return response
-        else:
-            return g()
+        return response
 
     def get_antipassback(self, controller, callback=None):
         key = f'controller.{controller}.antipassback'

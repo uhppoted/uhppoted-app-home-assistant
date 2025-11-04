@@ -360,9 +360,10 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
                 self._extra.interlock = mode
 
                 controller = self._serial_no
-                if response := self.coordinator.set_interlock(controller, mode):
+                if response := await self.coordinator.set_interlock(controller, mode):
                     if response.ok:
                         self._mode = mode
+                        _LOGGER.info(f'set door interlock mode {mode}')
 
                     self._available = True
                     await self.coordinator.async_request_refresh()
@@ -404,9 +405,10 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
             self._available = False
             _LOGGER.exception(f'error retrieving controller {self._controller} interlock mode')
 
+    # sets the controller interlock from the stored data (there is no get-interlock API function)
     async def _background_set_timeout(self, controller, mode):
         try:
-            self.coordinator.set_interlock(controller, mode)
+            await self.coordinator.set_interlock(controller, mode)
         except Exception as err:
             _LOGGER.warning(f'set-interlock failed ({err})')
 

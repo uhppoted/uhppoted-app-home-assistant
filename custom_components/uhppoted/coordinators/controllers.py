@@ -74,9 +74,9 @@ class ControllersCoordinator(DataUpdateCoordinator):
         else:
             return None
 
-    def set_interlock(self, controller_id, interlock):
+    async def set_interlock(self, controller_id, interlock):
         controller = self._resolve(controller_id)
-        response = self._uhppote.set_interlock(controller.id, interlock)
+        response = await self._uhppote.set_interlock(controller.id, interlock)
 
         if response.controller == controller.id:
             return response

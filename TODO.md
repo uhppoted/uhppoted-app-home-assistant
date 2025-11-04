@@ -6,12 +6,13 @@
     - [x] set-door-mode
     - [x] set-door-delay
     - [x] open-door
-    - [ ] set-interlock
+    - [x] set-interlock
     - [ ] set-antipassback
     - [ ] set-listener
     - [ ] put-card
     - [ ] delete-card
     - [ ] loading on startup
+    - [ ] fix set-interlock on startup
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
       - (?) store controller + card in coordinator and collate presented state from that
