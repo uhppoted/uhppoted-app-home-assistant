@@ -206,7 +206,7 @@ class EventsCoordinator(DataUpdateCoordinator):
             async with async_timeout.timeout(2.5):
                 return await self._get_events(contexts)
         except Exception as err:
-            raise UpdateFailed(f'uhppoted API error {err}')
+            raise UpdateFailed(f'uhppoted API error {err}') from err
 
     async def _get_events(self, contexts):
         lock = threading.Lock()
@@ -216,12 +216,10 @@ class EventsCoordinator(DataUpdateCoordinator):
         tasks = []
         tasks += [self._record_special_events(lock, c) for c in controllers]
         tasks += [self._set_event_listener(lock, c) for c in controllers]
+        tasks += [self._get_controller_events(lock, c) for c in controllers]
 
         try:
             await asyncio.gather(*tasks)
-
-            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                executor.map(lambda controller: self._get_controller_events(lock, controller), controllers, timeout=1)
         except Exception as err:
             _LOGGER.error(f'error retrieving event information ({err})')
 
@@ -236,16 +234,16 @@ class EventsCoordinator(DataUpdateCoordinator):
             response = await self._uhppote.record_special_events(controller.id, True)
             if response.controller == controller.id:
                 if response.updated:
-                    _LOGGER.info('record special events enabled for {controller.id}')
+                    _LOGGER.info(f'record special events enabled for {controller}')
                 else:
-                    _LOGGER.warning('record special events not enabled for {controller.id}')
+                    _LOGGER.warning(f'record special events not enabled for {controller}')
 
         except Exception as err:
             _LOGGER.warning(f'error enabling controller {controller} record special events ({err})')
 
     async def _set_event_listener(self, lock, controller):
         if self._listener_addr != None:
-            _LOGGER.debug(f'check controller {controller.id} event listener')
+            _LOGGER.debug(f'check controller {controller} event listener')
 
             match = re.match(r'^[0-9.]+:[0-9]+$', f'{self._listener_addr}')
             if match == None:
@@ -273,7 +271,7 @@ class EventsCoordinator(DataUpdateCoordinator):
             except Exception as err:
                 _LOGGER.warning(f'error setting controller {controller.id} event listener ({err})')
 
-    def _get_controller_events(self, lock, controller):
+    async def _get_controller_events(self, lock, controller):
         _LOGGER.debug(f'fetch controller {controller.id} events')
 
         def g(response):
@@ -324,7 +322,7 @@ class EventsCoordinator(DataUpdateCoordinator):
                     while ix < index and count < _MAX_EVENTS:
                         count += 1
                         next = ix + 1
-                        response = self._uhppote.get_event(controller.id, next)
+                        response = await self._uhppote.get_event(controller.id, next)
                         if response.controller == controller.id and response.index == next:
                             event = self.decode(response, relays)
                             events.append(event)

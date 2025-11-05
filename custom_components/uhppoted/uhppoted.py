@@ -28,8 +28,36 @@ from .const import CONF_CACHE_EXPIRY_EVENT
 
 _LOGGER = logging.getLogger(__name__)
 
-Controller = namedtuple('Controller', 'id address protocol')
+# Controller = namedtuple('Controller', 'id address protocol')
 
+class Controller:
+    __slots__ = ('_id', '_address', '_protocol')
+
+    def __init__(self, id, address, protocol):
+        object.__setattr__(self, '_id', id)
+        object.__setattr__(self, '_address', address)
+        object.__setattr__(self, '_protocol', protocol)
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def address(self):
+        return self._address
+
+    @property
+    def protocol(self):
+        return self._protocol
+
+    def __setattr__(self, key, value):
+        raise AttributeError(f'{self.__class__.__name__} is immutable')
+
+    def __str__(self):
+        return str(self.id)
+
+    def __repr__(self):
+        return f"Controller(id={self.id!r}, address={self.address!r}, protocol={self.protocol!r})"
 
 @dataclass
 class GetInterlockResponse:
@@ -324,24 +352,22 @@ class uhppoted:
 
     async def record_special_events(self, controller, enable):
         (c, timeout) = self._lookup(controller)
-        return await self._api.record_special_events(c, enable, timeout=timeout)
+        return await self._asio.record_special_events(c, enable, timeout=timeout)
 
-    def get_event(self, controller, index):
+    async def get_event(self, controller, index):
         key = f'controller.{controller}.event.{index}'
         (c, timeout) = self._lookup(controller)
-        g = lambda: self._api.get_event(c, index, timeout=timeout)
+        response = await self._asio.get_event(c, index, timeout=timeout)
 
         if self.cache_enabled:
             try:
-                response = self._api.get_event(c, index, timeout=timeout)
                 if response is not None:  # events are never deleted
                     self._put(response, key, CONF_CACHE_EXPIRY_EVENT)
             except Exception as exc:
                 _LOGGER.error(f'error retrieving event {index} from controller {controller} ({exc})')
 
-            return self._get(key)
-        else:
-            return g()
+
+        return response
 
     def get_interlock(self, controller):
         key = f'controller.{controller}.interlock'

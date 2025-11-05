@@ -10,26 +10,9 @@
     - [x] set-antipassback
     - [x] set-listener
     - [x] record-special-events
-    - [ ] get-controller-events
+    - [x] get-event
     - [ ] put-card
     - [ ] delete-card
-    - [ ] loading on startup
-    - [ ] fix set-interlock on startup
-    - [ ] fix _controller 405419896 incorrect event listener address (None)_
-    - [ ] fix:
-```
-2025-11-04 19:41:10.930 ERROR (MainThread) [homeassistant] Error doing job: Task exception was never retrieved (None)
-home-assistant-stable  | Traceback (most recent call last):
-home-assistant-stable  |   File "/config/custom_components/uhppoted/coordinators/events.py", line 58, in _listen
-home-assistant-stable  |     transport, protocol = await loop.create_datagram_endpoint(lambda: listener, local_addr=(addr, port))
-home-assistant-stable  |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-home-assistant-stable  |   File "/usr/local/lib/python3.13/asyncio/base_events.py", line 1467, in create_datagram_endpoint
-home-assistant-stable  |     raise exceptions[0]
-home-assistant-stable  |   File "/usr/local/lib/python3.13/asyncio/base_events.py", line 1451, in create_datagram_endpoint
-home-assistant-stable  |     sock.bind(local_address)
-home-assistant-stable  |     ~~~~~~~~~^^^^^^^^^^^^^^^
-home-assistant-stable  | OSError: [Errno 98] Address in use
-```
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
       - (?) store controller + card in coordinator and collate presented state from that
@@ -48,6 +31,50 @@ home-assistant-stable  | OSError: [Errno 98] Address in use
        - [ ] add automation to config-flow
        - [ ] Lovelace card to display events
        - [ ] add Lovelace card to config-flow
+
+- [ ] loading on startup
+    - task dequeue seems to take forever to start running
+- [ ] fix set-interlock on startup
+- [ ] fix _controller 405419896 incorrect event listener address (None)_
+- [ ] can't seem to disable check/set-listener
+- [ ] fix:
+```
+2025-11-04 19:41:10.930 ERROR (MainThread) [homeassistant] Error doing job: Task exception was never retrieved (None)
+home-assistant-stable  | Traceback (most recent call last):
+home-assistant-stable  |   File "/config/custom_components/uhppoted/coordinators/events.py", line 58, in _listen
+home-assistant-stable  |     transport, protocol = await loop.create_datagram_endpoint(lambda: listener, local_addr=(addr, port))
+home-assistant-stable  |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+home-assistant-stable  |   File "/usr/local/lib/python3.13/asyncio/base_events.py", line 1467, in create_datagram_endpoint
+home-assistant-stable  |     raise exceptions[0]
+home-assistant-stable  |   File "/usr/local/lib/python3.13/asyncio/base_events.py", line 1451, in create_datagram_endpoint
+home-assistant-stable  |     sock.bind(local_address)
+home-assistant-stable  |     ~~~~~~~~~^^^^^^^^^^^^^^^
+home-assistant-stable  | OSError: [Errno 98] Address in use
+```
+
+- [ ] fix - error after reconfiguring
+```
+2025-11-05 19:48:04.705 ERROR (MainThread) [homeassistant.config_entries] Error unloading entry uhppoted for uhppoted
+home-assistant-stable  | Traceback (most recent call last):
+home-assistant-stable  |   File "/usr/src/homeassistant/homeassistant/config_entries.py", line 967, in async_unload
+home-assistant-stable  |     result = await component.async_unload_entry(hass, self)
+home-assistant-stable  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+home-assistant-stable  |   File "/config/custom_components/uhppoted/__init__.py", line 214, in async_unload_entry
+home-assistant-stable  |     Coordinators.unload(entry.entry_id)
+home-assistant-stable  |     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+home-assistant-stable  |   File "/config/custom_components/uhppoted/coordinators/coordinators.py", line 33, in unload
+home-assistant-stable  |     coordinators._unload()
+home-assistant-stable  |     ~~~~~~~~~~~~~~~~~~~~^^
+home-assistant-stable  |   File "/config/custom_components/uhppoted/coordinators/coordinators.py", line 136, in _unload
+home-assistant-stable  |     self._driver.stop(hass)
+home-assistant-stable  |                       ^^^^
+home-assistant-stable  | NameError: name 'hass' is not defined. Did you mean: 'hash'?
+```
+
+- [ ] get-events
+```
+    home-assistant-stable  | 2025-11-05 19:57:43.399 ERROR (MainThread) [custom_components.uhppoted.coordinators.events] Error fetching events data: uhppoted API error 
+```
 
 - [ ] https://www.hacs.xyz/docs/publish/action/
 - [ ] (eventually) remove `controllers` from driver
