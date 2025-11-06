@@ -11,8 +11,9 @@
     - [x] set-listener
     - [x] record-special-events
     - [x] get-event
+        - [ ] # FIXME return cached event if it exists
     - [x] put-card
-    - [ ] delete-card
+    - [x] delete-card
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
       - (?) store controller + card in coordinator and collate presented state from that

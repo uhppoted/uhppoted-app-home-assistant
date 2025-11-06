@@ -100,14 +100,14 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         return True
 
-    def delete_card(self, card):
+    async def delete_card(self, card):
         controllers = self._controllers
         cardno = int(f'{card}')
         errors = []
 
         for controller in controllers:
             try:
-                response = self._uhppote.delete_card(controller.id, cardno)
+                response = await self._uhppote.delete_card(controller.id, cardno)
                 if response.controller == controller.id:
                     if response.deleted:
                         _LOGGER.info(f'card {card} deleted from controller {controller.id}')

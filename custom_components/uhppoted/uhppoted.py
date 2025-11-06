@@ -188,7 +188,7 @@ class uhppoted:
         return None
 
     def _delete(self, key):
-        del _CACHE[key]
+        _CACHE.pop(key, None)
 
     def get_controller(self, controller, callback):
         key = f'controller.{controller}.controller'
@@ -328,27 +328,22 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
         response = await self._asio.put_card(c, card, start_date, end_date, door1, door2, door3, door4, PIN, timeout=timeout)
 
-        if self.cache_enabled:
-            if response is not None and response.stored:
-                self._put(
-                    GetCardResponse(response.controller, card, start_date, end_date, door1, door2, door3, door4, PIN),
-                    key, CONF_CACHE_EXPIRY_CARD)
+        if self.cache_enabled and response is not None and response.stored:
+            record = GetCardResponse(response.controller, card, start_date, end_date, door1, door2, door3, door4, PIN)
+
+            self._put(record, key, CONF_CACHE_EXPIRY_CARD)
 
         return response
 
-    def delete_card(self, controller, card):
+    async def delete_card(self, controller, card):
         key = f'controller.{controller}.card.{card}'
         (c, timeout) = self._lookup(controller)
-        g = lambda: self.api.delete_card(c, card, timeout=timeout)
+        response = await self.asio.delete_card(c, card, timeout=timeout)
 
-        if self.cache_enabled:
-            response = g()
-            if response and response.deleted:
-                self._delete(key)
+        if self.cache_enabled and response is not None and response.deleted:
+            self._delete(key)
 
-            return response
-        else:
-            return g()
+        return response
 
     async def record_special_events(self, controller, enable):
         (c, timeout) = self._lookup(controller)
@@ -359,13 +354,10 @@ class uhppoted:
         key = f'controller.{controller}.event.{index}'
         (c, timeout) = self._lookup(controller)
         response = await self._asio.get_event(c, index, timeout=timeout)
-
-        if self.cache_enabled:
-            try:
-                if response is not None:  # events are never deleted
-                    self._put(response, key, CONF_CACHE_EXPIRY_EVENT)
-            except Exception as exc:
-                _LOGGER.error(f'error retrieving event {index} from controller {controller} ({exc})')
+  
+        # events are never deleted
+        if self.cache_enabled and response is not None:
+            self._put(response, key, CONF_CACHE_EXPIRY_EVENT)
 
         return response
 

@@ -67,7 +67,6 @@ class Coordinators():
     @classmethod
     async def unlock_door(clazz, door):
         unlocked = False
-
         for coordinators in Coordinators.COORDINATORS.values():
             if coordinators and coordinators._doors:
                 response = await coordinators._doors.unlock_door_by_name(door)
@@ -79,7 +78,6 @@ class Coordinators():
     @classmethod
     async def add_card(clazz, card):
         added = False
-
         for coordinators in Coordinators.COORDINATORS.values():
             if coordinators and coordinators._cards:
                 if await coordinators._cards.add_card(card):
@@ -88,13 +86,13 @@ class Coordinators():
         return added
 
     @classmethod
-    def delete_card(clazz, card):
+    async def delete_card(clazz, card):
         deleted = False
-
         for coordinators in Coordinators.COORDINATORS.values():
             if coordinators and coordinators._cards:
-                if coordinators._cards.delete_card(card):
+                if await coordinators._cards.delete_card(card):
                     deleted = True
+
         return deleted
 
     def __init__(self, hass, options):

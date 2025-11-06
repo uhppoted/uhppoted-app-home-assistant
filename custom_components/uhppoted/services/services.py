@@ -18,7 +18,7 @@ class Services():
         if not Services.SERVICES:
             hass.services.async_register(DOMAIN, "unlock_door", unlock_door)
             hass.services.async_register(DOMAIN, "add_card", add_card)
-            hass.services.async_register(DOMAIN, "delete_card", lambda v: delete_card(v))
+            hass.services.async_register(DOMAIN, "delete_card", delete_card)
 
             Services.SERVICES[id] = True
 
@@ -61,13 +61,13 @@ async def add_card(call):
         _LOGGER.warning(f'error executing add-card service call ({err})')
 
 
-def delete_card(call):
+async def delete_card(call):
     _LOGGER.debug('service call:delete-card', call.data)
 
     try:
         card = call.data.get('card', None)
         if card and re.compile("^[0-9]+$").match(f'{card}'):
-            if Coordinators.delete_card(card):
+            if await Coordinators.delete_card(card):
                 _LOGGER.info(f'service call:delete-card  deleted card {card}')
             else:
                 _LOGGER.info(f'service call:delete-card  failed to delete card {card}')
