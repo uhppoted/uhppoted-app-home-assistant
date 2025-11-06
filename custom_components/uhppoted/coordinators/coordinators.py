@@ -77,12 +77,12 @@ class Coordinators():
         return unlocked
 
     @classmethod
-    def add_card(clazz, card):
+    async def add_card(clazz, card):
         added = False
 
         for coordinators in Coordinators.COORDINATORS.values():
             if coordinators and coordinators._cards:
-                if coordinators._cards.add_card(card):
+                if await coordinators._cards.add_card(card):
                     added = True
 
         return added

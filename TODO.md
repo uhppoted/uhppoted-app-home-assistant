@@ -11,7 +11,7 @@
     - [x] set-listener
     - [x] record-special-events
     - [x] get-event
-    - [ ] put-card
+    - [x] put-card
     - [ ] delete-card
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)

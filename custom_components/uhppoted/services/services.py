@@ -17,7 +17,7 @@ class Services():
     def initialise(clazz, hass, id, options):
         if not Services.SERVICES:
             hass.services.async_register(DOMAIN, "unlock_door", unlock_door)
-            hass.services.async_register(DOMAIN, "add_card", lambda v: add_card(v))
+            hass.services.async_register(DOMAIN, "add_card", add_card)
             hass.services.async_register(DOMAIN, "delete_card", lambda v: delete_card(v))
 
             Services.SERVICES[id] = True
@@ -46,13 +46,13 @@ async def unlock_door(call):
         _LOGGER.warning(f'error executing unlock-door service call ({err})')
 
 
-def add_card(call):
+async def add_card(call):
     _LOGGER.debug('service call:add-card', call.data)
 
     try:
         card = call.data.get('card', None)
         if card and re.compile("^[0-9]+$").match(f'{card}'):
-            if Coordinators.add_card(card):
+            if await Coordinators.add_card(card):
                 _LOGGER.info(f'service call:add-card  added card {card}')
             else:
                 _LOGGER.info(f'service call:add-card  failed to add card {card}')

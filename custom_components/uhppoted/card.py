@@ -221,7 +221,7 @@ class CardStartDate(CoordinatorEntity, DateEntity):
 
     async def async_set_value(self, v: datetime.date) -> None:
         try:
-            if self.coordinator.set_card_start_date(self.card, v):
+            if await self.coordinator.set_card_start_date(self.card, v):
                 _LOGGER.info(f'card {self.card} start date updated')
             else:
                 _LOGGER.warning(f' card {self.card} start date not updated')
@@ -294,7 +294,7 @@ class CardEndDate(CoordinatorEntity, DateEntity):
 
     async def async_set_value(self, v: datetime.date) -> None:
         try:
-            if self.coordinator.set_card_end_date(self.card, v):
+            if await self.coordinator.set_card_end_date(self.card, v):
                 _LOGGER.info(f'card {self.card} end date updated')
             else:
                 _LOGGER.warning(f' card {self.card} end date not updated')
@@ -381,7 +381,7 @@ class CardPermission(CoordinatorEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs):
         _LOGGER.debug(f'card:{self.card} enable access for door {self.door[CONF_DOOR_ID]}')
         try:
-            self.coordinator.set_card_permission(self.card, self.door, True)
+            await self.coordinator.set_card_permission(self.card, self.door, True)
             self._allowed = True
             self._available = True
             _LOGGER.info(f'card {self.card} permission to door {self.door[CONF_DOOR_ID]} granted')
@@ -480,7 +480,7 @@ class CardPIN(CoordinatorEntity, TextEntity):
         try:
             PIN = 0 if not f'{value}'.isdigit() else int(f'{value}')
 
-            if self.coordinator.set_card_PIN(self.card, PIN):
+            if await self.coordinator.set_card_PIN(self.card, PIN):
                 _LOGGER.info(f'card {self.card} PIN updated')
             else:
                 _LOGGER.warning(f' card {self.card} PIN not updated')

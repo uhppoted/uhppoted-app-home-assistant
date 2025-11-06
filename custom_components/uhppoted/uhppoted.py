@@ -323,10 +323,10 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
         return self._api.get_card_by_index(c, index, timeout=timeout)
 
-    def put_card(self, controller, card, start_date, end_date, door1, door2, door3, door4, PIN):
+    async def put_card(self, controller, card, start_date, end_date, door1, door2, door3, door4, PIN):
         key = f'controller.{controller}.card.{card}'
         (c, timeout) = self._lookup(controller)
-        response = self._api.put_card(c, card, start_date, end_date, door1, door2, door3, door4, PIN, timeout=timeout)
+        response = await self._asio.put_card(c, card, start_date, end_date, door1, door2, door3, door4, PIN, timeout=timeout)
 
         if self.cache_enabled:
             if response is not None and response.stored:
@@ -354,6 +354,7 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
         return await self._asio.record_special_events(c, enable, timeout=timeout)
 
+    # FIXME return cached event if it exists
     async def get_event(self, controller, index):
         key = f'controller.{controller}.event.{index}'
         (c, timeout) = self._lookup(controller)
@@ -365,7 +366,6 @@ class uhppoted:
                     self._put(response, key, CONF_CACHE_EXPIRY_EVENT)
             except Exception as exc:
                 _LOGGER.error(f'error retrieving event {index} from controller {controller} ({exc})')
-
 
         return response
 

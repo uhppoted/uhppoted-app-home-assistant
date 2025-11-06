@@ -59,7 +59,7 @@ class CardsCoordinator(DataUpdateCoordinator):
     def unload(self):
         pass
 
-    def add_card(self, card):
+    async def add_card(self, card):
         controllers = self._controllers
         cardno = int(f'{card}')
         errors = []
@@ -78,8 +78,7 @@ class CardsCoordinator(DataUpdateCoordinator):
                     door4 = 0
                     PIN = 0
 
-                    response = self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2, door3,
-                                                      door4, PIN)
+                    response = await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2, door3, door4, PIN)
                     if response.stored:
                         _LOGGER.info(f'card {card} added to controller {controller.id}')
                     else:
@@ -127,7 +126,7 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         return True
 
-    def set_card_start_date(self, card, start_date):
+    async def set_card_start_date(self, card, start_date):
         controllers = self._controllers
         errors = []
 
@@ -149,8 +148,7 @@ class CardsCoordinator(DataUpdateCoordinator):
                     door4 = response.door_4
                     PIN = response.pin
 
-                response = self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2, door3, door4,
-                                                  PIN)
+                response = await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2, door3, door4, PIN)
                 if not response.stored:
                     errors.append(f'{controller.id}')
 
@@ -168,7 +166,7 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         return True
 
-    def set_card_end_date(self, card, end_date):
+    async def set_card_end_date(self, card, end_date):
         controllers = self._controllers
         errors = []
 
@@ -190,8 +188,7 @@ class CardsCoordinator(DataUpdateCoordinator):
                     door4 = response.door_4
                     PIN = response.pin
 
-                response = self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2, door3, door4,
-                                                  PIN)
+                response = await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2, door3, door4, PIN)
                 if not response.stored:
                     errors.append(f'{controller.id}')
 
@@ -209,7 +206,7 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         return True
 
-    def set_card_PIN(self, card, PIN):
+    async def set_card_PIN(self, card, PIN):
         controllers = self._controllers
         errors = []
 
@@ -235,7 +232,7 @@ class CardsCoordinator(DataUpdateCoordinator):
                     door3 = response.door_3
                     door4 = response.door_4
 
-                response = self._uhppote.put_card(controller.id, card, start, end, door1, door2, door3, door4, PIN)
+                response = await self._uhppote.put_card(controller.id, card, start, end, door1, door2, door3, door4, PIN)
                 if not response.stored:
                     errors.append(f'{controller.id}')
 
@@ -253,7 +250,7 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         return True
 
-    def set_card_permission(self, card, door, allowed):
+    async def set_card_permission(self, card, door, allowed):
         controller = self._resolve(f'{door[CONF_CONTROLLER_SERIAL_NUMBER]}')
         doorno = int(f'{door[CONF_DOOR_NUMBER]}')
         permission = 1 if allowed else 0
@@ -281,7 +278,7 @@ class CardsCoordinator(DataUpdateCoordinator):
 
             PIN = response.pin
 
-        response = self._uhppote.put_card(controller.id, card, start, end, door1, door2, door3, door4, PIN)
+        response = await self._uhppote.put_card(controller.id, card, start, end, door1, door2, door3, door4, PIN)
         if not response.stored:
             raise ValueError(
                 f'controller {controller.id}, card {card} door {door[CONF_DOOR_ID]} permission not updated')
