@@ -120,9 +120,17 @@ class ControllersCoordinator(DataUpdateCoordinator):
             if controller.id in contexts:
                 controllers.append(controller)
 
+        tasks = []
+        tasks += [self._get_controller(lock, c) for c in controllers]
+
+        try:
+            await asyncio.gather(*tasks)
+        except Exception as err:
+            _LOGGER.error(f'error retrieving controller information ({err})')
+
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                executor.map(lambda controller: self._get_controller(lock, controller), controllers, timeout=1)
+                # executor.map(lambda controller: self._get_controller(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_datetime(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_listener(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_interlock(lock, controller), controllers, timeout=1)
@@ -134,7 +142,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
         return self._db.controllers
 
-    def _get_controller(self, lock, controller):
+    async def _get_controller(self, lock, controller):
         _LOGGER.debug(f'fetch controller info {controller.id}')
 
         def g(response):
@@ -176,7 +184,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         available = False
 
         try:
-            response = self._uhppote.get_controller(controller.id, callback)
+            response = await self._uhppote.get_controller(controller.id, callback)
             if reply := g(response):
                 address = reply.address
                 netmask = reply.netmask

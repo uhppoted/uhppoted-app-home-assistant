@@ -1,5 +1,7 @@
 # TODO
 
+## In Progress
+
 - [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
     - https://developers.home-assistant.io/docs/asyncio_working_with_async
     - [x] set-time
@@ -14,6 +16,10 @@
         - [ ] # FIXME return cached event if it exists
     - [x] put-card
     - [x] delete-card
+    - [x] get-controller
+    - [ ] get-listener
+    - [ ] Reuse one UDP socket per remote host instead of opening/closing per request.
+    - [ ] Throttle requests — 50–100 ms between sends helps keep NAT tables sane.
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
       - (?) store controller + card in coordinator and collate presented state from that
@@ -77,11 +83,13 @@ home-assistant-stable  | NameError: name 'hass' is not defined. Did you mean: 'h
     home-assistant-stable  | 2025-11-05 19:57:43.399 ERROR (MainThread) [custom_components.uhppoted.coordinators.events] Error fetching events data: uhppoted API error 
 ```
 
+## TODO
+
 - [ ] https://www.hacs.xyz/docs/publish/action/
 - [ ] (eventually) remove `controllers` from driver
 
 - [ ] DataCoordinator
-      - [ ] communalize data
+      - [ ] communalise data
             - [ ] RWLock
                   - https://www.oreilly.com/library/view/python-cookbook/0596001673/ch06s04.html
                   - https://docs.python.org/3/library/threading.html#rlock-objects
