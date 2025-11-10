@@ -17,9 +17,7 @@
     - [x] put-card
     - [x] delete-card
     - [x] get-controller
-        - [ ] lose the callback
-    - [ ] get-listener
-        - [ ] lose the callback
+    - [x] get-listener
     - [ ] Reuse one UDP socket per remote host instead of opening/closing per request.
     - [ ] Throttle requests — 50–100 ms between sends helps keep NAT tables sane.
 

@@ -146,37 +146,6 @@ class ControllersCoordinator(DataUpdateCoordinator):
     async def _get_controller(self, lock, controller):
         _LOGGER.debug(f'fetch controller info {controller.id}')
 
-        def g(response):
-            if response and response.controller == controller.id:
-                address = f'{response.ip_address}'
-                netmask = f'{response.subnet_mask}'
-                gateway = f'{response.gateway}'
-                firmware = f'{response.version} {response.date:%Y-%m-%d}'
-
-                reply = (address, netmask, gateway, firmware)
-
-                return namedtuple('reply', ['address', 'netmask', 'gateway', 'firmware'])(*reply)
-
-            return None
-
-        def callback(response):
-            try:
-                if reply := g(response):
-                    _LOGGER.debug(f'get-controller {controller.id} {reply}')
-                    with lock:
-                        self._state[controller.id].update({
-                            ATTR_CONTROLLER_ADDRESS: reply.address,
-                            ATTR_NETMASK: reply.netmask,
-                            ATTR_GATEWAY: reply.gateway,
-                            ATTR_FIRMWARE: reply.firmware,
-                            ATTR_AVAILABLE: True,
-                        })
-
-                    self.async_set_updated_data(self._state)
-
-            except Exception as err:
-                _LOGGER.error(f'error updating internal controller {controller.id} information ({err})')
-
         address = None
         protocol = controller.protocol
         netmask = None
@@ -185,12 +154,12 @@ class ControllersCoordinator(DataUpdateCoordinator):
         available = False
 
         try:
-            response = await self._uhppote.get_controller(controller.id, callback)
-            if reply := g(response):
-                address = reply.address
-                netmask = reply.netmask
-                gateway = reply.gateway
-                firmware = reply.firmware
+            response = await self._uhppote.get_controller(controller.id)
+            if response and response.controller == controller.id:
+                address = f'{response.ip_address}'
+                netmask = f'{response.subnet_mask}'
+                gateway = f'{response.gateway}'
+                firmware = f'{response.version} {response.date:%Y-%m-%d}'
                 available = True
 
         except Exception as err:
@@ -256,32 +225,12 @@ class ControllersCoordinator(DataUpdateCoordinator):
     async def _get_listener(self, lock, controller):
         _LOGGER.debug(f'fetch controller event listener {controller.id}')
 
-        def g(response):
-            if response and response.controller == controller.id:
-                return namedtuple('reply', ['listener'])(f'{response.address}:{response.port}')
-
-            return None
-
-        def callback(response):
-            try:
-                if reply := g(response):
-                    _LOGGER.debug(f'get-listener {controller.id} {reply.listener}')
-                    with lock:
-                        self._state[controller.id].update({
-                            ATTR_CONTROLLER_LISTENER: reply.listener,
-                        })
-
-                    self.async_set_updated_data(self._state)
-
-            except Exception as err:
-                _LOGGER.error(f'error updating internal controller {controller.id} event listener ({err})')
-
         listener = None
 
         try:
-            response = await self._uhppote.get_listener(controller.id, callback)
-            if reply := g(response):
-                listener = reply.listener
+            response = await self._uhppote.get_listener(controller.id)
+            if response and response.controller == controller.id:
+                listener = f'{response.address}:{response.port}'
 
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} event listener ({err})')

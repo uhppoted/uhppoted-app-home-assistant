@@ -78,7 +78,8 @@ class CardsCoordinator(DataUpdateCoordinator):
                     door4 = 0
                     PIN = 0
 
-                    response = await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2, door3, door4, PIN)
+                    response = await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2,
+                                                            door3, door4, PIN)
                     if response.stored:
                         _LOGGER.info(f'card {card} added to controller {controller.id}')
                     else:
@@ -148,7 +149,8 @@ class CardsCoordinator(DataUpdateCoordinator):
                     door4 = response.door_4
                     PIN = response.pin
 
-                response = await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2, door3, door4, PIN)
+                response = await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2, door3,
+                                                        door4, PIN)
                 if not response.stored:
                     errors.append(f'{controller.id}')
 
@@ -188,7 +190,8 @@ class CardsCoordinator(DataUpdateCoordinator):
                     door4 = response.door_4
                     PIN = response.pin
 
-                response = await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2, door3, door4, PIN)
+                response = await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2, door3,
+                                                        door4, PIN)
                 if not response.stored:
                     errors.append(f'{controller.id}')
 
@@ -232,7 +235,8 @@ class CardsCoordinator(DataUpdateCoordinator):
                     door3 = response.door_3
                     door4 = response.door_4
 
-                response = await self._uhppote.put_card(controller.id, card, start, end, door1, door2, door3, door4, PIN)
+                response = await self._uhppote.put_card(controller.id, card, start, end, door1, door2, door3, door4,
+                                                        PIN)
                 if not response.stored:
                     errors.append(f'{controller.id}')
 
