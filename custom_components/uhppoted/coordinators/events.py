@@ -252,7 +252,7 @@ class EventsCoordinator(DataUpdateCoordinator):
             addr = None
 
             try:
-                response = self._uhppote.get_listener(controller.id)
+                response = await self._uhppote.get_listener(controller.id)
                 if response and response.controller == controller.id:
                     addr = f'{response.address}:{response.port}'
 

@@ -218,17 +218,21 @@ class uhppoted:
         
         return await self._asio.get_controller(c, timeout=timeout)
 
-    def get_listener(self, controller, callback=None):
+    async def get_listener(self, controller, callback=None):
         key = f'controller.{controller}.listener'
         (c, timeout) = self._lookup(controller)
-        g = lambda: self._api.get_listener(c, timeout=timeout)
 
         if self.cache_enabled:
-            self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, CONF_CACHE_EXPIRY_LISTENER,
-                                                              f"{'get_listener':<16} {controller}", callback))
-            return self._get(key)
-        else:
-            return g()
+            self.queue.put_nowait(lambda: self.ye_async_taskke(
+                lambda: self._asio.get_listener(c, timeout=timeout), 
+                key, 
+                CONF_CACHE_EXPIRY_LISTENER,
+                f"{'get_listener':<16} {controller}", callback))
+            
+            if record := self._get(key):
+                return record
+
+        return await self._asio.get_listener(c, timeout=timeout)
 
     async def set_listener(self, controller, address, port):
         key = f'controller.{controller}.listener'

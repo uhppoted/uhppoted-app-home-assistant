@@ -122,6 +122,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
         tasks = []
         tasks += [self._get_controller(lock, c) for c in controllers]
+        tasks += [self._get_listener(lock, c) for c in controllers]
 
         try:
             await asyncio.gather(*tasks)
@@ -132,7 +133,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 # executor.map(lambda controller: self._get_controller(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_datetime(lock, controller), controllers, timeout=1)
-                executor.map(lambda controller: self._get_listener(lock, controller), controllers, timeout=1)
+                # executor.map(lambda controller: self._get_listener(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_interlock(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_antipassback(lock, controller), controllers, timeout=1)
         except Exception as err:
@@ -252,7 +253,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 ATTR_CONTROLLER_DATETIME: sysdatetime,
             })
 
-    def _get_listener(self, lock, controller):
+    async def _get_listener(self, lock, controller):
         _LOGGER.debug(f'fetch controller event listener {controller.id}')
 
         def g(response):
@@ -278,7 +279,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         listener = None
 
         try:
-            response = self._uhppote.get_listener(controller.id, callback)
+            response = await self._uhppote.get_listener(controller.id, callback)
             if reply := g(response):
                 listener = reply.listener
 
