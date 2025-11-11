@@ -132,9 +132,6 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                # executor.map(lambda controller: self._get_controller(lock, controller), controllers, timeout=1)
-                # executor.map(lambda controller: self._get_datetime(lock, controller), controllers, timeout=1)
-                # executor.map(lambda controller: self._get_listener(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_interlock(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_antipassback(lock, controller), controllers, timeout=1)
         except Exception as err:
@@ -146,6 +143,13 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
     async def _get_controller(self, lock, controller):
         _LOGGER.debug(f'fetch controller info {controller.id}')
+
+        address = None
+        protocol = controller.protocol
+        netmask = None
+        gateway = None
+        firmware = None
+        available = False
 
         def callback(response):
             try:
@@ -163,13 +167,6 @@ class ControllersCoordinator(DataUpdateCoordinator):
                     self.async_set_updated_data(self._state)
             except Exception as err:
                 _LOGGER.error(f'error updating internal controller {controller.id} information ({err})')
-
-        address = None
-        protocol = controller.protocol
-        netmask = None
-        gateway = None
-        firmware = None
-        available = False
 
         try:
             response = await self._uhppote.get_controller(controller.id, callback)
@@ -196,6 +193,8 @@ class ControllersCoordinator(DataUpdateCoordinator):
     async def _get_listener(self, lock, controller):
         _LOGGER.debug(f'fetch controller event listener {controller.id}')
 
+        listener = None
+
         def callback(response):
             try:
                 _LOGGER.debug(f'get-listener::callback {controller.id} {response}')
@@ -210,8 +209,6 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
             except Exception as err:
                 _LOGGER.error(f'error updating internal controller {controller.id} event listener ({err})')
-
-        listener = None
 
         try:
             response = await self._uhppote.get_listener(controller.id, callback)

@@ -130,8 +130,9 @@ class DoorsCoordinator(DataUpdateCoordinator):
                     ATTR_AVAILABLE: False,
                 }
 
-        _controllers = set()
+        state = {}
         doors = {}
+        _controllers = set()
         for idx in contexts:
             door = resolve_door(self._options, idx)
             if door:
@@ -143,7 +144,6 @@ class DoorsCoordinator(DataUpdateCoordinator):
             if controller.id in _controllers:
                 controllers.append(controller)
 
-        state = {}
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 executor.map(lambda controller: self._get_controller(lock, state, controller), controllers, timeout=1)
@@ -215,34 +215,24 @@ class DoorsCoordinator(DataUpdateCoordinator):
         controller_id = door[CONF_CONTROLLER_SERIAL_NUMBER]
         door_id = door[CONF_DOOR_NUMBER]
 
-        def g(response):
-            if response and response.controller == controller.id and response.door == door_id:
-                mode = response.mode
-                delay = response.delay
-                open = None
-                button = None
-                locked = None
+        available  = False,
+        mode = None
+        delay = None
 
-                if controller.id in state and state[controller.id] != None:
-                    open = state[controller.id][door_id]['open']
-                    button = state[controller.id][door_id]['button']
-                    locked = state[controller.id][door_id]['locked']
-
-                return namedtuple('reply', ['mode', 'delay', 'open', 'button', 'locked'])(mode, delay, open, button,
-                                                                                          locked)
-
-            return None
+        if state.get(controller_id):
+            with lock:
+                state[controller_id][door_id].setdefault('open', None)
+                state[controller_id][door_id].setdefault('button', None)
+                state[controller_id][door_id].setdefault('locked', None)
 
         def callback(response):
             try:
-                if reply := g(response):
+                _LOGGER.debug(f'get-door::callback {door} {response}')
+                if response and response.controller == controller.id and response.door == door_id:
                     with lock:
                         self._state[idx].update({
-                            ATTR_DOOR_MODE: reply.mode,
-                            ATTR_DOOR_DELAY: reply.delay,
-                            ATTR_DOOR_OPEN: reply.open,
-                            ATTR_DOOR_BUTTON: reply.button,
-                            ATTR_DOOR_LOCK: reply.locked,
+                            ATTR_DOOR_MODE: response.mode,
+                            ATTR_DOOR_DELAY: response.delay,
                             ATTR_AVAILABLE: True,
                         })
 
@@ -250,15 +240,6 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
             except Exception as err:
                 _LOGGER.error(f'error updating internal controller {controller.id} information ({err})')
-
-        info = {
-            ATTR_AVAILABLE: False,
-            ATTR_DOOR_MODE: None,
-            ATTR_DOOR_DELAY: None,
-            ATTR_DOOR_OPEN: None,
-            ATTR_DOOR_BUTTON: None,
-            ATTR_DOOR_LOCK: None,
-        }
 
         try:
             controller = Controller(controller_id, None, None)
@@ -268,25 +249,21 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
             _LOGGER.debug(f'fetch door {name} information')
 
-            mode = None
-            delay = None
-
             response = self._uhppote.get_door_control(controller.id, door_id, callback)
-            if reply := g(response):
-                info = {
-                    ATTR_DOOR_MODE: reply.mode,
-                    ATTR_DOOR_DELAY: reply.delay,
-                    ATTR_DOOR_OPEN: reply.open,
-                    ATTR_DOOR_BUTTON: reply.button,
-                    ATTR_DOOR_LOCK: reply.locked,
-                    ATTR_AVAILABLE: True,
-                }
+            if response and response.controller == controller.id and response.door == door_id:
+                mode = response.mode
+                delay = response.delay
+                available = True
 
         except Exception as err:
             _LOGGER.error(f'error retrieving door {door["door_id"]} information ({err})')
 
         with lock:
-            self._state[idx].update(info)
+            self._state[idx].update({
+                    ATTR_DOOR_MODE: mode,
+                    ATTR_DOOR_DELAY: delay,
+                    ATTR_AVAILABLE: available,
+                })
 
     def _resolve(self, controller_id):
         for controller in self._controllers:

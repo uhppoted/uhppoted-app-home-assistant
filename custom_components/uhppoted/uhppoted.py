@@ -210,12 +210,13 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
 
         if self.cache_enabled:
-            self.queue.put_nowait(lambda: self.ye_async_taskke(
-                lambda: self._asio.get_controller(c, timeout=timeout),
-                key,
-                CONF_CACHE_EXPIRY_CONTROLLER,
-                f"{'get-controller':<16} {controller}",
-                callback)) # yapf: disable
+            self.queue.put_nowait(
+                lambda: self.ye_async_taskke(
+                    lambda: self._asio.get_controller(c, timeout=timeout),
+                    key,
+                    CONF_CACHE_EXPIRY_CONTROLLER,
+                    f"{'get-controller':<16} {controller}",
+                    callback)) # yapf: disable
 
             if record := self._get(key):
                 return record
@@ -257,12 +258,13 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
 
         if self.cache_enabled:
-            self.queue.put_nowait(lambda: self.ye_async_taskke(
-                lambda: self._asio.get_time(c, timeout=timeout),
-                key,
-                CONF_CACHE_EXPIRY_DATETIME,
-                f"{'get-time':<16} {controller}",
-                callback))  # yapf: disable
+            self.queue.put_nowait(
+                lambda: self.ye_async_taskke(
+                    lambda: self._asio.get_time(c, timeout=timeout),
+                    key,
+                    CONF_CACHE_EXPIRY_DATETIME,
+                    f"{'get-time':<16} {controller}",
+                    callback))  # yapf: disable
 
             if record := self._get(key):
                 return record
@@ -281,6 +283,25 @@ class uhppoted:
                 self._put(GetTimeResponse(response.controller, response.datetime), key, CONF_CACHE_EXPIRY_DATETIME)
 
         return response
+
+    async def get_door(self, controller, door, callback=None):
+        key = f'controller.{controller}.door.{door}'
+        (c, timeout) = self._lookup(controller)
+        g = lambda: self._api.get_door_control(c, door, timeout=timeout)
+
+        if self.cache_enabled:
+            self.queue.put_nowait(
+                lambda: self.ye_olde_taskke(
+                    lambda: self._asio.get_door_control(c, door, timeout=timeout),
+                    key,
+                    CONF_CACHE_EXPIRY_DOOR,
+                    f"{'get_door_control':<16} {controller} {door}",
+                    callback))  # yapf: disable
+
+            if record := self._get(key):
+                return record
+
+        return await self._asio.get_door_control(c, door, timeout=timeout)
 
     def get_door_control(self, controller, door, callback=None):
         key = f'controller.{controller}.door.{door}'
