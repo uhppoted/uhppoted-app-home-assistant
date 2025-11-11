@@ -153,19 +153,24 @@ class uhppoted:
     async def ye_olde_taskke(self, g, key, expiry, message, callback=None):
         try:
             if response := g():
-                _LOGGER.info(f"{message} ok")
-
                 self._put(response, key, expiry)
 
                 if callback:
                     callback(response)
+
+                _LOGGER.info(f"{message} ok")
+
         except Exception as exc:
             _LOGGER.warning(f"{message} ({exc})")
 
-    async def ye_async_taskke(self, g, key, expiry, message):
+    async def ye_async_taskke(self, g, key, expiry, message, callback=None):
         try:
             if response := await g():
                 self._put(response, key, expiry)
+
+                if callback:
+                    callback(response)
+
                 _LOGGER.info(f"{message} ok")
         except Exception as exc:
             _LOGGER.warning(f"{message} ({exc})")
@@ -200,26 +205,34 @@ class uhppoted:
     def _delete(self, key):
         _CACHE.pop(key, None)
 
-    async def get_controller(self, controller):
+    async def get_controller(self, controller, callback=None):
         key = f'controller.{controller}.controller'
         (c, timeout) = self._lookup(controller)
 
         if self.cache_enabled:
-            self.queue.put_nowait(lambda: self.ye_async_taskke(lambda: self._asio.get_controller(
-                c, timeout=timeout), key, CONF_CACHE_EXPIRY_CONTROLLER, f"{'get-controller':<16} {controller}"))
+            self.queue.put_nowait(lambda: self.ye_async_taskke(
+                                      lambda: self._asio.get_controller(c, timeout=timeout), 
+                                      key, 
+                                      CONF_CACHE_EXPIRY_CONTROLLER, 
+                                      f"{'get-controller':<16} {controller}",
+                                      callback)) # yapf: disable
 
             if record := self._get(key):
                 return record
 
         return await self._asio.get_controller(c, timeout=timeout)
 
-    async def get_listener(self, controller):
+    async def get_listener(self, controller, callback=None):
         key = f'controller.{controller}.listener'
         (c, timeout) = self._lookup(controller)
 
         if self.cache_enabled:
-            self.queue.put_nowait(lambda: self.ye_async_taskke(lambda: self._asio.get_listener(
-                c, timeout=timeout), key, CONF_CACHE_EXPIRY_LISTENER, f"{'get_listener':<16} {controller}"))
+            self.queue.put_nowait(lambda: self.ye_async_taskke(
+                                      lambda: self._asio.get_listener(c, timeout=timeout), 
+                                      key, 
+                                      CONF_CACHE_EXPIRY_LISTENER, 
+                                      f"{'get_listener':<16} {controller}",
+                                      callback)) # yapf: disable
 
             if record := self._get(key):
                 return record

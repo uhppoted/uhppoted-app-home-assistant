@@ -146,6 +146,24 @@ class ControllersCoordinator(DataUpdateCoordinator):
     async def _get_controller(self, lock, controller):
         _LOGGER.debug(f'fetch controller info {controller.id}')
 
+        def callback(response):
+            try:
+                if response and response.controller == controller.id:
+                    _LOGGER.debug(f'get-controller::callback {controller.id} {response}')
+
+                    with lock:
+                        self._state[controller.id].update({
+                            ATTR_CONTROLLER_ADDRESS: f'{response.ip_address}',
+                            ATTR_NETMASK: f'{response.subnet_mask}',
+                            ATTR_GATEWAY: f'{response.gateway}',
+                            ATTR_FIRMWARE: f'{response.version} {response.date:%Y-%m-%d}',
+                            ATTR_AVAILABLE: True,
+                        })
+
+                    self.async_set_updated_data(self._state)
+            except Exception as err:
+                _LOGGER.error(f'error updating internal controller {controller.id} information ({err})')
+
         address = None
         protocol = controller.protocol
         netmask = None
@@ -154,7 +172,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         available = False
 
         try:
-            response = await self._uhppote.get_controller(controller.id)
+            response = await self._uhppote.get_controller(controller.id, callback)
             if response and response.controller == controller.id:
                 address = f'{response.ip_address}'
                 netmask = f'{response.subnet_mask}'
@@ -173,6 +191,39 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 ATTR_FIRMWARE: firmware,
                 ATTR_CONTROLLER_PROTOCOL: protocol,
                 ATTR_AVAILABLE: available,
+            })
+
+    async def _get_listener(self, lock, controller):
+        _LOGGER.debug(f'fetch controller event listener {controller.id}')
+
+        def callback(response):
+            try:
+                if response and response.controller == controller.id:
+                    _LOGGER.debug(f'get-listener::callback {controller.id} {response}')
+                    with lock:
+                        self._state[controller.id].update({
+                            ATTR_CONTROLLER_LISTENER: f'{response.address}:{response.port}',
+                        })
+
+                    self.async_set_updated_data(self._state)
+
+            except Exception as err:
+                _LOGGER.error(f'error updating internal controller {controller.id} event listener ({err})')
+
+
+        listener = None
+
+        try:
+            response = await self._uhppote.get_listener(controller.id, callback)
+            if response and response.controller == controller.id:
+                listener = f'{response.address}:{response.port}'
+
+        except Exception as err:
+            _LOGGER.error(f'error retrieving controller {controller.id} event listener ({err})')
+
+        with lock:
+            self._state[controller.id].update({
+                ATTR_CONTROLLER_LISTENER: listener,
             })
 
     def _get_datetime(self, lock, controller):
@@ -220,24 +271,6 @@ class ControllersCoordinator(DataUpdateCoordinator):
         with lock:
             self._state[controller.id].update({
                 ATTR_CONTROLLER_DATETIME: sysdatetime,
-            })
-
-    async def _get_listener(self, lock, controller):
-        _LOGGER.debug(f'fetch controller event listener {controller.id}')
-
-        listener = None
-
-        try:
-            response = await self._uhppote.get_listener(controller.id)
-            if response and response.controller == controller.id:
-                listener = f'{response.address}:{response.port}'
-
-        except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller.id} event listener ({err})')
-
-        with lock:
-            self._state[controller.id].update({
-                ATTR_CONTROLLER_LISTENER: listener,
             })
 
     def _get_interlock(self, lock, controller):
