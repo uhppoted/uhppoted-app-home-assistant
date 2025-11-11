@@ -123,6 +123,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         tasks = []
         tasks += [self._get_controller(lock, c) for c in controllers]
         tasks += [self._get_listener(lock, c) for c in controllers]
+        tasks += [self._get_datetime(lock, c) for c in controllers]
 
         try:
             await asyncio.gather(*tasks)
@@ -132,7 +133,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 # executor.map(lambda controller: self._get_controller(lock, controller), controllers, timeout=1)
-                executor.map(lambda controller: self._get_datetime(lock, controller), controllers, timeout=1)
+                # executor.map(lambda controller: self._get_datetime(lock, controller), controllers, timeout=1)
                 # executor.map(lambda controller: self._get_listener(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_interlock(lock, controller), controllers, timeout=1)
                 executor.map(lambda controller: self._get_antipassback(lock, controller), controllers, timeout=1)
@@ -148,9 +149,8 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
         def callback(response):
             try:
+                _LOGGER.debug(f'get-controller::callback {controller.id} {response}')
                 if response and response.controller == controller.id:
-                    _LOGGER.debug(f'get-controller::callback {controller.id} {response}')
-
                     with lock:
                         self._state[controller.id].update({
                             ATTR_CONTROLLER_ADDRESS: f'{response.ip_address}',
@@ -198,18 +198,18 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
         def callback(response):
             try:
+                _LOGGER.debug(f'get-listener::callback {controller.id} {response}')
                 if response and response.controller == controller.id:
-                    _LOGGER.debug(f'get-listener::callback {controller.id} {response}')
                     with lock:
                         self._state[controller.id].update({
-                            ATTR_CONTROLLER_LISTENER: f'{response.address}:{response.port}',
+                            ATTR_CONTROLLER_LISTENER:
+                            f'{response.address}:{response.port}',
                         })
 
                     self.async_set_updated_data(self._state)
 
             except Exception as err:
                 _LOGGER.error(f'error updating internal controller {controller.id} event listener ({err})')
-
 
         listener = None
 
@@ -226,31 +226,21 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 ATTR_CONTROLLER_LISTENER: listener,
             })
 
-    def _get_datetime(self, lock, controller):
+    async def _get_datetime(self, lock, controller):
         _LOGGER.debug(f'fetch controller datetime {controller.id}')
-
-        def g(response):
-            if response and response.controller == controller.id:
-                year = response.datetime.year
-                month = response.datetime.month
-                day = response.datetime.day
-                hour = response.datetime.hour
-                minute = response.datetime.minute
-                second = response.datetime.second
-                tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
-
-                return namedtuple('reply', ['datetime'])(datetime.datetime(year, month, day, hour, minute, second, 0,
-                                                                           tz))
-
-            return None
 
         def callback(response):
             try:
-                if reply := g(response):
-                    _LOGGER.debug(f'get-date/time {controller.id} {reply.datetime}')
+                _LOGGER.debug(f'get-listener::callback {controller.id} {response}')
+                if response and response.controller == controller.id:
+                    dt = datetime.datetime(response.datetime.year, response.datetime.month, response.datetime.day,
+                                           response.datetime.hour, response.datetime.minute, response.datetime.second,
+                                           0,
+                                           datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo)
+
                     with lock:
                         self._state[controller.id].update({
-                            ATTR_CONTROLLER_DATETIME: reply.datetime,
+                            ATTR_CONTROLLER_DATETIME: dt,
                         })
 
                     self.async_set_updated_data(self._state)
@@ -261,9 +251,12 @@ class ControllersCoordinator(DataUpdateCoordinator):
         sysdatetime = None
 
         try:
-            response = self._uhppote.get_time(controller.id, callback)
-            if reply := g(response):
-                sysdatetime = reply.datetime
+            response = await self._uhppote.get_time(controller.id, callback)
+            if response and response.controller == controller.id:
+                sysdatetime = datetime.datetime(response.datetime.year, response.datetime.month, response.datetime.day,
+                                                response.datetime.hour, response.datetime.minute,
+                                                response.datetime.second, 0,
+                                                datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo)
 
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} date/time ({err})')

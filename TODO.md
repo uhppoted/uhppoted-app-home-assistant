@@ -18,6 +18,14 @@
     - [x] delete-card
     - [x] get-controller
     - [x] get-listener
+    - [x] get-time
+    - [ ] get-door
+    - [ ] get-status
+    - [ ] get-cards
+    - [ ] get-card
+    - [ ] get-card-by-index
+    - [ ] get-interlock
+    - [ ] get-antipassback
     - [ ] Reuse one UDP socket per remote host instead of opening/closing per request.
     - [ ] Throttle requests — 50–100 ms between sends helps keep NAT tables sane.
 
