@@ -302,18 +302,6 @@ class uhppoted:
 
         return await self._asio.get_door_control(c, door, timeout=timeout)
 
-    def get_door_control(self, controller, door, callback=None):
-        key = f'controller.{controller}.door.{door}'
-        (c, timeout) = self._lookup(controller)
-        g = lambda: self._api.get_door_control(c, door, timeout=timeout)
-
-        if self.cache_enabled:
-            self.queue.put_nowait(lambda: self.ye_olde_taskke(
-                g, key, CONF_CACHE_EXPIRY_DOOR, f"{'get_door_control':<16} {controller} {door}", callback))
-            return self._get(key)
-        else:
-            return g()
-
     async def set_door(self, controller, door, mode, delay):
         key = f'controller.{controller}.door.{door}'
         (c, timeout) = self._lookup(controller)

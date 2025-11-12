@@ -20,6 +20,8 @@
     - [x] get-listener
     - [x] get-time
     - [ ] get-door
+        - [x] _get-doors::get-door
+        - [ ] _get-doors::get-controller
     - [ ] get-status
     - [ ] get-cards
     - [ ] get-card

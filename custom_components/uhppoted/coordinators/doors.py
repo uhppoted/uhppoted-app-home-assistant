@@ -3,6 +3,7 @@ from collections import namedtuple
 
 import concurrent.futures
 import threading
+import asyncio
 import datetime
 import logging
 import async_timeout
@@ -144,12 +145,19 @@ class DoorsCoordinator(DataUpdateCoordinator):
             if controller.id in _controllers:
                 controllers.append(controller)
 
+        tasks = []
+        for idx in contexts:
+            if door := doors.get(idx):
+                tasks.append(self._get_door(lock, idx, door, state))
+
+        try:
+            await asyncio.gather(*tasks)
+        except Exception as err:
+            _LOGGER.error(f'error retrieving controller door information ({err})')
+
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 executor.map(lambda controller: self._get_controller(lock, state, controller), controllers, timeout=1)
-
-            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                executor.map(lambda idx: self._get_door(lock, idx, doors[idx], state), contexts, timeout=1)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller door information ({err})')
 
@@ -210,7 +218,9 @@ class DoorsCoordinator(DataUpdateCoordinator):
         with lock:
             state[controller.id] = info
 
-    def _get_door(self, lock, idx, door, state):
+    async def _get_door(self, lock, idx, door, state):
+        _LOGGER.debug(f'fetch door info {door}')
+
         name = door[CONF_DOOR_ID]
         controller_id = door[CONF_CONTROLLER_SERIAL_NUMBER]
         door_id = door[CONF_DOOR_NUMBER]
@@ -228,7 +238,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         def callback(response):
             try:
                 _LOGGER.debug(f'get-door::callback {door} {response}')
-                if response and response.controller == controller.id and response.door == door_id:
+                if response and response.controller == controller_id and response.door == door_id:
                     with lock:
                         self._state[idx].update({
                             ATTR_DOOR_MODE: response.mode,
@@ -249,7 +259,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
             _LOGGER.debug(f'fetch door {name} information')
 
-            response = self._uhppote.get_door_control(controller.id, door_id, callback)
+            response = await self._uhppote.get_door(controller.id, door_id, callback)
             if response and response.controller == controller.id and response.door == door_id:
                 mode = response.mode
                 delay = response.delay
