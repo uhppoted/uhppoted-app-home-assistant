@@ -59,14 +59,14 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
     async def set_door_mode(self, controller_id, door, mode):
         controller = self._resolve(controller_id)
-        response = self._uhppote.get_door_control(controller.id, door)
+        response = await self._uhppote.get_door(controller.id, door)
 
         if response and response.controller == controller.id and response.door == door:
             delay = response.delay
             response = await self._uhppote.set_door(controller.id, door, mode, delay)
 
             if response.controller != controller.id or response.door != door:
-                raise ValueError(f'invalid response to set-door-control')
+                raise ValueError(f'invalid response to set-door-mode')
             else:
                 return response
 
@@ -74,14 +74,14 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
     async def set_door_delay(self, controller_id, door, delay):
         controller = self._resolve(controller_id)
-        response = self._uhppote.get_door_control(controller.id, door)
+        response = await self._uhppote.get_door(controller.id, door)
 
         if response and response.controller == controller.id and response.door == door:
             mode = response.mode
             response = await self._uhppote.set_door(controller.id, door, mode, delay)
 
             if response.controller != controller.id or response.door != door:
-                raise ValueError(f'invalid response to set-door-control')
+                raise ValueError(f'invalid response to set-door-delay')
             else:
                 return response
 
