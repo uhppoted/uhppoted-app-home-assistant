@@ -25,7 +25,7 @@
     - [ ] get-card
     - [ ] get-card-by-index
     - [ ] get-interlock
-    - [ ] get-antipassback
+    - [x] get-antipassback
     - [ ] Reuse one UDP socket per remote host instead of opening/closing per request.
     - [ ] Throttle requests — 50–100 ms between sends helps keep NAT tables sane.
 

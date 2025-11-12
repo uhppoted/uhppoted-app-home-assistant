@@ -124,6 +124,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         tasks += [self._get_controller(lock, c) for c in controllers]
         tasks += [self._get_listener(lock, c) for c in controllers]
         tasks += [self._get_datetime(lock, c) for c in controllers]
+        tasks += [self._get_antipassback(lock, c) for c in controllers]
 
         try:
             await asyncio.gather(*tasks)
@@ -133,7 +134,6 @@ class ControllersCoordinator(DataUpdateCoordinator):
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 executor.map(lambda controller: self._get_interlock(lock, controller), controllers, timeout=1)
-                executor.map(lambda controller: self._get_antipassback(lock, controller), controllers, timeout=1)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller information ({err})')
 
@@ -281,35 +281,29 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 ATTR_CONTROLLER_INTERLOCK: interlock,
             })
 
-    def _get_antipassback(self, lock, controller):
+    async def _get_antipassback(self, lock, controller):
         _LOGGER.debug(f'fetch controller anti-passback {controller.id}')
-
-        def g(response):
-            if response and response.controller == controller.id:
-                return namedtuple('reply', ['antipassback'])(response.antipassback)
-
-            return None
 
         def callback(response):
             try:
-                if reply := g(response):
-                    _LOGGER.debug(f'get-antipassback {controller.id} {reply.antipassback}')
+                _LOGGER.debug(f'get-antipassback {controller.id} {response}')
+                if response and response.controller == controller.id:
                     with lock:
                         self._state[controller.id].update({
-                            ATTR_CONTROLLER_ANTIPASSBACK: reply.antipassback,
+                            ATTR_CONTROLLER_ANTIPASSBACK: response.antipassback,
                         })
 
                     self.async_set_updated_data(self._state)
 
             except Exception as err:
-                _LOGGER.error(f'error updating internal controller {controller.id} event listener ({err})')
+                _LOGGER.error(f'error updating internal controller {controller.id} anti-passback ({err})')
 
         antipassback = -1
 
         try:
-            response = self._uhppote.get_antipassback(controller.id, callback)
-            if reply := g(response):
-                antipassback = reply.antipassback
+            response = await self._uhppote.get_antipassback(controller.id, callback)
+            if response and response.controller == controller.id:
+                antipassback = response.antipassback
 
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} anti-passback ({err})')

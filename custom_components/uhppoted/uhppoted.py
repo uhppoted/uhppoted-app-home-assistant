@@ -439,17 +439,23 @@ class uhppoted:
 
         return response
 
-    def get_antipassback(self, controller, callback=None):
+    async def get_antipassback(self, controller, callback=None):
         key = f'controller.{controller}.antipassback'
         (c, timeout) = self._lookup(controller)
-        g = lambda: self._api.get_antipassback(c, timeout=timeout)
 
         if self.cache_enabled:
-            self.queue.put_nowait(lambda: self.ye_olde_taskke(g, key, CONF_CACHE_EXPIRY_ANTIPASSBACK,
-                                                              f"{'get_antipassback':<16} {controller}", callback))
-            return self._get(key)
-        else:
-            return g()
+            self.queue.put_nowait(
+                lambda: self.ye_async_taskke(
+                    lambda: self._asio.get_antipassback(c, timeout=timeout),
+                    key,
+                    CONF_CACHE_EXPIRY_ANTIPASSBACK,
+                    f"{'get_antipassback':<16} {controller}",
+                    callback)) # yapf: disable
+
+            if record := self._get(key):
+                return record
+
+            return await self._asio.get_antipassback(c, timeout=timeout)
 
     async def set_antipassback(self, controller, antipassback):
         key = f'controller.{controller}.antipassback'

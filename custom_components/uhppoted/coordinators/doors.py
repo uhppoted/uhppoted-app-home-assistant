@@ -215,7 +215,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         controller_id = door[CONF_CONTROLLER_SERIAL_NUMBER]
         door_id = door[CONF_DOOR_NUMBER]
 
-        available  = False,
+        available = False,
         mode = None
         delay = None
 
@@ -260,10 +260,10 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
         with lock:
             self._state[idx].update({
-                    ATTR_DOOR_MODE: mode,
-                    ATTR_DOOR_DELAY: delay,
-                    ATTR_AVAILABLE: available,
-                })
+                ATTR_DOOR_MODE: mode,
+                ATTR_DOOR_DELAY: delay,
+                ATTR_AVAILABLE: available,
+            })
 
     def _resolve(self, controller_id):
         for controller in self._controllers:
