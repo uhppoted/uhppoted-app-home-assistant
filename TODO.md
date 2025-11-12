@@ -24,7 +24,7 @@
     - [ ] get-cards
     - [ ] get-card
     - [ ] get-card-by-index
-    - [ ] get-interlock
+    - [x] get-interlock
     - [x] get-antipassback
     - [ ] Reuse one UDP socket per remote host instead of opening/closing per request.
     - [ ] Throttle requests — 50–100 ms between sends helps keep NAT tables sane.
@@ -49,7 +49,8 @@
 
 - [ ] loading on startup
     - task dequeue seems to take forever to start running
-- [ ] fix set-interlock on startup
+- [ ] set-interlock on startup takes forever
+- (?) retry set-interlock if not available/not correct
 - [ ] fix _controller 405419896 incorrect event listener address (None)_
 - [ ] can't seem to disable check/set-listener
 - [ ] fix:

@@ -125,15 +125,10 @@ class ControllersCoordinator(DataUpdateCoordinator):
         tasks += [self._get_listener(lock, c) for c in controllers]
         tasks += [self._get_datetime(lock, c) for c in controllers]
         tasks += [self._get_antipassback(lock, c) for c in controllers]
+        tasks += [self._get_interlock(lock, c) for c in controllers]
 
         try:
             await asyncio.gather(*tasks)
-        except Exception as err:
-            _LOGGER.error(f'error retrieving controller information ({err})')
-
-        try:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                executor.map(lambda controller: self._get_interlock(lock, controller), controllers, timeout=1)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller information ({err})')
 
@@ -263,18 +258,32 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 ATTR_CONTROLLER_DATETIME: sysdatetime,
             })
 
-    def _get_interlock(self, lock, controller):
-        _LOGGER.debug(f'fetch controller interlock {controller.id}')
+    async def _get_interlock(self, lock, controller):
+        _LOGGER.debug(f'fetch controller door interlock mode {controller.id}')
+
+        def callback(response):
+            try:
+                _LOGGER.debug(f'get-interlock::callback {controller} {response}')
+                if response and response.controller == controller.id:
+                    with lock:
+                        self._state[controller.id].update({
+                            ATTR_CONTROLLER_INTERLOCK: response.interlock,
+                        })
+
+                    self.async_set_updated_data(self._state)
+
+            except Exception as err:
+                _LOGGER.error(f'error updating internal controller {controller.id} door interlock mode ({err})')
 
         interlock = -1
 
         try:
-            response = self._uhppote.get_interlock(controller.id)
+            response = await self._uhppote.get_interlock(controller.id, callback)
             if response and response.controller == controller.id:
                 interlock = response.interlock
 
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller.id} interlock ({err})')
+            _LOGGER.error(f'error retrieving controller {controller.id} door interlock mode ({err})')
 
         with lock:
             self._state[controller.id].update({
@@ -286,7 +295,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
         def callback(response):
             try:
-                _LOGGER.debug(f'get-antipassback {controller.id} {response}')
+                _LOGGER.debug(f'get-antipassback {controller} {response}')
                 if response and response.controller == controller.id:
                     with lock:
                         self._state[controller.id].update({
@@ -296,7 +305,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
                     self.async_set_updated_data(self._state)
 
             except Exception as err:
-                _LOGGER.error(f'error updating internal controller {controller.id} anti-passback ({err})')
+                _LOGGER.error(f'error updating internal controller {controller} anti-passback ({err})')
 
         antipassback = -1
 
@@ -306,7 +315,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 antipassback = response.antipassback
 
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller.id} anti-passback ({err})')
+            _LOGGER.error(f'error retrieving controller {controller} anti-passback ({err})')
 
         with lock:
             self._state[controller.id].update({

@@ -421,7 +421,7 @@ class uhppoted:
 
         return response
 
-    def get_interlock(self, controller):
+    async def get_interlock(self, controller, callback=None):
         key = f'controller.{controller}.interlock'
 
         return self._get(key)
