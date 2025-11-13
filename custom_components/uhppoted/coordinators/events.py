@@ -154,7 +154,8 @@ class EventsCoordinator(DataUpdateCoordinator):
 
         self._listener = EventListener(self.onEvent)
 
-        asyncio.create_task(_listen(hass, addr, port, self._listener))
+        # FIXME reinstate - temporarily removed for async rework
+        # asyncio.create_task(_listen(hass, addr, port, self._listener))
 
         _LOGGER.info(f'events coordinator initialised ({interval.total_seconds():.0f}s)')
 

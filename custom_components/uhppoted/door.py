@@ -180,18 +180,25 @@ class DoorOpen(CoordinatorEntity, SensorEntity):
         self._update()
 
     def _update(self):
+        # _LOGGER.warning(f'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> DoorOpen::update {self.controller} {self.door}')
         _LOGGER.debug(f'controller:{self.controller}  update door {self.door}.open state')
         try:
             if self.coordinator.data:
                 idx = self._unique_id
 
+                # _LOGGER.warning(f'     >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> {idx} {idx in self.coordinator.data}')
+
                 if idx not in self.coordinator.data:
+                    # _LOGGER.warning(f'          >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> oooops/1')
                     self._available = False
                 elif ATTR_AVAILABLE not in self.coordinator.data[idx]:
+                    # _LOGGER.warning(f'          >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> oooops/2')
                     self._available = False
                 elif ATTR_DOOR_OPEN not in self.coordinator.data[idx]:
+                    # _LOGGER.warning(f'          >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> oooops/3')
                     self._available = False
                 else:
+                    # _LOGGER.warning(f'          >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ok')
                     state = self.coordinator.data[idx]
                     self._open = state[ATTR_DOOR_OPEN]
                     self._available = state[ATTR_AVAILABLE]

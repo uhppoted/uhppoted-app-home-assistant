@@ -2,6 +2,11 @@
 
 ## In Progress
 
+- [ ] Initial setup error:
+```
+Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get'
+```
+
 - [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
     - https://developers.home-assistant.io/docs/asyncio_working_with_async
     - [x] set-time
@@ -29,16 +34,20 @@
     - [x] get-interlock
     - [x] get-antipassback
     - [ ] Throttle requests — 50–100 ms between sends helps keep NAT tables sane (apparently)
+    - [ ] event-listener `# FIXME reinstate - temporarily removed for async conversion`
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
-      - (?) store controller + card in coordinator and collate presented state from that
-      - https://developers.home-assistant.io/docs/core/entity/#excluding-state-attributes-from-recorder-history
-      - https://www.home-assistant.io/integrations/logger
-      - https://community.home-assistant.io/t/make-recorder-logbook-and-history-includes-avaialable-for-editing-on-the-entities-page/212515
-      - https://community.home-assistant.io/t/recorder-retention-period-by-entity/267849/5
-      - https://www.reddit.com/r/homeassistant/comments/8aj8xg/is_there_a_way_to_prevent_specific_entities_form
-      - https://community.home-assistant.io/t/worth-disabling-unused-entities/350068
-      - https://community.home-assistant.io/t/how-to-prevent-a-log-entry-when-an-automation-is-executed/255876
+    - [ ] allow 'no event listener'
+    - [ ] weird thing with multiple setups after a reconfigure
+
+    - (?) store controller + card in coordinator and collate presented state from that
+    - https://developers.home-assistant.io/docs/core/entity/#excluding-state-attributes-from-recorder-history
+    - https://www.home-assistant.io/integrations/logger
+    - https://community.home-assistant.io/t/make-recorder-logbook-and-history-includes-avaialable-for-editing-on-the-entities-page/212515
+    - https://community.home-assistant.io/t/recorder-retention-period-by-entity/267849/5
+    - https://www.reddit.com/r/homeassistant/comments/8aj8xg/is_there_a_way_to_prevent_specific_entities_form
+    - https://community.home-assistant.io/t/worth-disabling-unused-entities/350068
+    - https://community.home-assistant.io/t/how-to-prevent-a-log-entry-when-an-automation-is-executed/255876
 
 - [ ] Improve event handling (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/14)
        - [ ] opt-in/out in configuration.yaml/config-flow

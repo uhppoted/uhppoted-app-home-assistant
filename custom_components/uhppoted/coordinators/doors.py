@@ -131,27 +131,23 @@ class DoorsCoordinator(DataUpdateCoordinator):
                     ATTR_AVAILABLE: False,
                 }
 
-        state = {}
         doors = {}
-        _controllers = set()
+        controllers = {}
         for idx in contexts:
-            door = resolve_door(self._options, idx)
-            if door:
-                _controllers.add(door[CONF_CONTROLLER_SERIAL_NUMBER])
+            if door := resolve_door(self._options, idx):
                 doors[idx] = door
-
-        controllers = []
-        for controller in self._controllers:
-            if controller.id in _controllers:
-                controllers.append(controller)
+                if controller := door.get(CONF_CONTROLLER_SERIAL_NUMBER):
+                    controllers.setdefault(controller, []).append((idx, door))
 
         tasks = []
-        for controller in controllers:
-            tasks.append(self._get_controller(lock, state, controller))
+        for controller in self._controllers:
+            if controller.id in controllers:
+                if doors := controllers.get(controller.id, []):
+                    tasks.append(self._get_controller(lock, controller, doors))
 
         for idx in contexts:
             if door := doors.get(idx):
-                tasks.append(self._get_door(lock, idx, door, state))
+                tasks.append(self._get_door(lock, idx, door))
 
         try:
             await asyncio.gather(*tasks)
@@ -162,74 +158,62 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
         return self._db.doors
 
-    async def _get_controller(self, lock, state, controller):
+    async def _get_controller(self, lock, controller, doors):
+        state = {}
+        for (idx, door) in doors:
+            state[idx] = {
+                    ATTR_DOOR_OPEN: None,
+                    ATTR_DOOR_BUTTON: None,
+                    ATTR_DOOR_LOCK: None,
+            }
+
+        def g(idx, open, button, relay):
+            state[idx].update({
+                ATTR_DOOR_OPEN: open == True,
+                ATTR_DOOR_BUTTON: button == True,
+                ATTR_DOOR_LOCK: relay == 0x00,
+            })
+
+        def h(idx, door, response):
+            if door == 1:
+                g(idx, response.door_1_open, response.door_1_button, response.relays & 0x01)
+            elif door == 2:
+                g(idx, response.door_2_open, response.door_2_button, response.relays & 0x02)
+            elif door == 3:
+                g(idx, response.door_3_open, response.door_3_button, response.relays & 0x04)
+            elif door == 4:
+                g(idx, response.door_4_open, response.door_4_button, response.relays & 0x08)
+
         def callback(response):
             try:
                 _LOGGER.debug(f'get-controller {controller.id} {response}')
                 if response and response.controller == controller.id:
-                    info = {
-                        1: {
-                            'open': response.door_1_open == True,
-                            'button': response.door_1_button == True,
-                            'locked': response.relays & 0x01 == 0x00,
-                        },
-                        2: {
-                            'open': response.door_2_open == True,
-                            'button': response.door_2_button == True,
-                            'locked': response.relays & 0x02 == 0x00,
-                        },
-                        3: {
-                            'open': response.door_3_open == True,
-                            'button': response.door_3_button == True,
-                            'locked': response.relays & 0x04 == 0x00,
-                        },
-                        4: {
-                            'open': response.door_4_open == True,
-                            'button': response.door_4_button == True,
-                            'locked': response.relays & 0x08 == 0x00,
-                        }
-                    }
-                
+                    for (idx, door) in doors:
+                        if door_number := door.get('door_number'):
+                            h(idx, door_number, response)
+
                     with lock:
-                        state[controller.id] = info
+                        for (idx, door) in doors:
+                            self._state[idx].update(state.get(idx,{}))
 
             except Exception as err:
                 _LOGGER.error(f'error updating controller {controller.id} door state ({err})')
 
-        info = None
-
         try:
             response = await self._uhppote.get_status(controller.id, callback)
             if response and response.controller == controller.id:
-                info = {
-                    1: {
-                        'open': response.door_1_open == True,
-                        'button': response.door_1_button == True,
-                        'locked': response.relays & 0x01 == 0x00,
-                    },
-                    2: {
-                        'open': response.door_2_open == True,
-                        'button': response.door_2_button == True,
-                        'locked': response.relays & 0x02 == 0x00,
-                    },
-                    3: {
-                        'open': response.door_3_open == True,
-                        'button': response.door_3_button == True,
-                        'locked': response.relays & 0x04 == 0x00,
-                    },
-                    4: {
-                        'open': response.door_4_open == True,
-                        'button': response.door_4_button == True,
-                        'locked': response.relays & 0x08 == 0x00,
-                    }
-                }
+                for (idx, door) in doors:
+                    if door_number := door.get('door_number'):
+                        h(idx, door_number, response)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} door state ({err})')
 
         with lock:
-            state[controller.id] = info
+            for (idx, door) in doors:
+                self._state[idx].update(state.get(idx,{}))
 
-    async def _get_door(self, lock, idx, door, state):
+
+    async def _get_door(self, lock, idx, door):
         _LOGGER.debug(f'fetch door info {door}')
 
         name = door[CONF_DOOR_ID]
@@ -239,12 +223,6 @@ class DoorsCoordinator(DataUpdateCoordinator):
         available = False,
         mode = None
         delay = None
-
-        if state.get(controller_id):
-            with lock:
-                state[controller_id][door_id].setdefault('open', None)
-                state[controller_id][door_id].setdefault('button', None)
-                state[controller_id][door_id].setdefault('locked', None)
 
         def callback(response):
             try:

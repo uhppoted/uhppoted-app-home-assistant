@@ -329,7 +329,7 @@ class uhppoted:
         if self.cache_enabled:
             self.queue.put_nowait(lambda: self.ye_async_taskke(
                 lambda: self._asio.get_status(c, timeout=timeout),
-                key, 
+                key,
                 CONF_CACHE_EXPIRY_STATUS,
                 f"{'get_status':<16} {controller}",
                 callback))  # yapf: disable
