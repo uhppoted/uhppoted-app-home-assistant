@@ -19,17 +19,16 @@
     - [x] get-controller
     - [x] get-listener
     - [x] get-time
-    - [ ] get-door
+    - [x] get-door
         - [x] _get-doors::get-door
-        - [ ] _get-doors::get-controller
-    - [ ] get-status
+        - [x] _get-doors::get-controller
+    - [x] get-status
     - [ ] get-cards
     - [ ] get-card
     - [ ] get-card-by-index
     - [x] get-interlock
     - [x] get-antipassback
-    - [ ] Reuse one UDP socket per remote host instead of opening/closing per request.
-    - [ ] Throttle requests — 50–100 ms between sends helps keep NAT tables sane.
+    - [ ] Throttle requests — 50–100 ms between sends helps keep NAT tables sane (apparently)
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
       - (?) store controller + card in coordinator and collate presented state from that

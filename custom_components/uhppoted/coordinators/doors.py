@@ -146,6 +146,9 @@ class DoorsCoordinator(DataUpdateCoordinator):
                 controllers.append(controller)
 
         tasks = []
+        for controller in controllers:
+            tasks.append(self._get_controller(lock, state, controller))
+
         for idx in contexts:
             if door := doors.get(idx):
                 tasks.append(self._get_door(lock, idx, door, state))
@@ -155,19 +158,48 @@ class DoorsCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.error(f'error retrieving controller door information ({err})')
 
-        try:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                executor.map(lambda controller: self._get_controller(lock, state, controller), controllers, timeout=1)
-        except Exception as err:
-            _LOGGER.error(f'error retrieving controller door information ({err})')
-
         self._db.doors = self._state
 
         return self._db.doors
 
-    def _get_controller(self, lock, state, controller):
+    async def _get_controller(self, lock, state, controller):
+        def callback(response):
+            try:
+                _LOGGER.debug(f'get-controller {controller.id} {response}')
+                if response and response.controller == controller.id:
+                    info = {
+                        1: {
+                            'open': response.door_1_open == True,
+                            'button': response.door_1_button == True,
+                            'locked': response.relays & 0x01 == 0x00,
+                        },
+                        2: {
+                            'open': response.door_2_open == True,
+                            'button': response.door_2_button == True,
+                            'locked': response.relays & 0x02 == 0x00,
+                        },
+                        3: {
+                            'open': response.door_3_open == True,
+                            'button': response.door_3_button == True,
+                            'locked': response.relays & 0x04 == 0x00,
+                        },
+                        4: {
+                            'open': response.door_4_open == True,
+                            'button': response.door_4_button == True,
+                            'locked': response.relays & 0x08 == 0x00,
+                        }
+                    }
+                
+                    with lock:
+                        state[controller.id] = info
 
-        def g(response):
+            except Exception as err:
+                _LOGGER.error(f'error updating controller {controller.id} door state ({err})')
+
+        info = None
+
+        try:
+            response = await self._uhppote.get_status(controller.id, callback)
             if response and response.controller == controller.id:
                 info = {
                     1: {
@@ -191,27 +223,6 @@ class DoorsCoordinator(DataUpdateCoordinator):
                         'locked': response.relays & 0x08 == 0x00,
                     }
                 }
-
-                return namedtuple('reply', ['info'])(info)
-
-            return None
-
-        def callback(response):
-            try:
-                if reply := g(response):
-                    _LOGGER.debug(f'get-controller {controller.id} {reply}')
-                    with lock:
-                        state[controller.id] = reply.info
-
-            except Exception as err:
-                _LOGGER.error(f'error updating controller {controller.id} door state ({err})')
-
-        info = None
-
-        try:
-            response = self._uhppote.get_status(controller.id, callback)
-            if reply := g(response):
-                info = reply.info
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} door state ({err})')
 

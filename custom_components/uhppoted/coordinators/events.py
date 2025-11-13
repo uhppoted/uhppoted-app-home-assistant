@@ -290,26 +290,23 @@ class EventsCoordinator(DataUpdateCoordinator):
 
             return None
 
-        def callback(response):
-            try:
-                if reply := g(response):
-                    _LOGGER.debug(f'get-controller {controller.id} {reply}')
-
-            except Exception as err:
-                _LOGGER.error(f'error retrieving controller {controller.id} events ({err})')
-
         info = {
             ATTR_AVAILABLE: False,
             ATTR_EVENTS: [],
         }
 
         try:
-            response = self._uhppote.get_status(controller.id, callback)
-            if reply := g(response):
-                info[ATTR_STATUS] = reply.status
-                index = reply.index
-                relays = reply.relays
-                buttons = reply.buttons
+            response = await self._uhppote.get_status(controller.id)
+            if response and response.controller == controller.id:
+                info[ATTR_STATUS] = response
+                index = response.event_index
+                relays = response.relays
+                buttons = {
+                    1: response.door_1_button,
+                    2: response.door_2_button,
+                    3: response.door_3_button,
+                    4: response.door_4_button,
+                }
                 events = []
 
                 if not controller.id in self._state['index']:
