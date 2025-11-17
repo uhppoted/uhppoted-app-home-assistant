@@ -125,31 +125,32 @@ class DoorsCoordinator(DataUpdateCoordinator):
     async def _get_doors(self, contexts):
         lock = threading.Lock()
 
-        for v in contexts:
-            if not v in self._state:
-                self._state[v] = {
-                    ATTR_AVAILABLE: False,
-                }
-
-        doors = {}
-        controllers = {}
-        for idx in contexts:
-            if door := resolve_door(self._options, idx):
-                doors[idx] = door
-                if controller := door.get(CONF_CONTROLLER_SERIAL_NUMBER):
-                    controllers.setdefault(controller, []).append((idx, door))
-
-        tasks = []
-        for controller in self._controllers:
-            if controller.id in controllers:
-                if doors := controllers.get(controller.id, []):
-                    tasks.append(self._get_controller(lock, controller, doors))
-
-        for idx in contexts:
-            if door := doors.get(idx):
-                tasks.append(self._get_door(lock, idx, door))
-
         try:
+            for idx in contexts:
+                if not idx in self._state:
+                    self._state[idx] = {
+                        ATTR_AVAILABLE: False,
+                    }
+
+            doors = {}
+            controllers = {}
+
+            for idx in contexts:
+                if door := resolve_door(self._options, idx):
+                    doors[idx] = door
+                    if controller := door.get(CONF_CONTROLLER_SERIAL_NUMBER):
+                        controllers.setdefault(controller, []).append((idx, door))
+
+            tasks = []
+            for controller in self._controllers:
+                if controller.id in controllers:
+                    if _doors := controllers.get(controller.id, []):
+                        tasks.append(self._get_controller(lock, controller, _doors))
+
+            for idx in contexts:
+                if door := doors.get(idx):
+                    tasks.append(self._get_door(lock, idx, door))
+
             await asyncio.gather(*tasks)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller door information ({err})')

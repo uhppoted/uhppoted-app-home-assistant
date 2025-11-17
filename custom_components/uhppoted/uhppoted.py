@@ -339,9 +339,10 @@ class uhppoted:
 
         return await self._asio.get_status(c, timeout=timeout)
 
-    def get_cards(self, controller):
+    async def get_cards(self, controller):
         (c, timeout) = self._lookup(controller)
-        return self._api.get_cards(c, timeout=timeout)
+
+        return await self._asio.get_cards(c, timeout=timeout)
 
     def get_card(self, controller, card):
         key = f'controller.{controller}.card.{card}'

@@ -448,7 +448,7 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
 
                 return await self.async_step_card()
 
-        cards = get_all_cards(self.options, self._max_cards, self._preferred_cards)
+        cards = await get_all_cards(self.options, self._max_cards, self._preferred_cards)
         defaults = [f'{v[CONF_CARD_NUMBER]}' for v in self.options.get(CONF_CARDS, [])]
 
         select = SelectSelectorConfig(options=[g(v) for v in cards],

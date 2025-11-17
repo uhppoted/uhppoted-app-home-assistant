@@ -28,7 +28,7 @@ Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get
         - [x] _get-doors::get-door
         - [x] _get-doors::get-controller
     - [x] get-status
-    - [ ] get-cards
+    - [x] get-cards
     - [ ] get-card
     - [ ] get-card-by-index
     - [x] get-interlock

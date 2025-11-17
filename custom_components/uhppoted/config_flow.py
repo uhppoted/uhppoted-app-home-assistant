@@ -413,7 +413,7 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
 
                 return await self.async_step_card()
 
-        cards = [v[CONF_CARD_NUMBER] for v in get_all_cards(self.options, self._max_cards, self._preferred_cards)]
+        cards = [v[CONF_CARD_NUMBER] for v in await get_all_cards(self.options, self._max_cards, self._preferred_cards)]
 
         if len(cards) < 2:
             self.configuration['cards'] = [{

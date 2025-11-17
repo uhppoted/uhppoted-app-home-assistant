@@ -334,7 +334,7 @@ def get_all_doors(options):
     return sorted(list(controllers), key=lambda v: v[CONF_CONTROLLER_SERIAL_NUMBER], reverse=True)
 
 
-def get_all_cards(options, max_cards=DEFAULT_MAX_CARDS, preferred_cards=DEFAULT_PREFERRED_CARDS):
+async def get_all_cards(options, max_cards=DEFAULT_MAX_CARDS, preferred_cards=DEFAULT_PREFERRED_CARDS):
     cards = dict()
     u = configure_driver(options)
 
@@ -363,7 +363,7 @@ def get_all_cards(options, max_cards=DEFAULT_MAX_CARDS, preferred_cards=DEFAULT_
     # ... get controller cards
     for controller in u.controllers:
         try:
-            response = u.get_cards(controller)
+            response = await u.get_cards(controller)
             _LOGGER.info(f'{controller}: {response.cards} cards')
 
             N = min(response.cards, max_cards)
