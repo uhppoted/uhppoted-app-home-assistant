@@ -3,6 +3,7 @@ from collections import namedtuple
 
 import concurrent.futures
 import threading
+import asyncio
 import datetime
 import logging
 import async_timeout
@@ -66,7 +67,7 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         for controller in controllers:
             try:
-                response = self._uhppote.get_card(controller.id, cardno)
+                response = await self._uhppote.get_card(controller.id, cardno)
                 if response.controller == controller.id and response.card_number == cardno:
                     _LOGGER.info(f'card {card} already exists on controller {controller.id}')
                 elif response.controller == controller.id and response.card_number == 0:
@@ -312,8 +313,9 @@ class CardsCoordinator(DataUpdateCoordinator):
         controllers = self._controllers
 
         try:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                executor.map(lambda card: self._get_card(controllers, lock, card), contexts, timeout=1)
+            tasks = [self._get_card(controllers, lock, card) for card in contexts]
+
+            await asyncio.gather(*tasks)
         except Exception as err:
             _LOGGER.error(f'error retrieving card information ({err})')
 
@@ -321,33 +323,8 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         return self._db.cards
 
-    def _get_card(self, controllers, lock, card):
+    async def _get_card(self, controllers, lock, card):
         _LOGGER.debug(f'fetch card {card} information')
-
-        def g(controller, response):
-            if response and response.controller == controller and response.card_number == card:
-                start_date = response.start_date
-                end_date = response.end_date
-                permissions = []
-                if response.door_1 > 0:
-                    permissions.append(1)
-
-                if response.door_2 > 0:
-                    permissions.append(2)
-
-                if response.door_3 > 0:
-                    permissions.append(3)
-
-                if response.door_4 > 0:
-                    permissions.append(4)
-
-                PIN = response.pin
-
-                reply = (start_date, end_date, permissions, PIN)
-
-                return namedtuple('reply', ['start_date', 'end_date', 'permissions', 'PIN'])(*reply)
-
-            return None
 
         info = {
             ATTR_AVAILABLE: False,
@@ -363,18 +340,22 @@ class CardsCoordinator(DataUpdateCoordinator):
             PIN = None
 
             for controller in controllers:
-                response = self._uhppote.get_card(controller.id, card)
-                if reply := g(controller.id, response):
-                    if reply.start_date is not None and (not start_date or reply.start_date < start_date):
-                        start_date = reply.start_date
+                response = await self._uhppote.get_cardx(controller.id, card)
+                if response and response.controller == controller.id and response.card_number == card:
+                    if response.start_date is not None and (not start_date or response.start_date < start_date):
+                        start_date = response.start_date
 
-                    if reply.end_date is not None and (not end_date or reply.end_date > end_date):
-                        end_date = reply.end_date
+                    if response.end_date is not None and (not end_date or response.end_date > end_date):
+                        end_date = response.end_date
 
-                    permissions[controller.id] = reply.permissions
+                    permissions[controller.id] = []
+                    if response.door_1 > 0: permissions[controller.id].append(1)
+                    if response.door_2 > 0: permissions[controller.id].append(2)
+                    if response.door_3 > 0: permissions[controller.id].append(3)
+                    if response.door_4 > 0: permissions[controller.id].append(4)
 
-                    if reply.PIN > 0:
-                        PIN = reply.PIN
+                    if response.pin > 0:
+                        PIN = response.pin
 
             info = {
                 ATTR_CARD_STARTDATE: start_date,

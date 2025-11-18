@@ -30,15 +30,20 @@ Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get
     - [x] get-status
     - [x] get-cards
     - [ ] get-card
+        - [ ] rethink removing the `response is None` thing
+            - maybe a short cache time is the way to do it
     - [ ] get-card-by-index
     - [x] get-interlock
     - [x] get-antipassback
-    - [ ] Throttle requests — 50–100 ms between sends helps keep NAT tables sane (apparently)
+    - [ ] Throttle requests
+        — 50–100 ms between sends helps keep NAT tables sane (apparently)
+        - add to configuration.yaml
     - [ ] event-listener `# FIXME reinstate - temporarily removed for async conversion`
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
-    - [ ] allow 'no event listener'
     - [ ] weird thing with multiple setups after a reconfigure
+    - [ ] allow 'no event listener'
+    - [ ] backoff on retry if _address in use_
 
     - (?) store controller + card in coordinator and collate presented state from that
     - https://developers.home-assistant.io/docs/core/entity/#excluding-state-attributes-from-recorder-history

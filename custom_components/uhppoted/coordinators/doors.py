@@ -163,9 +163,9 @@ class DoorsCoordinator(DataUpdateCoordinator):
         state = {}
         for (idx, door) in doors:
             state[idx] = {
-                    ATTR_DOOR_OPEN: None,
-                    ATTR_DOOR_BUTTON: None,
-                    ATTR_DOOR_LOCK: None,
+                ATTR_DOOR_OPEN: None,
+                ATTR_DOOR_BUTTON: None,
+                ATTR_DOOR_LOCK: None,
             }
 
         def g(idx, open, button, relay):
@@ -195,7 +195,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
                     with lock:
                         for (idx, door) in doors:
-                            self._state[idx].update(state.get(idx,{}))
+                            self._state[idx].update(state.get(idx, {}))
 
             except Exception as err:
                 _LOGGER.error(f'error updating controller {controller.id} door state ({err})')
@@ -211,8 +211,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
         with lock:
             for (idx, door) in doors:
-                self._state[idx].update(state.get(idx,{}))
-
+                self._state[idx].update(state.get(idx, {}))
 
     async def _get_door(self, lock, idx, door):
         _LOGGER.debug(f'fetch door info {door}')

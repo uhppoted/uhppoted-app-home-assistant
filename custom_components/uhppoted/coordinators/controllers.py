@@ -109,25 +109,25 @@ class ControllersCoordinator(DataUpdateCoordinator):
     async def _get_controllers(self, contexts):
         lock = self._lock  # threading.Lock()
 
-        for v in contexts:
-            if not v in self._state:
-                self._state[v] = {
-                    ATTR_AVAILABLE: False,
-                }
-
-        controllers = []
-        for controller in self._controllers:
-            if controller.id in contexts:
-                controllers.append(controller)
-
-        tasks = []
-        tasks += [self._get_controller(lock, c) for c in controllers]
-        tasks += [self._get_listener(lock, c) for c in controllers]
-        tasks += [self._get_datetime(lock, c) for c in controllers]
-        tasks += [self._get_antipassback(lock, c) for c in controllers]
-        tasks += [self._get_interlock(lock, c) for c in controllers]
-
         try:
+            for v in contexts:
+                if not v in self._state:
+                    self._state[v] = {
+                        ATTR_AVAILABLE: False,
+                    }
+
+            controllers = []
+            for controller in self._controllers:
+                if controller.id in contexts:
+                    controllers.append(controller)
+
+            tasks = []
+            tasks += [self._get_controller(lock, c) for c in controllers]
+            tasks += [self._get_listener(lock, c) for c in controllers]
+            tasks += [self._get_datetime(lock, c) for c in controllers]
+            tasks += [self._get_antipassback(lock, c) for c in controllers]
+            tasks += [self._get_interlock(lock, c) for c in controllers]
+
             await asyncio.gather(*tasks)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller information ({err})')
