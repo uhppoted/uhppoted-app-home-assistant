@@ -67,7 +67,7 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         for controller in controllers:
             try:
-                response = await self._uhppote.get_card(controller.id, cardno)
+                response = await self._uhppote.get_cardx(controller.id, cardno)
                 if response.controller == controller.id and response.card_number == cardno:
                     _LOGGER.info(f'card {card} already exists on controller {controller.id}')
                 elif response.controller == controller.id and response.card_number == 0:
