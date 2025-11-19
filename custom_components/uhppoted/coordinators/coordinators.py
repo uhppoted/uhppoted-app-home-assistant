@@ -27,10 +27,10 @@ class Coordinators():
         Coordinators.COORDINATORS[id] = Coordinators(hass, options)
 
     @classmethod
-    def unload(clazz, id):
+    def unload(clazz, hass, id):
         coordinators = Coordinators.COORDINATORS.pop(id, None)
         if coordinators:
-            coordinators._unload()
+            coordinators._unload(hass)
 
     @classmethod
     def controllers(clazz, id):
@@ -128,9 +128,13 @@ class Coordinators():
         self._driver.start(hass)
 
     def __del__(self):
-        self._unload()
+        # FIXME self._unload()
+        self._controllers.unload()
+        self._doors.unload()
+        self._cards.unload()
+        self._events.unload()
 
-    def _unload(self):
+    def _unload(self, hass):
         self._driver.stop(hass)
         self._controllers.unload()
         self._doors.unload()

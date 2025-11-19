@@ -31,6 +31,7 @@ from ..config import get_configured_controllers_ext
 from ..config import get_configured_controllers
 from ..config import get_configured_cards
 from ..config import resolve_permissions
+from ..config import resolve_door_by_name
 from ..config import default_card_start_date
 from ..config import default_card_end_date
 
@@ -132,6 +133,17 @@ class CardsCoordinator(DataUpdateCoordinator):
         controllers = self._controllers
         errors = []
 
+        _LOGGER.warning(f'>>>>> ***** >>>>>>>>>>>>>>>>>>>>>>>>>> set-card: {self._state[card]} {start_date} {self._state[card]["end_date"]}')
+
+        # set-card: {'available': True, 'start_date': datetime.date(2025, 1, 2), 'end_date': datetime.date(2026, 5, 31), 'permissions': ['Gryffindor'], 'PIN': None}
+
+        record = self._state.get(card)
+        _LOGGER.warning(f'>>>>> >>>> >>>> >>> {record} {self._state[card]}')
+        # if record is not None:
+        #     _LOGGER.warning(f">>>>> >>>> >>>> >>> {record.get('permissions',[])}")
+        #     for p in record.get('permissions',[]):
+        #         _LOGGER.warning(f'>>>>>>>>>>>>>>>>>>>>>>>>>> {p} {resolve_door_by_name(self._options, p)}')
+
         for controller in controllers:
             try:
                 end_date = default_card_end_date()
@@ -140,6 +152,15 @@ class CardsCoordinator(DataUpdateCoordinator):
                 door3 = 0
                 door4 = 0
                 PIN = 0
+
+                if record is not None:
+                    if date := record.get('end_date'):
+                        end_date = date
+
+                    if pin := record.get('PIN'):
+                        PIN = pin
+
+                _LOGGER.warning(f"................................ >>>> {end_date} {PIN}")
 
                 response = self._uhppote.get_card(controller.id, card)
                 if response.controller == controller.id and response.card_number == card:

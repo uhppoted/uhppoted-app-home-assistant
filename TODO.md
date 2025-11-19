@@ -13,7 +13,9 @@ Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get
     - [x] set-door-mode
     - [x] set-door-delay
     - [x] open-door
+    - [x] get-interlock
     - [x] set-interlock
+    - [x] get-antipassback
     - [x] set-antipassback
     - [x] set-listener
     - [x] record-special-events
@@ -29,17 +31,28 @@ Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get
         - [x] _get-doors::get-controller
     - [x] get-status
     - [x] get-cards
+    - [x] get-card-by-index
     - [ ] get-card
         - [ ] rethink removing the `response is None` thing
             - maybe a short cache time is the way to do it
             - or maybe just use the current values for set-start-date, etc
-    - [ ] get-card-by-index
-    - [x] get-interlock
-    - [x] get-antipassback
+            - set-start-date:
+```
+home-assistant-stable  | 2025-11-19 19:05:18.039 ERROR (MainThread) [custom_components.uhppoted.uhppoted] error retrieving card 8165535 from controller 303986753 (timed out)
+home-assistant-stable  | 2025-11-19 19:05:18.040 ERROR (MainThread) [custom_components.uhppoted.coordinators.cards] error updating card 8165535 start date on controller 303986753 ('NoneType' object has no attribute 'controller')
+home-assistant-stable  | Traceback (most recent call last):
+home-assistant-stable  |   File "/config/custom_components/uhppoted/coordinators/cards.py", line 147, in set_card_start_date
+home-assistant-stable  |     if response.controller == controller.id and response.card_number == card:
+home-assistant-stable  |        ^^^^^^^^^^^^^^^^^^^
+home-assistant-stable  | AttributeError: 'NoneType' object has no attribute 'controller'
+home-assistant-stable  | 2025-11-19 19:05:18.044 ERROR (MainThread) [custom_components.uhppoted.coordinators.cards] error updating card 8165535 start date on controller 303986753
+home-assistant-stable  | NoneType: None
+```
     - [ ] Throttle requests
         — 50–100 ms between sends helps keep NAT tables sane (apparently)
         - add to configuration.yaml
     - [ ] event-listener `# FIXME reinstate - temporarily removed for async conversion`
+
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
     - [ ] weird thing with multiple setups after a reconfigure

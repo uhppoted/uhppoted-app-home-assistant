@@ -211,7 +211,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
     # ... post-unload: shut down data-coordinators
-    Coordinators.unload(entry.entry_id)
+    Coordinators.unload(hass, entry.entry_id)
 
     return ok
 
