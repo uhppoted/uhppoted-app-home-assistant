@@ -373,7 +373,7 @@ async def get_all_cards(options, max_cards=DEFAULT_MAX_CARDS, preferred_cards=DE
 
             while count < N and ix < DEFAULT_MAX_CARD_INDEX and len(cards) < max_cards and errors < DEFAULT_MAX_CARD_ERRORS: # yapf: disable
                 try:
-                    response = u.get_card_by_index(controller, ix)
+                    response = await u.get_card_by_index(controller, ix)
                     cards[response.card_number] = {
                         CONF_CARD_NUMBER: response.card_number,
                         CONF_CARD_UNIQUE_ID: uuid.uuid4(),

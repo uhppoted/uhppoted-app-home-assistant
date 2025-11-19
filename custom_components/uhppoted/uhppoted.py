@@ -344,23 +344,6 @@ class uhppoted:
 
         return await self._asio.get_cards(c, timeout=timeout)
 
-    async def get_cardx(self, controller, card):
-        key = f'controller.{controller}.card.{card}'
-        (c, timeout) = self._lookup(controller)
-
-        # if self.cache_enabled:
-        #     self.queue.put_nowait(lambda: self.ye_async_taskke(
-        #         lambda: self._asio.get_card(c, card, timeout=timeout),
-        #         key,
-        #         CONF_CACHE_EXPIRY_CARD,
-        #         f"{'get_card':<16} {controller} {card}",
-        #         callback))  # yapf: disable
-        #
-        #     if record := self._get(key):
-        #         return record
-
-        return await self._asio.get_card(c, card, timeout=timeout)
-
     def get_card(self, controller, card):
         key = f'controller.{controller}.card.{card}'
         (c, timeout) = self._lookup(controller)
@@ -380,9 +363,27 @@ class uhppoted:
         else:
             return g()
 
-    def get_card_by_index(self, controller, index):
+    async def get_cardx(self, controller, card):
+        key = f'controller.{controller}.card.{card}'
         (c, timeout) = self._lookup(controller)
-        return self._api.get_card_by_index(c, index, timeout=timeout)
+
+        # if self.cache_enabled:
+        #     self.queue.put_nowait(lambda: self.ye_async_taskke(
+        #         lambda: self._asio.get_card(c, card, timeout=timeout),
+        #         key,
+        #         CONF_CACHE_EXPIRY_CARD,
+        #         f"{'get_card':<16} {controller} {card}",
+        #         callback))  # yapf: disable
+        #
+        #     if record := self._get(key):
+        #         return record
+
+        return await self._asio.get_card(c, card, timeout=timeout)
+
+    async def get_card_by_index(self, controller, index):
+        (c, timeout) = self._lookup(controller)
+
+        return await self._asio.get_card_by_index(c, index, timeout=timeout)
 
     async def put_card(self, controller, card, start_date, end_date, door1, door2, door3, door4, PIN):
         key = f'controller.{controller}.card.{card}'

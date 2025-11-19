@@ -32,6 +32,7 @@ Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get
     - [ ] get-card
         - [ ] rethink removing the `response is None` thing
             - maybe a short cache time is the way to do it
+            - or maybe just use the current values for set-start-date, etc
     - [ ] get-card-by-index
     - [x] get-interlock
     - [x] get-antipassback
