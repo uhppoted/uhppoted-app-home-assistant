@@ -350,7 +350,7 @@ async def get_all_cards(options, max_cards=DEFAULT_MAX_CARDS, preferred_cards=DE
     for controller in u.controllers:
         for card in sorted(list(preferred)):
             try:
-                response = u.get_card(controller, card)
+                response = await u.get_cardx(controller, card)
                 if response.card_number == card:
                     cards[response.card_number] = {
                         CONF_CARD_NUMBER: response.card_number,

@@ -28,9 +28,6 @@ from .const import CONF_CACHE_EXPIRY_EVENT
 
 _LOGGER = logging.getLogger(__name__)
 
-# Controller = namedtuple('Controller', 'id address protocol')
-
-
 class Controller:
     __slots__ = ('_id', '_address', '_protocol')
 
