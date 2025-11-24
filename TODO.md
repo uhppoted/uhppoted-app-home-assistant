@@ -27,16 +27,18 @@ Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get
     - [x] get-listener
     - [x] get-time
     - [x] get-door
-        - [x] _get-doors::get-door
-        - [x] _get-doors::get-controller
     - [x] get-status
     - [x] get-cards
     - [x] get-card-by-index
     - [ ] get-card
+        - [ ] use HA data to update card
+            - [x] set_card_start_date
+            - [ ] set_card_end_date
+            - [ ] set_card_PIN
+            - [ ] set_card_permission
+
         - [ ] rethink removing the `response is None` thing
             - maybe a short cache time is the way to do it
-            - or maybe just use the current values for set-start-date, etc
-            - set-start-date:
 ```
 home-assistant-stable  | 2025-11-19 19:05:18.039 ERROR (MainThread) [custom_components.uhppoted.uhppoted] error retrieving card 8165535 from controller 303986753 (timed out)
 home-assistant-stable  | 2025-11-19 19:05:18.040 ERROR (MainThread) [custom_components.uhppoted.coordinators.cards] error updating card 8165535 start date on controller 303986753 ('NoneType' object has no attribute 'controller')

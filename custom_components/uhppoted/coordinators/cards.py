@@ -133,16 +133,14 @@ class CardsCoordinator(DataUpdateCoordinator):
         controllers = self._controllers
         errors = []
 
-        _LOGGER.warning(f'>>>>> ***** >>>>>>>>>>>>>>>>>>>>>>>>>> set-card: {self._state[card]} {start_date} {self._state[card]["end_date"]}')
-
-        # set-card: {'available': True, 'start_date': datetime.date(2025, 1, 2), 'end_date': datetime.date(2026, 5, 31), 'permissions': ['Gryffindor'], 'PIN': None}
-
         record = self._state.get(card)
-        _LOGGER.warning(f'>>>>> >>>> >>>> >>> {record} {self._state[card]}')
-        # if record is not None:
-        #     _LOGGER.warning(f">>>>> >>>> >>>> >>> {record.get('permissions',[])}")
-        #     for p in record.get('permissions',[]):
-        #         _LOGGER.warning(f'>>>>>>>>>>>>>>>>>>>>>>>>>> {p} {resolve_door_by_name(self._options, p)}')
+
+
+        if record is not None:
+            for p in record.get('permissions',[]):
+                door = resolve_door_by_name(self._options, p)
+                if door is not None:
+                    record.setdefault('doors', []).append(door)
 
         for controller in controllers:
             try:
@@ -160,21 +158,23 @@ class CardsCoordinator(DataUpdateCoordinator):
                     if pin := record.get('PIN'):
                         PIN = pin
 
-                _LOGGER.warning(f"................................ >>>> {end_date} {PIN}")
+                    if doors := record.get('doors'):
+                        for door in doors:
+                            if door.get(CONF_CONTROLLER_SERIAL_NUMBER) == controller.id:
+                                if door.get(CONF_DOOR_NUMBER) == 1:
+                                    door1 = 1
+                                elif door.get(CONF_DOOR_NUMBER) == 2:
+                                    door2 = 1
+                                elif door.get(CONF_DOOR_NUMBER) == 3:
+                                    door3 = 1
+                                elif door.get(CONF_DOOR_NUMBER) == 4:
+                                    door4 = 1
 
-                response = self._uhppote.get_card(controller.id, card)
-                if response.controller == controller.id and response.card_number == card:
-                    end_date = response.end_date if response.end_date else end_date
-                    door1 = response.door_1
-                    door2 = response.door_2
-                    door3 = response.door_3
-                    door4 = response.door_4
-                    PIN = response.pin
-
-                response = await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2, door3,
-                                                        door4, PIN)
-                if not response.stored:
-                    errors.append(f'{controller.id}')
+                if response := await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2, door3, door4, PIN):
+                    if not response.stored:
+                        errors.append(f'{controller.id}')
+                else:
+                        errors.append(f'{controller.id}')
 
             except Exception as e:
                 errors.append(f'{controller.id}')

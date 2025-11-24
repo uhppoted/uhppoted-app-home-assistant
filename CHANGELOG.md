@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Updated
+1. Reworked to use async lib.
+2. Reworked to use HA data when settig card start/end date, PIN or permissions.
+
 
 ## [0.8.11](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.11) - 2025-07-01
 

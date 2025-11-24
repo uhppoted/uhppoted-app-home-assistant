@@ -23,11 +23,10 @@ uhppoted:
     timeout: 2.5
     max_cards: 7
     preferred_cards:
-        - 8165535
-        - 8165536
-        - 8165537
-        - 8165536
-        - 8165535
+        - 10085399
+        - 10085400
+        - 10085401
+        - 10085402
     card_PINs: true
     controllers_poll_interval: 29
     doors_poll_interval: 31
@@ -36,17 +35,17 @@ uhppoted:
     controllers:
         - 
             controller: 504030201
-            address: 192.168.1.100
+            address: 192.168.1.125
             port: 54321
             protocol: UDP
         - 
             controller: 605040302
-            address: 192.168.1.100
+            address: 192.168.1.125
             port: 54321
             protocol: UDP
         - 
             controller: 706050403
-            address: 192.168.1.100
+            address: 192.168.1.125
             port: 54321
             timeout: 0.56
             protocol: TCP
