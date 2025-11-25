@@ -37,9 +37,9 @@ Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get
             - [x] set_card_PIN
             - [x] set_card_permission
             - [ ] caching
-    - [ ] Put yapf/black in _venv_
-        - [ ] Update github workflow to use dummy .venv folder
-        - [ ] requirements.txt
+    - [x] Put yapf in _venv_
+        - [x] Update github workflow to use dummy .venv folder
+        - [x] requirements.txt
 
     - [ ] Throttle requests
         — 50–100 ms between sends helps keep NAT tables sane (apparently)

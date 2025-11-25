@@ -13,8 +13,8 @@ update-release:
 	@echo "update-release: nothing to do"
 
 format: 
-	yapf -ri custom_components/uhppoted
-	yapf -ri tests
+	. .venv/bin/activate && yapf -ri custom_components/uhppoted
+	. .venv/bin/activate && yapf -ri tests
 
 translate:
 	python3 -m script.translations develop
