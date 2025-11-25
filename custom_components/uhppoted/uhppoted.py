@@ -28,6 +28,7 @@ from .const import CONF_CACHE_EXPIRY_EVENT
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class Controller:
     __slots__ = ('_id', '_address', '_protocol')
 
@@ -341,24 +342,24 @@ class uhppoted:
 
         return await self._asio.get_cards(c, timeout=timeout)
 
-    def get_card(self, controller, card):
-        key = f'controller.{controller}.card.{card}'
-        (c, timeout) = self._lookup(controller)
-        g = lambda: self._api.get_card(c, card, timeout=timeout)
-
-        if self.cache_enabled:
-            try:
-                response = g()
-                if response is None:
-                    self._delete(key)
-                else:
-                    self._put(response, key, CONF_CACHE_EXPIRY_CARD)
-            except Exception as exc:
-                _LOGGER.error(f'error retrieving card {card} from controller {controller} ({exc})')
-
-            return self._get(key)
-        else:
-            return g()
+    # def get_card(self, controller, card):
+    #     key = f'controller.{controller}.card.{card}'
+    #     (c, timeout) = self._lookup(controller)
+    #     g = lambda: self._api.get_card(c, card, timeout=timeout)
+    #
+    #     if self.cache_enabled:
+    #         try:
+    #             response = g()
+    #             if response is None:
+    #                 self._delete(key)
+    #             else:
+    #                 self._put(response, key, CONF_CACHE_EXPIRY_CARD)
+    #         except Exception as exc:
+    #             _LOGGER.error(f'error retrieving card {card} from controller {controller} ({exc})')
+    #
+    #         return self._get(key)
+    #     else:
+    #         return g()
 
     async def get_cardx(self, controller, card):
         key = f'controller.{controller}.card.{card}'

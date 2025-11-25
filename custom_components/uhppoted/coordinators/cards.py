@@ -129,21 +129,35 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         return True
 
-    async def set_card_start_date(self, card, start_date):
-        controllers = self._controllers
+    async def set_card_start_date(self, card, date):
+        return await self._put_card(card, start_date=date)
+
+    async def set_card_end_date(self, card, date):
+        return await self._put_card(card, end_date=date)
+
+    async def set_card_PIN(self, card, PIN):
+        return await self._put_card(card, PIN=PIN)
+
+    async def set_card_permission(self, card, door, allowed):
+        permission = 1 if allowed else 0
+
+        return await self._put_card(card, door=door, permission=permission)
+
+    async def _put_card(self, card, **kwargs):
         errors = []
+        doors = []
 
         record = self._state.get(card)
-
-
         if record is not None:
-            for p in record.get('permissions',[]):
+            for p in record.get('permissions', []):
                 door = resolve_door_by_name(self._options, p)
                 if door is not None:
-                    record.setdefault('doors', []).append(door)
+                    doors.append(door)
 
+        controllers = self._controllers
         for controller in controllers:
             try:
+                start_date = default_card_start_date()
                 end_date = default_card_end_date()
                 door1 = 0
                 door2 = 0
@@ -152,162 +166,86 @@ class CardsCoordinator(DataUpdateCoordinator):
                 PIN = 0
 
                 if record is not None:
+                    if date := record.get('start_date'):
+                        start_date = date
+
                     if date := record.get('end_date'):
                         end_date = date
 
                     if pin := record.get('PIN'):
                         PIN = pin
 
-                    if doors := record.get('doors'):
-                        for door in doors:
-                            if door.get(CONF_CONTROLLER_SERIAL_NUMBER) == controller.id:
-                                if door.get(CONF_DOOR_NUMBER) == 1:
-                                    door1 = 1
-                                elif door.get(CONF_DOOR_NUMBER) == 2:
-                                    door2 = 1
-                                elif door.get(CONF_DOOR_NUMBER) == 3:
-                                    door3 = 1
-                                elif door.get(CONF_DOOR_NUMBER) == 4:
-                                    door4 = 1
+                    for door in doors:
+                        if door.get(CONF_CONTROLLER_SERIAL_NUMBER) == controller.id:
+                            if door.get(CONF_DOOR_NUMBER) == 1:
+                                door1 = 1
+                            elif door.get(CONF_DOOR_NUMBER) == 2:
+                                door2 = 1
+                            elif door.get(CONF_DOOR_NUMBER) == 3:
+                                door3 = 1
+                            elif door.get(CONF_DOOR_NUMBER) == 4:
+                                door4 = 1
 
-                if response := await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2, door3, door4, PIN):
-                    if not response.stored:
+                for k, v in kwargs.items():
+                    if k == 'start_date':
+                        start_date = v
+                    elif k == 'end_date':
+                        end_date = v
+                    elif k == 'PIN':
+                        PIN = v
+                    elif k == 'door':
+                        if f'{v.get(CONF_CONTROLLER_SERIAL_NUMBER)}' == str(controller.id):
+                            d = f'{v.get(CONF_DOOR_NUMBER)}'
+                            if d == str(1):
+                                door1 = kwargs.get('permission', door1)
+                            elif d == str(2):
+                                door2 = kwargs.get('permission', door2)
+                            elif d == str(3):
+                                door3 = kwargs.get('permission', door3)
+                            elif d == str(4):
+                                door4 = kwargs.get('permission', door4)
+
+                if response := await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2,
+                                                            door3, door4, PIN):
+                    if response.stored:
+                        permissions = []
+                        if door1 > 0: permissions.append(1)
+                        if door2 > 0: permissions.append(2)
+                        if door3 > 0: permissions.append(3)
+                        if door4 > 0: permissions.append(4)
+
+                        self._state[card].update({
+                            ATTR_CARD_STARTDATE:
+                            start_date,
+                            ATTR_CARD_ENDDATE:
+                            end_date,
+                            ATTR_CARD_PERMISSIONS:
+                            resolve_permissions(self._options, {controller.id: permissions}),
+                            ATTR_CARD_PIN:
+                            PIN,
+                            ATTR_AVAILABLE:
+                            True,
+                        })
+
+                        self.async_set_updated_data(self._state)
+                    else:
                         errors.append(f'{controller.id}')
                 else:
-                        errors.append(f'{controller.id}')
-
-            except Exception as e:
-                errors.append(f'{controller.id}')
-                _LOGGER.exception(f'error updating card {card} start date on controller {controller.id} ({e})')
-
-        if errors and len(errors) > 1:
-            _LOGGER.exception(f'error updating card {card} start date on controllers {",".join(errors)}')
-            return False
-
-        if errors and len(errors) > 0:
-            _LOGGER.exception(f'error updating card {card} start date on controller {errors[0]}')
-            return False
-
-        return True
-
-    async def set_card_end_date(self, card, end_date):
-        controllers = self._controllers
-        errors = []
-
-        for controller in controllers:
-            try:
-                start_date = default_card_start_date()
-                door1 = 0
-                door2 = 0
-                door3 = 0
-                door4 = 0
-                PIN = 0
-
-                response = self._uhppote.get_card(controller.id, card)
-                if response.controller == controller.id and response.card_number == card:
-                    start_date = response.start_date if response.end_date else start_date
-                    door1 = response.door_1
-                    door2 = response.door_2
-                    door3 = response.door_3
-                    door4 = response.door_4
-                    PIN = response.pin
-
-                response = await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2, door3,
-                                                        door4, PIN)
-                if not response.stored:
                     errors.append(f'{controller.id}')
 
             except Exception as e:
                 errors.append(f'{controller.id}')
-                _LOGGER.exception(f'error updating card {card} end date on controller {controller.id} ({e})')
+                _LOGGER.exception(f'error updating card {card} on controller {controller.id} ({e})')
 
         if errors and len(errors) > 1:
-            _LOGGER.exception(f'error updating card {card} end date on controllers {",".join(errors)}')
+            _LOGGER.exception(f'error updating card {card} on controllers {",".join(errors)}')
             return False
 
         if errors and len(errors) > 0:
-            _LOGGER.exception(f'error updating card {card} end date on controller {errors[0]}')
+            _LOGGER.exception(f'error updating card {card} on controller {errors[0]}')
             return False
 
         return True
-
-    async def set_card_PIN(self, card, PIN):
-        controllers = self._controllers
-        errors = []
-
-        for controller in controllers:
-            try:
-                start = default_card_start_date()
-                end = default_card_end_date()
-                door1 = 0
-                door2 = 0
-                door3 = 0
-                door4 = 0
-
-                response = self._uhppote.get_card(controller.id, card)
-                if response.controller == controller.id and response.card_number == card:
-                    if response.start_date:
-                        start = response.start_date
-
-                    if response.end_date:
-                        end = response.end_date
-
-                    door1 = response.door_1
-                    door2 = response.door_2
-                    door3 = response.door_3
-                    door4 = response.door_4
-
-                response = await self._uhppote.put_card(controller.id, card, start, end, door1, door2, door3, door4,
-                                                        PIN)
-                if not response.stored:
-                    errors.append(f'{controller.id}')
-
-            except (Exception):
-                self._available = False
-                _LOGGER.exception(f'error updating card {self.card} PIN')
-
-        if errors and len(errors) > 1:
-            _LOGGER.exception(f'error updating card {card} end date on controllers {",".join(errors)}')
-            return False
-
-        if errors and len(errors) > 0:
-            _LOGGER.exception(f'error updating card {card} end date on controller {errors[0]}')
-            return False
-
-        return True
-
-    async def set_card_permission(self, card, door, allowed):
-        controller = self._resolve(f'{door[CONF_CONTROLLER_SERIAL_NUMBER]}')
-        doorno = int(f'{door[CONF_DOOR_NUMBER]}')
-        permission = 1 if allowed else 0
-
-        start = default_card_start_date()
-        end = default_card_end_date()
-        door1 = permission if doorno == 1 else 0
-        door2 = permission if doorno == 2 else 0
-        door3 = permission if doorno == 3 else 0
-        door4 = permission if doorno == 4 else 0
-        PIN = 0
-
-        response = self._uhppote.get_card(controller.id, card)
-        if response.controller == controller.id and response.card_number == card:
-            if response.start_date:
-                start = response.start_date
-
-            if response.end_date:
-                end = response.end_date
-
-            door1 = permission if doorno == 1 else response.door_1
-            door2 = permission if doorno == 2 else response.door_2
-            door3 = permission if doorno == 3 else response.door_3
-            door4 = permission if doorno == 4 else response.door_4
-
-            PIN = response.pin
-
-        response = await self._uhppote.put_card(controller.id, card, start, end, door1, door2, door3, door4, PIN)
-        if not response.stored:
-            raise ValueError(
-                f'controller {controller.id}, card {card} door {door[CONF_DOOR_ID]} permission not updated')
 
     async def _async_update_data(self):
         try:

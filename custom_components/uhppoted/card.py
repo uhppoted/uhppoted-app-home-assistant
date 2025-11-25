@@ -394,7 +394,7 @@ class CardPermission(CoordinatorEntity, SwitchEntity):
     async def async_turn_off(self, **kwargs):
         _LOGGER.debug(f'card:{self.card} remove access for door {self.door[CONF_DOOR_ID]}')
         try:
-            self.coordinator.set_card_permission(self.card, self.door, False)
+            await self.coordinator.set_card_permission(self.card, self.door, False)
             self._allowed = False
             self._available = True
             _LOGGER.info(f'card {self.card} permission to door {self.door[CONF_DOOR_ID]} revoked')

@@ -30,26 +30,17 @@ Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get
     - [x] get-status
     - [x] get-cards
     - [x] get-card-by-index
-    - [ ] get-card
-        - [ ] use HA data to update card
+    - [x] get-card
+        - [x] use HA data to update card
             - [x] set_card_start_date
-            - [ ] set_card_end_date
-            - [ ] set_card_PIN
-            - [ ] set_card_permission
+            - [x] set_card_end_date
+            - [x] set_card_PIN
+            - [x] set_card_permission
+            - [ ] caching
+    - [ ] Put yapf/black in _venv_
+        - [ ] Update github workflow to use dummy .venv folder
+        - [ ] requirements.txt
 
-        - [ ] rethink removing the `response is None` thing
-            - maybe a short cache time is the way to do it
-```
-home-assistant-stable  | 2025-11-19 19:05:18.039 ERROR (MainThread) [custom_components.uhppoted.uhppoted] error retrieving card 8165535 from controller 303986753 (timed out)
-home-assistant-stable  | 2025-11-19 19:05:18.040 ERROR (MainThread) [custom_components.uhppoted.coordinators.cards] error updating card 8165535 start date on controller 303986753 ('NoneType' object has no attribute 'controller')
-home-assistant-stable  | Traceback (most recent call last):
-home-assistant-stable  |   File "/config/custom_components/uhppoted/coordinators/cards.py", line 147, in set_card_start_date
-home-assistant-stable  |     if response.controller == controller.id and response.card_number == card:
-home-assistant-stable  |        ^^^^^^^^^^^^^^^^^^^
-home-assistant-stable  | AttributeError: 'NoneType' object has no attribute 'controller'
-home-assistant-stable  | 2025-11-19 19:05:18.044 ERROR (MainThread) [custom_components.uhppoted.coordinators.cards] error updating card 8165535 start date on controller 303986753
-home-assistant-stable  | NoneType: None
-```
     - [ ] Throttle requests
         — 50–100 ms between sends helps keep NAT tables sane (apparently)
         - add to configuration.yaml
