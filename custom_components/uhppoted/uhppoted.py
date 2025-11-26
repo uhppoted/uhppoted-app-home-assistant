@@ -152,7 +152,6 @@ class uhppoted:
         try:
             if response := g():
                 self._put(response, key, expiry)
-
                 if callback:
                     callback(response)
 
@@ -165,13 +164,13 @@ class uhppoted:
         try:
             if response := await g():
                 self._put(response, key, expiry)
-
                 if callback:
                     callback(response)
 
                 _LOGGER.info(f"{message} ok")
         except Exception as exc:
             _LOGGER.warning(f"{message} ({exc})")
+
 
     async def _flush(self):
         now = datetime.now()
@@ -342,40 +341,23 @@ class uhppoted:
 
         return await self._asio.get_cards(c, timeout=timeout)
 
-    # def get_card(self, controller, card):
-    #     key = f'controller.{controller}.card.{card}'
-    #     (c, timeout) = self._lookup(controller)
-    #     g = lambda: self._api.get_card(c, card, timeout=timeout)
-    #
-    #     if self.cache_enabled:
-    #         try:
-    #             response = g()
-    #             if response is None:
-    #                 self._delete(key)
-    #             else:
-    #                 self._put(response, key, CONF_CACHE_EXPIRY_CARD)
-    #         except Exception as exc:
-    #             _LOGGER.error(f'error retrieving card {card} from controller {controller} ({exc})')
-    #
-    #         return self._get(key)
-    #     else:
-    #         return g()
-
-    async def get_cardx(self, controller, card):
+    async def get_card(self, controller, card, callback=None):
         key = f'controller.{controller}.card.{card}'
         (c, timeout) = self._lookup(controller)
 
-        # if self.cache_enabled:
-        #     self.queue.put_nowait(lambda: self.ye_async_taskke(
-        #         lambda: self._asio.get_card(c, card, timeout=timeout),
-        #         key,
-        #         CONF_CACHE_EXPIRY_CARD,
-        #         f"{'get_card':<16} {controller} {card}",
-        #         callback))  # yapf: disable
-        #
-        #     if record := self._get(key):
-        #         return record
+        if self.cache_enabled and callback is not None:
+            self.queue.put_nowait(lambda: self.ye_async_taskke(
+                lambda: self._asio.get_card(c, card, timeout=timeout),
+                key,
+                CONF_CACHE_EXPIRY_CARD,
+                f"{'get_card':<16} {controller} {card}",
+                callback))  # yapf: disable
+        
+            if record := self._get(key):
+                _LOGGER.warning(f'....................... using cached record')
+                return record
 
+        _LOGGER.warning(f'--------------------------------------- NOT USING CACHED RECORD')
         return await self._asio.get_card(c, card, timeout=timeout)
 
     async def get_card_by_index(self, controller, index):

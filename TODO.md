@@ -2,10 +2,8 @@
 
 ## In Progress
 
-- [ ] Initial setup error:
-```
-Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get'
-```
+- [x] Put yapf in _venv_
+- [ ] Reporting _uhppoted API_ error instead of _timeout_
 
 - [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
     - https://developers.home-assistant.io/docs/asyncio_working_with_async
@@ -19,8 +17,6 @@ Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get
     - [x] set-antipassback
     - [x] set-listener
     - [x] record-special-events
-    - [x] get-event
-        - [ ] # FIXME return cached event if it exists
     - [x] put-card
     - [x] delete-card
     - [x] get-controller
@@ -37,18 +33,29 @@ Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get
             - [x] set_card_PIN
             - [x] set_card_permission
             - [ ] caching
-    - [x] Put yapf in _venv_
-        - [x] Update github workflow to use dummy .venv folder
-        - [x] requirements.txt
+               - [x] start date
+               - [x] end date
+               - [ ] permissions
+
+    - [x] get-event
+        - [ ] FIXME return cached event if it exists
+
+    - [ ] only return cached record if callback is not None
+    - [ ] event-listener `# FIXME reinstate - temporarily removed for async conversion`
 
     - [ ] Throttle requests
         — 50–100 ms between sends helps keep NAT tables sane (apparently)
         - add to configuration.yaml
-    - [ ] event-listener `# FIXME reinstate - temporarily removed for async conversion`
 
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
-    - [ ] weird thing with multiple setups after a reconfigure
+      - [ ] Initial setup error:
+          ```
+          Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get'
+          ```
+      - [ ] weird thing with multiple setups after a reconfigure
+          - loading on startup: task dequeue seems to take forever to start running
+          - set-interlock on startup takes forever
     - [ ] allow 'no event listener'
     - [ ] backoff on retry if _address in use_
 
@@ -69,9 +76,6 @@ Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get
        - [ ] Lovelace card to display events
        - [ ] add Lovelace card to config-flow
 
-- [ ] loading on startup
-    - task dequeue seems to take forever to start running
-- [ ] set-interlock on startup takes forever
 - (?) retry set-interlock if not available/not correct
 - [ ] fix _controller 405419896 incorrect event listener address (None)_
 - [ ] can't seem to disable check/set-listener

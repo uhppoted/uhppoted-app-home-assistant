@@ -68,7 +68,7 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         for controller in controllers:
             try:
-                response = await self._uhppote.get_cardx(controller.id, cardno)
+                response = await self._uhppote.get_card(controller.id, cardno)
                 if response.controller == controller.id and response.card_number == cardno:
                     _LOGGER.info(f'card {card} already exists on controller {controller.id}')
                 elif response.controller == controller.id and response.card_number == 0:
@@ -285,6 +285,41 @@ class CardsCoordinator(DataUpdateCoordinator):
     async def _get_card(self, controllers, lock, card):
         _LOGGER.debug(f'fetch card {card} information')
 
+        def callback(response):
+            try:
+                if response and response.card_number == card:
+                    with lock:
+                        record = self._state.setdefault(card, {
+                            ATTR_AVAILABLE: False,
+                            ATTR_CARD_STARTDATE: None,
+                            ATTR_CARD_ENDDATE: None,
+                            ATTR_CARD_PERMISSIONS: None,
+                        })
+                   
+                        _LOGGER.warning(f'>>>>>> >>>>> >>>>> WOOOT {response.controller} {response.start_date} {record.get(ATTR_CARD_STARTDATE)}')
+
+                        start_date = record.get(ATTR_CARD_STARTDATE)
+                        end_date = record.get(ATTR_CARD_ENDDATE)
+
+                        if response.start_date is not None and (not start_date or response.start_date < start_date):
+                            _LOGGER.warning(f'>>>>>> >>>>> >>>>> YEEEEEAHHHHHHHHHAAAAA/1')
+                            start_date = response.start_date
+
+                        if response.end_date is not None and (not end_date or response.end_date > end_date):
+                            _LOGGER.warning(f'>>>>>> >>>>> >>>>> YEEEEEAHHHHHHHHHAAAAA/2')
+                            end_date = response.end_date
+
+                        self._state[card].update({
+                            ATTR_CARD_STARTDATE: start_date,
+                            ATTR_CARD_ENDDATE: end_date,
+                            # ATTR_CARD_PERMISSIONS: update_permissions(......),
+                            ATTR_AVAILABLE: True,
+                        })
+                
+                    # self.async_set_updated_data(self._state)
+            except Exception as exc:
+                _LOGGER.error(f'error updating internal controller {controller.id} information ({exc})')
+
         info = {
             ATTR_AVAILABLE: False,
             ATTR_CARD_STARTDATE: None,
@@ -299,7 +334,7 @@ class CardsCoordinator(DataUpdateCoordinator):
             PIN = None
 
             for controller in controllers:
-                response = await self._uhppote.get_cardx(controller.id, card)
+                response = await self._uhppote.get_card(controller.id, card, callback)
                 if response and response.controller == controller.id and response.card_number == card:
                     if response.start_date is not None and (not start_date or response.start_date < start_date):
                         start_date = response.start_date
@@ -325,8 +360,6 @@ class CardsCoordinator(DataUpdateCoordinator):
             }
 
         except Exception as exc:
-            tb = traceback.format_exc(exc)
-            print(tb, flush=True)
             _LOGGER.error(f'error retrieving card {card} information ({exc})')
 
         with lock:

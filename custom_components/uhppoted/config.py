@@ -350,13 +350,13 @@ async def get_all_cards(options, max_cards=DEFAULT_MAX_CARDS, preferred_cards=DE
     for controller in u.controllers:
         for card in sorted(list(preferred)):
             try:
-                response = await u.get_cardx(controller, card)
-                if response.card_number == card:
-                    cards[response.card_number] = {
-                        CONF_CARD_NUMBER: response.card_number,
-                        CONF_CARD_UNIQUE_ID: uuid.uuid4(),
-                        CONF_CARD_NAME: None,
-                    }
+                if response := await u.get_card(controller, card):
+                    if response.card_number == card:
+                        cards[response.card_number] = {
+                            CONF_CARD_NUMBER: response.card_number,
+                            CONF_CARD_UNIQUE_ID: uuid.uuid4(),
+                            CONF_CARD_NAME: None,
+                        }
             except Exception as e:
                 _LOGGER.warning(f'{controller} error retrieving preferred card {card} ({e})')
 
