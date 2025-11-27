@@ -7,37 +7,14 @@
 
 - [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
     - https://developers.home-assistant.io/docs/asyncio_working_with_async
-    - [x] set-time
-    - [x] set-door-mode
-    - [x] set-door-delay
-    - [x] open-door
-    - [x] get-interlock
-    - [x] set-interlock
-    - [x] get-antipassback
-    - [x] set-antipassback
-    - [x] set-listener
-    - [x] record-special-events
-    - [x] put-card
-    - [x] delete-card
-    - [x] get-controller
-    - [x] get-listener
-    - [x] get-time
-    - [x] get-door
-    - [x] get-status
-    - [x] get-cards
-    - [x] get-card-by-index
-    - [x] get-card
-        - [x] use HA data to update card
-            - [x] set_card_start_date
-            - [x] set_card_end_date
-            - [x] set_card_PIN
-            - [x] set_card_permission
+    - [ ] get-card
+        - [ ] use HA data to update card
             - [ ] caching
                - [x] start date
                - [x] end date
                - [ ] permissions
 
-    - [x] get-event
+    - [ ] get-event
         - [ ] FIXME return cached event if it exists
 
     - [ ] only return cached record if callback is not None
@@ -46,7 +23,6 @@
     - [ ] Throttle requests
         — 50–100 ms between sends helps keep NAT tables sane (apparently)
         - add to configuration.yaml
-
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
       - [ ] Initial setup error:

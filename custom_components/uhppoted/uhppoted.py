@@ -132,7 +132,7 @@ class uhppoted:
 
     def start(self, hass):
         self._thread = hass.loop.create_task(self._worker())
-        self.queue.put_nowait(lambda: self._flush())
+        self._thread = hass.loop.create_task(self._tick())
 
     def stop(self, hass):
         if self._thread:
@@ -148,17 +148,22 @@ class uhppoted:
             finally:
                 self.queue.task_done()
 
-    async def ye_olde_taskke(self, g, key, expiry, message, callback=None):
-        try:
-            if response := g():
-                self._put(response, key, expiry)
-                if callback:
-                    callback(response)
+    async def _tick(self):
+        while True:
+            await asyncio.sleep(60)
+            self.queue.put_nowait(self._flush)
 
-                _LOGGER.info(f"{message} ok")
-
-        except Exception as exc:
-            _LOGGER.warning(f"{message} ({exc})")
+    # async def ye_olde_taskke(self, g, key, expiry, message, callback=None):
+    #     try:
+    #         if response := g():
+    #             self._put(response, key, expiry)
+    #             if callback:
+    #                 callback(response)
+    #
+    #             _LOGGER.info(f"{message} ok")
+    #
+    #     except Exception as exc:
+    #         _LOGGER.warning(f"{message} ({exc})")
 
     async def ye_async_taskke(self, g, key, expiry, message, callback=None):
         try:
@@ -171,7 +176,6 @@ class uhppoted:
         except Exception as exc:
             _LOGGER.warning(f"{message} ({exc})")
 
-
     async def _flush(self):
         now = datetime.now()
         expired = [key for key, record in _CACHE.items() if record.expires < now]
@@ -180,9 +184,6 @@ class uhppoted:
             _LOGGER.warning(f'flushing cache - cached:{len(_CACHE)} expired:{len(expired)}')
             for key in expired:
                 del _CACHE[key]
-
-        await asyncio.sleep(60)
-        self.queue.put_nowait(lambda: self._flush())
 
     def _put(self, response, key, expiry):
         lifetime = self.cache_expiry.get(expiry, _DEFAULT_CACHE_EXPIRY.get(expiry, 60))
@@ -352,12 +353,10 @@ class uhppoted:
                 CONF_CACHE_EXPIRY_CARD,
                 f"{'get_card':<16} {controller} {card}",
                 callback))  # yapf: disable
-        
+
             if record := self._get(key):
-                _LOGGER.warning(f'....................... using cached record')
                 return record
 
-        _LOGGER.warning(f'--------------------------------------- NOT USING CACHED RECORD')
         return await self._asio.get_card(c, card, timeout=timeout)
 
     async def get_card_by_index(self, controller, index):

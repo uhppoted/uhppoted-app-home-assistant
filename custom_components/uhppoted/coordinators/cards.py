@@ -289,24 +289,25 @@ class CardsCoordinator(DataUpdateCoordinator):
             try:
                 if response and response.card_number == card:
                     with lock:
-                        record = self._state.setdefault(card, {
-                            ATTR_AVAILABLE: False,
-                            ATTR_CARD_STARTDATE: None,
-                            ATTR_CARD_ENDDATE: None,
-                            ATTR_CARD_PERMISSIONS: None,
-                        })
-                   
-                        _LOGGER.warning(f'>>>>>> >>>>> >>>>> WOOOT {response.controller} {response.start_date} {record.get(ATTR_CARD_STARTDATE)}')
+                        record = self._state.setdefault(
+                            card, {
+                                ATTR_AVAILABLE: False,
+                                ATTR_CARD_STARTDATE: None,
+                                ATTR_CARD_ENDDATE: None,
+                                ATTR_CARD_PERMISSIONS: None,
+                            })
+
+                        # _LOGGER.warning(f'>>>>>> >>>>> >>>>> WOOOT {response.controller} {response.start_date} {record.get(ATTR_CARD_STARTDATE)}')
 
                         start_date = record.get(ATTR_CARD_STARTDATE)
                         end_date = record.get(ATTR_CARD_ENDDATE)
 
                         if response.start_date is not None and (not start_date or response.start_date < start_date):
-                            _LOGGER.warning(f'>>>>>> >>>>> >>>>> YEEEEEAHHHHHHHHHAAAAA/1')
+                            # _LOGGER.warning(f'>>>>>> >>>>> >>>>> YEEEEEAHHHHHHHHHAAAAA/1')
                             start_date = response.start_date
 
                         if response.end_date is not None and (not end_date or response.end_date > end_date):
-                            _LOGGER.warning(f'>>>>>> >>>>> >>>>> YEEEEEAHHHHHHHHHAAAAA/2')
+                            # _LOGGER.warning(f'>>>>>> >>>>> >>>>> YEEEEEAHHHHHHHHHAAAAA/2')
                             end_date = response.end_date
 
                         self._state[card].update({
@@ -315,7 +316,7 @@ class CardsCoordinator(DataUpdateCoordinator):
                             # ATTR_CARD_PERMISSIONS: update_permissions(......),
                             ATTR_AVAILABLE: True,
                         })
-                
+
                     # self.async_set_updated_data(self._state)
             except Exception as exc:
                 _LOGGER.error(f'error updating internal controller {controller.id} information ({exc})')
