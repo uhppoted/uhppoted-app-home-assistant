@@ -297,27 +297,36 @@ class CardsCoordinator(DataUpdateCoordinator):
                                 ATTR_CARD_PERMISSIONS: None,
                             })
 
-                        # _LOGGER.warning(f'>>>>>> >>>>> >>>>> WOOOT {response.controller} {response.start_date} {record.get(ATTR_CARD_STARTDATE)}')
-
                         start_date = record.get(ATTR_CARD_STARTDATE)
                         end_date = record.get(ATTR_CARD_ENDDATE)
+                        permissions = record.get(ATTR_CARD_PERMISSIONS, [])
 
+                        # ... recalculate dates
                         if response.start_date is not None and (not start_date or response.start_date < start_date):
-                            # _LOGGER.warning(f'>>>>>> >>>>> >>>>> YEEEEEAHHHHHHHHHAAAAA/1')
                             start_date = response.start_date
 
                         if response.end_date is not None and (not end_date or response.end_date > end_date):
-                            # _LOGGER.warning(f'>>>>>> >>>>> >>>>> YEEEEEAHHHHHHHHHAAAAA/2')
                             end_date = response.end_date
+
+                        # ... recalculate permissions
+                        _allowed = []
+                        if response.door_1 > 0: _allowed.append(1)
+                        if response.door_2 > 0: _allowed.append(2)
+                        if response.door_3 > 0: _allowed.append(3)
+                        if response.door_4 > 0: _allowed.append(4)
+
+                        doors = resolve_permissions(self._options, {response.controller: [1, 2, 3, 4]})
+                        allowed = resolve_permissions(self._options, {response.controller: _allowed})
+                        updated = list((set(permissions) - set(doors)) | (set(doors) & set(allowed)))
 
                         self._state[card].update({
                             ATTR_CARD_STARTDATE: start_date,
                             ATTR_CARD_ENDDATE: end_date,
-                            # ATTR_CARD_PERMISSIONS: update_permissions(......),
+                            ATTR_CARD_PERMISSIONS: updated,
                             ATTR_AVAILABLE: True,
                         })
 
-                    # self.async_set_updated_data(self._state)
+                    self.async_set_updated_data(self._state)
             except Exception as exc:
                 _LOGGER.error(f'error updating internal controller {controller.id} information ({exc})')
 

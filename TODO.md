@@ -4,15 +4,17 @@
 
 - [x] Put yapf in _venv_
 - [ ] Reporting _uhppoted API_ error instead of _timeout_
+- [ ] Reduce logging
+      - [ ] make uhppoted 'ok' logging opt-in in configuration.yamls
 
 - [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
     - https://developers.home-assistant.io/docs/asyncio_working_with_async
-    - [ ] get-card
-        - [ ] use HA data to update card
-            - [ ] caching
+    - [x] get-card
+        - [x] use HA data to update card
+            - [x] caching
                - [x] start date
                - [x] end date
-               - [ ] permissions
+               - [x] permissions
 
     - [ ] get-event
         - [ ] FIXME return cached event if it exists
@@ -30,7 +32,6 @@
           Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get'
           ```
       - [ ] weird thing with multiple setups after a reconfigure
-          - loading on startup: task dequeue seems to take forever to start running
           - set-interlock on startup takes forever
     - [ ] allow 'no event listener'
     - [ ] backoff on retry if _address in use_
