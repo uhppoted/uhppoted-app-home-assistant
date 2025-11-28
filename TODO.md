@@ -3,28 +3,19 @@
 ## In Progress
 
 - [x] Put yapf in _venv_
-- [ ] Reporting _uhppoted API_ error instead of _timeout_
-- [ ] Reduce logging
-      - [ ] make uhppoted 'ok' logging opt-in in configuration.yamls
 
 - [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
-    - https://developers.home-assistant.io/docs/asyncio_working_with_async
-    - [x] get-card
-        - [x] use HA data to update card
-            - [x] caching
-               - [x] start date
-               - [x] end date
-               - [x] permissions
-
+    - [ ] restructure _get_xxx_ to avoid duplicate calls
+    - [ ] reduce logging: make uhppoted 'ok' logging opt-in in configuration.yamls
+    - [ ] reporting _uhppoted API_ error instead of _timeout_
     - [ ] get-event
         - [ ] FIXME return cached event if it exists
-
-    - [ ] only return cached record if callback is not None
     - [ ] event-listener `# FIXME reinstate - temporarily removed for async conversion`
-
     - [ ] Throttle requests
         — 50–100 ms between sends helps keep NAT tables sane (apparently)
         - add to configuration.yaml
+    - https://developers.home-assistant.io/docs/asyncio_working_with_async
+
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
       - [ ] Initial setup error:
