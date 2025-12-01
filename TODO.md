@@ -7,7 +7,12 @@
 - [ ] centralise logging
 
 - [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
-   - [ ] event-listener `# FIXME reinstate - temporarily removed for async conversion`
+   - [ ] event-listener
+      - [ ] use async listener
+      - [ ] put max-backoff in configuration.yaml
+      - [ ] check what happens on unload
+      - [ ] fix backoff wait for stop.isset
+
    - [ ] get-event
       - [ ] FIXME return cached event if it exists
 

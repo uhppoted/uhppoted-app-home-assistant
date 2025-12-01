@@ -3,6 +3,7 @@ from collections import namedtuple
 
 import concurrent.futures
 import threading
+
 from ipaddress import IPv4Address
 from dataclasses import dataclass
 
@@ -11,6 +12,7 @@ import datetime
 import re
 import logging
 import asyncio
+import contextlib
 
 _LOGGER = logging.getLogger(__name__)
 _INTERVAL = datetime.timedelta(seconds=30)
@@ -24,6 +26,7 @@ _MASK = {
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import UpdateFailed
+from homeassistant.const import EVENT_HOMEASSISTANT_STOP
 
 from uhppoted import uhppote
 from uhppoted import decode
@@ -53,13 +56,28 @@ from ..lookup import lookup_event
 from ..uhppoted import Controller
 
 
-async def _listen(hass, addr, port, listener):
-    loop = asyncio.get_running_loop()
-    transport, protocol = await loop.create_datagram_endpoint(lambda: listener, local_addr=(addr, port))
+async def _listen(hass, addr, port, listener, stop):
+    backoff = 2.5
+    while not stop.is_set():
+        try:
+            _LOGGER.info(f'listening for events on {addr}:{port}')
+            await asyncio.sleep(15)
+            raise ValueError('OOOPS')
+        except Exception as exc:
+            _LOGGER.warning(f'listen error {exc}')
+            with contextlib.suppress(asyncio.TimeoutError):
+                await asyncio.wait_for(asyncio.shield(stop.wait()), timeout=backoff)
 
-    _LOGGER.debug(f'UDP event listener {transport}')
-    _LOGGER.debug(f'UDP event listener {protocol}')
-    _LOGGER.info(f'listening for events on {addr}:{port}')
+            backoff = min(backoff * 2, 60)
+
+    _LOGGER.warning(f'event listener exit')
+
+    # loop = asyncio.get_running_loop()
+    # transport, protocol = await loop.create_datagram_endpoint(lambda: listener, local_addr=(addr, port))
+
+    # _LOGGER.debug(f'UDP event listener {transport}')
+    # _LOGGER.debug(f'UDP event listener {protocol}')
+    # _LOGGER.info(f'listening for events on {addr}:{port}')
 
 
 @dataclass
@@ -153,9 +171,13 @@ class EventsCoordinator(DataUpdateCoordinator):
                 port = int(match.group(2))
 
         self._listener = EventListener(self.onEvent)
+        self._stop = asyncio.Event()
+
+        # terminate event listener loop on HA shutdown
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, lambda event: self._stop.set())
 
         # FIXME reinstate - temporarily removed for async rework
-        # asyncio.create_task(_listen(hass, addr, port, self._listener))
+        asyncio.create_task(_listen(hass, addr, port, self._listener, self._stop))
 
         _LOGGER.info(f'events coordinator initialised ({interval.total_seconds():.0f}s)')
 
@@ -164,6 +186,7 @@ class EventsCoordinator(DataUpdateCoordinator):
 
     def unload(self):
         try:
+            self._stop.set()
             if self._listener:
                 self._listener.close()
         except Exception as err:
