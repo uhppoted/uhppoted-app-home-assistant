@@ -97,6 +97,7 @@ class uhppoted:
         self.queue = Queue()
         self._cache_enabled = True
         self._cache_expiry = {}
+        self._debug = debug
 
     @property
     def api(self):
@@ -144,7 +145,7 @@ class uhppoted:
             try:
                 await task()
             except Exception as exc:
-                _LOGGER.warning(f"{exc}")
+                self._warnf(f"{exc}")
             finally:
                 self.queue.task_done()
 
@@ -153,18 +154,6 @@ class uhppoted:
             await asyncio.sleep(60)
             self.queue.put_nowait(self._flush)
 
-    # async def ye_olde_taskke(self, g, key, expiry, message, callback=None):
-    #     try:
-    #         if response := g():
-    #             self._put(response, key, expiry)
-    #             if callback:
-    #                 callback(response)
-    #
-    #             _LOGGER.info(f"{message} ok")
-    #
-    #     except Exception as exc:
-    #         _LOGGER.warning(f"{message} ({exc})")
-
     async def ye_async_taskke(self, g, key, expiry, message, callback=None):
         try:
             if response := await g():
@@ -172,16 +161,16 @@ class uhppoted:
                 if callback:
                     callback(response)
 
-                _LOGGER.info(f"{message} ok")
+                self._infof(f"{message} ok")
         except Exception as exc:
-            _LOGGER.warning(f"{message} ({exc})")
+            self._warnf(f"{message} ({exc})")
 
     async def _flush(self):
         now = datetime.now()
         expired = [key for key, record in _CACHE.items() if record.expires < now]
 
         if len(expired) > 0:
-            _LOGGER.warning(f'flushing cache - cached:{len(_CACHE)} expired:{len(expired)}')
+            self._infof(f'flushing cache - cached:{len(_CACHE)} expired:{len(expired)}')
             for key in expired:
                 del _CACHE[key]
 
@@ -203,24 +192,6 @@ class uhppoted:
     def _delete(self, key):
         _CACHE.pop(key, None)
 
-    # async def get_controller(self, controller, callback=None):
-    #     key = f'controller.{controller}.controller'
-    #     (c, timeout) = self._lookup(controller)
-    #
-    #     if self.cache_enabled:
-    #         self.queue.put_nowait(
-    #             lambda: self.ye_async_taskke(
-    #                 lambda: self._asio.get_controller(c, timeout=timeout),
-    #                 key,
-    #                 CONF_CACHE_EXPIRY_CONTROLLER,
-    #                 f"{'get-controller':<16} {controller}",
-    #                 callback)) # yapf: disable
-    #
-    #         if record := self._get(key):
-    #             return record
-    #
-    #     return await self._asio.get_controller(c, timeout=timeout)
-
     async def get_controller(self, controller, callback=None):
         key = f'controller.{controller}.controller'
         (c, timeout) = self._lookup(controller)
@@ -228,39 +199,48 @@ class uhppoted:
         if not self.cache_enabled:
             return await self._asio.get_controller(c, timeout=timeout)
 
-        if record := self._get(key):
-            self.queue.put_nowait(
-                lambda: self.ye_async_taskke(
-                    lambda: self._asio.get_controller(c, timeout=timeout),
-                    key,
-                    CONF_CACHE_EXPIRY_CONTROLLER,
-                    f"{'get-controller':<16} {controller}",
-                    callback)) # yapf: disable
+        record = self._get(key)
+        if record is None and callback is None:
+            response = await self._asio.get_controller(c, timeout=timeout)
+            if response is not None:
+                self._put(response, key, CONF_CACHE_EXPIRY_CONTROLLER)
 
-            return record
+            return response
 
-        response = await self._asio.get_controller(c, timeout=timeout)
-        if response is not None:
-            self._put(response, key, CONF_CACHE_EXPIRY_CONTROLLER)
+        self.queue.put_nowait(
+            lambda: self.ye_async_taskke(
+                lambda: self._asio.get_controller(c, timeout=timeout),
+                key,
+                CONF_CACHE_EXPIRY_CONTROLLER,
+                f"{'get-controller':<16} {controller}",
+                callback)) # yapf: disable
 
-        return response
+        return record
 
     async def get_listener(self, controller, callback=None):
         key = f'controller.{controller}.listener'
         (c, timeout) = self._lookup(controller)
 
-        if self.cache_enabled:
-            self.queue.put_nowait(lambda: self.ye_async_taskke(
+        if not self.cache_enabled:
+            return await self._asio.get_listener(c, timeout=timeout)
+
+        record = self._get(key)
+        if record is None and callback is None:
+            response = await self._asio.get_listener(c, timeout=timeout)
+            if response is not None:
+                self._put(response, key, CONF_CACHE_EXPIRY_LISTENER)
+
+            return response
+
+        self.queue.put_nowait(
+            lambda: self.ye_async_taskke(
                 lambda: self._asio.get_listener(c, timeout=timeout),
                 key,
                 CONF_CACHE_EXPIRY_LISTENER,
                 f"{'get_listener':<16} {controller}",
                 callback)) # yapf: disable
 
-            if record := self._get(key):
-                return record
-
-        return await self._asio.get_listener(c, timeout=timeout)
+        return record
 
     async def set_listener(self, controller, address, port):
         key = f'controller.{controller}.listener'
@@ -279,19 +259,26 @@ class uhppoted:
         key = f'controller.{controller}.datetime'
         (c, timeout) = self._lookup(controller)
 
-        if self.cache_enabled:
-            self.queue.put_nowait(
-                lambda: self.ye_async_taskke(
-                    lambda: self._asio.get_time(c, timeout=timeout),
-                    key,
-                    CONF_CACHE_EXPIRY_DATETIME,
-                    f"{'get-time':<16} {controller}",
-                    callback))  # yapf: disable
+        if not self.cache_enabled:
+            return await self._asio.get_time(c, timeout=timeout)
 
-            if record := self._get(key):
-                return record
+        record = self._get(key)
+        if record is None and callback is None:
+            response = await self._asio.get_time(c, timeout=timeout)
+            if response is not None:
+                self._put(response, key, CONF_CACHE_EXPIRY_DATETIME)
 
-        return await self._asio.get_time(c, timeout=timeout)
+            return response
+
+        self.queue.put_nowait(
+            lambda: self.ye_async_taskke(
+                lambda: self._asio.get_time(c, timeout=timeout),
+                key,
+                CONF_CACHE_EXPIRY_DATETIME,
+                f"{'get-time':<16} {controller}",
+                callback))  # yapf: disable
+
+        return record
 
     async def set_time(self, controller, time):
         key = f'controller.{controller}.datetime'
@@ -310,19 +297,26 @@ class uhppoted:
         key = f'controller.{controller}.door.{door}'
         (c, timeout) = self._lookup(controller)
 
-        if self.cache_enabled:
-            self.queue.put_nowait(
-                lambda: self.ye_async_taskke(
-                    lambda: self._asio.get_door_control(c, door, timeout=timeout),
-                    key,
-                    CONF_CACHE_EXPIRY_DOOR,
-                    f"{'get_door':<16} {controller} {door}",
-                    callback))  # yapf: disable
+        if not self.cache_enabled:
+            return await self._asio.get_door_control(c, door, timeout=timeout)
 
-            if record := self._get(key):
-                return record
+        record = self._get(key)
+        if record is None and callback is None:
+            response = await self._asio.get_door_control(c, door, timeout=timeout)
+            if response is not None:
+                self._put(response, key, CONF_CACHE_EXPIRY_DOOR)
 
-        return await self._asio.get_door_control(c, door, timeout=timeout)
+            return response
+
+        self.queue.put_nowait(
+            lambda: self.ye_async_taskke(
+                lambda: self._asio.get_door_control(c, door, timeout=timeout),
+                key,
+                CONF_CACHE_EXPIRY_DOOR,
+                f"{'get_door':<16} {controller} {door}",
+                callback))  # yapf: disable
+
+        return record
 
     async def set_door(self, controller, door, mode, delay):
         key = f'controller.{controller}.door.{door}'
@@ -348,18 +342,24 @@ class uhppoted:
         key = f'controller.{controller}.status'
         (c, timeout) = self._lookup(controller)
 
-        if self.cache_enabled:
-            self.queue.put_nowait(lambda: self.ye_async_taskke(
+        if not self.cache_enabled:
+            return await self._asio.get_status(c, timeout=timeout)
+
+        record = self._get(key)
+        if record is None and callback is None:
+            response = await self._asio.get_status(c, timeout=timeout)
+            if response is not None:
+                self._put(response, key, CONF_CACHE_EXPIRY_STATUS)
+
+        self.queue.put_nowait(
+            lambda: self.ye_async_taskke(
                 lambda: self._asio.get_status(c, timeout=timeout),
                 key,
                 CONF_CACHE_EXPIRY_STATUS,
                 f"{'get_status':<16} {controller}",
                 callback))  # yapf: disable
 
-            if record := self._get(key):
-                return record
-
-        return await self._asio.get_status(c, timeout=timeout)
+        return record
 
     async def get_cards(self, controller):
         (c, timeout) = self._lookup(controller)
@@ -457,19 +457,24 @@ class uhppoted:
         key = f'controller.{controller}.antipassback'
         (c, timeout) = self._lookup(controller)
 
-        if self.cache_enabled:
-            self.queue.put_nowait(
-                lambda: self.ye_async_taskke(
-                    lambda: self._asio.get_antipassback(c, timeout=timeout),
-                    key,
-                    CONF_CACHE_EXPIRY_ANTIPASSBACK,
-                    f"{'get_antipassback':<16} {controller}",
-                    callback)) # yapf: disable
-
-            if record := self._get(key):
-                return record
-
+        if not self.cache_enabled:
             return await self._asio.get_antipassback(c, timeout=timeout)
+
+        record = self._get(key)
+        if record is None and callback is None:
+            response = await self._asio.get_antipassback(c, timeout=timeout)
+            if response is not None:
+                self._put(response, key, CONF_CACHE_EXPIRY_ANTIPASSBACK)
+
+        self.queue.put_nowait(
+            lambda: self.ye_async_taskke(
+                lambda: self._asio.get_antipassback(c, timeout=timeout),
+                key,
+                CONF_CACHE_EXPIRY_ANTIPASSBACK,
+                f"{'get_antipassback':<16} {controller}",
+                callback)) # yapf: disable
+
+        return record
 
     async def set_antipassback(self, controller, antipassback):
         key = f'controller.{controller}.antipassback'
@@ -501,3 +506,12 @@ class uhppoted:
                     return ((controller, f'{addr}:{port}', protocol), timeout)
 
         return ((controller, None, 'udp'), self._timeout)
+
+    def _infof(self, message):
+        if self._debug:
+            _LOGGER.info(message)
+        else:
+            _LOGGER.debug(message)
+
+    def _warnf(self, message):
+        _LOGGER.warning(message)

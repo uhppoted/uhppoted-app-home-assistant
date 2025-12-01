@@ -235,7 +235,7 @@ class EventsCoordinator(DataUpdateCoordinator):
             response = await self._uhppote.record_special_events(controller.id, True)
             if response.controller == controller.id:
                 if response.updated:
-                    _LOGGER.info(f'record special events enabled for {controller}')
+                    _LOGGER.debug(f'record special events enabled for {controller}')
                 else:
                     _LOGGER.warning(f'record special events not enabled for {controller}')
 

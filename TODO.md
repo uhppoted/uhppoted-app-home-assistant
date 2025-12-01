@@ -3,18 +3,40 @@
 ## In Progress
 
 - [x] Put yapf in _venv_
+- [x] reduce logging: make uhppoted 'ok' logging opt-in in configuration.yamls
+- [ ] centralise logging
 
 - [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
-    - [ ] restructure _get_xxx_ to avoid duplicate calls
-    - [ ] reduce logging: make uhppoted 'ok' logging opt-in in configuration.yamls
-    - [ ] reporting _uhppoted API_ error instead of _timeout_
-    - [ ] get-event
-        - [ ] FIXME return cached event if it exists
-    - [ ] event-listener `# FIXME reinstate - temporarily removed for async conversion`
-    - [ ] Throttle requests
-        — 50–100 ms between sends helps keep NAT tables sane (apparently)
-        - add to configuration.yaml
-    - https://developers.home-assistant.io/docs/asyncio_working_with_async
+   - [ ] event-listener `# FIXME reinstate - temporarily removed for async conversion`
+   - [ ] get-event
+      - [ ] FIXME return cached event if it exists
+
+   - [ ] restructure _get_xxx_ to avoid duplicate calls
+      - [x] get_controller
+      - [x] get_listener
+      - [ ] set_listener
+      - [x] get_time
+      - [ ] set_time
+      - [x] get_door
+      - [ ] set_door
+      - [ ] open_door
+      - [x] get_status
+      - [ ] get_cards
+      - [ ] get_card
+      - [ ] get_card_by_index
+      - [ ] put_card
+      - [ ] delete_card
+      - [ ] record_special_events
+      - [ ] get_event
+      - [ ] get_interlock
+      - [ ] set_interlock
+      - [x] get_antipassback
+      - [ ] set_antipassback
+
+   - [ ] reporting _uhppoted API_ error instead of _timeout_
+   - [ ] Throttle requests
+      — 50–100 ms between sends helps keep NAT tables sane (apparently)
+      - add to configuration.yaml
 
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
