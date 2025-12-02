@@ -61,6 +61,10 @@ uhppoted:
             interlock: 122
             antipassback: 123
             event: 182
+    events:
+        listener:
+            enabled: true
+            max_backoff: 120
 
 template:
   - trigger:

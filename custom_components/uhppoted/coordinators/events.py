@@ -34,6 +34,8 @@ from uhppoted.decode import unpack_uint8
 from uhppoted.decode import unpack_bool
 
 from ..const import DOMAIN
+from ..const import CONF_EVENTS_LISTENER_ENABLED
+from ..const import CONF_EVENTS_LISTENER_MAX_BACKOFF
 from ..const import CONF_LISTEN_ADDR
 from ..const import CONF_EVENTS_DEST_ADDR
 from ..const import ATTR_AVAILABLE
@@ -56,7 +58,7 @@ from ..lookup import lookup_event
 from ..uhppoted import Controller
 
 
-async def _listen(u, handler, stop):
+async def _listen(u, handler, stop, max_backoff):
     backoff = 2.5
 
     async def on_event(event):
@@ -65,14 +67,16 @@ async def _listen(u, handler, stop):
 
     while not stop.is_set():
         try:
+            await asyncio.sleep(60)
             _LOGGER.info(f'listening for events on {u.listen_addr}')
             await u.listen(on_event, stop)
         except Exception as exc:
+            _LOGGER.warning(f'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AWOOGAH {exc}')
             _LOGGER.warning(f'listen error {exc}')
             with suppress(asyncio.TimeoutError):
                 await asyncio.wait_for(asyncio.shield(stop.wait()), timeout=backoff)
 
-            backoff = min(backoff * 2, 60)
+            backoff = min(backoff * 2, max_backoff)
 
     _LOGGER.warning(f'event listener exit')
 
@@ -112,8 +116,11 @@ class EventsCoordinator(DataUpdateCoordinator):
             'buttons': {},
         }
 
+        enabled = hass.data[DOMAIN].get(CONF_EVENTS_LISTENER_ENABLED, True)
+        max_backoff = hass.data[DOMAIN].get(CONF_EVENTS_LISTENER_MAX_BACKOFF, 300)
+
         hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, lambda event: self._stop.set())
-        asyncio.create_task(_listen(self._uhppote, self._onEvent, self._stop))
+        asyncio.create_task(_listen(self._uhppote, self._onEvent, self._stop, max_backoff))
 
         _LOGGER.info(f'events coordinator initialised ({interval.total_seconds():.0f}s)')
 

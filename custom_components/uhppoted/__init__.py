@@ -33,6 +33,9 @@ from .const import CONF_CACHE_EXPIRY_INTERLOCK
 from .const import CONF_CACHE_EXPIRY_ANTIPASSBACK
 from .const import CONF_CACHE_EXPIRY_EVENT
 
+from .const import CONF_EVENTS_LISTENER_ENABLED
+from .const import CONF_EVENTS_LISTENER_MAX_BACKOFF
+
 from .const import CONF_INTERLOCKS
 from .const import CONF_ANTIPASSBACK
 
@@ -54,6 +57,9 @@ from .const import DEFAULT_CACHE_EXPIRY_STATUS
 from .const import DEFAULT_CACHE_EXPIRY_INTERLOCK
 from .const import DEFAULT_CACHE_EXPIRY_ANTIPASSBACK
 from .const import DEFAULT_CACHE_EXPIRY_EVENT
+
+from .const import DEFAULT_EVENTS_LISTENER_ENABLED
+from .const import DEFAULT_EVENTS_LISTENER_MAX_BACKOFF
 
 from .coordinators.coordinators import Coordinators
 from .services.services import Services
@@ -100,6 +106,10 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_CACHE_EXPIRY_INTERLOCK: DEFAULT_CACHE_EXPIRY_INTERLOCK,
         CONF_CACHE_EXPIRY_ANTIPASSBACK: DEFAULT_CACHE_EXPIRY_ANTIPASSBACK,
         CONF_CACHE_EXPIRY_EVENT: DEFAULT_CACHE_EXPIRY_EVENT,
+
+        # event listener
+        CONF_EVENTS_LISTENER_ENABLED:     DEFAULT_EVENTS_LISTENER_ENABLED,
+        CONF_EVENTS_LISTENER_MAX_BACKOFF: DEFAULT_EVENTS_LISTENER_MAX_BACKOFF,
     }
 
     if 'uhppoted' in config:
@@ -119,26 +129,16 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
             CONF_POLL_CARDS,
             CONF_POLL_EVENTS,
             CONF_CONTROLLERS,
-
-            # caching
-            CONF_CACHE_ENABLED,
-            CONF_CACHE_EXPIRY_CONTROLLER,
-            CONF_CACHE_EXPIRY_LISTENER,
-            CONF_CACHE_EXPIRY_DATETIME,
-            CONF_CACHE_EXPIRY_DOOR,
-            CONF_CACHE_EXPIRY_CARD,
-            CONF_CACHE_EXPIRY_INTERLOCK,
-            CONF_CACHE_EXPIRY_ANTIPASSBACK,
-            CONF_CACHE_EXPIRY_EVENT,
         ]
 
         for v in topics:
             if v in c:
                 defaults[v] = c[v]
 
-        if caching := c.get('cache', None):
+        # caching
+        if caching := c.get('cache'):
             defaults[CONF_CACHE_ENABLED] = caching.get('enabled', DEFAULT_CACHE_ENABLED)
-            if expiry := caching.get('expiry', None):
+            if expiry := caching.get('expiry'):
                 defaults[CONF_CACHE_EXPIRY_CONTROLLER] = expiry.get('controller', DEFAULT_CACHE_EXPIRY_CONTROLLER)
                 defaults[CONF_CACHE_EXPIRY_LISTENER] = expiry.get('listener', DEFAULT_CACHE_EXPIRY_LISTENER)
                 defaults[CONF_CACHE_EXPIRY_DATETIME] = expiry.get('datetime', DEFAULT_CACHE_EXPIRY_DATETIME)
@@ -148,6 +148,12 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
                 defaults[CONF_CACHE_EXPIRY_INTERLOCK] = expiry.get('interlock', DEFAULT_CACHE_EXPIRY_INTERLOCK)
                 defaults[CONF_CACHE_EXPIRY_ANTIPASSBACK] = expiry.get('antipassback', DEFAULT_CACHE_EXPIRY_ANTIPASSBACK)
                 defaults[CONF_CACHE_EXPIRY_EVENT] = expiry.get('event', DEFAULT_CACHE_EXPIRY_EVENT)
+
+        # event listener
+        if events  := c.get('events'):
+            if listener := events.get('listener'):
+                defaults[CONF_EVENTS_LISTENER_ENABLED] = listener.get('enabled', DEFAULT_EVENTS_LISTENER_ENABLED)
+                defaults[CONF_EVENTS_LISTENER_MAX_BACKOFF] = listener.get('max_backoff', DEFAULT_EVENTS_LISTENER_MAX_BACKOFF)
 
     _LOGGER.info(f'default bind address:        {defaults[CONF_BIND_ADDR]}')
     _LOGGER.info(f'default broadcast address:   {defaults[CONF_BROADCAST_ADDR]}')
@@ -175,6 +181,10 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     _LOGGER.info(f'cache.expiry - interlock:    {defaults[CONF_CACHE_EXPIRY_INTERLOCK]}')
     _LOGGER.info(f'cache.expiry - antipassback: {defaults[CONF_CACHE_EXPIRY_ANTIPASSBACK]}')
     _LOGGER.info(f'cache.expiry - event:        {defaults[CONF_CACHE_EXPIRY_EVENT]}')
+
+    # event listener
+    _LOGGER.info(f'events.listener.enabled:      {defaults[CONF_EVENTS_LISTENER_ENABLED]}')
+    _LOGGER.info(f'events.listener.max-backoff:  {defaults[CONF_EVENTS_LISTENER_MAX_BACKOFF]}')
 
     hass.data.setdefault(DOMAIN, defaults)
 

@@ -10,11 +10,15 @@
    - [ ] event-listener
       - [x] fix backoff wait for stop.isset
       - [x] use async listener
-      - [ ] put max-backoff in configuration.yaml
+      - [x] put max-backoff in configuration.yaml
+      - [ ] ???? expected 'address in use' error
+            ``` socat UDP-RECV:60001 STDOUT ```
       - [ ] check what happens on unload
 
    - [ ] get-event
       - [ ] FIXME return cached event if it exists
+
+   - [ ] door-open: fix/remove debugging ('>>>>>')
 
    - [ ] restructure _get_xxx_ to avoid duplicate calls
       - [x] get_controller
