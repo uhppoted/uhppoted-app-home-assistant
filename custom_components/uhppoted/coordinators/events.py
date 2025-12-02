@@ -6,13 +6,13 @@ import threading
 
 from ipaddress import IPv4Address
 from dataclasses import dataclass
+from contextlib import suppress
 
 import async_timeout
 import datetime
 import re
 import logging
 import asyncio
-import contextlib
 
 _LOGGER = logging.getLogger(__name__)
 _INTERVAL = datetime.timedelta(seconds=30)
@@ -56,28 +56,25 @@ from ..lookup import lookup_event
 from ..uhppoted import Controller
 
 
-async def _listen(hass, addr, port, listener, stop):
+async def _listen(u, handler, stop):
     backoff = 2.5
+
+    async def on_event(event):
+        if event is not None:
+            handler(event)
+
     while not stop.is_set():
         try:
-            _LOGGER.info(f'listening for events on {addr}:{port}')
-            await asyncio.sleep(15)
-            raise ValueError('OOOPS')
+            _LOGGER.info(f'listening for events on {u.listen_addr}')
+            await u.listen(on_event, stop)
         except Exception as exc:
             _LOGGER.warning(f'listen error {exc}')
-            with contextlib.suppress(asyncio.TimeoutError):
+            with suppress(asyncio.TimeoutError):
                 await asyncio.wait_for(asyncio.shield(stop.wait()), timeout=backoff)
 
             backoff = min(backoff * 2, 60)
 
     _LOGGER.warning(f'event listener exit')
-
-    # loop = asyncio.get_running_loop()
-    # transport, protocol = await loop.create_datagram_endpoint(lambda: listener, local_addr=(addr, port))
-
-    # _LOGGER.debug(f'UDP event listener {transport}')
-    # _LOGGER.debug(f'UDP event listener {protocol}')
-    # _LOGGER.info(f'listening for events on {addr}:{port}')
 
 
 @dataclass
@@ -93,60 +90,10 @@ class Event:
     reason: int
 
 
-class EventListener:
-
-    def __init__(self, handler):
-        self._handler = handler
-        self._transport = None
-
-    def connection_made(self, transport):
-        self._transport = transport
-
-    def connection_lost(self, err):
-        self._transport = None
-        _LOGGER.error(f'event listener UDP connection lost {err}')
-
-    def datagram_received(self, packet, addr):
-        try:
-            (event, relays, buttons) = self.decode(packet)
-            if self._handler:
-                self._handler(event, relays, buttons)
-        except BaseException as err:
-            _LOGGER.warning(f'Error decoding received event ({err})')
-
-    def decode(self, packet):
-        evt = decode.event(packet)
-
-        # yapf: disable
-        return (Event(evt.controller,
-                      evt.event_index,
-                      evt.event_type,
-                      evt.event_access_granted,
-                      evt.event_door,
-                      evt.event_direction,
-                      evt.event_card,
-                      evt.event_timestamp,
-                      evt.event_reason),
-                evt.relays,
-                {
-                    1: evt.door_1_button,
-                    2: evt.door_2_button,
-                    3: evt.door_3_button,
-                    4: evt.door_4_button,
-                })
-        # yapf: enable
-
-    def close(self):
-        if self._transport:
-            self._transport.close()
-
-
 class EventsCoordinator(DataUpdateCoordinator):
 
     def __init__(self, hass, options, poll, driver, db, notify):
         interval = _INTERVAL if poll == None else poll
-        addr = '0.0.0.0'
-        port = 60001
 
         super().__init__(hass, _LOGGER, name='events', update_interval=interval)
 
@@ -156,6 +103,7 @@ class EventsCoordinator(DataUpdateCoordinator):
         self._db = db
         self._notify = notify
         self._listener_addr = options.get(CONF_EVENTS_DEST_ADDR, None)
+        self._stop = asyncio.Event()
         self._initialised = False
         self._state = {
             'events': {},
@@ -164,20 +112,8 @@ class EventsCoordinator(DataUpdateCoordinator):
             'buttons': {},
         }
 
-        if CONF_LISTEN_ADDR in options:
-            match = re.match(r'([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}):([0-9]+)', options[CONF_LISTEN_ADDR])
-            if match:
-                addr = match.group(1)
-                port = int(match.group(2))
-
-        self._listener = EventListener(self.onEvent)
-        self._stop = asyncio.Event()
-
-        # terminate event listener loop on HA shutdown
         hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, lambda event: self._stop.set())
-
-        # FIXME reinstate - temporarily removed for async rework
-        asyncio.create_task(_listen(hass, addr, port, self._listener, self._stop))
+        asyncio.create_task(_listen(self._uhppote, self._onEvent, self._stop))
 
         _LOGGER.info(f'events coordinator initialised ({interval.total_seconds():.0f}s)')
 
@@ -192,14 +128,35 @@ class EventsCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.warning(f'error unloading events-coordinator ({err})')
 
-    def onEvent(self, event, relays, inputs):
+    def _onEvent(self, evt):
+        # yapf: disable
+        event = Event(evt.controller,
+                      evt.event_index,
+                      evt.event_type,
+                      evt.event_access_granted,
+                      evt.event_door,
+                      evt.event_direction,
+                      evt.event_card,
+                      evt.event_timestamp,
+                      evt.event_reason)
+        # yapf: enable
+
+        relays = evt.relays
+
+        buttons = {
+            1: evt.door_1_button,
+            2: evt.door_2_button,
+            3: evt.door_3_button,
+            4: evt.door_4_button,
+        }
+
         contexts = set(self.async_contexts())
         controller = event.controller
 
         if controller in contexts:
             events = [event]
             events.extend(self.doorLocks(controller, relays))
-            events.extend(self.doorButtons(controller, inputs))
+            events.extend(self.doorButtons(controller, buttons))
 
             if not controller in self._state['index'] or self._state['index'][controller] < event.index:
                 self._state['index'][controller] = event.index

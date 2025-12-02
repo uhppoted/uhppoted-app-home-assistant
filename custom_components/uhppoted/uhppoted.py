@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from asyncio import Queue
 from typing import Any
+from contextlib import suppress
 
 from uhppoted import uhppote
 from uhppoted import uhppote_async
@@ -94,6 +95,7 @@ class uhppoted:
         self._asio = uhppote_async.UhppoteAsync(bind, broadcast, listen, debug)
         self._timeout = timeout
         self._controllers = controllers
+        self._listen_addr = listen
         self.queue = Queue()
         self._cache_enabled = True
         self._cache_expiry = {}
@@ -110,6 +112,10 @@ class uhppoted:
     @property
     def controllers(self):
         return [v['controller'] for v in self._controllers]
+
+    @property
+    def listen_addr(self):
+        return self._listen_addr
 
     @property
     def cache_enabled(self) -> int:
@@ -489,6 +495,16 @@ class uhppoted:
                 self._put(GetAntiPassbackResponse(controller, antipassback), key, CONF_CACHE_EXPIRY_ANTIPASSBACK)
 
         return response
+
+    async def listen(self, on_event, stop):
+        task = asyncio.create_task(self._asio.listen(on_event))
+
+        try:
+            await stop.wait()
+        finally:
+            task.cancel()
+            with suppress(asyncio.CancelledError):
+                await task
 
     def _lookup(self, controller):
         for v in self._controllers:
