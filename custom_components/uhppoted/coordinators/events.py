@@ -117,8 +117,11 @@ class EventsCoordinator(DataUpdateCoordinator):
         enabled = hass.data[DOMAIN].get(CONF_EVENTS_LISTENER_ENABLED, True)
         max_backoff = hass.data[DOMAIN].get(CONF_EVENTS_LISTENER_MAX_BACKOFF, 300)
 
-        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, lambda event: self._stop.set())
-        asyncio.create_task(_listen(self._uhppote, self._onEvent, self._stop, max_backoff))
+        if enabled == True:
+            hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, lambda event: self._stop.set())
+            asyncio.create_task(_listen(self._uhppote, self._onEvent, self._stop, max_backoff))
+        else:
+            _LOGGER.warning(f'events coordinator disabled in configuration.yaml')
 
         _LOGGER.info(f'events coordinator initialised ({interval.total_seconds():.0f}s)')
 
