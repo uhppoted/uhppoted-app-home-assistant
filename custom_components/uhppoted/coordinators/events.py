@@ -105,6 +105,7 @@ class EventsCoordinator(DataUpdateCoordinator):
         self._db = db
         self._notify = notify
         self._listener_addr = options.get(CONF_EVENTS_DEST_ADDR, None)
+        self._listener_enabled = hass.data[DOMAIN].get(CONF_EVENTS_LISTENER_ENABLED, True)
         self._stop = asyncio.Event()
         self._initialised = False
         self._state = {
@@ -114,10 +115,9 @@ class EventsCoordinator(DataUpdateCoordinator):
             'buttons': {},
         }
 
-        enabled = hass.data[DOMAIN].get(CONF_EVENTS_LISTENER_ENABLED, True)
         max_backoff = hass.data[DOMAIN].get(CONF_EVENTS_LISTENER_MAX_BACKOFF, 300)
 
-        if enabled == True:
+        if self._listener_enabled == True:
             hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, lambda event: self._stop.set())
             asyncio.create_task(_listen(self._uhppote, self._onEvent, self._stop, max_backoff))
         else:
@@ -131,8 +131,6 @@ class EventsCoordinator(DataUpdateCoordinator):
     def unload(self):
         try:
             self._stop.set()
-            if self._listener:
-                self._listener.close()
         except Exception as err:
             _LOGGER.warning(f'error unloading events-coordinator ({err})')
 
@@ -204,8 +202,10 @@ class EventsCoordinator(DataUpdateCoordinator):
 
         tasks = []
         tasks += [self._record_special_events(lock, c) for c in controllers]
-        tasks += [self._set_event_listener(lock, c) for c in controllers]
         tasks += [self._get_controller_events(lock, c) for c in controllers]
+
+        if self._listener_enabled:
+            tasks += [self._set_event_listener(lock, c) for c in controllers]
 
         try:
             await asyncio.gather(*tasks)
@@ -235,6 +235,7 @@ class EventsCoordinator(DataUpdateCoordinator):
             _LOGGER.debug(f'check controller {controller} event listener')
 
             match = re.match(r'^[0-9.]+:[0-9]+$', f'{self._listener_addr}')
+
             if match == None:
                 return
 

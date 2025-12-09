@@ -13,7 +13,7 @@
       - [x] use async listener
       - [x] put max-backoff in configuration.yaml
       - [x] expected 'address in use' error
-      - [ ] check what happens on unload
+      - [x] check what happens on unload
 
    - [ ] get-event
       - [ ] FIXME return cached event if it exists
@@ -49,23 +49,16 @@
 
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
-      - [ ] Initial setup error:
+    - [x] backoff on retry if _address in use_
+    - [x] allow 'no event listener'
+    - [x] ignore set-listener if event listener disabled
+
+    - [ ] Initial setup error:
           ```
           Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get'
           ```
-      - [ ] weird thing with multiple setups after a reconfigure
-          - set-interlock on startup takes forever
-    - [x] allow 'no event listener'
-    - [x] backoff on retry if _address in use_
-
-    - (?) store controller + card in coordinator and collate presented state from that
-    - https://developers.home-assistant.io/docs/core/entity/#excluding-state-attributes-from-recorder-history
-    - https://www.home-assistant.io/integrations/logger
-    - https://community.home-assistant.io/t/make-recorder-logbook-and-history-includes-avaialable-for-editing-on-the-entities-page/212515
-    - https://community.home-assistant.io/t/recorder-retention-period-by-entity/267849/5
-    - https://www.reddit.com/r/homeassistant/comments/8aj8xg/is_there_a_way_to_prevent_specific_entities_form
-    - https://community.home-assistant.io/t/worth-disabling-unused-entities/350068
-    - https://community.home-assistant.io/t/how-to-prevent-a-log-entry-when-an-automation-is-executed/255876
+    - [ ] weird thing with multiple setups after a reconfigure
+       - set-interlock on startup takes forever
 
 - [ ] Improve event handling (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/14)
        - [ ] opt-in/out in configuration.yaml/config-flow
@@ -116,6 +109,16 @@ home-assistant-stable  | NameError: name 'hass' is not defined. Did you mean: 'h
 ```
     home-assistant-stable  | 2025-11-05 19:57:43.399 ERROR (MainThread) [custom_components.uhppoted.coordinators.events] Error fetching events data: uhppoted API error 
 ```
+
+- (?) store controller + card in coordinator and collate presented state from that
+    - https://developers.home-assistant.io/docs/core/entity/#excluding-state-attributes-from-recorder-history
+    - https://www.home-assistant.io/integrations/logger
+    - https://community.home-assistant.io/t/make-recorder-logbook-and-history-includes-avaialable-for-editing-on-the-entities-page/212515
+    - https://community.home-assistant.io/t/recorder-retention-period-by-entity/267849/5
+    - https://www.reddit.com/r/homeassistant/comments/8aj8xg/is_there_a_way_to_prevent_specific_entities_form
+    - https://community.home-assistant.io/t/worth-disabling-unused-entities/350068
+    - https://community.home-assistant.io/t/how-to-prevent-a-log-entry-when-an-automation-is-executed/255876
+
 
 ## TODO
 
