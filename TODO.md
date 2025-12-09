@@ -4,16 +4,15 @@
 
 - [x] Put yapf in _venv_
 - [x] reduce logging: make uhppoted 'ok' logging opt-in in configuration.yamls
+- [x] add controller serial number to _info_ entity
 - [ ] centralise logging
-- [ ] add controller serial number to _info_ entity
 
 - [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
    - [ ] event-listener
       - [x] fix backoff wait for stop.isset
       - [x] use async listener
       - [x] put max-backoff in configuration.yaml
-      - [x] ???? expected 'address in use' error
-            ``` socat -u UDP-RECV:60001 STDOUT | xxd```
+      - [x] expected 'address in use' error
       - [ ] check what happens on unload
 
    - [ ] get-event

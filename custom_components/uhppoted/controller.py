@@ -16,6 +16,7 @@ from homeassistant.helpers.restore_state import ExtraStoredData
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import ATTR_AVAILABLE
+from .const import ATTR_CONTROLLER_SERIAL_NUMBER
 from .const import ATTR_CONTROLLER_ADDRESS
 from .const import ATTR_CONTROLLER_PROTOCOL
 from .const import ATTR_NETMASK
@@ -63,6 +64,7 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
         self._name = f'uhppoted.controller.{controller}.info'.lower()
         self._state = serial_no
         self._attributes: Dict[str, Any] = {
+            ATTR_CONTROLLER_SERIAL_NUMBER: serial_no,
             ATTR_CONTROLLER_ADDRESS: None,
             ATTR_CONTROLLER_PROTOCOL: None,
             ATTR_NETMASK: None,
