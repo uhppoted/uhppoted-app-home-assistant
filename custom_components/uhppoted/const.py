@@ -65,7 +65,6 @@ CONF_CACHE_EXPIRY_EVENT = 'cache.expiry.event'
 CONF_EVENTS_LISTENER_ENABLED = 'events.listener.enabled'
 CONF_EVENTS_LISTENER_MAX_BACKOFF = 'events.listener.max_backoff'
 
-
 ATTR_AVAILABLE = 'available'
 ATTR_NETMASK = 'netmask'
 ATTR_GATEWAY = 'gateway'
@@ -144,7 +143,6 @@ DEFAULT_CACHE_EXPIRY_EVENT = 1800  # 30 minutes
 
 DEFAULT_EVENTS_LISTENER_ENABLED = True
 DEFAULT_EVENTS_LISTENER_MAX_BACKOFF = 1800  # 30 minutes
-
 
 ERR_INVALID_CONTROLLER_ID = 'invalid_controller_id'
 ERR_DUPLICATE_CONTROLLER_ID = 'duplicate_controller_id'

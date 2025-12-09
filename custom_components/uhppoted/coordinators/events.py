@@ -67,11 +67,9 @@ async def _listen(u, handler, stop, max_backoff):
 
     while not stop.is_set():
         try:
-            await asyncio.sleep(60)
             _LOGGER.info(f'listening for events on {u.listen_addr}')
             await u.listen(on_event, stop)
         except Exception as exc:
-            _LOGGER.warning(f'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AWOOGAH {exc}')
             _LOGGER.warning(f'listen error {exc}')
             with suppress(asyncio.TimeoutError):
                 await asyncio.wait_for(asyncio.shield(stop.wait()), timeout=backoff)

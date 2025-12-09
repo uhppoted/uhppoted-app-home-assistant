@@ -497,14 +497,7 @@ class uhppoted:
         return response
 
     async def listen(self, on_event, stop):
-        task = asyncio.create_task(self._asio.listen(on_event))
-
-        try:
-            await stop.wait()
-        finally:
-            task.cancel()
-            with suppress(asyncio.CancelledError):
-                await task
+        await self._asio.listen(on_event, on_error=None, close=stop)
 
     def _lookup(self, controller):
         for v in self._controllers:

@@ -108,7 +108,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_CACHE_EXPIRY_EVENT: DEFAULT_CACHE_EXPIRY_EVENT,
 
         # event listener
-        CONF_EVENTS_LISTENER_ENABLED:     DEFAULT_EVENTS_LISTENER_ENABLED,
+        CONF_EVENTS_LISTENER_ENABLED: DEFAULT_EVENTS_LISTENER_ENABLED,
         CONF_EVENTS_LISTENER_MAX_BACKOFF: DEFAULT_EVENTS_LISTENER_MAX_BACKOFF,
     }
 
@@ -150,10 +150,11 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
                 defaults[CONF_CACHE_EXPIRY_EVENT] = expiry.get('event', DEFAULT_CACHE_EXPIRY_EVENT)
 
         # event listener
-        if events  := c.get('events'):
+        if events := c.get('events'):
             if listener := events.get('listener'):
                 defaults[CONF_EVENTS_LISTENER_ENABLED] = listener.get('enabled', DEFAULT_EVENTS_LISTENER_ENABLED)
-                defaults[CONF_EVENTS_LISTENER_MAX_BACKOFF] = listener.get('max_backoff', DEFAULT_EVENTS_LISTENER_MAX_BACKOFF)
+                defaults[CONF_EVENTS_LISTENER_MAX_BACKOFF] = listener.get('max_backoff',
+                                                                          DEFAULT_EVENTS_LISTENER_MAX_BACKOFF)
 
     _LOGGER.info(f'default bind address:        {defaults[CONF_BIND_ADDR]}')
     _LOGGER.info(f'default broadcast address:   {defaults[CONF_BROADCAST_ADDR]}')

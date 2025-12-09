@@ -21,3 +21,7 @@ curl -X POST "http://127.0.0.1:8000/uhppote/simulator/405419896/door/1" -H "acce
 
 ```
 
+### socat
+```
+socat -u UDP-RECV:60001 STDOUT | xxd
+```
