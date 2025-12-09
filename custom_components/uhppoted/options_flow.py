@@ -184,6 +184,8 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
 
         if user_input is not None:
             address = user_input.get(CONF_EVENTS_DEST_ADDR, '')
+            if address == '---':
+                address = ''
 
             try:
                 validate_events_addr(address)
@@ -192,13 +194,16 @@ class UhppotedOptionsFlow(UhppotedFlow, OptionsFlow):
 
             if not errors:
                 self.options.update([[CONF_EVENTS_DEST_ADDR, address]])
-
                 return await self.async_step_controllers()
 
         addr = self.options.get(CONF_EVENTS_DEST_ADDR, self._events_dest_addr)
         addresses = [v for v in get_IPv4_addresses() if v != '127.0.0.1']
 
-        select = SelectSelectorConfig(options=[{ 'label': f'{v}:60001', 'value': f'{v}:60001' } for v in addresses],
+        options = []
+        options.append({'label': '<none>', 'value': '---'})
+        options.extend({'label': f'{v}:60001', 'value': f'{v}:60001'} for v in addresses)
+
+        select = SelectSelectorConfig(options=options,
                                       multiple=False,
                                       custom_value=True,
                                       mode=SelectSelectorMode.LIST) # yapf: disable

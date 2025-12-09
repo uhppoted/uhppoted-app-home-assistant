@@ -5,7 +5,27 @@
 - [x] Put yapf in _venv_
 - [x] reduce logging: make uhppoted 'ok' logging opt-in in configuration.yamls
 - [x] add controller serial number to _info_ entity
+- [x] option-flow: <none> event listener options
 - [ ] centralise logging
+- [ ] reporting _uhppoted API_ error instead of _timeout_
+- [ ] fix - error after reconfiguring
+```
+2025-11-05 19:48:04.705 ERROR (MainThread) [homeassistant.config_entries] Error unloading entry uhppoted for uhppoted
+home-assistant-stable  | Traceback (most recent call last):
+home-assistant-stable  |   File "/usr/src/homeassistant/homeassistant/config_entries.py", line 967, in async_unload
+home-assistant-stable  |     result = await component.async_unload_entry(hass, self)
+home-assistant-stable  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+home-assistant-stable  |   File "/config/custom_components/uhppoted/__init__.py", line 214, in async_unload_entry
+home-assistant-stable  |     Coordinators.unload(entry.entry_id)
+home-assistant-stable  |     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+home-assistant-stable  |   File "/config/custom_components/uhppoted/coordinators/coordinators.py", line 33, in unload
+home-assistant-stable  |     coordinators._unload()
+home-assistant-stable  |     ~~~~~~~~~~~~~~~~~~~~^^
+home-assistant-stable  |   File "/config/custom_components/uhppoted/coordinators/coordinators.py", line 136, in _unload
+home-assistant-stable  |     self._driver.stop(hass)
+home-assistant-stable  |                       ^^^^
+home-assistant-stable  | NameError: name 'hass' is not defined. Did you mean: 'hash'?
+```
 
 - [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
    - [ ] event-listener
@@ -14,6 +34,8 @@
       - [x] put max-backoff in configuration.yaml
       - [x] expected 'address in use' error
       - [x] check what happens on unload
+      - [ ] event listener loop doesn't exit on reload
+            (e.g. repeated load for bug: ```tasks += [self._set_event_listener(lock, c) for c in controllers and self._listener_enabled]```)
 
    - [ ] get-event
       - [ ] FIXME return cached event if it exists
@@ -42,7 +64,6 @@
       - [x] get_antipassback
       - [ ] set_antipassback
 
-   - [ ] reporting _uhppoted API_ error instead of _timeout_
    - [ ] Throttle requests
       — 50–100 ms between sends helps keep NAT tables sane (apparently)
       - add to configuration.yaml
@@ -50,7 +71,6 @@
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
     - [x] backoff on retry if _address in use_
-    - [x] allow 'no event listener'
     - [x] ignore set-listener if event listener disabled
 
     - [ ] Initial setup error:
@@ -69,41 +89,7 @@
        - [ ] add Lovelace card to config-flow
 
 - (?) retry set-interlock if not available/not correct
-- [ ] fix _controller 405419896 incorrect event listener address (None)_
-- [ ] can't seem to disable check/set-listener
-- [ ] fix:
-```
-2025-11-04 19:41:10.930 ERROR (MainThread) [homeassistant] Error doing job: Task exception was never retrieved (None)
-home-assistant-stable  | Traceback (most recent call last):
-home-assistant-stable  |   File "/config/custom_components/uhppoted/coordinators/events.py", line 58, in _listen
-home-assistant-stable  |     transport, protocol = await loop.create_datagram_endpoint(lambda: listener, local_addr=(addr, port))
-home-assistant-stable  |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-home-assistant-stable  |   File "/usr/local/lib/python3.13/asyncio/base_events.py", line 1467, in create_datagram_endpoint
-home-assistant-stable  |     raise exceptions[0]
-home-assistant-stable  |   File "/usr/local/lib/python3.13/asyncio/base_events.py", line 1451, in create_datagram_endpoint
-home-assistant-stable  |     sock.bind(local_address)
-home-assistant-stable  |     ~~~~~~~~~^^^^^^^^^^^^^^^
-home-assistant-stable  | OSError: [Errno 98] Address in use
-```
 
-- [ ] fix - error after reconfiguring
-```
-2025-11-05 19:48:04.705 ERROR (MainThread) [homeassistant.config_entries] Error unloading entry uhppoted for uhppoted
-home-assistant-stable  | Traceback (most recent call last):
-home-assistant-stable  |   File "/usr/src/homeassistant/homeassistant/config_entries.py", line 967, in async_unload
-home-assistant-stable  |     result = await component.async_unload_entry(hass, self)
-home-assistant-stable  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-home-assistant-stable  |   File "/config/custom_components/uhppoted/__init__.py", line 214, in async_unload_entry
-home-assistant-stable  |     Coordinators.unload(entry.entry_id)
-home-assistant-stable  |     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
-home-assistant-stable  |   File "/config/custom_components/uhppoted/coordinators/coordinators.py", line 33, in unload
-home-assistant-stable  |     coordinators._unload()
-home-assistant-stable  |     ~~~~~~~~~~~~~~~~~~~~^^
-home-assistant-stable  |   File "/config/custom_components/uhppoted/coordinators/coordinators.py", line 136, in _unload
-home-assistant-stable  |     self._driver.stop(hass)
-home-assistant-stable  |                       ^^^^
-home-assistant-stable  | NameError: name 'hass' is not defined. Did you mean: 'hash'?
-```
 
 - [ ] get-events
 ```

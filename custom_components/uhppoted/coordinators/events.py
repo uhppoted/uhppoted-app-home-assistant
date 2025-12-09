@@ -235,7 +235,6 @@ class EventsCoordinator(DataUpdateCoordinator):
             _LOGGER.debug(f'check controller {controller} event listener')
 
             match = re.match(r'^[0-9.]+:[0-9]+$', f'{self._listener_addr}')
-
             if match == None:
                 return
 
