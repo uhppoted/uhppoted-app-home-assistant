@@ -268,15 +268,18 @@ class CardsCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"uhppoted API error {err}")
 
     async def _get_cards(self, contexts):
-        lock = threading.Lock()
         controllers = self._controllers
+        lock = threading.Lock()
+        tasks = []
 
         try:
-            tasks = [self._get_card(controllers, lock, card) for card in contexts]
+            tasks += [self._get_card(controllers, lock, card) for card in contexts]
 
-            await asyncio.gather(*tasks)
+            await asyncio.gather(*tasks, return_exceptions=True)
         except Exception as err:
             _LOGGER.error(f'error retrieving card information ({err})')
+            for task in tasks:
+                task.close()
 
         self._db.cards = self._state
 

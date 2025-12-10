@@ -28,14 +28,13 @@ home-assistant-stable  | NameError: name 'hass' is not defined. Did you mean: 'h
 ```
 
 - [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
-   - [ ] event-listener
+   - [x] event-listener
       - [x] fix backoff wait for stop.isset
       - [x] use async listener
       - [x] put max-backoff in configuration.yaml
       - [x] expected 'address in use' error
       - [x] check what happens on unload
-      - [ ] event listener loop doesn't exit on reload
-            (e.g. repeated load for bug: ```tasks += [self._set_event_listener(lock, c) for c in controllers and self._listener_enabled]```)
+      - [x] event listener loop doesn't exit on reload
 
    - [ ] get-event
       - [ ] FIXME return cached event if it exists

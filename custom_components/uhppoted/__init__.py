@@ -195,21 +195,22 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
 
-    # ... pre-load: start data coordinators
+    # ... initialise data coordinators
     Coordinators.initialise(hass, entry.entry_id, entry.options)
-
-    await Coordinators.controllers(entry.entry_id).async_config_entry_first_refresh()
-    await Coordinators.doors(entry.entry_id).async_config_entry_first_refresh()
-    await Coordinators.cards(entry.entry_id).async_config_entry_first_refresh()
-    await Coordinators.events(entry.entry_id).async_config_entry_first_refresh()
-
-    # ... load entities
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-    # ... post-load: start services and register unload listener
     Services.initialise(hass, entry.entry_id, entry.options)
 
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
     entry.async_on_unload(entry.add_update_listener(update_listener))
+
+    # ... pre-load entities
+    try:
+        await Coordinators.controllers(entry.entry_id).async_config_entry_first_refresh()
+        await Coordinators.doors(entry.entry_id).async_config_entry_first_refresh()
+        await Coordinators.cards(entry.entry_id).async_config_entry_first_refresh()
+        await Coordinators.events(entry.entry_id).async_config_entry_first_refresh()
+    except Exception as err:
+        _LOGGER.error(f'error pre-loading entities ({err})')
 
     return True
 

@@ -196,21 +196,22 @@ class EventsCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f'uhppoted API error {err}') from err
 
     async def _get_events(self, contexts):
-        lock = threading.Lock()
-
         controllers = [c for c in self._controllers if c.id in contexts]
-
+        lock = threading.Lock()
         tasks = []
-        tasks += [self._record_special_events(lock, c) for c in controllers]
-        tasks += [self._get_controller_events(lock, c) for c in controllers]
-
-        if self._listener_enabled:
-            tasks += [self._set_event_listener(lock, c) for c in controllers]
 
         try:
-            await asyncio.gather(*tasks)
+            tasks += [self._record_special_events(lock, c) for c in controllers]
+            tasks += [self._get_controller_events(lock, c) for c in controllers]
+
+            if self._listener_enabled:
+                tasks += [self._set_event_listener(lock, c) for c in controllers]
+
+            await asyncio.gather(*tasks, return_exceptions=True)
         except Exception as err:
             _LOGGER.error(f'error retrieving event information ({err})')
+            for t in tasks:
+                t.close()
 
         self._db.events = self._state['events']
 

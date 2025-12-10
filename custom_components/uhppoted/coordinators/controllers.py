@@ -107,7 +107,9 @@ class ControllersCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"uhppoted API error {err}")
 
     async def _get_controllers(self, contexts):
+        controllers = []
         lock = self._lock  # threading.Lock()
+        tasks = []
 
         try:
             for v in contexts:
@@ -116,21 +118,21 @@ class ControllersCoordinator(DataUpdateCoordinator):
                         ATTR_AVAILABLE: False,
                     }
 
-            controllers = []
             for controller in self._controllers:
                 if controller.id in contexts:
                     controllers.append(controller)
 
-            tasks = []
             tasks += [self._get_controller(lock, c) for c in controllers]
             tasks += [self._get_listener(lock, c) for c in controllers]
             tasks += [self._get_datetime(lock, c) for c in controllers]
             tasks += [self._get_antipassback(lock, c) for c in controllers]
             tasks += [self._get_interlock(lock, c) for c in controllers]
 
-            await asyncio.gather(*tasks)
+            await asyncio.gather(*tasks, return_exceptions=True)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller information ({err})')
+            for t in tasks:
+                t.close()
 
         self._db.controllers = self._state
 
