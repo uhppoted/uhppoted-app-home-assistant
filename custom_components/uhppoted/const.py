@@ -8,6 +8,7 @@ CONF_LISTEN_ADDR = 'listen_address'
 CONF_EVENTS_DEST_ADDR = 'events_destination_address'
 CONF_TIMEZONE = 'timezone'
 CONF_TIMEOUT = 'timeout'
+CONF_RETRY_DELAY = 'retry_delay'
 CONF_DEBUG = 'debug'
 
 CONF_MAX_CARDS = 'max_cards'
@@ -106,6 +107,7 @@ DEFAULT_BROADCAST_ADDRESS = '255.255.255.255:60000'
 DEFAULT_LISTEN_ADDRESS = '0.0.0.0:60001'
 DEFAULT_EVENTS_DEST_ADDR = ''
 DEFAULT_TIMEOUT = 2.5  # seconds
+DEFAULT_RETRY_DELAY = 120  # seconds
 DEFAULT_DEBUG = False
 
 DEFAULT_POLL_CONTROLLERS = 30  # seconds

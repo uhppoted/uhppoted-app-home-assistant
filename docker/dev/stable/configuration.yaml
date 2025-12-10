@@ -22,6 +22,7 @@ uhppoted:
     timezone: CEST
     timeout: 2.5
     max_cards: 7
+    retry_delay: 90
     preferred_cards:
         - 10085399
         - 10085400

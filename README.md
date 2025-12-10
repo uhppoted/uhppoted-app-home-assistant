@@ -190,32 +190,35 @@ The operational configuration can be customised by the _(entirely optional)_ set
 of the _Home Assistant_ `configuration.yaml` file (in the _Home Assistant_ `config` folder). The full list of
 configurable settings comprises:
 
-| Setting                     | Description                                                      | Default value     |
-|-----------------------------|------------------------------------------------------------------|-------------------|
-| `bind_address`              | Default IPv4 UDP bind address                                    | `0.0.0.0`         |
-| `broadcast_address`         | Default IPv4 UDP broadcast address                               | `255.255.255.255` |
-| `listen_address`            | Default IPv4 UDP listen address (for events)                     | `0.0.0.0`         |
-| `timezone`                  | Default controller timezone                                      | local             |
-| `timeout`                   | Default timeout for controller requests/responses (seconds)      | 2.5               |
-| `debug`                     | Enables/disables logging of controller packets                   | false             |
-| `max_cards`                 | Max. cards to 'discover' for configuration                       | 10                |
-| `preferred_cards`           | YAML list of of cards that take priority for _'discovery'_       | - none -          |
-| `card_PINs`                 | Enables/disables retrieving/setting card PINs                    | false             |
-| `controllers_poll_interval` | Interval at which to fetch controller information (seconds)      | 30                |
-| `doors_poll_interval`       | Interval at which to fetch door information (seconds)            | 30                |
-| `cards_poll_interval`       | Interval at which to fetch card information (seconds)            | 30                |
-| `events_poll_interval`      | Interval at which to fetch missed/synthetic events (seconds)     | 30                |
-| `controllers`               | List of off-LAN controllers (see above)                          | -none-            |
-| `cache.enabled`             | Enables the entity and background task queue                     | true              |
-| `cache.expiry.controller`   | Cache expiry time for cached controller entities (seconds)       | 300  (5 minutes)  |
-| `cache.expiry.listener`     | Cache expiry time for cached event listener (seconds)            | 600  (10 minutes) |
-| `cache.expiry.datetime`     | Cache expiry time for cached controller date/time (seconds)      | 300  (5 minutes)  |
-| `cache.expiry.door`         | Cache expiry time for cached door entities (seconds)             | 600  (10 minutes) |
-| `cache.expiry.card`         | Cache expiry time for cached card entities (seconds)             | 900  (15 minutes) |
-| `cache.expiry.status`       | Cache expiry time for cached controller status (seconds)         | 120  (2 minutes)  |
-| `cache.expiry.interlock`    | Cache expiry for cached controller door interlock mode (seconds) | 900  (15 minutes) |
-| `cache.expiry.antipassback` | Cache expiry time for cached anti-passback mode (seconds)        | 900  (15 minutes) |
-| `cache.expiry.event`        | Cache expiry time for cached event entities (seconds)            | 1800 (30 minutes) |
+| Setting                       | Description                                                      | Default value     |
+|-------------------------------|------------------------------------------------------------------|-------------------|
+| `bind_address`                | Default IPv4 UDP bind address                                    | `0.0.0.0`         |
+| `broadcast_address`           | Default IPv4 UDP broadcast address                               | `255.255.255.255` |
+| `listen_address`              | Default IPv4 UDP listen address (for events)                     | `0.0.0.0`         |
+| `timezone`                    | Default controller timezone                                      | local             |
+| `timeout`                     | Default timeout for controller requests/responses (seconds)      | 2.5               |
+| `retry_delay`                 | Default delay before retrying a failed fetch (seconds)           | 120               |
+| `debug`                       | Enables/disables logging of controller packets                   | false             |
+| `max_cards`                   | Max. cards to 'discover' for configuration                       | 10                |
+| `preferred_cards`             | YAML list of of cards that take priority for _'discovery'_       | - none -          |
+| `card_PINs`                   | Enables/disables retrieving/setting card PINs                    | false             |
+| `controllers_poll_interval`   | Interval at which to fetch controller information (seconds)      | 30                |
+| `doors_poll_interval`         | Interval at which to fetch door information (seconds)            | 30                |
+| `cards_poll_interval`         | Interval at which to fetch card information (seconds)            | 30                |
+| `events_poll_interval`        | Interval at which to fetch missed/synthetic events (seconds)     | 30                |
+| `controllers`                 | List of off-LAN controllers (see above)                          | -none-            |
+| `cache.enabled`               | Enables the entity and background task queue                     | true              |
+| `cache.expiry.controller`     | Cache expiry time for cached controller entities (seconds)       | 300  (5 minutes)  |
+| `cache.expiry.listener`       | Cache expiry time for cached event listener (seconds)            | 600  (10 minutes) |
+| `cache.expiry.datetime`       | Cache expiry time for cached controller date/time (seconds)      | 300  (5 minutes)  |
+| `cache.expiry.door`           | Cache expiry time for cached door entities (seconds)             | 600  (10 minutes) |
+| `cache.expiry.card`           | Cache expiry time for cached card entities (seconds)             | 900  (15 minutes) |
+| `cache.expiry.status`         | Cache expiry time for cached controller status (seconds)         | 120  (2 minutes)  |
+| `cache.expiry.interlock`      | Cache expiry for cached controller door interlock mode (seconds) | 900  (15 minutes) |
+| `cache.expiry.antipassback`   | Cache expiry time for cached anti-passback mode (seconds)        | 900  (15 minutes) |
+| `cache.expiry.event`          | Cache expiry time for cached event entities (seconds)            | 1800 (30 minutes) |
+| `events.listener.enabled`     | Enables/disables the event listener                              | true              |
+| `events.listener.max_backoff` | Maximum backoff (seconds) when retrying the event listener       | 1800 (30 minutes) |
 
 e.g.
 ```
@@ -226,6 +229,7 @@ uhppoted:
     debug: false
     timezone: CEST
     timeout: 1.23
+    retry_delay: 90
     max_cards: 7
     preferred_cards: 
         - 10058400
@@ -262,6 +266,10 @@ uhppoted:
             interlock: 600
             antipassback: 600
             event: 3600
+    events:
+        listener:
+            enabled: true
+            max_backoff: 300
 ```
 
 

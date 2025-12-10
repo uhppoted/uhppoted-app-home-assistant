@@ -9,6 +9,8 @@
 - [ ] centralise logging
 - [x] reporting _uhppoted API_ error instead of _timeout_
 - [ ] forward lower exceptions to UpdateError (a lá events)
+   - [x] retry after 60s
+   - [ ] don't log every single _UDP request timeout_
 
 - [ ] fix - error after reconfiguring
 ```
@@ -71,6 +73,7 @@ home-assistant-stable  | NameError: name 'hass' is not defined. Did you mean: 'h
 
 
 - [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
+    - see https://developers.home-assistant.io/blog/2025/11/17/retry-after-update-failed/
     - [x] backoff on retry if _address in use_
     - [x] ignore set-listener if event listener disabled
 

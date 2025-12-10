@@ -27,6 +27,7 @@ _MASK = {
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import UpdateFailed
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP
+from homeassistant.const import __version__ as HAVERSION
 
 from uhppoted import uhppote
 from uhppoted import decode
@@ -34,6 +35,7 @@ from uhppoted.decode import unpack_uint8
 from uhppoted.decode import unpack_bool
 
 from ..const import DOMAIN
+from ..const import CONF_RETRY_DELAY
 from ..const import CONF_EVENTS_LISTENER_ENABLED
 from ..const import CONF_EVENTS_LISTENER_MAX_BACKOFF
 from ..const import CONF_LISTEN_ADDR
@@ -101,6 +103,7 @@ class EventsCoordinator(DataUpdateCoordinator):
 
         self._options = options
         self._uhppote = driver
+        self._retry_delay = hass.data[DOMAIN].get(CONF_RETRY_DELAY, 300)
         self._controllers = get_configured_controllers_ext(options)
         self._db = db
         self._notify = notify
@@ -191,13 +194,17 @@ class EventsCoordinator(DataUpdateCoordinator):
                 self._initialised = True
 
             return await self._get_events(contexts)
-        except Exception as err:
-            raise UpdateFailed(f'uhppoted API error {err}') from err
+        except Exception as exc:
+            try:
+                raise UpdateFailed(retry_after=self._retry_delay) from exc  # HA 2025.12+
+            except TypeError:
+                raise UpdateFailed() from exc
 
     async def _get_events(self, contexts):
         controllers = [c for c in self._controllers if c.id in contexts]
         lock = threading.Lock()
         tasks = []
+        gathered = []
 
         try:
             tasks += [self._record_special_events(lock, c) for c in controllers]
@@ -206,11 +213,15 @@ class EventsCoordinator(DataUpdateCoordinator):
             if self._listener_enabled:
                 tasks += [self._set_event_listener(lock, c) for c in controllers]
 
-            await asyncio.gather(*tasks, return_exceptions=True)
+            gathered = await asyncio.gather(*tasks, return_exceptions=True)
         except Exception as err:
             _LOGGER.error(f'error retrieving event information ({err})')
             for t in tasks:
                 t.close()
+            raise err
+
+        if all(r is not None for r in gathered):
+            raise UpdateFailed(f"general failure retrieving events")
 
         self._db.events = self._state['events']
 
@@ -229,6 +240,7 @@ class EventsCoordinator(DataUpdateCoordinator):
 
         except Exception as err:
             _LOGGER.warning(f'error enabling controller {controller} record special events ({err})')
+            raise err
 
     async def _set_event_listener(self, lock, controller):
         if self._listener_addr != None:
@@ -259,9 +271,12 @@ class EventsCoordinator(DataUpdateCoordinator):
 
             except Exception as err:
                 _LOGGER.warning(f'error setting controller {controller.id} event listener ({err})')
+                raise err
 
     async def _get_controller_events(self, lock, controller):
         _LOGGER.debug(f'fetch controller {controller.id} events')
+
+        err = None
 
         def g(response):
             if response and response.controller == controller.id:
@@ -325,11 +340,15 @@ class EventsCoordinator(DataUpdateCoordinator):
                 info[ATTR_EVENTS] = events
                 info[ATTR_AVAILABLE] = True
 
-        except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller.id} events ({err})')
+        except Exception as exc:
+            _LOGGER.error(f'error retrieving controller {controller.id} events ({exc})')
+            err = exc
 
         with lock:
             self._state['events'][controller.id] = info
+
+        if err is not None:
+            raise err
 
     def decode(self, evt, relays):
         # yapf: disable

@@ -10,12 +10,15 @@ import async_timeout
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import UpdateFailed
+from homeassistant.const import __version__ as HAVERSION
 
 from uhppoted import uhppote
 
 _LOGGER = logging.getLogger(__name__)
 _INTERVAL = datetime.timedelta(seconds=30)
 
+from ..const import DOMAIN
+from ..const import CONF_RETRY_DELAY
 from ..const import CONF_CONTROLLERS
 from ..const import CONF_CONTROLLER_SERIAL_NUMBER
 from ..const import CONF_CONTROLLER_PROTOCOL
@@ -52,6 +55,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         self._options = options
         self._controllers = get_configured_controllers_ext(options)
         self._uhppote = driver
+        self._retry_delay = hass.data[DOMAIN].get(CONF_RETRY_DELAY, 300)
         self._db = db
         self._lock = threading.Lock()
         self._state = {}
@@ -101,15 +105,18 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 contexts.update(controllers)
                 self._initialised = True
 
-            async with async_timeout.timeout(2.5):
-                return await self._get_controllers(contexts)
-        except Exception as err:
-            raise UpdateFailed(f"uhppoted API error {err}")
+            return await self._get_controllers(contexts)
+        except Exception as exc:
+            try:
+                raise UpdateFailed(retry_after=self._retry_delay) from exc  # HA 2025.12+
+            except TypeError:
+                raise UpdateFailed() from exc
 
     async def _get_controllers(self, contexts):
         controllers = []
         lock = self._lock  # threading.Lock()
         tasks = []
+        gathered = []
 
         try:
             for v in contexts:
@@ -128,11 +135,14 @@ class ControllersCoordinator(DataUpdateCoordinator):
             tasks += [self._get_antipassback(lock, c) for c in controllers]
             tasks += [self._get_interlock(lock, c) for c in controllers]
 
-            await asyncio.gather(*tasks, return_exceptions=True)
+            gathered = await asyncio.gather(*tasks, return_exceptions=True)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller information ({err})')
             for t in tasks:
                 t.close()
+
+        if all(r is not None for r in gathered):
+            raise UpdateFailed(f"general failure retrieving controllers")
 
         self._db.controllers = self._state
 

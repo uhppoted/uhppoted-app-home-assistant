@@ -13,6 +13,7 @@ from .const import CONF_LISTEN_ADDR
 from .const import CONF_DEBUG
 from .const import CONF_TIMEZONE
 from .const import CONF_TIMEOUT
+from .const import CONF_RETRY_DELAY
 from .const import CONF_MAX_CARDS
 from .const import CONF_PREFERRED_CARDS
 from .const import CONF_PIN_ENABLED
@@ -40,6 +41,7 @@ from .const import CONF_INTERLOCKS
 from .const import CONF_ANTIPASSBACK
 
 from .const import DEFAULT_TIMEOUT
+from .const import DEFAULT_RETRY_DELAY
 from .const import DEFAULT_POLL_CONTROLLERS
 from .const import DEFAULT_POLL_DOORS
 from .const import DEFAULT_POLL_CARDS
@@ -86,6 +88,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_DEBUG: False,
         CONF_TIMEZONE: 'Local',
         CONF_TIMEOUT: DEFAULT_TIMEOUT,  # 2.5s
+        CONF_RETRY_DELAY: DEFAULT_RETRY_DELAY,  # 120s
         CONF_MAX_CARDS: DEFAULT_MAX_CARDS,  # 10
         CONF_PREFERRED_CARDS: DEFAULT_PREFERRED_CARDS,
         CONF_PIN_ENABLED: False,
@@ -121,6 +124,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
             CONF_DEBUG,
             CONF_TIMEZONE,
             CONF_TIMEOUT,
+            CONF_RETRY_DELAY,
             CONF_MAX_CARDS,
             CONF_PREFERRED_CARDS,
             CONF_PIN_ENABLED,
@@ -162,6 +166,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     _LOGGER.info(f'default debug:               {defaults[CONF_DEBUG]}')
     _LOGGER.info(f'default timezone:            {defaults[CONF_TIMEZONE]}')
     _LOGGER.info(f'default timeout:             {defaults[CONF_TIMEOUT]}s')
+    _LOGGER.info(f'default retry delay:         {defaults[CONF_RETRY_DELAY]}s')
     _LOGGER.info(f'max. cards:                  {defaults[CONF_MAX_CARDS]}')
     _LOGGER.info(f'preferred cards:             {defaults[CONF_PREFERRED_CARDS]}')
     _LOGGER.info(f'PIN enabled:                 {defaults[CONF_PIN_ENABLED]}')

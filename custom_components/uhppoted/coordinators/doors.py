@@ -10,12 +10,15 @@ import async_timeout
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import UpdateFailed
+from homeassistant.const import __version__ as HAVERSION
 
 from uhppoted import uhppote
 
 _LOGGER = logging.getLogger(__name__)
 _INTERVAL = datetime.timedelta(seconds=30)
 
+from ..const import DOMAIN
+from ..const import CONF_RETRY_DELAY
 from ..const import CONF_DOOR_ID
 from ..const import CONF_CONTROLLER_SERIAL_NUMBER
 from ..const import CONF_DOOR_NUMBER
@@ -46,6 +49,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         self._options = options
         self._controllers = get_configured_controllers_ext(options)
         self._uhppote = driver
+        self._retry_delay = hass.data[DOMAIN].get(CONF_RETRY_DELAY, 300)
         self._db = db
         self._state = {}
         self._initialised = False
@@ -117,14 +121,17 @@ class DoorsCoordinator(DataUpdateCoordinator):
                 contexts.update(doors)
                 self._initialised = True
 
-            async with async_timeout.timeout(2.5):
-                return await self._get_doors(contexts)
-        except Exception as err:
-            raise UpdateFailed(f"uhppoted API error {err}")
+            return await self._get_doors(contexts)
+        except Exception as exc:
+            try:
+                raise UpdateFailed(retry_after=self._retry_delay) from exc  # HA 2025.12+
+            except TypeError:
+                raise UpdateFailed() from exc
 
     async def _get_doors(self, contexts):
         lock = threading.Lock()
         tasks = []
+        gathered = []
 
         try:
             for idx in contexts:
@@ -151,11 +158,14 @@ class DoorsCoordinator(DataUpdateCoordinator):
                 if door := doors.get(idx):
                     tasks.append(self._get_door(lock, idx, door))
 
-            await asyncio.gather(*tasks, return_exceptions=True)
+            gathered = await asyncio.gather(*tasks, return_exceptions=True)
         except Exception as err:
             _LOGGER.error(f'error retrieving controller door information ({err})')
             for task in tasks:
                 task.close()
+
+        if all(r is not None for r in gathered):
+            raise UpdateFailed(f"general failure retrieving doors")
 
         self._db.doors = self._state
 
