@@ -190,8 +190,7 @@ class EventsCoordinator(DataUpdateCoordinator):
                 contexts.update(controllers)
                 self._initialised = True
 
-            async with async_timeout.timeout(2.5):
-                return await self._get_events(contexts)
+            return await self._get_events(contexts)
         except Exception as err:
             raise UpdateFailed(f'uhppoted API error {err}') from err
 

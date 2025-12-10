@@ -7,7 +7,9 @@
 - [x] add controller serial number to _info_ entity
 - [x] option-flow: <none> event listener options
 - [ ] centralise logging
-- [ ] reporting _uhppoted API_ error instead of _timeout_
+- [x] reporting _uhppoted API_ error instead of _timeout_
+- [ ] forward lower exceptions to UpdateError (a lá events)
+
 - [ ] fix - error after reconfiguring
 ```
 2025-11-05 19:48:04.705 ERROR (MainThread) [homeassistant.config_entries] Error unloading entry uhppoted for uhppoted
