@@ -100,6 +100,7 @@ class uhppoted:
         self._cache_enabled = True
         self._cache_expiry = {}
         self._debug = debug
+        self._warnings = set()
 
     @property
     def api(self):
@@ -171,8 +172,15 @@ class uhppoted:
                         _LOGGER.error(f'skipping non-async callback: {callback.__name__}')
 
                 self._infof(f"{message} ok")
+                self._warnings.discard(key)
+
+        except TimeoutError as exc:
+            if key not in self._warnings:
+                self._warnf(f'{message} ({exc})')
+                self._warnings.add(key)
+
         except Exception as exc:
-            self._warnf(f"{message} ({exc})")
+            self._warnf(f'{message} ({exc})')
 
     async def _flush(self):
         now = datetime.now()

@@ -4,7 +4,9 @@
 
 ### Updated
 1. Reworked to use async lib.
-2. Reworked to use HA data when settig card start/end date, PIN or permissions.
+2. Reworked to use HA data when setting card start/end date, PIN or permissions.
+3. Added 'log once (per key)' for UDP/TCP driver timeout errors.
+4. Added '<none>' to _option-flow_ event listener address list.
 
 
 ## [0.8.11](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.11) - 2025-07-01
