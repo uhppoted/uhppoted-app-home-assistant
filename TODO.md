@@ -10,29 +10,13 @@
 - [x] convert from threading.lock to asyncio.lock
 - [x] forward lower exceptions to UpdateError (a lá events)
 - [x] fix - error after reconfiguring
-```
-2025-11-05 19:48:04.705 ERROR (MainThread) [homeassistant.config_entries] Error unloading entry uhppoted for uhppoted
-home-assistant-stable  | Traceback (most recent call last):
-home-assistant-stable  |   File "/usr/src/homeassistant/homeassistant/config_entries.py", line 967, in async_unload
-home-assistant-stable  |     result = await component.async_unload_entry(hass, self)
-home-assistant-stable  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-home-assistant-stable  |   File "/config/custom_components/uhppoted/__init__.py", line 214, in async_unload_entry
-home-assistant-stable  |     Coordinators.unload(entry.entry_id)
-home-assistant-stable  |     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
-home-assistant-stable  |   File "/config/custom_components/uhppoted/coordinators/coordinators.py", line 33, in unload
-home-assistant-stable  |     coordinators._unload()
-home-assistant-stable  |     ~~~~~~~~~~~~~~~~~~~~^^
-home-assistant-stable  |   File "/config/custom_components/uhppoted/coordinators/coordinators.py", line 136, in _unload
-home-assistant-stable  |     self._driver.stop(hass)
-home-assistant-stable  |                       ^^^^
-home-assistant-stable  | NameError: name 'hass' is not defined. Did you mean: 'hash'?
-```
+- [x] door-open: fix/remove debugging
+      - [x] if-changed
 
-- [ ] door-open: fix/remove debugging ('>>>>>')
-- [ ] centralise logging
 - [ ] check set-interlock on startup
     - (?) retry set-interlock if not available/not correct
 
+- [ ] centralise logging
 
 - [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
    - [x] event-listener
@@ -72,11 +56,6 @@ home-assistant-stable  | NameError: name 'hass' is not defined. Did you mean: 'h
     - [x] ignore set-listener if event listener disabled
     - [x] weird thing with multiple setups after a reconfigure
 
-    - [ ] Initial setup error:
-          ```
-          Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get'
-          ```
-
 
 - [ ] Improve event handling (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/14)
        - [ ] opt-in/out in configuration.yaml/config-flow
@@ -86,10 +65,10 @@ home-assistant-stable  | NameError: name 'hass' is not defined. Did you mean: 'h
        - [ ] Lovelace card to display events
        - [ ] add Lovelace card to config-flow
 
-- [ ] get-events
-```
-    home-assistant-stable  | 2025-11-05 19:57:43.399 ERROR (MainThread) [custom_components.uhppoted.coordinators.events] Error fetching events data: uhppoted API error 
-```
+- [ ] _handle_coordinator_update_ deluge
+      - **any** update to the door state triggers a call to _handle_coordinator_update_ for every single door entity
+      - (?) separate state per entity/door
+      - (?) coalesce/throttle updates in the controller
 
 - (?) store controller + card in coordinator and collate presented state from that
     - https://developers.home-assistant.io/docs/core/entity/#excluding-state-attributes-from-recorder-history
@@ -102,6 +81,9 @@ home-assistant-stable  | NameError: name 'hass' is not defined. Did you mean: 'h
 
 
 ## TODO
+
+- [ ] (maybe) use HA retry on timeout
+   - https://deepwiki.com/home-assistant/developers.home-assistant/3.3-data-update-coordinator
 
 - [ ] https://www.hacs.xyz/docs/publish/action/
 - [ ] (eventually) remove `controllers` from driver

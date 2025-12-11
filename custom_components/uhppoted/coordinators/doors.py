@@ -239,14 +239,27 @@ class DoorsCoordinator(DataUpdateCoordinator):
             try:
                 _LOGGER.debug(f'get-door::callback {door} {response}')
                 if response and response.controller == controller_id and response.door == door_id:
+                    changed = False
                     async with lock:
-                        self._state[idx].update({
+                        old = {
+                            ATTR_DOOR_MODE: self._state[idx][ATTR_DOOR_MODE],
+                            ATTR_DOOR_DELAY: self._state[idx][ATTR_DOOR_DELAY],
+                            ATTR_AVAILABLE: self._state[idx][ATTR_AVAILABLE],
+                        }
+
+                        updated = {
                             ATTR_DOOR_MODE: response.mode,
                             ATTR_DOOR_DELAY: response.delay,
                             ATTR_AVAILABLE: True,
-                        })
+                        }
 
-                    self.async_set_updated_data(self._state)
+                        if any(old.get(k) != v for k, v in updated.items()):
+                            changed = True
+
+                        self._state[idx].update(updated)
+
+                    if changed:
+                        self.async_set_updated_data(self._state)
 
             except Exception as err:
                 _LOGGER.error(f'error updating internal controller {controller.id} information ({err})')
