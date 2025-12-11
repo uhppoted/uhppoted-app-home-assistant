@@ -9,16 +9,7 @@
 - [x] reporting _uhppoted API_ error instead of _timeout_
 - [x] convert from threading.lock to asyncio.lock
 - [x] forward lower exceptions to UpdateError (a lá events)
-   - [x] retry after 60s
-   - [x] don't log every single _UDP request timeout_
-   
-
-- [ ] door-open: fix/remove debugging ('>>>>>')
-- [ ] centralise logging
-- [ ] check set-interlock on startup
-    - (?) retry set-interlock if not available/not correct
-
-- [ ] fix - error after reconfiguring
+- [x] fix - error after reconfiguring
 ```
 2025-11-05 19:48:04.705 ERROR (MainThread) [homeassistant.config_entries] Error unloading entry uhppoted for uhppoted
 home-assistant-stable  | Traceback (most recent call last):
@@ -36,6 +27,12 @@ home-assistant-stable  |     self._driver.stop(hass)
 home-assistant-stable  |                       ^^^^
 home-assistant-stable  | NameError: name 'hass' is not defined. Did you mean: 'hash'?
 ```
+
+- [ ] door-open: fix/remove debugging ('>>>>>')
+- [ ] centralise logging
+- [ ] check set-interlock on startup
+    - (?) retry set-interlock if not available/not correct
+
 
 - [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
    - [x] event-listener

@@ -117,6 +117,7 @@ class Coordinators():
         if CONF_POLL_EVENTS in defaults:
             poll_events = datetime.timedelta(seconds=defaults[CONF_POLL_EVENTS])
 
+        self._hass = hass
         self._db = DB()
         self._driver = configure_driver(options, defaults)
         self._controllers = ControllersCoordinator(hass, options, poll_controllers, self._driver, self._db)
@@ -128,11 +129,7 @@ class Coordinators():
         self._driver.start(hass)
 
     def __del__(self):
-        # FIXME self._unload()
-        self._controllers.unload()
-        self._doors.unload()
-        self._cards.unload()
-        self._events.unload()
+        self._unload(self._hass)
 
     def _unload(self, hass):
         self._driver.stop(hass)
