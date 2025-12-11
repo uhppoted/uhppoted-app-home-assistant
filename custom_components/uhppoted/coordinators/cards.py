@@ -2,7 +2,6 @@ from __future__ import annotations
 from collections import namedtuple
 
 import concurrent.futures
-import threading
 import asyncio
 import datetime
 import logging
@@ -275,7 +274,7 @@ class CardsCoordinator(DataUpdateCoordinator):
 
     async def _get_cards(self, contexts):
         controllers = self._controllers
-        lock = threading.Lock()
+        lock = asyncio.Lock()
         tasks = []
         gathered = []
 
@@ -297,10 +296,10 @@ class CardsCoordinator(DataUpdateCoordinator):
     async def _get_card(self, controllers, lock, card):
         _LOGGER.debug(f'fetch card {card} information')
 
-        def callback(response):
+        async def callback(response):
             try:
                 if response and response.card_number == card:
-                    with lock:
+                    async with lock:
                         record = self._state.setdefault(
                             card, {
                                 ATTR_AVAILABLE: False,
@@ -384,7 +383,7 @@ class CardsCoordinator(DataUpdateCoordinator):
         except Exception as exc:
             _LOGGER.error(f'error retrieving card {card} information ({exc})')
 
-        with lock:
+        async with lock:
             self._state[card].update(info)
 
     def _resolve(self, controller_id):

@@ -6,12 +6,17 @@
 - [x] reduce logging: make uhppoted 'ok' logging opt-in in configuration.yamls
 - [x] add controller serial number to _info_ entity
 - [x] option-flow: <none> event listener options
-- [ ] centralise logging
 - [x] reporting _uhppoted API_ error instead of _timeout_
+- [x] convert from threading.lock to asyncio.lock
+
 - [ ] forward lower exceptions to UpdateError (a lá events)
    - [x] retry after 60s
    - [ ] don't log every single _UDP request timeout_
+   
 
+- [ ] door-open: fix/remove debugging ('>>>>>')
+- [ ] centralise logging
+- [ ] check/remove set-interlock on startup
 - [ ] fix - error after reconfiguring
 ```
 2025-11-05 19:48:04.705 ERROR (MainThread) [homeassistant.config_entries] Error unloading entry uhppoted for uhppoted
@@ -33,17 +38,8 @@ home-assistant-stable  | NameError: name 'hass' is not defined. Did you mean: 'h
 
 - [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
    - [x] event-listener
-      - [x] fix backoff wait for stop.isset
-      - [x] use async listener
-      - [x] put max-backoff in configuration.yaml
-      - [x] expected 'address in use' error
-      - [x] check what happens on unload
-      - [x] event listener loop doesn't exit on reload
-
    - [ ] get-event
       - [ ] FIXME return cached event if it exists
-
-   - [ ] door-open: fix/remove debugging ('>>>>>')
 
    - [ ] restructure _get_xxx_ to avoid duplicate calls
       - [x] get_controller
@@ -81,8 +77,8 @@ home-assistant-stable  | NameError: name 'hass' is not defined. Did you mean: 'h
           ```
           Failed setup, will retry: uhppoted API error 'list' object has no attribute 'get'
           ```
-    - [ ] weird thing with multiple setups after a reconfigure
-       - set-interlock on startup takes forever
+    - [x] weird thing with multiple setups after a reconfigure
+
 
 - [ ] Improve event handling (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/14)
        - [ ] opt-in/out in configuration.yaml/config-flow

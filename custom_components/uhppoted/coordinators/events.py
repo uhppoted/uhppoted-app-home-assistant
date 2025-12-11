@@ -2,7 +2,6 @@ from __future__ import annotations
 from collections import namedtuple
 
 import concurrent.futures
-import threading
 
 from ipaddress import IPv4Address
 from dataclasses import dataclass
@@ -202,7 +201,7 @@ class EventsCoordinator(DataUpdateCoordinator):
 
     async def _get_events(self, contexts):
         controllers = [c for c in self._controllers if c.id in contexts]
-        lock = threading.Lock()
+        lock = asyncio.Lock()
         tasks = []
         gathered = []
 
@@ -344,7 +343,7 @@ class EventsCoordinator(DataUpdateCoordinator):
             _LOGGER.error(f'error retrieving controller {controller.id} events ({exc})')
             err = exc
 
-        with lock:
+        async with lock:
             self._state['events'][controller.id] = info
 
         if err is not None:

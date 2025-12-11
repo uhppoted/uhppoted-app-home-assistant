@@ -2,7 +2,6 @@ from __future__ import annotations
 from collections import namedtuple
 
 import concurrent.futures
-import threading
 import asyncio
 import datetime
 import logging
@@ -129,7 +128,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
                 raise UpdateFailed() from exc
 
     async def _get_doors(self, contexts):
-        lock = threading.Lock()
+        lock = asyncio.Lock()
         tasks = []
         gathered = []
 
@@ -197,7 +196,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
             elif door == 4:
                 g(idx, response.door_4_open, response.door_4_button, response.relays & 0x08)
 
-        def callback(response):
+        async def callback(response):
             try:
                 _LOGGER.debug(f'get-controller {controller.id} {response}')
                 if response and response.controller == controller.id:
@@ -205,7 +204,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
                         if door_number := door.get('door_number'):
                             h(idx, door_number, response)
 
-                    with lock:
+                    async with lock:
                         for (idx, door) in doors:
                             self._state[idx].update(state.get(idx, {}))
 
@@ -221,7 +220,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} door state ({err})')
 
-        with lock:
+        async with lock:
             for (idx, door) in doors:
                 self._state[idx].update(state.get(idx, {}))
 
@@ -236,11 +235,11 @@ class DoorsCoordinator(DataUpdateCoordinator):
         mode = None
         delay = None
 
-        def callback(response):
+        async def callback(response):
             try:
                 _LOGGER.debug(f'get-door::callback {door} {response}')
                 if response and response.controller == controller_id and response.door == door_id:
-                    with lock:
+                    async with lock:
                         self._state[idx].update({
                             ATTR_DOOR_MODE: response.mode,
                             ATTR_DOOR_DELAY: response.delay,
@@ -269,7 +268,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.error(f'error retrieving door {door["door_id"]} information ({err})')
 
-        with lock:
+        async with lock:
             self._state[idx].update({
                 ATTR_DOOR_MODE: mode,
                 ATTR_DOOR_DELAY: delay,

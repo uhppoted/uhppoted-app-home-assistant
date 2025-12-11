@@ -165,7 +165,10 @@ class uhppoted:
             if response := await g():
                 self._put(response, key, expiry)
                 if callback:
-                    callback(response)
+                    if asyncio.iscoroutinefunction(callback):
+                        await callback(response)
+                    else:
+                        _LOGGER.error(f'skipping non-async callback: {callback.__name__}')
 
                 self._infof(f"{message} ok")
         except Exception as exc:

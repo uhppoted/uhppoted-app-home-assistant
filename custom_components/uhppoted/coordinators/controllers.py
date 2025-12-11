@@ -3,7 +3,6 @@ from collections import namedtuple
 
 import concurrent.futures
 import asyncio
-import threading
 import datetime
 import logging
 import async_timeout
@@ -57,7 +56,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         self._uhppote = driver
         self._retry_delay = hass.data[DOMAIN].get(CONF_RETRY_DELAY, 300)
         self._db = db
-        self._lock = threading.Lock()
+        self._lock = asyncio.Lock()
         self._state = {}
         self._initialised = False
 
@@ -114,7 +113,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
     async def _get_controllers(self, contexts):
         controllers = []
-        lock = self._lock  # threading.Lock()
+        lock = self._lock
         tasks = []
         gathered = []
 
@@ -158,11 +157,11 @@ class ControllersCoordinator(DataUpdateCoordinator):
         firmware = None
         available = False
 
-        def callback(response):
+        async def callback(response):
             try:
                 _LOGGER.debug(f'get-controller::callback {controller.id} {response}')
                 if response and response.controller == controller.id:
-                    with lock:
+                    async with lock:
                         self._state[controller.id].update({
                             ATTR_CONTROLLER_ADDRESS: f'{response.ip_address}',
                             ATTR_NETMASK: f'{response.subnet_mask}',
@@ -187,7 +186,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} information ({err})')
 
-        with lock:
+        async with lock:
             self._state[controller.id].update({
                 ATTR_CONTROLLER_ADDRESS: address,
                 ATTR_NETMASK: netmask,
@@ -202,11 +201,11 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
         listener = None
 
-        def callback(response):
+        async def callback(response):
             try:
                 _LOGGER.debug(f'get-listener::callback {controller.id} {response}')
                 if response and response.controller == controller.id:
-                    with lock:
+                    async with lock:
                         self._state[controller.id].update({
                             ATTR_CONTROLLER_LISTENER:
                             f'{response.address}:{response.port}',
@@ -225,7 +224,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} event listener ({err})')
 
-        with lock:
+        async with lock:
             self._state[controller.id].update({
                 ATTR_CONTROLLER_LISTENER: listener,
             })
@@ -233,7 +232,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
     async def _get_datetime(self, lock, controller):
         _LOGGER.debug(f'fetch controller datetime {controller.id}')
 
-        def callback(response):
+        async def callback(response):
             try:
                 _LOGGER.debug(f'get-listener::callback {controller.id} {response}')
                 if response and response.controller == controller.id:
@@ -242,7 +241,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
                                            0,
                                            datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo)
 
-                    with lock:
+                    async with lock:
                         self._state[controller.id].update({
                             ATTR_CONTROLLER_DATETIME: dt,
                         })
@@ -265,7 +264,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} date/time ({err})')
 
-        with lock:
+        async with lock:
             self._state[controller.id].update({
                 ATTR_CONTROLLER_DATETIME: sysdatetime,
             })
@@ -273,11 +272,11 @@ class ControllersCoordinator(DataUpdateCoordinator):
     async def _get_interlock(self, lock, controller):
         _LOGGER.debug(f'fetch controller door interlock mode {controller.id}')
 
-        def callback(response):
+        async def callback(response):
             try:
                 _LOGGER.debug(f'get-interlock::callback {controller} {response}')
                 if response and response.controller == controller.id:
-                    with lock:
+                    async with lock:
                         self._state[controller.id].update({
                             ATTR_CONTROLLER_INTERLOCK: response.interlock,
                         })
@@ -297,7 +296,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller.id} door interlock mode ({err})')
 
-        with lock:
+        async with lock:
             self._state[controller.id].update({
                 ATTR_CONTROLLER_INTERLOCK: interlock,
             })
@@ -305,11 +304,11 @@ class ControllersCoordinator(DataUpdateCoordinator):
     async def _get_antipassback(self, lock, controller):
         _LOGGER.debug(f'fetch controller anti-passback {controller.id}')
 
-        def callback(response):
+        async def callback(response):
             try:
                 _LOGGER.debug(f'get-antipassback {controller} {response}')
                 if response and response.controller == controller.id:
-                    with lock:
+                    async with lock:
                         self._state[controller.id].update({
                             ATTR_CONTROLLER_ANTIPASSBACK: response.antipassback,
                         })
@@ -329,7 +328,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.error(f'error retrieving controller {controller} anti-passback ({err})')
 
-        with lock:
+        async with lock:
             self._state[controller.id].update({
                 ATTR_CONTROLLER_ANTIPASSBACK: antipassback,
             })
