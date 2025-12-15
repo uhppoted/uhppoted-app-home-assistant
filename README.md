@@ -50,6 +50,17 @@ doors and maybe a ten or so access cards - so, not e.g. a large mansion, minor p
 
 ### Current Release
 
+## [0.9.0](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.9.0) - 2025-12-16
+
+1. Reworked to use _uhppoted-lib-python_ _async_ implementation.
+2. Fixed incorrect handling of _address in use_ errors for event listener.
+3. Bumped `uhppoted` lib dependency to v0.8.11.2.
+4. Added _event listener_ disable option to _configuration.yaml_.
+5. Reworked to use HA data when setting card start/end date, PIN or permissions.
+6. Reduced the amount of _uhppoted_ driver logging.
+7. Added '<none>' to _option-flow_ event listener address list.
+8. Optimised door entity updates.
+
 **[v0.8.10](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.10) - 2025-01-30**
 
 1. Fixed deprecation warnings in _Home Assistant_ 2024.11.3.

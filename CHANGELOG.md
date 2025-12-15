@@ -1,14 +1,16 @@
 # CHANGELOG
 
-## Unreleased
+## [0.9.0](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.9.0) - 2025-12-16
 
 ### Updated
-1. Reworked to use async lib.
-2. Reworked to use HA data when setting card start/end date, PIN or permissions.
-3. Added 'log once (per key)' for UDP/TCP driver timeout errors.
-4. Added '<none>' to _option-flow_ event listener address list.
-5. Optimised door entity updates.
-6. Added _event listener_ disable option to _configuration.yaml_.
+1. Reworked to use _uhppoted-lib-python_ _async_ implementation.
+2. Fixed incorrect handling of _address in use_ errors for event listener.
+3. Bumped `uhppoted` lib dependency to v0.8.11.2.
+4. Added _event listener_ disable option to _configuration.yaml_.
+5. Reworked to use HA data when setting card start/end date, PIN or permissions.
+6. Added 'log once (per key)' for UDP/TCP driver timeout errors.
+7. Added '<none>' to _option-flow_ event listener address list.
+8. Optimised door entity updates.
 
 
 ## [0.8.11](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.11) - 2025-07-01

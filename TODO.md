@@ -12,18 +12,18 @@
 - [x] fix - error after reconfiguring
 - [x] door-open: fix/remove debugging
 - [x] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
-   - [x] event-listener
-   - [x] get-event
-      - [x] return cached event
-
 - [x] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
-    - see https://developers.home-assistant.io/blog/2025/11/17/retry-after-update-failed/
-    - [x] backoff on retry if _address in use_
-    - [x] ignore set-listener if event listener disabled
-    - [x] weird thing with multiple setups after a reconfigure
 
 - [ ] set-interlock on startup (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/23)
     - (?) retry set-interlock if not available/not correct
+
+- [ ] Improve event handling (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/14)
+       - [ ] opt-in/out in configuration.yaml/config-flow
+       - (?) per-card swipe events
+       - [ ] automation to handle card.swipe.decorated event
+       - [ ] add automation to config-flow
+       - [ ] Lovelace card to display events
+       - [ ] add Lovelace card to config-flow
 
 - [ ] restructure _get_xxx_ to avoid duplicate calls
    - [x] get_controller
@@ -50,14 +50,6 @@
 - [ ] Throttle requests
    — 50–100 ms between sends helps keep NAT tables sane (apparently)
    - add to configuration.yaml
-
-- [ ] Improve event handling (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/14)
-       - [ ] opt-in/out in configuration.yaml/config-flow
-       - (?) per-card swipe events
-       - [ ] automation to handle card.swipe.decorated event
-       - [ ] add automation to config-flow
-       - [ ] Lovelace card to display events
-       - [ ] add Lovelace card to config-flow
 
 - [ ] _handle_coordinator_update_ deluge
       - **any** update to the door state triggers a call to _handle_coordinator_update_ for every single door entity
