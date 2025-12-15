@@ -11,51 +11,45 @@
 - [x] forward lower exceptions to UpdateError (a lá events)
 - [x] fix - error after reconfiguring
 - [x] door-open: fix/remove debugging
-      - [x] if-changed
-
-- [ ] check set-interlock on startup
-    - (?) retry set-interlock if not available/not correct
-
-- [ ] centralise logging
-
-- [ ] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
+- [x] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
    - [x] event-listener
-   - [ ] get-event
-      - [ ] FIXME return cached event if it exists
+   - [x] get-event
+      - [x] return cached event
 
-   - [ ] restructure _get_xxx_ to avoid duplicate calls
-      - [x] get_controller
-      - [x] get_listener
-      - [ ] set_listener
-      - [x] get_time
-      - [ ] set_time
-      - [x] get_door
-      - [ ] set_door
-      - [ ] open_door
-      - [x] get_status
-      - [ ] get_cards
-      - [ ] get_card
-      - [ ] get_card_by_index
-      - [ ] put_card
-      - [ ] delete_card
-      - [ ] record_special_events
-      - [ ] get_event
-      - [ ] get_interlock
-      - [ ] set_interlock
-      - [x] get_antipassback
-      - [ ] set_antipassback
-
-   - [ ] Throttle requests
-      — 50–100 ms between sends helps keep NAT tables sane (apparently)
-      - add to configuration.yaml
-
-
-- [ ] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
+- [x] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
     - see https://developers.home-assistant.io/blog/2025/11/17/retry-after-update-failed/
     - [x] backoff on retry if _address in use_
     - [x] ignore set-listener if event listener disabled
     - [x] weird thing with multiple setups after a reconfigure
 
+- [ ] set-interlock on startup (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/23)
+    - (?) retry set-interlock if not available/not correct
+
+- [ ] restructure _get_xxx_ to avoid duplicate calls
+   - [x] get_controller
+   - [x] get_listener
+   - [ ] set_listener
+   - [x] get_time
+   - [ ] set_time
+   - [x] get_door
+   - [ ] set_door
+   - [ ] open_door
+   - [x] get_status
+   - [ ] get_cards
+   - [ ] get_card
+   - [ ] get_card_by_index
+   - [ ] put_card
+   - [ ] delete_card
+   - [ ] record_special_events
+   - [x] get_event
+   - [ ] get_interlock
+   - [ ] set_interlock
+   - [x] get_antipassback
+   - [ ] set_antipassback
+
+- [ ] Throttle requests
+   — 50–100 ms between sends helps keep NAT tables sane (apparently)
+   - add to configuration.yaml
 
 - [ ] Improve event handling (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/14)
        - [ ] opt-in/out in configuration.yaml/config-flow

@@ -221,7 +221,6 @@ class uhppoted:
             response = await self._asio.get_controller(c, timeout=timeout)
             if response is not None:
                 self._put(response, key, CONF_CACHE_EXPIRY_CONTROLLER)
-
             return response
 
         self.queue.put_nowait(
@@ -246,7 +245,6 @@ class uhppoted:
             response = await self._asio.get_listener(c, timeout=timeout)
             if response is not None:
                 self._put(response, key, CONF_CACHE_EXPIRY_LISTENER)
-
             return response
 
         self.queue.put_nowait(
@@ -284,7 +282,6 @@ class uhppoted:
             response = await self._asio.get_time(c, timeout=timeout)
             if response is not None:
                 self._put(response, key, CONF_CACHE_EXPIRY_DATETIME)
-
             return response
 
         self.queue.put_nowait(
@@ -322,7 +319,6 @@ class uhppoted:
             response = await self._asio.get_door_control(c, door, timeout=timeout)
             if response is not None:
                 self._put(response, key, CONF_CACHE_EXPIRY_DOOR)
-
             return response
 
         self.queue.put_nowait(
@@ -367,6 +363,7 @@ class uhppoted:
             response = await self._asio.get_status(c, timeout=timeout)
             if response is not None:
                 self._put(response, key, CONF_CACHE_EXPIRY_STATUS)
+            return response
 
         self.queue.put_nowait(
             lambda: self.ye_async_taskke(
@@ -440,17 +437,30 @@ class uhppoted:
         (c, timeout) = self._lookup(controller)
         return await self._asio.record_special_events(c, enable, timeout=timeout)
 
-    # FIXME return cached event if it exists
-    async def get_event(self, controller, index):
+    # NTS: events are never deleted
+    async def get_event(self, controller, index, callback=None):
         key = f'controller.{controller}.event.{index}'
         (c, timeout) = self._lookup(controller)
-        response = await self._asio.get_event(c, index, timeout=timeout)
 
-        # events are never deleted
-        if self.cache_enabled and response is not None:
-            self._put(response, key, CONF_CACHE_EXPIRY_EVENT)
+        if not self.cache_enabled:
+            return await self._asio.get_event(c, index, timeout=timeout)
 
-        return response
+        record = self._get(key)
+        if record is None and callback is None:
+            response = await self._asio.get_event(c, index, timeout=timeout)
+            if response is not None:
+                self._put(response, key, CONF_CACHE_EXPIRY_EVENT)
+            return response
+
+        self.queue.put_nowait(
+            lambda: self.ye_async_taskke(
+                lambda: self._asio.get_event(c, index, timeout=timeout),
+                key,
+                CONF_CACHE_EXPIRY_EVENT,
+                f"{'get_event':<16} {controller}",
+                callback)) # yapf: disable
+
+        return record
 
     async def get_interlock(self, controller, callback=None):
         key = f'controller.{controller}.interlock'
@@ -482,6 +492,7 @@ class uhppoted:
             response = await self._asio.get_antipassback(c, timeout=timeout)
             if response is not None:
                 self._put(response, key, CONF_CACHE_EXPIRY_ANTIPASSBACK)
+            return response
 
         self.queue.put_nowait(
             lambda: self.ye_async_taskke(
