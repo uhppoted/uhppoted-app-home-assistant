@@ -61,14 +61,6 @@ doors and maybe a ten or so access cards - so, not e.g. a large mansion, minor p
 7. Added '<none>' to _option-flow_ event listener address list.
 8. Optimised door entity updates.
 
-**[v0.8.10](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.8.10) - 2025-01-30**
-
-1. Fixed deprecation warnings in _Home Assistant_ 2024.11.3.
-2. Added _hacs.json_ file for HACS v2.0.
-3. Added sample _Docker_ `compose.yml` scripts.
-4. Bumped `uhppoted` lib dependency to v0.8.10 for event _auto-send interval_ support.
-
-
 ## Installation
 
 ### Alpha Release
