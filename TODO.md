@@ -2,18 +2,6 @@
 
 ## In Progress
 
-- [x] Put yapf in _venv_
-- [x] reduce logging: make uhppoted 'ok' logging opt-in in configuration.yamls
-- [x] add controller serial number to _info_ entity
-- [x] option-flow: <none> event listener options
-- [x] reporting _uhppoted API_ error instead of _timeout_
-- [x] convert from threading.lock to asyncio.lock
-- [x] forward lower exceptions to UpdateError (a lá events)
-- [x] fix - error after reconfiguring
-- [x] door-open: fix/remove debugging
-- [x] Use uhppoted-lib-python async implementation (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/20)
-- [x] HA has been getting slower and slower (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/21)
-
 - [ ] set-interlock on startup (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/23)
     - (?) retry set-interlock if not available/not correct
 
