@@ -368,6 +368,49 @@ template:
           access_description: "{{ trigger.event.data.access.description }}"
 ```
 
+### `uhppoted.door.event.decorated`
+Sample event:
+```
+event_type: uhppoted.door.event.decorated
+data:
+  event:
+    index: 82
+    timestamp: "2026-01-06 11:52:55"
+    code: 20
+    description: push button ok
+  controller:
+    id: 405419896
+    name: Alpha
+  door:
+    id: 1
+    name: Gryffindor
+  access:
+    granted: true
+...
+```
+
+Sample template sensor:
+```
+template:
+  - trigger:
+      - platform: event
+        event_type: uhppoted.door.event
+    sensor:
+      - name: "Door Event"
+        unique_id: uhppoted.door.event.decorated
+        state: "{{ trigger.event.data.controller.id }}.{{trigger.event.data.event.index}} {{ trigger.event.data.door.name }}"
+        attributes:
+          timestamp: "{{ trigger.event.data.event.timestamp }}"
+          controller_id: "{{ trigger.event.data.controller.id | string }}"
+          controller_name: "{{ trigger.event.data.controller.name }}"
+          door_id: "{{ trigger.event.data.door.id }}"
+          door_name: "{{ trigger.event.data.door.name }}"
+          event_code: "{{ trigger.event.data.event.code }}"
+          event_description: "{{ trigger.event.data.event.description }}"
+          access_granted: "{{ 'GRANTED' if trigger.event.data.access.granted else 'DENIED' }}"
+
+```
+
 ## Notes
 
 ### Docker

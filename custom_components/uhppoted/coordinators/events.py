@@ -45,7 +45,9 @@ from ..const import ATTR_STATUS
 from ..const import EVENT_REASON_DOOR_LOCKED
 from ..const import EVENT_REASON_DOOR_UNLOCKED
 from ..const import EVENT_REASON_BUTTON_RELEASED
+
 from ..const import CARD_EVENTS
+from ..const import DOOR_EVENTS
 
 from ..config import configure_cards
 from ..config import get_configured_controllers
@@ -179,6 +181,9 @@ class EventsCoordinator(DataUpdateCoordinator):
 
             if event.reason in CARD_EVENTS:
                 self._on_card_swipe(event)
+
+            if event.reason in DOOR_EVENTS:
+                self._on_door_event(event)
 
             if self._notify:
                 self._notify(event)
@@ -331,6 +336,9 @@ class EventsCoordinator(DataUpdateCoordinator):
                             if event.reason in CARD_EVENTS:
                                 self._on_card_swipe(event)
 
+                            if event.reason in DOOR_EVENTS:
+                                self._on_door_event(event)
+
                     self._state['index'][controller.id] = ix
 
                 events.extend(self.doorLocks(controller.id, relays))
@@ -409,9 +417,9 @@ class EventsCoordinator(DataUpdateCoordinator):
         controller = lookup_controller(self._options, event.controller)
         card = lookup_card(self._options, event.card)
         door = lookup_door(self._options, f'{event.controller}.{event.door}')
-        evt = lookup_event(self._options, f'{event.reason}')
+        reason = lookup_event(self._options, f'{event.reason}')
 
-        swipe = {
+        evt = {
             'event': {
                 'index': event.index,
                 'timestamp': event.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
@@ -432,8 +440,36 @@ class EventsCoordinator(DataUpdateCoordinator):
             'access': {
                 'granted': event.access_granted,
                 'code': event.reason,
-                'description': '(unknown)' if evt is None else evt.reason,
+                'description': '(unknown)' if reason is None else reason.reason,
             }
         }
 
-        self.hass.bus.fire('uhppoted.card.swipe.decorated', swipe)
+        self.hass.bus.fire('uhppoted.card.swipe.decorated', evt)
+
+    def _on_door_event(self, event):
+        controller = lookup_controller(self._options, event.controller)
+        card = lookup_card(self._options, event.card)
+        door = lookup_door(self._options, f'{event.controller}.{event.door}')
+        reason = lookup_event(self._options, f'{event.reason}')
+
+        evt = {
+            'event': {
+                'index': event.index,
+                'timestamp': event.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+                'code': event.reason,
+                'description': '(unknown)' if reason is None else reason.reason,
+            },
+            'controller': {
+                'id': event.controller,
+                'name': '(unknown)' if controller is None else controller.name,
+            },
+            'door': {
+                'id': event.door,
+                'name': '(unknown)' if door is None else door.name,
+            },
+            'access': {
+                'granted': event.access_granted,
+            }
+        }
+
+        self.hass.bus.fire('uhppoted.door.event.decorated', evt)

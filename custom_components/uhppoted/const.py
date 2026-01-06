@@ -198,7 +198,7 @@ EVENTS = {
     37: 'Door open too long',
     38: 'Door forced open',
     39: 'Fire',
-    40: 'Dopor forced close',
+    40: 'Door forced close',
     41: 'Tamper alert',
     42: '7x24Hour Zone',
     43: 'Emergency call',
@@ -221,4 +221,22 @@ CARD_EVENTS = {
     13: 'Access Denied (time profile)',
     15: 'Access Denied (invalid timezone)',
     18: 'Access Denied',
+}
+
+DOOR_EVENTS = {
+    20: 'Push Button',
+    23: 'Door open',
+    24: 'Door closed',
+    25: 'Supervisor passcode override',
+    30: 'Push Button: disabled by task',
+    31: 'Push Button: forced lock',
+    32: 'Push Button: offline',
+    33: 'Push Button: interLock',
+    37: 'Door open too long',
+    38: 'Door forced open',
+    40: 'Door forced close',
+    44: 'Remote open door',
+    45: 'Remote open door (USB reader)',
+    EVENT_REASON_DOOR_LOCKED: 'Door locked',  # synthesized event
+    EVENT_REASON_DOOR_UNLOCKED: 'Door unlocked',  # synthesized event
 }

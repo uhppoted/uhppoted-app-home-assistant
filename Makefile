@@ -88,6 +88,9 @@ close:
 button:
 	curl -X POST "http://127.0.0.1:8000/uhppote/simulator/405419896/door/1" -H "accept: application/json" -H "Content-Type: application/json" -d '{"action":"button", "duration":15}'
 
+passcode:
+	curl -X POST "http://127.0.0.1:8000/uhppote/simulator/405419896/code" -H "accept: application/json" -H "Content-Type: application/json" -d '{"door":4,"passcode":7531}'
+
 emulator:
 	cd docker && docker compose up
 

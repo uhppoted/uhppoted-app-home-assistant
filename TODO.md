@@ -6,12 +6,9 @@
     - (?) retry set-interlock if not available/not correct
 
 - [ ] Improve event handling (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/14)
-       - [ ] opt-in/out in configuration.yaml/config-flow
-       - (?) per-card swipe events
-       - [ ] automation to handle card.swipe.decorated event
-       - [ ] add automation to config-flow
-       - [ ] Lovelace card to display events
-       - [ ] add Lovelace card to config-flow
+    - [ ] decorated events for controllers
+    - [x] decorated events for doors
+    - [ ] opt-in/out for card swipe events
 
 - [ ] restructure _get_xxx_ to avoid duplicate calls
    - [x] get_controller

@@ -87,6 +87,23 @@ template:
           access_code: "{{ trigger.event.data.access.code }}"
           access_description: "{{ trigger.event.data.access.description }}"
 
+  - trigger:
+      - platform: event
+        event_type: uhppoted.door.event
+    sensor:
+      - name: "uhppoted.door.event"
+        unique_id: uhppoted_door_event
+        state: "{{ trigger.event.data.controller.id }}.{{trigger.event.data.event.index}} {{ trigger.event.data.door.name }} {{ trigger.event.data.event.description }} "
+        attributes:
+          timestamp: "{{ trigger.event.data.event.timestamp }}"
+          controller_id: "{{ trigger.event.data.controller.id | string }}"
+          controller_name: "{{ trigger.event.data.controller.name }}"
+          door_id: "{{ trigger.event.data.door.id }}"
+          door_name: "{{ trigger.event.data.door.name }}"
+          event_code: "{{ trigger.event.data.event.code }}"
+          event_description: "{{ trigger.event.data.event.description }}"
+          access_granted: "{{ 'GRANTED' if trigger.event.data.access.granted else 'DENIED' }}"
+
 automation:
   - alias: "Log decorated card swipe event"
     description: "Logs a decorated card swipe to the console"
@@ -98,4 +115,16 @@ automation:
         data_template:
           message: >
             Card swipe: {{ trigger.event.data | to_json }}
+          level: info
+
+  - alias: "Log decorated door event"
+    description: "Logs a decorated door event to the console"
+    trigger:
+      platform: event
+      event_type: uhppoted.door.event.decorated
+    action:
+      - service: system_log.write
+        data_template:
+          message: >
+            Door event: {{ trigger.event.data | to_json }}
           level: info
