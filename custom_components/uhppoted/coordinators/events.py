@@ -45,6 +45,7 @@ from ..const import EVENT_REASON_BUTTON_RELEASED
 
 from ..const import CARD_EVENTS
 from ..const import DOOR_EVENTS
+from ..const import CONTROLLER_EVENTS
 
 from ..config import configure_cards
 from ..config import get_configured_controllers
@@ -181,6 +182,9 @@ class EventsCoordinator(DataUpdateCoordinator):
 
             if event.reason in DOOR_EVENTS:
                 self._on_door_event(event)
+
+            if event.reason in CONTROLLER_EVENTS:
+                self._on_controller_event(event)
 
             if self._notify:
                 self._notify(event)
@@ -471,3 +475,22 @@ class EventsCoordinator(DataUpdateCoordinator):
         }
 
         self.hass.bus.fire('uhppoted.door.event.decorated', evt)
+
+    def _on_controller_event(self, event):
+        controller = lookup_controller(self._options, event.controller)
+        reason = lookup_event(self._options, f'{event.reason}')
+
+        evt = {
+            'event': {
+                'index': event.index,
+                'timestamp': event.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+                'code': event.reason,
+                'description': '(unknown)' if reason is None else reason.reason,
+            },
+            'controller': {
+                'id': event.controller,
+                'name': '(unknown)' if controller is None else controller.name,
+            },
+        }
+
+        self.hass.bus.fire('uhppoted.controller.event.decorated', evt)

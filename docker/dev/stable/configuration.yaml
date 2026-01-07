@@ -89,7 +89,7 @@ template:
 
   - trigger:
       - platform: event
-        event_type: uhppoted.door.event
+        event_type: uhppoted.door.event.decorated
     sensor:
       - name: "uhppoted.door.event"
         unique_id: uhppoted_door_event
@@ -100,6 +100,20 @@ template:
           controller_name: "{{ trigger.event.data.controller.name }}"
           door_id: "{{ trigger.event.data.door.id }}"
           door_name: "{{ trigger.event.data.door.name }}"
+          event_code: "{{ trigger.event.data.event.code }}"
+          event_description: "{{ trigger.event.data.event.description }}"
+
+  - trigger:
+      - platform: event
+        event_type: uhppoted.controller.event.decorated
+    sensor:
+      - name: "uhppoted.controller.event"
+        unique_id: uhppoted_controller_event
+        state: "{{ trigger.event.data.controller.id }}.{{trigger.event.data.event.index}} {{ trigger.event.data.event.description }} "
+        attributes:
+          timestamp: "{{ trigger.event.data.event.timestamp }}"
+          controller_id: "{{ trigger.event.data.controller.id | string }}"
+          controller_name: "{{ trigger.event.data.controller.name }}"
           event_code: "{{ trigger.event.data.event.code }}"
           event_description: "{{ trigger.event.data.event.description }}"
 
@@ -126,4 +140,16 @@ automation:
         data_template:
           message: >
             Door event: {{ trigger.event.data | to_json }}
+          level: info
+
+  - alias: "Log decorated controller event"
+    description: "Logs a decorated controller event to the console"
+    trigger:
+      platform: event
+      event_type: uhppoted.controller.event.decorated
+    action:
+      - service: system_log.write
+        data_template:
+          message: >
+            Controller event: {{ trigger.event.data | to_json }}
           level: info

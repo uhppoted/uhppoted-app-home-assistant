@@ -6,9 +6,8 @@
     - (?) retry set-interlock if not available/not correct
 
 - [ ] Improve event handling (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/14)
-    - [ ] decorated events for controllers
+    - [x] decorated events for controllers
     - [x] decorated events for doors
-        - [x] synthesized events too
     - [ ] opt-in/out for card swipe events
 
 - [ ] restructure _get_xxx_ to avoid duplicate calls

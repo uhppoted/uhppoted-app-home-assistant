@@ -4,6 +4,7 @@
 
 ### Added
 1. Added decorated event `uhppoted.door.event.decorated`.
+2. Added decorated event `uhppoted.controller.event.decorated`.
 
 
 ## [0.9.0](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.9.0) - 2025-12-16

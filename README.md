@@ -392,7 +392,7 @@ Sample template sensor:
 template:
   - trigger:
       - platform: event
-        event_type: uhppoted.door.event
+        event_type: uhppoted.door.event.decorated
     sensor:
       - name: "Door Event"
         unique_id: uhppoted.door.event.decorated
@@ -403,6 +403,41 @@ template:
           controller_name: "{{ trigger.event.data.controller.name }}"
           door_id: "{{ trigger.event.data.door.id }}"
           door_name: "{{ trigger.event.data.door.name }}"
+          event_code: "{{ trigger.event.data.event.code }}"
+          event_description: "{{ trigger.event.data.event.description }}"
+
+```
+
+### `uhppoted.controller.event.decorated`
+Sample event:
+```
+event_type: uhppoted.controller.event.decorated
+data:
+  event:
+    index: 74
+    timestamp: "2026-01-06 11:52:55"
+    code: 29
+    description: controller reset
+  controller:
+    id: 405419896
+    name: Alpha
+...
+```
+
+Sample template sensor:
+```
+template:
+  - trigger:
+      - platform: event
+        event_type: uhppoted.controller.event.decorated
+    sensor:
+      - name: "Controller Event"
+        unique_id: uhppoted.controller.event.decorated
+        state: "{{ trigger.event.data.controller.id }}.{{trigger.event.data.event.index}} {{ trigger.event.data.controller.name }}"
+        attributes:
+          timestamp: "{{ trigger.event.data.event.timestamp }}"
+          controller_id: "{{ trigger.event.data.controller.id | string }}"
+          controller_name: "{{ trigger.event.data.controller.name }}"
           event_code: "{{ trigger.event.data.event.code }}"
           event_description: "{{ trigger.event.data.event.description }}"
 
