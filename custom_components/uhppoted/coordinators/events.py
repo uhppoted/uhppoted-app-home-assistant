@@ -29,9 +29,6 @@ from homeassistant.const import EVENT_HOMEASSISTANT_STOP
 from homeassistant.const import __version__ as HAVERSION
 
 from uhppoted import uhppote
-from uhppoted import decode
-from uhppoted.decode import unpack_uint8
-from uhppoted.decode import unpack_bool
 
 from ..const import DOMAIN
 from ..const import CONF_RETRY_DELAY
@@ -384,6 +381,11 @@ class EventsCoordinator(DataUpdateCoordinator):
                         reason = EVENT_REASON_DOOR_UNLOCKED if relays & mask == mask else EVENT_REASON_DOOR_LOCKED
                         events.append(Event(controller_id, -1, None, None, door, None, None, timestamp, reason))
 
+                        self._on_door_event(
+                            namedtuple('event',
+                                       ['controller', 'timestamp', 'index', 'door', 'reason'])(controller_id, timestamp,
+                                                                                               -1, door, reason))
+
             self._state['relays'][controller_id] = relays
 
         return events
@@ -448,7 +450,6 @@ class EventsCoordinator(DataUpdateCoordinator):
 
     def _on_door_event(self, event):
         controller = lookup_controller(self._options, event.controller)
-        card = lookup_card(self._options, event.card)
         door = lookup_door(self._options, f'{event.controller}.{event.door}')
         reason = lookup_event(self._options, f'{event.reason}')
 
@@ -466,9 +467,6 @@ class EventsCoordinator(DataUpdateCoordinator):
             'door': {
                 'id': event.door,
                 'name': '(unknown)' if door is None else door.name,
-            },
-            'access': {
-                'granted': event.access_granted,
             }
         }
 

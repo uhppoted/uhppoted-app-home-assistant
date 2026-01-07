@@ -15,6 +15,10 @@ from .const import CONF_CARDS
 from .const import CONF_CARD_NUMBER
 from .const import CONF_CARD_NAME
 
+from .const import EVENT_REASON_DOOR_LOCKED
+from .const import EVENT_REASON_DOOR_UNLOCKED
+from .const import EVENT_REASON_BUTTON_RELEASED
+
 
 @dataclass
 class Controller:
@@ -73,6 +77,9 @@ _REASONS = {
     '43': 'emergency',
     '44': 'remote open door',
     '45': 'remote open door (USB reader)',
+    f'{EVENT_REASON_DOOR_LOCKED}': 'door locked',
+    f'{EVENT_REASON_DOOR_UNLOCKED}': 'door unlocked',
+    f'{EVENT_REASON_BUTTON_RELEASED}': 'pushbutton released',
 }
 
 _LOGGER = logging.getLogger(__name__)

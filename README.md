@@ -384,8 +384,6 @@ data:
   door:
     id: 1
     name: Gryffindor
-  access:
-    granted: true
 ...
 ```
 
@@ -407,7 +405,6 @@ template:
           door_name: "{{ trigger.event.data.door.name }}"
           event_code: "{{ trigger.event.data.event.code }}"
           event_description: "{{ trigger.event.data.event.description }}"
-          access_granted: "{{ 'GRANTED' if trigger.event.data.access.granted else 'DENIED' }}"
 
 ```
 

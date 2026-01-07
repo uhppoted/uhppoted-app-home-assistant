@@ -206,6 +206,7 @@ EVENTS = {
     45: 'Remote open door (USB reader)',
     EVENT_REASON_DOOR_LOCKED: 'Door locked',  # synthesized event
     EVENT_REASON_DOOR_UNLOCKED: 'Door unlocked',  # synthesized event
+    EVENT_REASON_BUTTON_RELEASED: 'pushbutton released',  # synthesized event
 }
 
 CARD_EVENTS = {
