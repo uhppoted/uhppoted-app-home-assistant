@@ -222,6 +222,11 @@ configurable settings comprises:
 | `cache.expiry.event`          | Cache expiry time for cached event entities (seconds)            | 1800 (30 minutes) |
 | `events.listener.enabled`     | Enables/disables the event listener                              | true              |
 | `events.listener.max_backoff` | Maximum backoff (seconds) when retrying the event listener       | 1800 (30 minutes) |
+|                               |                                                                  |                   |
+| `events.cards.enabled`        | Opt-out for card swiped events                                   | true              |
+| `events.doors.enabled`        | Opt-out for door events                                          | true              |
+| `events.controllers.enabled`  | Opt-out for controller events                                    | true              |
+
 
 e.g.
 ```
@@ -273,6 +278,13 @@ uhppoted:
         listener:
             enabled: true
             max_backoff: 300
+
+        cards:
+            enabled: true
+        doors:
+            enabled: true
+        controllers:
+            enabled: true
 ```
 
 
@@ -319,6 +331,9 @@ data:
 
 Decorated events are custom events intended for use with template sensors and automation and include the additional
 event information associated with each event.
+
+**NOTE: decorated events fire even if the associated events are disabled in the configuration.yaml.**
+
 
 ### `uhppoted.card.swipe.event.decorated`
 Sample event:

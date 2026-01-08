@@ -5,10 +5,10 @@
 - [ ] set-interlock on startup (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/23)
     - (?) retry set-interlock if not available/not correct
 
-- [ ] Improve event handling (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/14)
+- [x] Additional decorated events (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/14)
     - [x] decorated events for controllers
     - [x] decorated events for doors
-    - [ ] opt-in/out for card swipe events
+    - [x] opt-in/out for event entities
 
 - [ ] restructure _get_xxx_ to avoid duplicate calls
    - [x] get_controller

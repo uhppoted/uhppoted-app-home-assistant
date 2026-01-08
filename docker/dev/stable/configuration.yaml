@@ -66,6 +66,12 @@ uhppoted:
         listener:
             enabled: true
             max_backoff: 120
+        cards:
+            enabled: true
+        doors:
+            enabled: true
+        controllers:
+            enabled: true
 
 template:
   - trigger:

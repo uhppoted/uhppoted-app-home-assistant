@@ -36,6 +36,9 @@ from .const import CONF_CACHE_EXPIRY_EVENT
 
 from .const import CONF_EVENTS_LISTENER_ENABLED
 from .const import CONF_EVENTS_LISTENER_MAX_BACKOFF
+from .const import CONF_EVENTS_CARDS_ENABLED
+from .const import CONF_EVENTS_DOORS_ENABLED
+from .const import CONF_EVENTS_CONTROLLERS_ENABLED
 
 from .const import CONF_INTERLOCKS
 from .const import CONF_ANTIPASSBACK
@@ -62,6 +65,9 @@ from .const import DEFAULT_CACHE_EXPIRY_EVENT
 
 from .const import DEFAULT_EVENTS_LISTENER_ENABLED
 from .const import DEFAULT_EVENTS_LISTENER_MAX_BACKOFF
+from .const import DEFAULT_EVENTS_CARDS_ENABLED
+from .const import DEFAULT_EVENTS_DOORS_ENABLED
+from .const import DEFAULT_EVENTS_CONTROLLERS_ENABLED
 
 from .coordinators.coordinators import Coordinators
 from .services.services import Services
@@ -113,6 +119,11 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         # event listener
         CONF_EVENTS_LISTENER_ENABLED: DEFAULT_EVENTS_LISTENER_ENABLED,
         CONF_EVENTS_LISTENER_MAX_BACKOFF: DEFAULT_EVENTS_LISTENER_MAX_BACKOFF,
+
+        # events opt-out
+        CONF_EVENTS_CARDS_ENABLED: DEFAULT_EVENTS_CARDS_ENABLED,
+        CONF_EVENTS_DOORS_ENABLED: DEFAULT_EVENTS_DOORS_ENABLED,
+        CONF_EVENTS_CONTROLLERS_ENABLED: DEFAULT_EVENTS_CONTROLLERS_ENABLED,
     }
 
     if 'uhppoted' in config:
@@ -160,6 +171,16 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
                 defaults[CONF_EVENTS_LISTENER_MAX_BACKOFF] = listener.get('max_backoff',
                                                                           DEFAULT_EVENTS_LISTENER_MAX_BACKOFF)
 
+        # events opt-out
+        if events := c.get('events'):
+            if cards := events.get('cards'):
+                defaults[CONF_EVENTS_CARDS_ENABLED] = cards.get('enabled', DEFAULT_EVENTS_CARDS_ENABLED)
+            if doors := events.get('doors'):
+                defaults[CONF_EVENTS_DOORS_ENABLED] = doors.get('enabled', DEFAULT_EVENTS_DOORS_ENABLED)
+            if controllers := events.get('controllers'):
+                defaults[CONF_EVENTS_CONTROLLERS_ENABLED] = controllers.get('enabled',
+                                                                            DEFAULT_EVENTS_CONTROLLERS_ENABLED)
+
     _LOGGER.info(f'default bind address:        {defaults[CONF_BIND_ADDR]}')
     _LOGGER.info(f'default broadcast address:   {defaults[CONF_BROADCAST_ADDR]}')
     _LOGGER.info(f'default listen address:      {defaults[CONF_LISTEN_ADDR]}')
@@ -177,20 +198,25 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     _LOGGER.info(f'controllers:                 {defaults[CONF_CONTROLLERS]}')
 
     # caching
-    _LOGGER.info(f'cache.enabled: {defaults[CONF_CACHE_ENABLED]}')
-    _LOGGER.info(f'cache.expiry - controller:   {defaults[CONF_CACHE_EXPIRY_CONTROLLER]}')
-    _LOGGER.info(f'cache.expiry - listener:     {defaults[CONF_CACHE_EXPIRY_LISTENER]}')
-    _LOGGER.info(f'cache.expiry - date/time:    {defaults[CONF_CACHE_EXPIRY_DATETIME]}')
-    _LOGGER.info(f'cache.expiry - door:         {defaults[CONF_CACHE_EXPIRY_DOOR]}')
-    _LOGGER.info(f'cache.expiry - card:         {defaults[CONF_CACHE_EXPIRY_CARD]}')
-    _LOGGER.info(f'cache.expiry - status:       {defaults[CONF_CACHE_EXPIRY_STATUS]}')
-    _LOGGER.info(f'cache.expiry - interlock:    {defaults[CONF_CACHE_EXPIRY_INTERLOCK]}')
-    _LOGGER.info(f'cache.expiry - antipassback: {defaults[CONF_CACHE_EXPIRY_ANTIPASSBACK]}')
-    _LOGGER.info(f'cache.expiry - event:        {defaults[CONF_CACHE_EXPIRY_EVENT]}')
+    _LOGGER.info(f'cache.enabled:                {defaults[CONF_CACHE_ENABLED]}')
+    _LOGGER.info(f'cache.expiry - controller:    {defaults[CONF_CACHE_EXPIRY_CONTROLLER]}')
+    _LOGGER.info(f'cache.expiry - listener:      {defaults[CONF_CACHE_EXPIRY_LISTENER]}')
+    _LOGGER.info(f'cache.expiry - date/time:     {defaults[CONF_CACHE_EXPIRY_DATETIME]}')
+    _LOGGER.info(f'cache.expiry - door:          {defaults[CONF_CACHE_EXPIRY_DOOR]}')
+    _LOGGER.info(f'cache.expiry - card:          {defaults[CONF_CACHE_EXPIRY_CARD]}')
+    _LOGGER.info(f'cache.expiry - status:        {defaults[CONF_CACHE_EXPIRY_STATUS]}')
+    _LOGGER.info(f'cache.expiry - interlock:     {defaults[CONF_CACHE_EXPIRY_INTERLOCK]}')
+    _LOGGER.info(f'cache.expiry - antipassback:  {defaults[CONF_CACHE_EXPIRY_ANTIPASSBACK]}')
+    _LOGGER.info(f'cache.expiry - event:         {defaults[CONF_CACHE_EXPIRY_EVENT]}')
 
     # event listener
     _LOGGER.info(f'events.listener.enabled:      {defaults[CONF_EVENTS_LISTENER_ENABLED]}')
     _LOGGER.info(f'events.listener.max-backoff:  {defaults[CONF_EVENTS_LISTENER_MAX_BACKOFF]}')
+
+    # events opt-out
+    _LOGGER.info(f'events.cards.enabled:         {defaults[CONF_EVENTS_CARDS_ENABLED]}')
+    _LOGGER.info(f'events.doors.enabled:         {defaults[CONF_EVENTS_DOORS_ENABLED]}')
+    _LOGGER.info(f'events.controllers.enabled:   {defaults[CONF_EVENTS_CONTROLLERS_ENABLED]}')
 
     hass.data.setdefault(DOMAIN, defaults)
 
