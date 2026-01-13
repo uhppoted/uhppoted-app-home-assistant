@@ -2,13 +2,12 @@
 
 ## In Progress
 
-- [ ] set-interlock on startup (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/23)
-    - (?) retry set-interlock if not available/not correct
-
 - [x] Additional decorated events (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/14)
-    - [x] decorated events for controllers
-    - [x] decorated events for doors
-    - [x] opt-in/out for event entities
+
+- [ ] set-interlock on startup (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/23)
+     - [x] reworked ControllerInterlock for async
+     - [ ] remove InterlockExtraStoredData
+     - [ ] optional JSON serialisation
 
 - [ ] restructure _get_xxx_ to avoid duplicate calls
    - [x] get_controller

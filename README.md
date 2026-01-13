@@ -462,6 +462,8 @@ template:
 
 ### Docker
 
+#### UDP
+
 In bridge neworking mode (used on _MacOS_ and _Windows_) the UDP transport in Docker drops UDP replies at a **significantly**
 higher rate than typically experienced on a LAN/WAN. In _uhppoted-app-home-assistant_ this manifests as entities going 
 intermittently and unecessarily _unavailable_ with a _timeout_ message in the logs. _Host_ mode networking (Linux/RaspberryPi)
@@ -472,3 +474,10 @@ v0.8.11 - the interim workaround is to configure the controllers to use the TCP 
 controllers may not).
 
 Anecdotally, it seems this may also be a problem in _Proxmox_.
+
+#### Shutdown
+
+_HomeAssistant_ needs some time to cleanup and persist the current state - to shutdown cleanly:
+```
+docker stop -t 30 home-assistant
+```
