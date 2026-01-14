@@ -275,25 +275,39 @@ class InterlockExtraStoredData(ExtraStoredData):
 
     @classmethod
     def from_dict(cls, restored: dict[str, Any]) -> "InterlockExtraStoredData":
-        interlock = restored.get("interlock", -1)
-        return cls(interlock)
+        interlock = restored.get('interlock', None)
+        modified = restored.get('modified', None)
 
-    def __init__(self, interlock: int):
-        self._interlock = interlock
+        return cls(interlock, modified)
+
+    def __init__(self, interlock: str = '', modified: str = ''):
+        self._interlock = interlock if interlock else ''
+        self._modified = modified if modified else ''
 
     def as_dict(self) -> dict:
-        return {'interlock': self._interlock}
+        return {
+            'interlock': self._interlock,
+            'modified': self._modified,
+        }
 
     @property
-    def interlock(self) -> int:
+    def interlock(self) -> str:
         return self._interlock
 
     @interlock.setter
-    def interlock(self, interlock: int) -> None:
-        if interlock in list(INTERLOCK.values()):
+    def interlock(self, interlock: str) -> None:
+        if interlock in list(INTERLOCK.keys()):
             self._interlock = interlock
         else:
-            self._interlock = -1
+            self._interlock = ''
+
+    @property
+    def modified(self) -> str:
+        return self._modified
+
+    @modified.setter
+    def modified(self, modified: str) -> None:
+        self._modified = modified if modified else ''
 
 
 class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
@@ -312,7 +326,7 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
 
         self._name = f'uhppoted.controller.{controller}.interlock'.lower()
         self._mode = -1
-        self._extra = InterlockExtraStoredData(-1)
+        self._extra = InterlockExtraStoredData(None, None)
         self._available = False
 
     @property
@@ -348,7 +362,9 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
     # There is no 'get_interlock' controller API so the interlock state is the last 'set interlock'. The interlock
     # state is only restored if:
     #      - the 'last state' has a valid interlock mode
-    #      - the 'last state' matches the 'persisted state' set in async_select_option
+    #      - the 'last state' matches the 'persisted' state set in async_select_option
+    #      - the 'last state' matches the 'extra' state set in async_select_option
+    #      - the 'extra' state matches the 'persisted' state set in async_select_option
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
 
@@ -361,21 +377,24 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
                     persisted['interlock'] = record.get('interlock', None)
                     persisted['modified'] = record.get('modified', None)
 
-        # restore interlock
+        # restore 'extra' data
+        if v := await self.async_get_last_extra_data():
+            self._extra = InterlockExtraStoredData.from_dict(v.as_dict())
+
+        # restore door interlocks
         try:
             if state := await self.async_get_last_state():
                 if mode := INTERLOCK.get(state.state, None):
                     if state.state != persisted.get('interlock', None):
-                        _LOGGER.warning(f"{self._controller}: inconsistent interlock restore state (state:{state.state}, stored:{persisted})") # yapf: disable
+                        _LOGGER.warning(f"{self._controller}: inconsistent interlock 'persisted' state (state:{state.state}, stored:{persisted})") # yapf: disable
+                    elif state.state != self._extra.interlock:
+                        _LOGGER.warning(f"{self._controller}: inconsistent interlock 'extra' state (state:{state.state}, stored:{self._extra.interlock})") # yapf: disable
+                    elif self._extra.modified != persisted.get('modified', None):
+                        _LOGGER.warning(f"{self._controller}: inconsistent interlock 'extra' state (state:{self._extra.modified}, stored:{persisted.get('modified')})") # yapf: disable
                     else:
                         await self._set_interlock(self._serial_no, mode)
                         _LOGGER.info(f'{self._controller}: restored door interlock mode ({state.state})')
 
-            # elif v := await self.async_get_last_extra_data():
-            #     self._extra = InterlockExtraStoredData.from_dict(v.as_dict())
-            #
-            #     if self._extra.interlock in INTERLOCK.values():
-            #         await self._set_interlock(self._serial_no, self._extra.interlock)
         except Exception as err:
             _LOGGER.warning(f'{self._controller}: error initialising door interlock mode ({err})')
 
@@ -387,6 +406,9 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
                 await self._set_interlock(self._serial_no, mode)
 
                 modified = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                self._extra.interlock = option
+                self._extra.modified = modified
 
                 if self._store:
                     if store := self._store.get('store'):
@@ -438,7 +460,6 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
             if response := await self.coordinator.set_interlock(controller, mode):
                 if response.ok == True:
                     self._mode = mode
-                    self._extra.interlock = mode
                     self._available = True
                     self.async_write_ha_state()
 

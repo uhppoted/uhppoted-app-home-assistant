@@ -7,6 +7,9 @@
 2. Added decorated event `uhppoted.controller.event.decorated`.
 3. Added opt-out for card, door and controller event entities to _configuration.yaml_.
 
+### Updated
+1. Reworked door interlocks to use _HomeAssistant_ storage to persist interlock mode.
+
 
 ## [0.9.0](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.9.0) - 2025-12-16
 
