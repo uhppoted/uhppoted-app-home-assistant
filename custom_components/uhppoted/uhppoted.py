@@ -184,7 +184,7 @@ class uhppoted:
 
     async def _flush(self):
         now = datetime.now()
-        expired = [key for key, record in _CACHE.items() if record.expires < now]
+        expired = [key for key, record in _CACHE.items() if record.expires is not None and record.expires < now]
 
         if len(expired) > 0:
             self._infof(f'flushing cache - cached:{len(_CACHE)} expired:{len(expired)}')
@@ -194,14 +194,16 @@ class uhppoted:
     def _put(self, response, key, expiry):
         lifetime = self.cache_expiry.get(expiry, _DEFAULT_CACHE_EXPIRY.get(expiry, 60))
         now = datetime.now()
-        expires = now + timedelta(seconds=lifetime)
+        expires = now + timedelta(seconds=lifetime) if lifetime else None
 
         _CACHE[key] = CacheEntry(response, expires)
 
     def _get(self, key):
         if record := _CACHE.get(key, None):
-            now = datetime.now()
-            if now < record.expires:
+            if record.expires is None:
+                return record.response
+
+            if datetime.now() < record.expires:
                 return record.response
 
         return None

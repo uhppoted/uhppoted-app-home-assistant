@@ -3,6 +3,7 @@ from collections import deque
 
 import datetime
 import logging
+import asyncio
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -370,6 +371,7 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
 
         # restore persisted data
         persisted = {}
+        extra = self._extra
 
         if self._store:
             if interlocks := self._store.get('interlocks'):
@@ -379,7 +381,7 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
 
         # restore 'extra' data
         if v := await self.async_get_last_extra_data():
-            self._extra = InterlockExtraStoredData.from_dict(v.as_dict())
+            extra = InterlockExtraStoredData.from_dict(v.as_dict())
 
         # restore door interlocks
         try:
@@ -387,11 +389,12 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
                 if mode := INTERLOCK.get(state.state, None):
                     if state.state != persisted.get('interlock', None):
                         _LOGGER.warning(f"{self._controller}: inconsistent interlock 'persisted' state (state:{state.state}, stored:{persisted})") # yapf: disable
-                    elif state.state != self._extra.interlock:
-                        _LOGGER.warning(f"{self._controller}: inconsistent interlock 'extra' state (state:{state.state}, stored:{self._extra.interlock})") # yapf: disable
-                    elif self._extra.modified != persisted.get('modified', None):
-                        _LOGGER.warning(f"{self._controller}: inconsistent interlock 'extra' state (state:{self._extra.modified}, stored:{persisted.get('modified')})") # yapf: disable
+                    elif state.state != extra.interlock:
+                        _LOGGER.warning(f"{self._controller}: inconsistent interlock 'extra' state (state:{state.state}, stored:{extra.interlock})") # yapf: disable
+                    elif extra.modified != persisted.get('modified', None):
+                        _LOGGER.warning(f"{self._controller}: inconsistent interlock 'extra' state (state:{extra.modified}, stored:{persisted.get('modified')})") # yapf: disable
                     else:
+                        self._extra = extra
                         await self._set_interlock(self._serial_no, mode)
                         _LOGGER.info(f'{self._controller}: restored door interlock mode ({state.state})')
 
@@ -446,12 +449,14 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
                 self._mode = state[ATTR_CONTROLLER_INTERLOCK]
                 self._available = state[ATTR_AVAILABLE]
 
-                # if self._available and self._mode not in INTERLOCK.values( ) and self._extra.interlock in INTERLOCK.values(): # yapf: disable
-                #     self._set_interlock(self._serial_no, self._extra.interlock)
+                # refresh controller door interlock mode if expired
+                if self._available and self._mode not in INTERLOCK.values() and self._extra.interlock in INTERLOCK.keys(): # yapf: disable
+                    if mode := INTERLOCK.get(self._extra.interlock, None):
+                        self.hass.async_create_task(self._refresh_interlock(self._serial_no, mode))
 
-        except (Exception):
+        except Exception as err:
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self._controller} interlock mode')
+            _LOGGER.exception(f'{self._controller}: error updating controller door interlock mode {err}')
 
     async def _set_interlock(self, controller, mode):
         lookup = {v: k for k, v in INTERLOCK.items()}
@@ -468,6 +473,14 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
         except Exception as err:
             self._available = False
             raise err
+
+    async def _refresh_interlock(self, controller, mode):
+        try:
+            _LOGGER.warning(f'{self._controller}: refreshing expired door interlock mode ({mode}) [{self._mode}]')
+            if self._mode != mode:
+                await self._set_interlock(controller, mode)
+        except Exception as err:
+            _LOGGER.exception(f'{self._controller}: error refreshing expired door interlock mode ({err})')
 
 
 class AntiPassback(CoordinatorEntity, SelectEntity):

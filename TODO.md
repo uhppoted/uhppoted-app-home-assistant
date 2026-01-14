@@ -8,7 +8,8 @@
      - [x] reworked ControllerInterlock for async
      - [x] persist interlock mode using HA _Storage_
      - [x] keep 'modified' in InterlockExtraStoredData
-     - [ ] Fix _update (setting interlocks to _unknown_)
+     - [x] set default expiry to None
+     - [ ] Fix _refresh_interlock_ storm
      - [ ] enable in _configuration.yaml_
      - [ ] README
 
