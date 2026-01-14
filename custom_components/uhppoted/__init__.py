@@ -5,6 +5,7 @@ _LOGGER = logging.getLogger(__name__)
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
+from homeassistant.helpers.storage import Store
 
 from .const import DOMAIN
 from .const import CONF_BIND_ADDR
@@ -68,6 +69,9 @@ from .const import DEFAULT_EVENTS_LISTENER_MAX_BACKOFF
 from .const import DEFAULT_EVENTS_CARDS_ENABLED
 from .const import DEFAULT_EVENTS_DOORS_ENABLED
 from .const import DEFAULT_EVENTS_CONTROLLERS_ENABLED
+
+from .const import STORAGE_VERSION
+from .const import STORAGE_KEY_INTERLOCK
 
 from .coordinators.coordinators import Coordinators
 from .services.services import Services
@@ -225,6 +229,17 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
+
+    # ... initialise storage
+    store = Store(hass, STORAGE_VERSION, STORAGE_KEY_INTERLOCK)
+    interlocks = await store.async_load() or {}
+
+    hass.data[DOMAIN][entry.entry_id] = {
+        "store": {
+            "store": store,
+            "interlocks": interlocks,
+        },
+    }
 
     # ... initialise data coordinators
     Coordinators.initialise(hass, entry.entry_id, entry.options)

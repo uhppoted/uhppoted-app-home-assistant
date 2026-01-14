@@ -6,8 +6,8 @@
 
 - [ ] set-interlock on startup (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/23)
      - [x] reworked ControllerInterlock for async
-     - [ ] remove InterlockExtraStoredData
-     - [ ] optional JSON serialisation
+     - [x] persist interlock mode using HA _Storage_
+     - [ ] keep 'modified' in InterlockExtraStoredData
 
 - [ ] restructure _get_xxx_ to avoid duplicate calls
    - [x] get_controller

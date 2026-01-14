@@ -155,6 +155,11 @@ DEFAULT_EVENTS_CARDS_ENABLED = True
 DEFAULT_EVENTS_DOORS_ENABLED = True
 DEFAULT_EVENTS_CONTROLLERS_ENABLED = True
 
+# storage keys
+STORAGE_VERSION = 1
+STORAGE_KEY_INTERLOCK = "uhppoted.controller.interlock"
+
+# error messages
 ERR_INVALID_CONTROLLER_ID = 'invalid_controller_id'
 ERR_DUPLICATE_CONTROLLER_ID = 'duplicate_controller_id'
 ERR_DUPLICATE_CONTROLLER_IDS = 'duplicate_controller_ids'

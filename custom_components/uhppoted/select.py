@@ -20,12 +20,18 @@ from .door import DoorMode
 from .controller import Interlock
 from .controller import AntiPassback
 
+from .const import DOMAIN
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     options = entry.options
     controllers = Coordinators.controllers(entry.entry_id)
     doors = Coordinators.doors(entry.entry_id)
     entities = []
+    store = None
+
+    if v := hass.data[DOMAIN].get(entry.entry_id):
+        store = v.get('store')
 
     def g(unique_id, controller, serial_no, door, door_no):
         entities.extend([
@@ -34,7 +40,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     def h(unique_id, controller, serial_no):
         entities.extend([
-            Interlock(controllers, unique_id, controller, serial_no),
+            Interlock(controllers, unique_id, controller, serial_no, store),
         ])
 
     def i(unique_id, controller, serial_no):

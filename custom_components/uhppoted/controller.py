@@ -30,6 +30,9 @@ from .const import ATTR_CONTROLLER_ANTIPASSBACK
 from .const import ATTR_EVENTS
 from .const import EVENTS
 
+from .const import STORAGE_VERSION
+from .const import STORAGE_KEY_INTERLOCK
+
 INTERLOCK = {
     'NONE': 0,
     'DOORS 1&2': 1,
@@ -297,7 +300,7 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
     _attr_icon = 'mdi:lock-plus'
     _attr_has_entity_name: True
 
-    def __init__(self, coordinator, unique_id, controller, serial_no):
+    def __init__(self, coordinator, unique_id, controller, serial_no, store):
         super().__init__(coordinator, context=unique_id)
 
         _LOGGER.debug(f'interlock {controller}')
@@ -305,6 +308,7 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
         self._unique_id = unique_id
         self._controller = controller
         self._serial_no = int(f'{serial_no}')
+        self._store = store
 
         self._name = f'uhppoted.controller.{controller}.interlock'.lower()
         self._mode = -1
@@ -339,25 +343,64 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
     def extra_restore_state_data(self) -> ExtraStoredData | None:
         return self._extra
 
-    # Sets the controller door interlock mode on startup
-    # NTS: there is no get_interlock controller API so the interlock state is the last 'set interlock'.
+    # Restores the controller door interlock mode on startup
+    #
+    # There is no 'get_interlock' controller API so the interlock state is the last 'set interlock'. The interlock
+    # state is only restored if:
+    #      - the 'last state' has a valid interlock mode
+    #      - the 'last state' matches the 'persisted state' set in async_select_option
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
 
-        if state := await self.async_get_last_state():
-            if mode := INTERLOCK.get(state.state, None):
-                await self._set_interlock(self._serial_no, mode)
-        elif v := await self.async_get_last_extra_data():
-            self._extra = InterlockExtraStoredData.from_dict(v.as_dict())
+        # restore persisted data
+        persisted = {}
 
-            if self._extra.interlock in INTERLOCK.values():
-                await self._set_interlock(self._serial_no, self._extra.interlock)
+        if self._store:
+            if interlocks := self._store.get('interlocks'):
+                if record := interlocks.get(self._name):
+                    persisted['interlock'] = record.get('interlock', None)
+                    persisted['modified'] = record.get('modified', None)
+
+        # restore interlock
+        try:
+            if state := await self.async_get_last_state():
+                if mode := INTERLOCK.get(state.state, None):
+                    if state.state != persisted.get('interlock', None):
+                        _LOGGER.warning(f"{self._controller}: inconsistent interlock restore state (state:{state.state}, stored:{persisted})") # yapf: disable
+                    else:
+                        await self._set_interlock(self._serial_no, mode)
+                        _LOGGER.info(f'{self._controller}: restored door interlock mode ({state.state})')
+
+            # elif v := await self.async_get_last_extra_data():
+            #     self._extra = InterlockExtraStoredData.from_dict(v.as_dict())
+            #
+            #     if self._extra.interlock in INTERLOCK.values():
+            #         await self._set_interlock(self._serial_no, self._extra.interlock)
+        except Exception as err:
+            _LOGGER.warning(f'{self._controller}: error initialising door interlock mode ({err})')
 
     async def async_select_option(self, option):
         _LOGGER.debug(f'controller:{self._controller}  set interlock {option}')
 
         if mode := INTERLOCK.get(option, None):
-            await self._set_interlock(self._serial_no, mode)
+            try:
+                await self._set_interlock(self._serial_no, mode)
+
+                modified = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                if self._store:
+                    if store := self._store.get('store'):
+                        interlocks = self._store.get('interlocks', {})
+
+                        interlocks[self.name] = {
+                            'interlock': option,
+                            'modified': modified,
+                        }
+
+                        await store.async_save(interlocks)
+
+            except Exception as err:
+                _LOGGER.exception(f'error setting controller {self._controller} interlock mode ({err})')
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -403,7 +446,7 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
 
         except Exception as err:
             self._available = False
-            _LOGGER.exception(f'error setting controller {self._controller} interlock mode ({err})')
+            raise err
 
 
 class AntiPassback(CoordinatorEntity, SelectEntity):
