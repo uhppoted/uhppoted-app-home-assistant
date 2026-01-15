@@ -12,6 +12,9 @@
      - [x] enable in _configuration.yaml_
      - [x] README
      - [ ] Fix _refresh_interlock_ storm
+         - [x] only invoke async_set_updated_data if data has actually changed
+         - [ ] communalize 'has_changed' logic (use state.copy())
+         - [ ] _pending_ update
 
 - [ ] restructure _get_xxx_ to avoid duplicate calls
    - [x] get_controller

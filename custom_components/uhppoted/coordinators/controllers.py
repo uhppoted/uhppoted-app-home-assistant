@@ -161,6 +161,9 @@ class ControllersCoordinator(DataUpdateCoordinator):
             try:
                 _LOGGER.debug(f'get-controller::callback {controller.id} {response}')
                 if response and response.controller == controller.id:
+                    keys = [ATTR_CONTROLLER_ADDRESS, ATTR_NETMASK, ATTR_GATEWAY, ATTR_FIRMWARE, ATTR_AVAILABLE]
+                    old = {k: self._state[controller.id].get(k) for k in keys}
+
                     async with lock:
                         self._state[controller.id].update({
                             ATTR_CONTROLLER_ADDRESS: f'{response.ip_address}',
@@ -170,7 +173,12 @@ class ControllersCoordinator(DataUpdateCoordinator):
                             ATTR_AVAILABLE: True,
                         })
 
-                    self.async_set_updated_data(self._state)
+                    updated = {k: self._state[controller.id].get(k) for k in keys}
+
+                    if old != updated:
+                        _LOGGER.info(f'{controller} controller information updated')
+                        self.async_set_updated_data(self._state)
+
             except Exception as err:
                 _LOGGER.error(f'error updating internal controller {controller.id} information ({err})')
 
@@ -205,13 +213,18 @@ class ControllersCoordinator(DataUpdateCoordinator):
             try:
                 _LOGGER.debug(f'get-listener::callback {controller.id} {response}')
                 if response and response.controller == controller.id:
+                    keys = [ATTR_CONTROLLER_LISTENER]
+                    old = {k: self._state[controller.id].get(k) for k in keys}
+
                     async with lock:
                         self._state[controller.id].update({
-                            ATTR_CONTROLLER_LISTENER:
-                            f'{response.address}:{response.port}',
+                            ATTR_CONTROLLER_LISTENER: f'{response.address}:{response.port}',
                         })
 
-                    self.async_set_updated_data(self._state)
+                    updated = {k: self._state[controller.id].get(k) for k in keys}
+                    if old != updated:
+                        _LOGGER.info(f'{controller} controller event listener updated')
+                        self.async_set_updated_data(self._state)
 
             except Exception as err:
                 _LOGGER.error(f'error updating internal controller {controller.id} event listener ({err})')
@@ -236,17 +249,23 @@ class ControllersCoordinator(DataUpdateCoordinator):
             try:
                 _LOGGER.debug(f'get-listener::callback {controller.id} {response}')
                 if response and response.controller == controller.id:
-                    dt = datetime.datetime(response.datetime.year, response.datetime.month, response.datetime.day,
-                                           response.datetime.hour, response.datetime.minute, response.datetime.second,
-                                           0,
-                                           datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo)
+                    keys = [ATTR_CONTROLLER_DATETIME]
+                    old = {k: self._state[controller.id].get(k) for k in keys}
 
                     async with lock:
                         self._state[controller.id].update({
-                            ATTR_CONTROLLER_DATETIME: dt,
+                            ATTR_CONTROLLER_DATETIME:
+                            datetime.datetime(response.datetime.year, response.datetime.month, response.datetime.day,
+                                              response.datetime.hour, response.datetime.minute,
+                                              response.datetime.second, 0,
+                                              datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo),
                         })
 
-                    self.async_set_updated_data(self._state)
+                    updated = {k: self._state[controller.id].get(k) for k in keys}
+
+                    if old != updated:
+                        _LOGGER.debug(f'{controller} controller date/time updated')
+                        self.async_set_updated_data(self._state)
 
             except Exception as err:
                 _LOGGER.error(f'error updating internal controller {controller.id} date/time ({err})')
@@ -276,12 +295,19 @@ class ControllersCoordinator(DataUpdateCoordinator):
             try:
                 _LOGGER.debug(f'get-interlock::callback {controller} {response}')
                 if response and response.controller == controller.id:
+                    keys = [ATTR_CONTROLLER_INTERLOCK]
+                    old = {k: self._state[controller.id].get(k) for k in keys}
+
                     async with lock:
                         self._state[controller.id].update({
                             ATTR_CONTROLLER_INTERLOCK: response.interlock,
                         })
 
-                    self.async_set_updated_data(self._state)
+                    updated = {k: self._state[controller.id].get(k) for k in keys}
+
+                    if old != updated:
+                        _LOGGER.info(f'{controller} controller door interlock mode updated')
+                        self.async_set_updated_data(self._state)
 
             except Exception as err:
                 _LOGGER.error(f'error updating internal controller {controller.id} door interlock mode ({err})')
@@ -308,12 +334,19 @@ class ControllersCoordinator(DataUpdateCoordinator):
             try:
                 _LOGGER.debug(f'get-antipassback {controller} {response}')
                 if response and response.controller == controller.id:
+                    keys = [ATTR_CONTROLLER_ANTIPASSBACK]
+                    old = {k: self._state[controller.id].get(k) for k in keys}
+
                     async with lock:
                         self._state[controller.id].update({
                             ATTR_CONTROLLER_ANTIPASSBACK: response.antipassback,
                         })
 
-                    self.async_set_updated_data(self._state)
+                    updated = {k: self._state[controller.id].get(k) for k in keys}
+
+                    if old != updated:
+                        _LOGGER.info(f'{controller} controller anti-passback updated')
+                        self.async_set_updated_data(self._state)
 
             except Exception as err:
                 _LOGGER.error(f'error updating internal controller {controller} anti-passback ({err})')

@@ -490,11 +490,15 @@ _HomeAssistant_ needs some time to cleanup and persist the current state - to sh
 docker stop -t 30 home-assistant
 ```
 
-#### Door Interlocks
+### Door Interlocks
 
-The UHPPOTE controllers don't provide a `get-door-interlocks` API which makes restoring the state of the _Interlock_ entity across
-_Home Assistant_ restarts complicated - in particular, if _Home Assistant_ isn't shutdown properly (e.g. power outage) it may restore
-an old state, which is problematic for something like a door interlock.
+The UHPPOTE controllers don't provide a `get-door-interlocks` API which makes restoring the state of the _Interlock_ entity
+complicated.
+
+#### Startup
+Maintaining the entity state across restarts is a particular case - if _Home Assistant_ isn't shutdown properly (e.g. power outage)
+it may/will restore an old state, which is problematic for something like a door interlock which may have been changed for security
+or safety reasons.
 
 _uhppoted-app-home-assistant_ takes the following approach:
 
@@ -513,4 +517,20 @@ enable persistence for specific entities in the _configuration.yaml_ file, e.g.
         entities:
             - uhppoted.controller.alpha.interlock
             - uhppoted.controller.beta.interlock
+```
+
+#### Refresh
+
+By default, the controller door interlock is only (optionally) set on startup or when explicitly set on the _Home Assistant_ UI - so if the
+interlock is changed externally (e.g. using the _CLI_) it won't be reflected in the entity state or UI.
+
+If the _Home Assistant_ setting is the authorative value, then it can be refreshed at regular intervals by setting a _cache expiry_ value
+in the _configuration.yaml_ file:
+```
+    cache:
+        enabled: true
+        expiry:
+            ...
+            interlock: 300
+            ...
 ```

@@ -6,7 +6,6 @@ import asyncio
 import datetime
 import logging
 import async_timeout
-import traceback
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import UpdateFailed
