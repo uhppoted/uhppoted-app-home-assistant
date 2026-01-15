@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import collections.abc
 import datetime
 import logging
 
@@ -21,6 +22,7 @@ from .controller import Interlock
 from .controller import AntiPassback
 
 from .const import DOMAIN
+from .const import CONF_PERSISTED_ENTITIES
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
@@ -29,6 +31,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     doors = Coordinators.doors(entry.entry_id)
     entities = []
     store = None
+    persisted = hass.data[DOMAIN].get(CONF_PERSISTED_ENTITIES, [])
 
     if v := hass.data[DOMAIN].get(entry.entry_id):
         store = v.get('store')
@@ -39,8 +42,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         ])
 
     def h(unique_id, controller, serial_no):
+        persist = False
+
+        if isinstance(persisted, collections.abc.Sequence):
+            key = f'uhppoted.controller.{controller}.interlock'.lower()
+            if key in persisted:
+                persist = True
+
         entities.extend([
-            Interlock(controllers, unique_id, controller, serial_no, store),
+            Interlock(controllers, unique_id, controller, serial_no, store, persist),
         ])
 
     def i(unique_id, controller, serial_no):

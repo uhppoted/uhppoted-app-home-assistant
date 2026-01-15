@@ -71,6 +71,10 @@ CONF_EVENTS_CARDS_ENABLED = 'events.card.enabled'
 CONF_EVENTS_DOORS_ENABLED = 'events.door.enabled'
 CONF_EVENTS_CONTROLLERS_ENABLED = 'events.controller.enabled'
 
+# persisted entities
+CONF_PERSISTED_ENTITIES = 'persisted.entities'
+
+# entity attributes
 ATTR_AVAILABLE = 'available'
 ATTR_NETMASK = 'netmask'
 ATTR_GATEWAY = 'gateway'
@@ -154,6 +158,8 @@ DEFAULT_EVENTS_LISTENER_MAX_BACKOFF = 1800  # 30 minutes
 DEFAULT_EVENTS_CARDS_ENABLED = True
 DEFAULT_EVENTS_DOORS_ENABLED = True
 DEFAULT_EVENTS_CONTROLLERS_ENABLED = True
+
+DEFAULT_PERSISTED_ENTITIES = []
 
 # storage keys
 STORAGE_VERSION = 1

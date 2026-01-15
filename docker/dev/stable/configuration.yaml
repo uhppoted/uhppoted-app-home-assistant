@@ -73,6 +73,11 @@ uhppoted:
         controllers:
             enabled: true
 
+    persisted:
+        entities:
+            - uhppoted.controller.alpha.interlock
+            - uhppoted.controller.gamma.interlock
+
 template:
   - trigger:
       - platform: event

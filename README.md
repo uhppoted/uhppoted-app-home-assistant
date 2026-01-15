@@ -226,6 +226,8 @@ configurable settings comprises:
 | `events.cards.enabled`        | Opt-out for card swiped events                                   | true              |
 | `events.doors.enabled`        | Opt-out for door events                                          | true              |
 | `events.controllers.enabled`  | Opt-out for controller events                                    | true              |
+|                               |                                                                  |                   |
+| `persistend.entities`         | Opt-in list for controller door interlocks                       | -none-            |
 
 
 e.g.
@@ -285,6 +287,12 @@ uhppoted:
             enabled: true
         controllers:
             enabled: true
+
+    persisted:
+        entities:
+            - uhppoted.controller.alpha.interlock
+            - uhppoted.controller.beta.interlock
+
 ```
 
 
@@ -480,4 +488,29 @@ Anecdotally, it seems this may also be a problem in _Proxmox_.
 _HomeAssistant_ needs some time to cleanup and persist the current state - to shutdown cleanly:
 ```
 docker stop -t 30 home-assistant
+```
+
+#### Door Interlocks
+
+The UHPPOTE controllers don't provide a `get-door-interlocks` API which makes restoring the state of the _Interlock_ entity across
+_Home Assistant_ restarts complicated - in particular, if _Home Assistant_ isn't shutdown properly (e.g. power outage) it may restore
+an old state, which is problematic for something like a door interlock.
+
+_uhppoted-app-home-assistant_ takes the following approach:
+
+1. On setting an _Interlock_ entity in the _Home Assistant_ UI, the interlock `mode` is persisted to both the normal _Home Assistant_
+   entity state and a _Home Assistant_ store.
+
+2. On startup, _uhppoted-app-home-assistant_ automatically sets the controller door interlock mode provided:
+   - the _Interlock_ entity name is listed in the `persisted.entities` section of the _configuration.yaml_.
+   - the interlock mode in the restored state matches the interlock mode in the _Home Assistant_ store
+
+By default, _Interlock_ entities are not automatically restored, as being the safer option. To opt-in to restoring _Interlock_ entities,
+enable persistence for specific entities in the _configuration.yaml_ file, e.g.
+
+```
+    persisted:
+        entities:
+            - uhppoted.controller.alpha.interlock
+            - uhppoted.controller.beta.interlock
 ```

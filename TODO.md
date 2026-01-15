@@ -9,9 +9,9 @@
      - [x] persist interlock mode using HA _Storage_
      - [x] keep 'modified' in InterlockExtraStoredData
      - [x] set default expiry to None
+     - [x] enable in _configuration.yaml_
+     - [x] README
      - [ ] Fix _refresh_interlock_ storm
-     - [ ] enable in _configuration.yaml_
-     - [ ] README
 
 - [ ] restructure _get_xxx_ to avoid duplicate calls
    - [x] get_controller

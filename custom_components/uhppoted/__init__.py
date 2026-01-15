@@ -41,6 +41,8 @@ from .const import CONF_EVENTS_CARDS_ENABLED
 from .const import CONF_EVENTS_DOORS_ENABLED
 from .const import CONF_EVENTS_CONTROLLERS_ENABLED
 
+from .const import CONF_PERSISTED_ENTITIES
+
 from .const import CONF_INTERLOCKS
 from .const import CONF_ANTIPASSBACK
 
@@ -69,6 +71,8 @@ from .const import DEFAULT_EVENTS_LISTENER_MAX_BACKOFF
 from .const import DEFAULT_EVENTS_CARDS_ENABLED
 from .const import DEFAULT_EVENTS_DOORS_ENABLED
 from .const import DEFAULT_EVENTS_CONTROLLERS_ENABLED
+
+from .const import DEFAULT_PERSISTED_ENTITIES
 
 from .const import STORAGE_VERSION
 from .const import STORAGE_KEY_INTERLOCK
@@ -128,6 +132,9 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_EVENTS_CARDS_ENABLED: DEFAULT_EVENTS_CARDS_ENABLED,
         CONF_EVENTS_DOORS_ENABLED: DEFAULT_EVENTS_DOORS_ENABLED,
         CONF_EVENTS_CONTROLLERS_ENABLED: DEFAULT_EVENTS_CONTROLLERS_ENABLED,
+
+        # persisted entities
+        CONF_PERSISTED_ENTITIES: DEFAULT_PERSISTED_ENTITIES,
     }
 
     if 'uhppoted' in config:
@@ -174,7 +181,6 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
                 defaults[CONF_EVENTS_LISTENER_ENABLED] = listener.get('enabled', DEFAULT_EVENTS_LISTENER_ENABLED)
                 defaults[CONF_EVENTS_LISTENER_MAX_BACKOFF] = listener.get('max_backoff',
                                                                           DEFAULT_EVENTS_LISTENER_MAX_BACKOFF)
-
         # events opt-out
         if events := c.get('events'):
             if cards := events.get('cards'):
@@ -184,6 +190,10 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
             if controllers := events.get('controllers'):
                 defaults[CONF_EVENTS_CONTROLLERS_ENABLED] = controllers.get('enabled',
                                                                             DEFAULT_EVENTS_CONTROLLERS_ENABLED)
+        # persisted entities
+        if persisted := c.get('persisted'):
+            if entities := persisted.get('entities'):
+                defaults[CONF_PERSISTED_ENTITIES] = entities
 
     _LOGGER.info(f'default bind address:        {defaults[CONF_BIND_ADDR]}')
     _LOGGER.info(f'default broadcast address:   {defaults[CONF_BROADCAST_ADDR]}')
@@ -221,6 +231,9 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     _LOGGER.info(f'events.cards.enabled:         {defaults[CONF_EVENTS_CARDS_ENABLED]}')
     _LOGGER.info(f'events.doors.enabled:         {defaults[CONF_EVENTS_DOORS_ENABLED]}')
     _LOGGER.info(f'events.controllers.enabled:   {defaults[CONF_EVENTS_CONTROLLERS_ENABLED]}')
+
+    # persisted entities
+    _LOGGER.info(f'persisted.entities:           {defaults[CONF_PERSISTED_ENTITIES]}')
 
     hass.data.setdefault(DOMAIN, defaults)
 
