@@ -162,7 +162,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 _LOGGER.debug(f'get-controller::callback {controller.id} {response}')
                 if response and response.controller == controller.id:
                     keys = [ATTR_CONTROLLER_ADDRESS, ATTR_NETMASK, ATTR_GATEWAY, ATTR_FIRMWARE, ATTR_AVAILABLE]
-                    old = {k: self._state[controller.id].get(k) for k in keys}
+                    old = self._state[controller.id].copy()
 
                     async with lock:
                         self._state[controller.id].update({
@@ -173,9 +173,9 @@ class ControllersCoordinator(DataUpdateCoordinator):
                             ATTR_AVAILABLE: True,
                         })
 
-                    updated = {k: self._state[controller.id].get(k) for k in keys}
+                    updated = self._state[controller.id].copy()
 
-                    if old != updated:
+                    if self._changed(keys, old, updated):
                         _LOGGER.info(f'{controller} controller information updated')
                         self.async_set_updated_data(self._state)
 
@@ -214,17 +214,18 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 _LOGGER.debug(f'get-listener::callback {controller.id} {response}')
                 if response and response.controller == controller.id:
                     keys = [ATTR_CONTROLLER_LISTENER]
-                    old = {k: self._state[controller.id].get(k) for k in keys}
+                    old = self._state[controller.id].copy()
 
                     async with lock:
                         self._state[controller.id].update({
                             ATTR_CONTROLLER_LISTENER: f'{response.address}:{response.port}',
                         })
 
-                    updated = {k: self._state[controller.id].get(k) for k in keys}
-                    if old != updated:
+                    updated = self._state[controller.id].copy()
+                    if self._changed(keys, old, updated):
                         _LOGGER.info(f'{controller} controller event listener updated')
                         self.async_set_updated_data(self._state)
+
 
             except Exception as err:
                 _LOGGER.error(f'error updating internal controller {controller.id} event listener ({err})')
@@ -250,7 +251,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 _LOGGER.debug(f'get-listener::callback {controller.id} {response}')
                 if response and response.controller == controller.id:
                     keys = [ATTR_CONTROLLER_DATETIME]
-                    old = {k: self._state[controller.id].get(k) for k in keys}
+                    old = self._state[controller.id].copy()
 
                     async with lock:
                         self._state[controller.id].update({
@@ -261,9 +262,9 @@ class ControllersCoordinator(DataUpdateCoordinator):
                                               datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo),
                         })
 
-                    updated = {k: self._state[controller.id].get(k) for k in keys}
+                    updated = self._state[controller.id].copy()
 
-                    if old != updated:
+                    if self._changed(keys, old, updated):
                         _LOGGER.debug(f'{controller} controller date/time updated')
                         self.async_set_updated_data(self._state)
 
@@ -296,16 +297,16 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 _LOGGER.debug(f'get-interlock::callback {controller} {response}')
                 if response and response.controller == controller.id:
                     keys = [ATTR_CONTROLLER_INTERLOCK]
-                    old = {k: self._state[controller.id].get(k) for k in keys}
+                    old = self._state[controller.id].copy()
 
                     async with lock:
                         self._state[controller.id].update({
                             ATTR_CONTROLLER_INTERLOCK: response.interlock,
                         })
 
-                    updated = {k: self._state[controller.id].get(k) for k in keys}
+                    updated = self._state[controller.id].copy()
 
-                    if old != updated:
+                    if self._changed(keys, old, updated):
                         _LOGGER.info(f'{controller} controller door interlock mode updated')
                         self.async_set_updated_data(self._state)
 
@@ -335,16 +336,16 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 _LOGGER.debug(f'get-antipassback {controller} {response}')
                 if response and response.controller == controller.id:
                     keys = [ATTR_CONTROLLER_ANTIPASSBACK]
-                    old = {k: self._state[controller.id].get(k) for k in keys}
+                    old = self._state[controller.id].copy()
 
                     async with lock:
                         self._state[controller.id].update({
                             ATTR_CONTROLLER_ANTIPASSBACK: response.antipassback,
                         })
 
-                    updated = {k: self._state[controller.id].get(k) for k in keys}
+                    updated = self._state[controller.id].copy()
 
-                    if old != updated:
+                    if self._changed(keys, old, updated):
                         _LOGGER.info(f'{controller} controller anti-passback updated')
                         self.async_set_updated_data(self._state)
 
@@ -372,3 +373,10 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 return controller
 
         return Controller(int(f'{controller_id}'), None, None)
+
+    def _changed(self, keys, old, updated):
+        _old = {k: old.get(k) for k in keys}
+        _updated = {k: updated.get(k) for k in keys}
+
+        return _old != _updated
+

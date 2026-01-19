@@ -4,17 +4,17 @@
 
 - [x] Additional decorated events (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/14)
 
-- [ ] set-interlock on startup (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/23)
+- [x] set-interlock on startup (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/23)
      - [x] reworked ControllerInterlock for async
      - [x] persist interlock mode using HA _Storage_
      - [x] keep 'modified' in InterlockExtraStoredData
      - [x] set default expiry to None
      - [x] enable in _configuration.yaml_
      - [x] README
-     - [ ] Fix _refresh_interlock_ storm
+     - [x] Fix _refresh_interlock_ storm
          - [x] only invoke async_set_updated_data if data has actually changed
-         - [ ] communalize 'has_changed' logic (use state.copy())
-         - [ ] _pending_ update
+         - [x] _pending_ update
+         - [x] communalize 'has_changed' logic (use state.copy())
 
 - [ ] restructure _get_xxx_ to avoid duplicate calls
    - [x] get_controller

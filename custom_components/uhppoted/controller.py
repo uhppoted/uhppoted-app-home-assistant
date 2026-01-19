@@ -325,6 +325,7 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
         self._serial_no = int(f'{serial_no}')
         self._store = store
         self._persist = persist
+        self._pending = None
 
         self._name = f'uhppoted.controller.{controller}.interlock'.lower()
         self._mode = -1
@@ -455,7 +456,9 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
                 # refresh controller door interlock mode if expired
                 if self._available and self._mode not in INTERLOCK.values() and self._extra.interlock in INTERLOCK.keys(): # yapf: disable
                     if mode := INTERLOCK.get(self._extra.interlock, None):
-                        self.hass.async_create_task(self._refresh_interlock(self._serial_no, mode))
+                        if self._pending is None or self._pending.done():
+                            self._pending = self.hass.async_create_task(self._refresh_interlock(self._serial_no, mode))
+
 
         except Exception as err:
             self._available = False
@@ -477,11 +480,16 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
             self._available = False
             raise err
 
+    # NTS: Because of the way coordinators + callbacks work it's quite possible for a _refresh_interlock task to complete
+    #      before a previous callback has updated the state. The 100ms just keeps the task alive to prevent another refresh
+    #      being scheduled almost immediately.
     async def _refresh_interlock(self, controller, mode):
         try:
             _LOGGER.warning(f'{self._controller}: refreshing expired door interlock mode ({mode}) [{self._mode}]')
             if self._mode != mode:
                 await self._set_interlock(controller, mode)
+
+            await asyncio.sleep(0.1)
         except Exception as err:
             _LOGGER.exception(f'{self._controller}: error refreshing expired door interlock mode ({err})')
 
