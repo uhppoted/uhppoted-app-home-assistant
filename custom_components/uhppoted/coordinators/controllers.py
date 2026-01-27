@@ -218,14 +218,14 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
                     async with lock:
                         self._state[controller.id].update({
-                            ATTR_CONTROLLER_LISTENER: f'{response.address}:{response.port}',
+                            ATTR_CONTROLLER_LISTENER:
+                            f'{response.address}:{response.port}',
                         })
 
                     updated = self._state[controller.id].copy()
                     if self._changed(keys, old, updated):
                         _LOGGER.info(f'{controller} controller event listener updated')
                         self.async_set_updated_data(self._state)
-
 
             except Exception as err:
                 _LOGGER.error(f'error updating internal controller {controller.id} event listener ({err})')
@@ -379,4 +379,3 @@ class ControllersCoordinator(DataUpdateCoordinator):
         _updated = {k: updated.get(k) for k in keys}
 
         return _old != _updated
-

@@ -459,7 +459,6 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
                         if self._pending is None or self._pending.done():
                             self._pending = self.hass.async_create_task(self._refresh_interlock(self._serial_no, mode))
 
-
         except Exception as err:
             self._available = False
             _LOGGER.exception(f'{self._controller}: error updating controller door interlock mode {err}')
