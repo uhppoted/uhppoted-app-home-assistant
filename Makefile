@@ -1,4 +1,4 @@
-VERSION ?= v0.8.10.4
+VERSION ?= v0.9.0.1
 DIST    ?= "uhppoted-app-home-assistant_$(VERSION)"
 
 .PHONY: docker
