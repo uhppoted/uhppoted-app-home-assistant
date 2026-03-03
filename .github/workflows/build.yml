@@ -26,7 +26,7 @@ jobs:
         pip install pytest pytest-homeassistant-custom-component uhppoted netifaces
 
     - name: Check out code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Create (dummy) .venv virtual environment
       run: python -m venv .venv
