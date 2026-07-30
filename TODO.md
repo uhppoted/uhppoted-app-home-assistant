@@ -1,20 +1,6 @@
 # TODO
 
-## In Progress
-
-- [x] Additional decorated events (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/14)
-
-- [x] set-interlock on startup (cf. https://github.com/uhppoted/uhppoted-app-home-assistant/issues/23)
-     - [x] reworked ControllerInterlock for async
-     - [x] persist interlock mode using HA _Storage_
-     - [x] keep 'modified' in InterlockExtraStoredData
-     - [x] set default expiry to None
-     - [x] enable in _configuration.yaml_
-     - [x] README
-     - [x] Fix _refresh_interlock_ storm
-         - [x] only invoke async_set_updated_data if data has actually changed
-         - [x] _pending_ update
-         - [x] communalize 'has_changed' logic (use state.copy())
+- [x] Migrate to codeberg.org (cf. https://codeberg.org/uhppoted/uhppoted/issues/1)
 
 - [ ] restructure _get_xxx_ to avoid duplicate calls
    - [x] get_controller
@@ -57,7 +43,7 @@
     - https://community.home-assistant.io/t/how-to-prevent-a-log-entry-when-an-automation-is-executed/255876
 
 
-## TODO
+## To Be Done
 
 - [ ] (maybe) use HA retry on timeout
    - https://deepwiki.com/home-assistant/developers.home-assistant/3.3-data-update-coordinator

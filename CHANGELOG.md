@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Updated
+1. Migrated from _github.com/uhppoted/uhppoted-app-home-assistant_ to _codeberg.org/uhppoted/uhppoted-app-home-assistant_.
+
 
 ## [0.9.0.1](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.9.0.1) - 2026-01-27
 

@@ -9,12 +9,12 @@ Development status: _ALPHA_
 
 ---
 _uhppoted-app-home-assistant_ is an experimental _Home Assistant_ custom component for the UHPPOTE access controllers,
-leveraging the [_uhppoted-lib-python_](https://github.com/uhppoted/uhppoted-lib-python) library. It turns out that an access
+leveraging the [_uhppoted-lib-python_](https://codeberg.org/uhppoted/uhppoted-lib-python) library. It turns out that an access
 control system has quite a lot more moving parts than e.g. your average thermostat, and the current implementation, 
 although functional and usable, is intended more for the (brave) early adopter.
 
 The current version is most suited to a small'ish home ACS i.e. a couple of controllers with half a dozen
-doors and maybe a ten or so access cards - so, not e.g. a large mansion, minor palace [~~or office building~~](https://github.com/uhppoted/uhppoted-app-home-assistant/issues/1).
+doors and maybe a ten or so access cards - so, not e.g. a large mansion, minor palace [~~or office building~~](https://codeberg.org/uhppoted/uhppoted-app-home-assistant/issues/1).
 
 **Contents**
 1. [Screenshots](#screenshots)
@@ -83,7 +83,7 @@ Installing via [HACS](https://www.hacs.xyz) is by far the simplest:
 
 1. [Install](https://www.hacs.xyz/docs/use/) the HACS integration.
 2. Open the _HACS_ tab in the _Home Assistant_ sidebar. and add the 
-   [_uhppoted-app-home-assistant_](https://github.com/uhppoted/uhppoted-app-home-assistant)
+   [_uhppoted-app-home-assistant_](https://codeberg.org/uhppoted/uhppoted-app-home-assistant)
    github repository as a custom repository (under the _Home Assistant Community Store_ menu).
 3. Restart _Home Assistant_ to complete the initial installation.
 4. Open the _Settings_ tab in the _Home Assistant_ sidebar.

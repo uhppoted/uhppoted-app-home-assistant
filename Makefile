@@ -6,6 +6,10 @@ DIST    ?= "uhppoted-app-home-assistant_$(VERSION)"
 
 SHARE="/usr/local/etc/com.github.uhppoted/home-assistant"
 
+push:
+	git push
+	git push bitbucket
+
 update:
 	@echo "update: nothing to do"
 

@@ -4,7 +4,7 @@
   "codeowners": [ "@uhppoted" ],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/uhppoted/uhppoted-app-home-assistant",
+  "documentation": "https://codeberg.org/uhppoted/uhppoted-app-home-assistant",
   "iot_class": "local_polling",
   "requirements": [ "uhppoted>=0.9.0" ],
   "version": "0.9.1",

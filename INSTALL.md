@@ -11,7 +11,7 @@
 Installing via [HACS](https://www.hacs.xyz/) is by far the simplest:
 1. [Install](https://www.hacs.xyz/docs/use/) the HACS integration.
 2. Open the _HACS_ tab in the _Home Assistant_ sidebar. and add the
-   [_uhppoted-app-home-assistant_](https://github.com/uhppoted/uhppoted-app-home-assistant) github repository
+   [_uhppoted-app-home-assistant_](https://codeberg.org/uhppoted/uhppoted-app-home-assistant) github repository
   as a custom repository (under the _Home Assistant Community Store_ menu).
 3. Restart _Home Assistant_ to complete the initial installation.
 4. Open the _Settings_ tab in the _Home Assistant_ sidebar.
@@ -23,14 +23,14 @@ Installing via [HACS](https://www.hacs.xyz/) is by far the simplest:
 
 ### Docker
 
-The repository includes a sample _Docker Compose_ [`compose.yml`](https://github.com/uhppoted/uhppoted-app-home-assistant/docker/compose/compose.yml) script.
+The repository includes a sample _Docker Compose_ [`compose.yml`](https://codeberg.org/uhppoted/uhppoted-app-home-assistant/docker/compose/compose.yml) script.
 
-1. Copy the [`compose.yml`](https://github.com/uhppoted/uhppoted-app-home-assistant/blob/main/docker/compose/compose.yml) 
+1. Copy the [`compose.yml`](https://codeberg.org/uhppoted/uhppoted-app-home-assistant/blob/main/docker/compose/compose.yml) 
    to an _install_ folder.
-2. Copy the [`configuration.yaml`](https://github.com/uhppoted/uhppoted-app-home-assistant/blob/main/docker/compose/configuration.yaml) 
+2. Copy the [`configuration.yaml`](https://codeberg.org/uhppoted/uhppoted-app-home-assistant/blob/main/docker/compose/configuration.yaml) 
    file to the _install_ folder.
 3. Download and unzip the latest release of _uhppoted-app-home-assistant_ from the
-   [Releases](https://github.com/uhppoted/uhppoted-app-home-assistant/releases) page to the install folder.
+   [Releases](https://codeberg.org/uhppoted/uhppoted-app-home-assistant/releases) page to the install folder.
 4. Edit the `compose.yml` file as required.
 5. Edit the configuration.yaml file as required.
 6. Run `docker compose up` to start _Home Assistant_ in _console_ mode.
@@ -55,7 +55,7 @@ mkdir -p config/custom_components
 touch config/custom_components/__init.py__
 ```
 
-2. Download the _.tar.gz_ archive from the [_Releases_]() section of the repository (or the most recent [nightly build](https://github.com/uhppoted/uhppoted-app-home-assistant/actions/workflows/nightly.yaml)) and extract it to the `config/custom_components` folder under 
+2. Download the _.tar.gz_ archive from the [_Releases_]() section of the repository (or the most recent [nightly build](https://codeberg.org/uhppoted/uhppoted-app-home-assistant/actions/workflows/nightly.yaml)) and extract it to the `config/custom_components` folder under 
 the _Home Assistant_ folder, e.g.:
 
 ```
@@ -108,7 +108,7 @@ your system often. You have been warned :-).
 
 ```
 cd ~/experimental-stuff
-git clone https://github.com/uhppoted/uhppoted-app-home-assistant
+git clone https://codeberg.org/uhppoted/uhppoted-app-home-assistant
 ```
 
 2. Create the `config/custom_components` subdirectory under the _Home Assistant_ folder, if it does not already
