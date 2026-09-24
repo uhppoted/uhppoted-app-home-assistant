@@ -2,8 +2,8 @@ name: nightly
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
+  # release:
+  #   types: [published]
 
 jobs:
 

@@ -1,5 +1,4 @@
-![build](https://github.com/uhppoted/uhppoted-app-home-assistant/workflows/build/badge.svg)
-![nightly](https://github.com/uhppoted/uhppoted-app-home-assistant/workflows/nightly/badge.svg)
+![build](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/twystd/2609d9356470acaf904386ce4a74f54e/raw/uhppoted-app-home-assistant.json)
 
 # uhppoted-app-home-assistant
 
@@ -50,7 +49,7 @@ doors and maybe a ten or so access cards - so, not e.g. a large mansion, minor p
 
 ### Current Release
 
-## [0.9.0.1](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.9.0.1) - 2026-01-27
+## [0.9.0.1](https://codeberg.org/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.9.0.1) - 2026-01-27
 
 1. Added decorated event `uhppoted.door.event.decorated`.
 2. Added decorated event `uhppoted.controller.event.decorated`.
@@ -84,7 +83,7 @@ Installing via [HACS](https://www.hacs.xyz) is by far the simplest:
 1. [Install](https://www.hacs.xyz/docs/use/) the HACS integration.
 2. Open the _HACS_ tab in the _Home Assistant_ sidebar. and add the 
    [_uhppoted-app-home-assistant_](https://codeberg.org/uhppoted/uhppoted-app-home-assistant)
-   github repository as a custom repository (under the _Home Assistant Community Store_ menu).
+   repository as a custom repository (under the _Home Assistant Community Store_ menu).
 3. Restart _Home Assistant_ to complete the initial installation.
 4. Open the _Settings_ tab in the _Home Assistant_ sidebar.
 5. Open the _Devices and Integrations_ section.
