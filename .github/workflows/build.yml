@@ -23,7 +23,7 @@ jobs:
     - name: Install Python packages
       run: |
         pip install toml yapf
-        pip install pytest pytest-homeassistant-custom-component uhppoted netifaces
+        pip install pytest pytest-homeassistant-custom-component uhppoted netifaces async-timeout
 
     - name: Check out code
       uses: actions/checkout@v6
