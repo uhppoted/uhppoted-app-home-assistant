@@ -31,27 +31,31 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     doors = []
     if CONF_CONTROLLERS in options and CONF_DOORS in options:
         for c in options[CONF_CONTROLLERS]:
-            controller = f'{c[CONF_CONTROLLER_ID]}'.strip()
-            serial_no = f'{c[CONF_CONTROLLER_SERIAL_NUMBER]}'.strip()
+            controller = f"{c[CONF_CONTROLLER_ID]}".strip()
+            serial_no = f"{c[CONF_CONTROLLER_SERIAL_NUMBER]}".strip()
 
             for d in options[CONF_DOORS]:
-                door = f'{d[CONF_DOOR_ID]}'.strip()
-                door_no = f'{d[CONF_DOOR_NUMBER]}'.strip()
-                door_controller = f'{d[CONF_DOOR_CONTROLLER]}'.strip()
+                door = f"{d[CONF_DOOR_ID]}".strip()
+                door_no = f"{d[CONF_DOOR_NUMBER]}".strip()
+                door_controller = f"{d[CONF_DOOR_CONTROLLER]}".strip()
 
                 if door_controller == controller:
-                    doors.append({
-                        CONF_DOOR_ID: door,
-                        CONF_DOOR_NUMBER: door_no,
-                        CONF_DOOR_CONTROLLER: controller,
-                        CONF_CONTROLLER_SERIAL_NUMBER: serial_no,
-                    })
+                    doors.append(
+                        {
+                            CONF_DOOR_ID: door,
+                            CONF_DOOR_NUMBER: door_no,
+                            CONF_DOOR_CONTROLLER: controller,
+                            CONF_CONTROLLER_SERIAL_NUMBER: serial_no,
+                        }
+                    )
 
     def h(card, name, unique_id):
         for d in doors:
-            entities.extend([
-                CardPermission(cards, unique_id, card, name, d),
-            ])
+            entities.extend(
+                [
+                    CardPermission(cards, unique_id, card, name, d),
+                ]
+            )
 
     configure_cards(options, h)
     async_add_entities(entities, update_before_add=True)

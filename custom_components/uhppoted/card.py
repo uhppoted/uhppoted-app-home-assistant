@@ -41,19 +41,19 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class CardInfo(CoordinatorEntity, SensorEntity):
-    _attr_icon = 'mdi:card-account-details'
+    _attr_icon = "mdi:card-account-details"
     _attr_has_entity_name: True
-    _attr_translation_key: 'card_info'
+    _attr_translation_key: "card_info"
 
     def __init__(self, coordinator, unique_id, card, name):
-        super().__init__(coordinator, context=int(f'{card}'))
+        super().__init__(coordinator, context=int(f"{card}"))
 
-        _LOGGER.debug(f'card {card}')
+        _LOGGER.debug(f"card {card}")
 
-        self.card = int(f'{card}')
+        self.card = int(f"{card}")
 
         self._unique_id = unique_id
-        self._name = f'uhppoted.card.{card}.info'.lower()
+        self._name = f"uhppoted.card.{card}.info".lower()
         self._cardholder = name
         self._start_date = None
         self._end_date = None
@@ -62,7 +62,7 @@ class CardInfo(CoordinatorEntity, SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.card.{self._unique_id}.info'.lower()
+        return f"uhppoted.card.{self._unique_id}.info".lower()
 
     @property
     def name(self) -> str:
@@ -82,25 +82,25 @@ class CardInfo(CoordinatorEntity, SensorEntity):
             #     state.append(self._cardholder)
 
             if self._start_date and self._start_date <= today and self._end_date and self._end_date >= today:
-                state.append('VALID')
+                state.append("VALID")
             elif self._start_date and self._start_date > today:
-                state.append('NOT VALID')
+                state.append("NOT VALID")
             elif self._end_date and self._end_date < today:
-                state.append('EXPIRED')
+                state.append("EXPIRED")
 
             if self._permissions and len(self._permissions) < 1:
-                state.append('NO ACCESS')
+                state.append("NO ACCESS")
 
-            return ', '.join(state)
+            return ", ".join(state)
 
         return None
 
     @property
     def extra_state_attributes(self) -> Dict[str, Any]:
-        permissions = ','.join(self._permissions) if self._permissions else None
+        permissions = ",".join(self._permissions) if self._permissions else None
 
         return {
-            ATTR_CARD: f'#{self.card}',
+            ATTR_CARD: f"#{self.card}",
             ATTR_CARD_HOLDER: self._cardholder,
             ATTR_CARD_STARTDATE: self._start_date,
             ATTR_CARD_ENDDATE: self._end_date,
@@ -116,7 +116,7 @@ class CardInfo(CoordinatorEntity, SensorEntity):
         self._update()
 
     def _update(self):
-        _LOGGER.debug(f'card:{self.card} state')
+        _LOGGER.debug(f"card:{self.card} state")
         try:
             idx = self.card
 
@@ -129,31 +129,31 @@ class CardInfo(CoordinatorEntity, SensorEntity):
                 self._permissions = state.get(ATTR_CARD_PERMISSIONS, None)
                 self._available = state.get(ATTR_AVAILABLE, False)
 
-        except (Exception):
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error retrieving card {self.card} state')
+            _LOGGER.exception(f"error retrieving card {self.card} state")
 
 
 class CardHolder(CoordinatorEntity, SensorEntity):
-    _attr_icon = 'mdi:card-account-details'
+    _attr_icon = "mdi:card-account-details"
     _attr_has_entity_name: True
 
     def __init__(self, coordinator, unique_id, card, name):
-        super().__init__(coordinator, context=int(f'{card}'))
+        super().__init__(coordinator, context=int(f"{card}"))
 
-        _LOGGER.debug(f'card {card}')
+        _LOGGER.debug(f"card {card}")
 
-        self.card = int(f'{card}')
+        self.card = int(f"{card}")
 
         self._unique_id = unique_id
-        self._name = f'uhppoted.card.{card}.cardholder'.lower()
+        self._name = f"uhppoted.card.{card}.cardholder".lower()
         self._cardholder = name
         self._available = True
         self._attributes: Dict[str, Any] = {}
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.card.{self._unique_id}.cardholder'.lower()
+        return f"uhppoted.card.{self._unique_id}.cardholder".lower()
 
     @property
     def name(self) -> str:
@@ -183,29 +183,29 @@ class CardHolder(CoordinatorEntity, SensorEntity):
         self._update()
 
     def _update(self):
-        _LOGGER.debug(f'card:{self.card} cardholder')
+        _LOGGER.debug(f"card:{self.card} cardholder")
         self._available = True
 
 
 class CardStartDate(CoordinatorEntity, DateEntity):
-    _attr_icon = 'mdi:card-account-details'
+    _attr_icon = "mdi:card-account-details"
     _attr_has_entity_name: True
 
     def __init__(self, coordinator, unique_id, card, name):
-        super().__init__(coordinator, context=int(f'{card}'))
+        super().__init__(coordinator, context=int(f"{card}"))
 
-        _LOGGER.debug(f'card {card} start date')
+        _LOGGER.debug(f"card {card} start date")
 
-        self.card = int(f'{card}')
+        self.card = int(f"{card}")
         self._unique_id = unique_id
-        self._name = f'uhppoted.card.{card}.start-date'.lower()
+        self._name = f"uhppoted.card.{card}.start-date".lower()
         self._date = None
         self._available = False
         self._attributes: Dict[str, Any] = {}
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.card.{self._unique_id}.start-date'.lower()
+        return f"uhppoted.card.{self._unique_id}.start-date".lower()
 
     @property
     def name(self) -> str:
@@ -222,16 +222,16 @@ class CardStartDate(CoordinatorEntity, DateEntity):
     async def async_set_value(self, v: datetime.date) -> None:
         try:
             if await self.coordinator.set_card_start_date(self.card, v):
-                _LOGGER.info(f'card {self.card} start date updated')
+                _LOGGER.info(f"card {self.card} start date updated")
             else:
-                _LOGGER.warning(f' card {self.card} start date not updated')
+                _LOGGER.warning(f" card {self.card} start date not updated")
                 self._available = False
 
             await self.coordinator.async_request_refresh()
 
-        except (Exception):
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error updating card {self.card} start date')
+            _LOGGER.exception(f"error updating card {self.card} start date")
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -242,7 +242,7 @@ class CardStartDate(CoordinatorEntity, DateEntity):
         self._update()
 
     def _update(self):
-        _LOGGER.debug(f'card:{self.card}  update start date')
+        _LOGGER.debug(f"card:{self.card}  update start date")
 
         try:
             idx = self.card
@@ -255,30 +255,30 @@ class CardStartDate(CoordinatorEntity, DateEntity):
                 state = self.coordinator.data[idx]
                 self._date = state[ATTR_CARD_STARTDATE]
                 self._available = state[ATTR_AVAILABLE]
-        except (Exception):
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error retrieving card {self.card} start date')
+            _LOGGER.exception(f"error retrieving card {self.card} start date")
 
 
 class CardEndDate(CoordinatorEntity, DateEntity):
-    _attr_icon = 'mdi:card-account-details'
+    _attr_icon = "mdi:card-account-details"
     _attr_has_entity_name: True
 
     def __init__(self, coordinator, unique_id, card, name):
-        super().__init__(coordinator, context=int(f'{card}'))
+        super().__init__(coordinator, context=int(f"{card}"))
 
-        _LOGGER.debug(f'card {card} end date')
+        _LOGGER.debug(f"card {card} end date")
 
-        self.card = int(f'{card}')
+        self.card = int(f"{card}")
         self._unique_id = unique_id
-        self._name = f'uhppoted.card.{card}.end-date'.lower()
+        self._name = f"uhppoted.card.{card}.end-date".lower()
         self._date = None
         self._available = False
         self._attributes: Dict[str, Any] = {}
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.card.{self._unique_id}.end-date'.lower()
+        return f"uhppoted.card.{self._unique_id}.end-date".lower()
 
     @property
     def name(self) -> str:
@@ -295,16 +295,16 @@ class CardEndDate(CoordinatorEntity, DateEntity):
     async def async_set_value(self, v: datetime.date) -> None:
         try:
             if await self.coordinator.set_card_end_date(self.card, v):
-                _LOGGER.info(f'card {self.card} end date updated')
+                _LOGGER.info(f"card {self.card} end date updated")
             else:
-                _LOGGER.warning(f' card {self.card} end date not updated')
+                _LOGGER.warning(f" card {self.card} end date not updated")
                 self._available = False
 
             await self.coordinator.async_request_refresh()
 
-        except (Exception):
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error updating card {self.card} end date')
+            _LOGGER.exception(f"error updating card {self.card} end date")
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -315,7 +315,7 @@ class CardEndDate(CoordinatorEntity, DateEntity):
         self._update()
 
     def _update(self):
-        _LOGGER.debug(f'card:{self.card}  update end date')
+        _LOGGER.debug(f"card:{self.card}  update end date")
 
         try:
             idx = self.card
@@ -329,31 +329,31 @@ class CardEndDate(CoordinatorEntity, DateEntity):
                 self._date = state[ATTR_CARD_ENDDATE]
                 self._available = state[ATTR_AVAILABLE]
 
-        except (Exception):
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error retrieving card {self.card} end date')
+            _LOGGER.exception(f"error retrieving card {self.card} end date")
 
 
 class CardPermission(CoordinatorEntity, SwitchEntity):
-    _attr_icon = 'mdi:card-account-details'
+    _attr_icon = "mdi:card-account-details"
     _attr_has_entity_name: True
 
     def __init__(self, coordinator, unique_id, card, name, door):
-        super().__init__(coordinator, context=int(f'{card}'))
+        super().__init__(coordinator, context=int(f"{card}"))
 
-        _LOGGER.debug(f'card {card} permission for door {door[CONF_DOOR_ID]}')
+        _LOGGER.debug(f"card {card} permission for door {door[CONF_DOOR_ID]}")
 
-        self.card = int(f'{card}')
+        self.card = int(f"{card}")
         self.door = door
         self._unique_id = unique_id
-        self._name = f'uhppoted.card.{card}.{door[CONF_DOOR_ID]}'.lower()
+        self._name = f"uhppoted.card.{card}.{door[CONF_DOOR_ID]}".lower()
         self._allowed = None
         self._available = False
         self._attributes: Dict[str, Any] = {}
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.card.{self._unique_id}.{self.door[CONF_DOOR_ID]}'.lower()
+        return f"uhppoted.card.{self._unique_id}.{self.door[CONF_DOOR_ID]}".lower()
 
     @property
     def name(self) -> str:
@@ -379,28 +379,28 @@ class CardPermission(CoordinatorEntity, SwitchEntity):
         }
 
     async def async_turn_on(self, **kwargs):
-        _LOGGER.debug(f'card:{self.card} enable access for door {self.door[CONF_DOOR_ID]}')
+        _LOGGER.debug(f"card:{self.card} enable access for door {self.door[CONF_DOOR_ID]}")
         try:
             await self.coordinator.set_card_permission(self.card, self.door, True)
             self._allowed = True
             self._available = True
-            _LOGGER.info(f'card {self.card} permission to door {self.door[CONF_DOOR_ID]} granted')
-        except (Exception):
+            _LOGGER.info(f"card {self.card} permission to door {self.door[CONF_DOOR_ID]} granted")
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error updating card {self.card} access for door {self.door[CONF_DOOR_ID]}')
+            _LOGGER.exception(f"error updating card {self.card} access for door {self.door[CONF_DOOR_ID]}")
 
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs):
-        _LOGGER.debug(f'card:{self.card} remove access for door {self.door[CONF_DOOR_ID]}')
+        _LOGGER.debug(f"card:{self.card} remove access for door {self.door[CONF_DOOR_ID]}")
         try:
             await self.coordinator.set_card_permission(self.card, self.door, False)
             self._allowed = False
             self._available = True
-            _LOGGER.info(f'card {self.card} permission to door {self.door[CONF_DOOR_ID]} revoked')
-        except (Exception):
+            _LOGGER.info(f"card {self.card} permission to door {self.door[CONF_DOOR_ID]} revoked")
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error updating card {self.card} access for door {self.door[CONF_DOOR_ID]}')
+            _LOGGER.exception(f"error updating card {self.card} access for door {self.door[CONF_DOOR_ID]}")
 
         await self.coordinator.async_request_refresh()
 
@@ -413,7 +413,7 @@ class CardPermission(CoordinatorEntity, SwitchEntity):
         self._update()
 
     def _update(self):
-        _LOGGER.debug(f'card:{self.card} update door {self.door[CONF_DOOR_ID]} access')
+        _LOGGER.debug(f"card:{self.card} update door {self.door[CONF_DOOR_ID]} access")
         try:
             idx = self.card
             door = self.door[CONF_DOOR_ID]
@@ -430,28 +430,28 @@ class CardPermission(CoordinatorEntity, SwitchEntity):
             else:
                 self._allowed = door in self.coordinator.data[idx][ATTR_CARD_PERMISSIONS]
                 self._available = self.coordinator.data[idx][ATTR_AVAILABLE]
-        except (Exception):
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error updating card {self.card} access for door {self.door}')
+            _LOGGER.exception(f"error updating card {self.card} access for door {self.door}")
 
 
 class CardPIN(CoordinatorEntity, TextEntity):
-    _attr_icon = 'mdi:card-account-details'
+    _attr_icon = "mdi:card-account-details"
     _attr_has_entity_name: True
 
-    _attr_mode = 'normal'
-    _attr_pattern = '[0-9]{0,6}'
+    _attr_mode = "normal"
+    _attr_pattern = "[0-9]{0,6}"
     _attr_native_max_value = 6
     _attr_native_min_value = 0
 
     def __init__(self, coordinator, unique_id, card, name):
-        super().__init__(coordinator, context=int(f'{card}'))
+        super().__init__(coordinator, context=int(f"{card}"))
 
-        _LOGGER.debug(f'card {card} PIN code')
+        _LOGGER.debug(f"card {card} PIN code")
 
-        self.card = int(f'{card}')
+        self.card = int(f"{card}")
         self._unique_id = unique_id
-        self._name = f'uhppoted.card.{card}.PIN'.lower()
+        self._name = f"uhppoted.card.{card}.PIN".lower()
         self._pin = None
         self._allowed = None
         self._available = False
@@ -459,7 +459,7 @@ class CardPIN(CoordinatorEntity, TextEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.card.{self._unique_id}.PIN'.lower()
+        return f"uhppoted.card.{self._unique_id}.PIN".lower()
 
     @property
     def name(self) -> str:
@@ -471,26 +471,26 @@ class CardPIN(CoordinatorEntity, TextEntity):
 
     @property
     def native_value(self) -> Optional[float]:
-        if self._pin and int(f'{self._pin}') > 0:
-            return f'{self._pin}'
+        if self._pin and int(f"{self._pin}") > 0:
+            return f"{self._pin}"
         else:
-            return ''
+            return ""
 
     async def async_set_value(self, value):
         try:
-            PIN = 0 if not f'{value}'.isdigit() else int(f'{value}')
+            PIN = 0 if not f"{value}".isdigit() else int(f"{value}")
 
             if await self.coordinator.set_card_PIN(self.card, PIN):
-                _LOGGER.info(f'card {self.card} PIN updated')
+                _LOGGER.info(f"card {self.card} PIN updated")
             else:
-                _LOGGER.warning(f' card {self.card} PIN not updated')
+                _LOGGER.warning(f" card {self.card} PIN not updated")
                 self._available = False
 
             await self.coordinator.async_request_refresh()
 
-        except (Exception):
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error updating card {self.card} end date')
+            _LOGGER.exception(f"error updating card {self.card} end date")
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -501,7 +501,7 @@ class CardPIN(CoordinatorEntity, TextEntity):
         self._update()
 
     def _update(self):
-        _LOGGER.debug(f'card:{self.card} update PIN')
+        _LOGGER.debug(f"card:{self.card} update PIN")
         try:
             idx = self.card
 
@@ -513,32 +513,32 @@ class CardPIN(CoordinatorEntity, TextEntity):
                 state = self.coordinator.data[idx]
                 self._pin = state[ATTR_CARD_PIN]
                 self._available = state[ATTR_AVAILABLE]
-        except (Exception):
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error retrieving card {self.card} PIN')
+            _LOGGER.exception(f"error retrieving card {self.card} PIN")
 
 
 class CardSwiped(CoordinatorEntity, EventEntity):
-    _attr_icon = 'mdi:card-account-details'
+    _attr_icon = "mdi:card-account-details"
     _attr_has_entity_name: True
     _attr_event_types = list(CARD_EVENTS.values())
 
     def __init__(self, coordinator, unique_id, card, name, options):
         super().__init__(coordinator)
 
-        _LOGGER.debug(f'card {card} swipe event')
+        _LOGGER.debug(f"card {card} swipe event")
 
-        self.card = int(f'{card}')
+        self.card = int(f"{card}")
 
         self._unique_id = unique_id
-        self._name = f'uhppoted.card.{card}.swipe.event'.lower()
+        self._name = f"uhppoted.card.{card}.swipe.event".lower()
         self._events = deque([], 16)
         self._options = options
         self._available = False
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.card.{self._unique_id}.swipe.event'.lower()
+        return f"uhppoted.card.{self._unique_id}.swipe.event".lower()
 
     @property
     def name(self) -> str:
@@ -557,7 +557,7 @@ class CardSwiped(CoordinatorEntity, EventEntity):
         self._update()
 
     def _update(self):
-        _LOGGER.debug(f'card:{self.card} swipe event')
+        _LOGGER.debug(f"card:{self.card} swipe event")
 
         try:
             if self.coordinator.data:
@@ -579,6 +579,6 @@ class CardSwiped(CoordinatorEntity, EventEntity):
 
                 self._available = True
 
-        except (Exception):
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error retrieving card {self.card} swipe event')
+            _LOGGER.exception(f"error retrieving card {self.card} swipe event")

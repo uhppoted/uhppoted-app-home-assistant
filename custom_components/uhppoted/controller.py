@@ -35,37 +35,37 @@ from .const import STORAGE_VERSION
 from .const import STORAGE_KEY_INTERLOCK
 
 INTERLOCK = {
-    'NONE': 0,
-    'DOORS 1&2': 1,
-    'DOORS 3&4': 2,
-    'DOORS 1&2,3&4': 3,
-    'DOORS 1,2&3': 4,
-    'DOORS 1,2,3&4': 8,
+    "NONE": 0,
+    "DOORS 1&2": 1,
+    "DOORS 3&4": 2,
+    "DOORS 1&2,3&4": 3,
+    "DOORS 1,2&3": 4,
+    "DOORS 1,2,3&4": 8,
 }
 
 ANTIPASSBACK = {
-    'DISABLED': 0,
-    '(1:2);(3:4)': 1,
-    '(1,3):(2,4)': 2,
-    '1:(2,3)': 3,
-    '1:(2,3,4)': 4,
+    "DISABLED": 0,
+    "(1:2);(3:4)": 1,
+    "(1,3):(2,4)": 2,
+    "1:(2,3)": 3,
+    "1:(2,3,4)": 4,
 }
 
 
 class ControllerInfo(CoordinatorEntity, SensorEntity):
-    _attr_icon = 'mdi:identifier'
+    _attr_icon = "mdi:identifier"
     _attr_has_entity_name = True
-    _attr_translation_key = 'controller_id'
+    _attr_translation_key = "controller_id"
 
     def __init__(self, coordinator, unique_id, controller, serial_no):
-        super().__init__(coordinator, context=int(f'{serial_no}'))
+        super().__init__(coordinator, context=int(f"{serial_no}"))
 
-        _LOGGER.debug(f'controller {controller} {serial_no}')
+        _LOGGER.debug(f"controller {controller} {serial_no}")
 
         self._unique_id = unique_id
         self.controller = controller
-        self._serial_no = int(f'{serial_no}')
-        self._name = f'uhppoted.controller.{controller}.info'.lower()
+        self._serial_no = int(f"{serial_no}")
+        self._name = f"uhppoted.controller.{controller}.info".lower()
         self._state = serial_no
         self._attributes: Dict[str, Any] = {
             ATTR_CONTROLLER_SERIAL_NUMBER: serial_no,
@@ -80,7 +80,7 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.controller.{self._unique_id}.info'.lower()
+        return f"uhppoted.controller.{self._unique_id}.info".lower()
 
     # NTS: remove to use name translation
     @property
@@ -94,7 +94,7 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
     @property
     def state(self) -> Optional[str]:
         if self._state != None:
-            return f'{self._state}'
+            return f"{self._state}"
 
         return None
 
@@ -111,7 +111,7 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
         self._update()
 
     def _update(self):
-        _LOGGER.debug(f'controller:{self.controller}  update info')
+        _LOGGER.debug(f"controller:{self.controller}  update info")
 
         try:
             idx = self._serial_no
@@ -128,30 +128,30 @@ class ControllerInfo(CoordinatorEntity, SensorEntity):
                 self._attributes[ATTR_CONTROLLER_LISTENER] = state.get(ATTR_CONTROLLER_LISTENER, None)
                 self._available = state.get(ATTR_AVAILABLE, False)
 
-        except (Exception):
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.controller} information')
+            _LOGGER.exception(f"error retrieving controller {self.controller} information")
 
 
 class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
-    _attr_icon = 'mdi:calendar-clock-outline'
+    _attr_icon = "mdi:calendar-clock-outline"
     _attr_has_entity_name: True
 
     def __init__(self, coordinator, unique_id, controller, serial_no):
-        super().__init__(coordinator, context=int(f'{serial_no}'))
+        super().__init__(coordinator, context=int(f"{serial_no}"))
 
-        _LOGGER.debug(f'controller datetime:{controller}')
+        _LOGGER.debug(f"controller datetime:{controller}")
 
         self._unique_id = unique_id
         self.controller = controller
-        self._serial_no = int(f'{serial_no}')
-        self._name = f'uhppoted.controller.{controller}.datetime'.lower()
+        self._serial_no = int(f"{serial_no}")
+        self._name = f"uhppoted.controller.{controller}.datetime".lower()
         self._datetime = None
         self._available = False
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.controller.{self._unique_id}.datetime'.lower()
+        return f"uhppoted.controller.{self._unique_id}.datetime".lower()
 
     @property
     def name(self) -> str:
@@ -175,9 +175,9 @@ class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
             if response:
                 await self.coordinator.async_request_refresh()
 
-        except (Exception):
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error updating controller {self.controller} date/time')
+            _LOGGER.exception(f"error updating controller {self.controller} date/time")
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -188,7 +188,7 @@ class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
         self._update()
 
     def _update(self):
-        _LOGGER.debug(f'controller:{self.controller}  update datetime')
+        _LOGGER.debug(f"controller:{self.controller}  update datetime")
         try:
             idx = self._serial_no
 
@@ -203,31 +203,31 @@ class ControllerDateTime(CoordinatorEntity, DateTimeEntity):
                 self._available = state.get(ATTR_AVAILABLE, False)
                 self._datetime = state.get(ATTR_CONTROLLER_DATETIME, None)
 
-        except (Exception):
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.controller} date/time')
+            _LOGGER.exception(f"error retrieving controller {self.controller} date/time")
 
 
 class ControllerEvent(CoordinatorEntity, EventEntity):
-    _attr_icon = 'mdi:lock-alert'
+    _attr_icon = "mdi:lock-alert"
     _attr_has_entity_name: True
     _attr_event_types = list(EVENTS.values())
 
     def __init__(self, coordinator, unique_id, controller, serial_no):
-        super().__init__(coordinator, context=int(f'{serial_no}'))
+        super().__init__(coordinator, context=int(f"{serial_no}"))
 
-        _LOGGER.debug(f'controller {controller} event')
+        _LOGGER.debug(f"controller {controller} event")
 
         self._unique_id = unique_id
         self.controller = controller
-        self._serial_no = int(f'{serial_no}')
-        self._name = f'uhppoted.controller.{controller}.event'.lower()
+        self._serial_no = int(f"{serial_no}")
+        self._name = f"uhppoted.controller.{controller}.event".lower()
         self._events = deque([], 16)
         self._available = False
 
     @property
     def unique_id(self) -> str:
-        return f'uhppoted.controller.{self._unique_id}.event'.lower()
+        return f"uhppoted.controller.{self._unique_id}.event".lower()
 
     @property
     def name(self) -> str:
@@ -246,7 +246,7 @@ class ControllerEvent(CoordinatorEntity, EventEntity):
         self._update()
 
     def _update(self):
-        _LOGGER.debug(f'controller:{self.controller} update event')
+        _LOGGER.debug(f"controller:{self.controller} update event")
         try:
             idx = self._serial_no
 
@@ -267,28 +267,28 @@ class ControllerEvent(CoordinatorEntity, EventEntity):
                 event = self._events.pop()
                 self._trigger_event(event)
 
-        except (Exception):
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self.controller} events')
+            _LOGGER.exception(f"error retrieving controller {self.controller} events")
 
 
 class InterlockExtraStoredData(ExtraStoredData):
 
     @classmethod
     def from_dict(cls, restored: dict[str, Any]) -> "InterlockExtraStoredData":
-        interlock = restored.get('interlock', None)
-        modified = restored.get('modified', None)
+        interlock = restored.get("interlock", None)
+        modified = restored.get("modified", None)
 
         return cls(interlock, modified)
 
-    def __init__(self, interlock: str = '', modified: str = ''):
-        self._interlock = interlock if interlock else ''
-        self._modified = modified if modified else ''
+    def __init__(self, interlock: str = "", modified: str = ""):
+        self._interlock = interlock if interlock else ""
+        self._modified = modified if modified else ""
 
     def as_dict(self) -> dict:
         return {
-            'interlock': self._interlock,
-            'modified': self._modified,
+            "interlock": self._interlock,
+            "modified": self._modified,
         }
 
     @property
@@ -300,7 +300,7 @@ class InterlockExtraStoredData(ExtraStoredData):
         if interlock in list(INTERLOCK.keys()):
             self._interlock = interlock
         else:
-            self._interlock = ''
+            self._interlock = ""
 
     @property
     def modified(self) -> str:
@@ -308,26 +308,26 @@ class InterlockExtraStoredData(ExtraStoredData):
 
     @modified.setter
     def modified(self, modified: str) -> None:
-        self._modified = modified if modified else ''
+        self._modified = modified if modified else ""
 
 
 class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
-    _attr_icon = 'mdi:lock-plus'
+    _attr_icon = "mdi:lock-plus"
     _attr_has_entity_name: True
 
     def __init__(self, coordinator, unique_id, controller, serial_no, store, persist):
         super().__init__(coordinator, context=unique_id)
 
-        _LOGGER.debug(f'interlock {controller}')
+        _LOGGER.debug(f"interlock {controller}")
 
         self._unique_id = unique_id
         self._controller = controller
-        self._serial_no = int(f'{serial_no}')
+        self._serial_no = int(f"{serial_no}")
         self._store = store
         self._persist = persist
         self._pending = None
 
-        self._name = f'uhppoted.controller.{controller}.interlock'.lower()
+        self._name = f"uhppoted.controller.{controller}.interlock".lower()
         self._mode = -1
         self._extra = InterlockExtraStoredData(None, None)
         self._available = False
@@ -352,7 +352,7 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
     def current_option(self) -> Optional[str]:
         lookup = {v: k for k, v in INTERLOCK.items()}
         if self._available:
-            return lookup.get(self._mode, 'UNKNOWN')
+            return lookup.get(self._mode, "UNKNOWN")
 
         return None
 
@@ -378,10 +378,10 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
             extra = self._extra
 
             if self._store:
-                if interlocks := self._store.get('interlocks'):
+                if interlocks := self._store.get("interlocks"):
                     if record := interlocks.get(self._name):
-                        persisted['interlock'] = record.get('interlock', None)
-                        persisted['modified'] = record.get('modified', None)
+                        persisted["interlock"] = record.get("interlock", None)
+                        persisted["modified"] = record.get("modified", None)
 
             # restore 'extra' data
             if v := await self.async_get_last_extra_data():
@@ -391,22 +391,28 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
             try:
                 if state := await self.async_get_last_state():
                     if mode := INTERLOCK.get(state.state, None):
-                        if state.state != persisted.get('interlock', None):
-                            _LOGGER.warning(f"{self._controller}: inconsistent interlock 'persisted' state (state:{state.state}, stored:{persisted})") # yapf: disable
+                        if state.state != persisted.get("interlock", None):
+                            _LOGGER.warning(
+                                f"{self._controller}: inconsistent interlock 'persisted' state (state:{state.state}, stored:{persisted})"
+                            )
                         elif state.state != extra.interlock:
-                            _LOGGER.warning(f"{self._controller}: inconsistent interlock 'extra' state (state:{state.state}, stored:{extra.interlock})") # yapf: disable
-                        elif extra.modified != persisted.get('modified', None):
-                            _LOGGER.warning(f"{self._controller}: inconsistent interlock 'extra' state (state:{extra.modified}, stored:{persisted.get('modified')})") # yapf: disable
+                            _LOGGER.warning(
+                                f"{self._controller}: inconsistent interlock 'extra' state (state:{state.state}, stored:{extra.interlock})"
+                            )
+                        elif extra.modified != persisted.get("modified", None):
+                            _LOGGER.warning(
+                                f"{self._controller}: inconsistent interlock 'extra' state (state:{extra.modified}, stored:{persisted.get('modified')})"
+                            )
                         else:
                             self._extra = extra
                             await self._set_interlock(self._serial_no, mode)
-                            _LOGGER.info(f'{self._controller}: restored door interlock mode ({state.state})')
+                            _LOGGER.info(f"{self._controller}: restored door interlock mode ({state.state})")
 
             except Exception as err:
-                _LOGGER.warning(f'{self._controller}: error initialising door interlock mode ({err})')
+                _LOGGER.warning(f"{self._controller}: error initialising door interlock mode ({err})")
 
     async def async_select_option(self, option):
-        _LOGGER.debug(f'controller:{self._controller}  set interlock {option}')
+        _LOGGER.debug(f"controller:{self._controller}  set interlock {option}")
 
         if mode := INTERLOCK.get(option, None):
             try:
@@ -418,18 +424,18 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
                 self._extra.modified = modified
 
                 if self._store:
-                    if store := self._store.get('store'):
-                        interlocks = self._store.get('interlocks', {})
+                    if store := self._store.get("store"):
+                        interlocks = self._store.get("interlocks", {})
 
                         interlocks[self.name] = {
-                            'interlock': option,
-                            'modified': modified,
+                            "interlock": option,
+                            "modified": modified,
                         }
 
                         await store.async_save(interlocks)
 
             except Exception as err:
-                _LOGGER.exception(f'error setting controller {self._controller} interlock mode ({err})')
+                _LOGGER.exception(f"error setting controller {self._controller} interlock mode ({err})")
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -440,7 +446,7 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
         self._update()
 
     def _update(self):
-        _LOGGER.debug(f'controller:{self._controller} update door interlock mode')
+        _LOGGER.debug(f"controller:{self._controller} update door interlock mode")
         try:
             idx = self._serial_no
 
@@ -454,14 +460,14 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
                 self._available = state[ATTR_AVAILABLE]
 
                 # refresh controller door interlock mode if expired
-                if self._available and self._mode not in INTERLOCK.values() and self._extra.interlock in INTERLOCK.keys(): # yapf: disable
+                if self._available and self._mode not in INTERLOCK.values() and self._extra.interlock in INTERLOCK.keys():
                     if mode := INTERLOCK.get(self._extra.interlock, None):
                         if self._pending is None or self._pending.done():
                             self._pending = self.hass.async_create_task(self._refresh_interlock(self._serial_no, mode))
 
         except Exception as err:
             self._available = False
-            _LOGGER.exception(f'{self._controller}: error updating controller door interlock mode {err}')
+            _LOGGER.exception(f"{self._controller}: error updating controller door interlock mode {err}")
 
     async def _set_interlock(self, controller, mode):
         lookup = {v: k for k, v in INTERLOCK.items()}
@@ -484,29 +490,29 @@ class Interlock(CoordinatorEntity, SelectEntity, RestoreEntity):
     #      being scheduled almost immediately.
     async def _refresh_interlock(self, controller, mode):
         try:
-            _LOGGER.warning(f'{self._controller}: refreshing expired door interlock mode ({mode}) [{self._mode}]')
+            _LOGGER.warning(f"{self._controller}: refreshing expired door interlock mode ({mode}) [{self._mode}]")
             if self._mode != mode:
                 await self._set_interlock(controller, mode)
 
             await asyncio.sleep(0.1)
         except Exception as err:
-            _LOGGER.exception(f'{self._controller}: error refreshing expired door interlock mode ({err})')
+            _LOGGER.exception(f"{self._controller}: error refreshing expired door interlock mode ({err})")
 
 
 class AntiPassback(CoordinatorEntity, SelectEntity):
-    _attr_icon = 'mdi:lock-plus'
+    _attr_icon = "mdi:lock-plus"
     _attr_has_entity_name: True
 
     def __init__(self, coordinator, unique_id, controller, serial_no):
         super().__init__(coordinator, context=unique_id)
 
-        _LOGGER.debug(f'antipassback {controller}')
+        _LOGGER.debug(f"antipassback {controller}")
 
         self._unique_id = unique_id
         self._controller = controller
-        self._serial_no = int(f'{serial_no}')
+        self._serial_no = int(f"{serial_no}")
 
-        self._name = f'uhppoted.controller.{controller}.antipassback'.lower()
+        self._name = f"uhppoted.controller.{controller}.antipassback".lower()
         self._mode = -1
         self._available = False
 
@@ -530,12 +536,12 @@ class AntiPassback(CoordinatorEntity, SelectEntity):
     def current_option(self) -> Optional[str]:
         lookup = {v: k for k, v in ANTIPASSBACK.items()}
         if self._available:
-            return lookup.get(self._mode, 'UNKNOWN')
+            return lookup.get(self._mode, "UNKNOWN")
 
         return None
 
     async def async_select_option(self, option):
-        _LOGGER.debug(f'controller:{self._controller}  set card anti-passback {option}')
+        _LOGGER.debug(f"controller:{self._controller}  set card anti-passback {option}")
 
         try:
             mode = ANTIPASSBACK.get(option, None)
@@ -544,16 +550,16 @@ class AntiPassback(CoordinatorEntity, SelectEntity):
                 if response := await self.coordinator.set_antipassback(controller, mode):
                     if response.ok:
                         self._mode = mode
-                        _LOGGER.info(f'set card anti-passback mode {mode}')
+                        _LOGGER.info(f"set card anti-passback mode {mode}")
                     else:
                         self._mode = -1
 
                     self._available = True
                     await self.coordinator.async_request_refresh()
 
-        except (Exception):
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error setting controller {self._controller} anti-passback mode')
+            _LOGGER.exception(f"error setting controller {self._controller} anti-passback mode")
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -564,7 +570,7 @@ class AntiPassback(CoordinatorEntity, SelectEntity):
         self._update()
 
     def _update(self):
-        _LOGGER.debug(f'controller:{self._controller} update anti-passback mode')
+        _LOGGER.debug(f"controller:{self._controller} update anti-passback mode")
         try:
             idx = self._serial_no
 
@@ -577,6 +583,6 @@ class AntiPassback(CoordinatorEntity, SelectEntity):
                 self._mode = state[ATTR_CONTROLLER_ANTIPASSBACK]
                 self._available = state[ATTR_AVAILABLE]
 
-        except (Exception):
+        except Exception:
             self._available = False
-            _LOGGER.exception(f'error retrieving controller {self._controller} anti-passback mode')
+            _LOGGER.exception(f"error retrieving controller {self._controller} anti-passback mode")

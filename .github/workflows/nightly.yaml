@@ -19,10 +19,10 @@ jobs:
       id: python
 
     - name: Install Python packages
-      run: pip install toml yapf
+      run: pip install toml black
 
     - name: Check out code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Create (dummy) .venv virtual environment
       run: python -m venv .venv

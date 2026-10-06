@@ -31,12 +31,12 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class Controller:
-    __slots__ = ('_id', '_address', '_protocol')
+    __slots__ = ("_id", "_address", "_protocol")
 
     def __init__(self, id, address, protocol):
-        object.__setattr__(self, '_id', id)
-        object.__setattr__(self, '_address', address)
-        object.__setattr__(self, '_protocol', protocol)
+        object.__setattr__(self, "_id", id)
+        object.__setattr__(self, "_address", address)
+        object.__setattr__(self, "_protocol", protocol)
 
     @property
     def id(self):
@@ -51,7 +51,7 @@ class Controller:
         return self._protocol
 
     def __setattr__(self, key, value):
-        raise AttributeError(f'{self.__class__.__name__} is immutable')
+        raise AttributeError(f"{self.__class__.__name__} is immutable")
 
     def __str__(self):
         return str(self.id)
@@ -112,7 +112,7 @@ class uhppoted:
 
     @property
     def controllers(self):
-        return [v['controller'] for v in self._controllers]
+        return [v["controller"] for v in self._controllers]
 
     @property
     def listen_addr(self):
@@ -169,25 +169,25 @@ class uhppoted:
                     if asyncio.iscoroutinefunction(callback):
                         await callback(response)
                     else:
-                        _LOGGER.error(f'skipping non-async callback: {callback.__name__}')
+                        _LOGGER.error(f"skipping non-async callback: {callback.__name__}")
 
                 self._infof(f"{message} ok")
                 self._warnings.discard(key)
 
         except TimeoutError as exc:
             if key not in self._warnings:
-                self._warnf(f'{message} ({exc})')
+                self._warnf(f"{message} ({exc})")
                 self._warnings.add(key)
 
         except Exception as exc:
-            self._warnf(f'{message} ({exc})')
+            self._warnf(f"{message} ({exc})")
 
     async def _flush(self):
         now = datetime.now()
         expired = [key for key, record in _CACHE.items() if record.expires is not None and record.expires < now]
 
         if len(expired) > 0:
-            self._infof(f'flushing cache - cached:{len(_CACHE)} expired:{len(expired)}')
+            self._infof(f"flushing cache - cached:{len(_CACHE)} expired:{len(expired)}")
             for key in expired:
                 del _CACHE[key]
 
@@ -212,7 +212,7 @@ class uhppoted:
         _CACHE.pop(key, None)
 
     async def get_controller(self, controller, callback=None):
-        key = f'controller.{controller}.controller'
+        key = f"controller.{controller}.controller"
         (c, timeout) = self._lookup(controller)
 
         if not self.cache_enabled:
@@ -231,12 +231,14 @@ class uhppoted:
                 key,
                 CONF_CACHE_EXPIRY_CONTROLLER,
                 f"{'get-controller':<16} {controller}",
-                callback)) # yapf: disable
+                callback,
+            )
+        )
 
         return record
 
     async def get_listener(self, controller, callback=None):
-        key = f'controller.{controller}.listener'
+        key = f"controller.{controller}.listener"
         (c, timeout) = self._lookup(controller)
 
         if not self.cache_enabled:
@@ -255,12 +257,14 @@ class uhppoted:
                 key,
                 CONF_CACHE_EXPIRY_LISTENER,
                 f"{'get_listener':<16} {controller}",
-                callback)) # yapf: disable
+                callback,
+            )
+        )
 
         return record
 
     async def set_listener(self, controller, address, port):
-        key = f'controller.{controller}.listener'
+        key = f"controller.{controller}.listener"
         (c, timeout) = self._lookup(controller)
         response = await self._asio.set_listener(c, address, port, interval=0, timeout=timeout)
 
@@ -268,12 +272,16 @@ class uhppoted:
             if response is None or not response.ok:
                 self._delete(key)
             else:
-                self._put(GetListenerResponse(response.controller, address, port, 0), key, CONF_CACHE_EXPIRY_LISTENER)
+                self._put(
+                    GetListenerResponse(response.controller, address, port, 0),
+                    key,
+                    CONF_CACHE_EXPIRY_LISTENER,
+                )
 
         return response
 
     async def get_time(self, controller, callback=None):
-        key = f'controller.{controller}.datetime'
+        key = f"controller.{controller}.datetime"
         (c, timeout) = self._lookup(controller)
 
         if not self.cache_enabled:
@@ -292,12 +300,14 @@ class uhppoted:
                 key,
                 CONF_CACHE_EXPIRY_DATETIME,
                 f"{'get-time':<16} {controller}",
-                callback))  # yapf: disable
+                callback,
+            )
+        )
 
         return record
 
     async def set_time(self, controller, time):
-        key = f'controller.{controller}.datetime'
+        key = f"controller.{controller}.datetime"
         (c, timeout) = self._lookup(controller)
         response = await self._asio.set_time(controller, time, timeout=timeout)
 
@@ -305,12 +315,16 @@ class uhppoted:
             if response is None:
                 self._delete(key)
             else:
-                self._put(GetTimeResponse(response.controller, response.datetime), key, CONF_CACHE_EXPIRY_DATETIME)
+                self._put(
+                    GetTimeResponse(response.controller, response.datetime),
+                    key,
+                    CONF_CACHE_EXPIRY_DATETIME,
+                )
 
         return response
 
     async def get_door(self, controller, door, callback=None):
-        key = f'controller.{controller}.door.{door}'
+        key = f"controller.{controller}.door.{door}"
         (c, timeout) = self._lookup(controller)
 
         if not self.cache_enabled:
@@ -329,12 +343,14 @@ class uhppoted:
                 key,
                 CONF_CACHE_EXPIRY_DOOR,
                 f"{'get_door':<16} {controller} {door}",
-                callback))  # yapf: disable
+                callback,
+            )
+        )
 
         return record
 
     async def set_door(self, controller, door, mode, delay):
-        key = f'controller.{controller}.door.{door}'
+        key = f"controller.{controller}.door.{door}"
         (c, timeout) = self._lookup(controller)
         response = await self._asio.set_door_control(c, door, mode, delay, timeout=timeout)
 
@@ -342,8 +358,16 @@ class uhppoted:
             if response is None:
                 self._delete(key)
             else:
-                self._put(GetDoorControlResponse(response.controller, response.door, response.mode, response.delay),
-                          key, CONF_CACHE_EXPIRY_DOOR)
+                self._put(
+                    GetDoorControlResponse(
+                        response.controller,
+                        response.door,
+                        response.mode,
+                        response.delay,
+                    ),
+                    key,
+                    CONF_CACHE_EXPIRY_DOOR,
+                )
 
         return response
 
@@ -354,7 +378,7 @@ class uhppoted:
         return response
 
     async def get_status(self, controller, callback=None):
-        key = f'controller.{controller}.status'
+        key = f"controller.{controller}.status"
         (c, timeout) = self._lookup(controller)
 
         if not self.cache_enabled:
@@ -373,7 +397,9 @@ class uhppoted:
                 key,
                 CONF_CACHE_EXPIRY_STATUS,
                 f"{'get_status':<16} {controller}",
-                callback))  # yapf: disable
+                callback,
+            )
+        )
 
         return record
 
@@ -383,16 +409,19 @@ class uhppoted:
         return await self._asio.get_cards(c, timeout=timeout)
 
     async def get_card(self, controller, card, callback=None):
-        key = f'controller.{controller}.card.{card}'
+        key = f"controller.{controller}.card.{card}"
         (c, timeout) = self._lookup(controller)
 
         if self.cache_enabled and callback is not None:
-            self.queue.put_nowait(lambda: self.ye_async_taskke(
-                lambda: self._asio.get_card(c, card, timeout=timeout),
-                key,
-                CONF_CACHE_EXPIRY_CARD,
-                f"{'get_card':<16} {controller} {card}",
-                callback))  # yapf: disable
+            self.queue.put_nowait(
+                lambda: self.ye_async_taskke(
+                    lambda: self._asio.get_card(c, card, timeout=timeout),
+                    key,
+                    CONF_CACHE_EXPIRY_CARD,
+                    f"{'get_card':<16} {controller} {card}",
+                    callback,
+                )
+            )
 
             if record := self._get(key):
                 return record
@@ -405,28 +434,40 @@ class uhppoted:
         return await self._asio.get_card_by_index(c, index, timeout=timeout)
 
     async def put_card(self, controller, card, start_date, end_date, door1, door2, door3, door4, PIN):
-        key = f'controller.{controller}.card.{card}'
+        key = f"controller.{controller}.card.{card}"
         (c, timeout) = self._lookup(controller)
-        response = await self._asio.put_card(c,
-                                             card,
-                                             start_date,
-                                             end_date,
-                                             door1,
-                                             door2,
-                                             door3,
-                                             door4,
-                                             PIN,
-                                             timeout=timeout)
+        response = await self._asio.put_card(
+            c,
+            card,
+            start_date,
+            end_date,
+            door1,
+            door2,
+            door3,
+            door4,
+            PIN,
+            timeout=timeout,
+        )
 
         if self.cache_enabled and response is not None and response.stored:
-            record = GetCardResponse(response.controller, card, start_date, end_date, door1, door2, door3, door4, PIN)
+            record = GetCardResponse(
+                response.controller,
+                card,
+                start_date,
+                end_date,
+                door1,
+                door2,
+                door3,
+                door4,
+                PIN,
+            )
 
             self._put(record, key, CONF_CACHE_EXPIRY_CARD)
 
         return response
 
     async def delete_card(self, controller, card):
-        key = f'controller.{controller}.card.{card}'
+        key = f"controller.{controller}.card.{card}"
         (c, timeout) = self._lookup(controller)
         response = await self.asio.delete_card(c, card, timeout=timeout)
 
@@ -441,7 +482,7 @@ class uhppoted:
 
     # NTS: events are never deleted
     async def get_event(self, controller, index, callback=None):
-        key = f'controller.{controller}.event.{index}'
+        key = f"controller.{controller}.event.{index}"
         (c, timeout) = self._lookup(controller)
 
         if not self.cache_enabled:
@@ -460,17 +501,19 @@ class uhppoted:
                 key,
                 CONF_CACHE_EXPIRY_EVENT,
                 f"{'get_event':<16} {controller}",
-                callback)) # yapf: disable
+                callback,
+            )
+        )
 
         return record
 
     async def get_interlock(self, controller, callback=None):
-        key = f'controller.{controller}.interlock'
+        key = f"controller.{controller}.interlock"
 
         return self._get(key)
 
     async def set_interlock(self, controller, interlock):
-        key = f'controller.{controller}.interlock'
+        key = f"controller.{controller}.interlock"
         (c, timeout) = self._lookup(controller)
         response = await self._asio.set_interlock(c, interlock, timeout=timeout)
 
@@ -478,12 +521,16 @@ class uhppoted:
             if response is None or not response.ok:
                 self._delete(key)
             else:
-                self._put(GetInterlockResponse(controller, interlock), key, CONF_CACHE_EXPIRY_INTERLOCK)
+                self._put(
+                    GetInterlockResponse(controller, interlock),
+                    key,
+                    CONF_CACHE_EXPIRY_INTERLOCK,
+                )
 
         return response
 
     async def get_antipassback(self, controller, callback=None):
-        key = f'controller.{controller}.antipassback'
+        key = f"controller.{controller}.antipassback"
         (c, timeout) = self._lookup(controller)
 
         if not self.cache_enabled:
@@ -502,12 +549,14 @@ class uhppoted:
                 key,
                 CONF_CACHE_EXPIRY_ANTIPASSBACK,
                 f"{'get_antipassback':<16} {controller}",
-                callback)) # yapf: disable
+                callback,
+            )
+        )
 
         return record
 
     async def set_antipassback(self, controller, antipassback):
-        key = f'controller.{controller}.antipassback'
+        key = f"controller.{controller}.antipassback"
         (c, timeout) = self._lookup(controller)
 
         response = await self._asio.set_antipassback(c, antipassback, timeout=timeout)
@@ -516,7 +565,11 @@ class uhppoted:
             if response is None or not response.ok:
                 self._delete(key)
             else:
-                self._put(GetAntiPassbackResponse(controller, antipassback), key, CONF_CACHE_EXPIRY_ANTIPASSBACK)
+                self._put(
+                    GetAntiPassbackResponse(controller, antipassback),
+                    key,
+                    CONF_CACHE_EXPIRY_ANTIPASSBACK,
+                )
 
         return response
 
@@ -525,20 +578,20 @@ class uhppoted:
 
     def _lookup(self, controller):
         for v in self._controllers:
-            if controller == v['controller']:
-                addr = v.get('address', None)
-                port = v.get('port', 60000)
-                timeout = v.get('timeout', self._timeout)
-                protocol = v.get('protocol', 'udp')
+            if controller == v["controller"]:
+                addr = v.get("address", None)
+                port = v.get("port", 60000)
+                timeout = v.get("timeout", self._timeout)
+                protocol = v.get("protocol", "udp")
 
                 if addr is None:
-                    return ((controller, None, 'udp'), timeout)
-                elif f'{addr}:{port}' == self._broadcast:
-                    return ((controller, None, 'udp'), timeout)
+                    return ((controller, None, "udp"), timeout)
+                elif f"{addr}:{port}" == self._broadcast:
+                    return ((controller, None, "udp"), timeout)
                 else:
-                    return ((controller, f'{addr}:{port}', protocol), timeout)
+                    return ((controller, f"{addr}:{port}", protocol), timeout)
 
-        return ((controller, None, 'udp'), self._timeout)
+        return ((controller, None, "udp"), self._timeout)
 
     def _infof(self, message):
         if self._debug:

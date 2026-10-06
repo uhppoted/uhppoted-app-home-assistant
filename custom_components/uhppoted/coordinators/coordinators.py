@@ -19,7 +19,7 @@ from .db import DB
 _LOGGER = logging.getLogger(__name__)
 
 
-class Coordinators():
+class Coordinators:
     COORDINATORS = dict()
 
     @classmethod
@@ -101,7 +101,7 @@ class Coordinators():
         poll_cards = None
         poll_events = None
 
-        listen_addr = '0.0.0.0:60001'
+        listen_addr = "0.0.0.0:60001"
 
         defaults = hass.data[DOMAIN] if DOMAIN in hass.data else {}
 
@@ -123,8 +123,14 @@ class Coordinators():
         self._controllers = ControllersCoordinator(hass, options, poll_controllers, self._driver, self._db)
         self._doors = DoorsCoordinator(hass, options, poll_doors, self._driver, self._db)
         self._cards = CardsCoordinator(hass, options, poll_cards, self._driver, self._db)
-        self._events = EventsCoordinator(hass, options, poll_events, self._driver, self._db,
-                                         lambda evt: self._on_event(hass, evt))
+        self._events = EventsCoordinator(
+            hass,
+            options,
+            poll_events,
+            self._driver,
+            self._db,
+            lambda evt: self._on_event(hass, evt),
+        )
 
         self._driver.start(hass)
 

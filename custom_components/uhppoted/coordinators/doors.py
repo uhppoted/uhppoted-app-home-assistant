@@ -53,7 +53,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         self._state = {}
         self._initialised = False
 
-        _LOGGER.info(f'doors coordinator initialised ({interval.total_seconds():.0f}s)')
+        _LOGGER.info(f"doors coordinator initialised ({interval.total_seconds():.0f}s)")
 
     def __del__(self):
         self.unload()
@@ -70,7 +70,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
             response = await self._uhppote.set_door(controller.id, door, mode, delay)
 
             if response.controller != controller.id or response.door != door:
-                raise ValueError(f'invalid response to set-door-mode')
+                raise ValueError(f"invalid response to set-door-mode")
             else:
                 return response
 
@@ -85,7 +85,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
             response = await self._uhppote.set_door(controller.id, door, mode, delay)
 
             if response.controller != controller.id or response.door != door:
-                raise ValueError(f'invalid response to set-door-delay')
+                raise ValueError(f"invalid response to set-door-delay")
             else:
                 return response
 
@@ -96,7 +96,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
         response = await self._uhppote.open_door(controller.id, door)
 
         if response.controller != controller.id:
-            raise ValueError(f'invalid response to open-door')
+            raise ValueError(f"invalid response to open-door")
         else:
             return response
 
@@ -159,7 +159,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
             gathered = await asyncio.gather(*tasks, return_exceptions=True)
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller door information ({err})')
+            _LOGGER.error(f"error retrieving controller door information ({err})")
             for task in tasks:
                 task.close()
 
@@ -172,7 +172,7 @@ class DoorsCoordinator(DataUpdateCoordinator):
 
     async def _get_controller(self, lock, controller, doors):
         state = {}
-        for (idx, door) in doors:
+        for idx, door in doors:
             state[idx] = {
                 ATTR_DOOR_OPEN: None,
                 ATTR_DOOR_BUTTON: None,
@@ -180,64 +180,86 @@ class DoorsCoordinator(DataUpdateCoordinator):
             }
 
         def g(idx, open, button, relay):
-            state[idx].update({
-                ATTR_DOOR_OPEN: open == True,
-                ATTR_DOOR_BUTTON: button == True,
-                ATTR_DOOR_LOCK: relay == 0x00,
-            })
+            state[idx].update(
+                {
+                    ATTR_DOOR_OPEN: open == True,
+                    ATTR_DOOR_BUTTON: button == True,
+                    ATTR_DOOR_LOCK: relay == 0x00,
+                }
+            )
 
         def h(idx, door, response):
             if door == 1:
-                g(idx, response.door_1_open, response.door_1_button, response.relays & 0x01)
+                g(
+                    idx,
+                    response.door_1_open,
+                    response.door_1_button,
+                    response.relays & 0x01,
+                )
             elif door == 2:
-                g(idx, response.door_2_open, response.door_2_button, response.relays & 0x02)
+                g(
+                    idx,
+                    response.door_2_open,
+                    response.door_2_button,
+                    response.relays & 0x02,
+                )
             elif door == 3:
-                g(idx, response.door_3_open, response.door_3_button, response.relays & 0x04)
+                g(
+                    idx,
+                    response.door_3_open,
+                    response.door_3_button,
+                    response.relays & 0x04,
+                )
             elif door == 4:
-                g(idx, response.door_4_open, response.door_4_button, response.relays & 0x08)
+                g(
+                    idx,
+                    response.door_4_open,
+                    response.door_4_button,
+                    response.relays & 0x08,
+                )
 
         async def callback(response):
             try:
-                _LOGGER.debug(f'get-controller {controller.id} {response}')
+                _LOGGER.debug(f"get-controller {controller.id} {response}")
                 if response and response.controller == controller.id:
-                    for (idx, door) in doors:
-                        if door_number := door.get('door_number'):
+                    for idx, door in doors:
+                        if door_number := door.get("door_number"):
                             h(idx, door_number, response)
 
                     async with lock:
-                        for (idx, door) in doors:
+                        for idx, door in doors:
                             self._state[idx].update(state.get(idx, {}))
 
             except Exception as err:
-                _LOGGER.error(f'error updating controller {controller.id} door state ({err})')
+                _LOGGER.error(f"error updating controller {controller.id} door state ({err})")
 
         try:
             response = await self._uhppote.get_status(controller.id, callback)
             if response and response.controller == controller.id:
-                for (idx, door) in doors:
-                    if door_number := door.get('door_number'):
+                for idx, door in doors:
+                    if door_number := door.get("door_number"):
                         h(idx, door_number, response)
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller.id} door state ({err})')
+            _LOGGER.error(f"error retrieving controller {controller.id} door state ({err})")
 
         async with lock:
-            for (idx, door) in doors:
+            for idx, door in doors:
                 self._state[idx].update(state.get(idx, {}))
 
     async def _get_door(self, lock, idx, door):
-        _LOGGER.debug(f'fetch door info {door}')
+        _LOGGER.debug(f"fetch door info {door}")
 
         name = door[CONF_DOOR_ID]
         controller_id = door[CONF_CONTROLLER_SERIAL_NUMBER]
         door_id = door[CONF_DOOR_NUMBER]
 
-        available = False,
+        available = (False,)
         mode = None
         delay = None
 
         async def callback(response):
             try:
-                _LOGGER.debug(f'get-door::callback {door} {response}')
+                _LOGGER.debug(f"get-door::callback {door} {response}")
                 if response and response.controller == controller_id and response.door == door_id:
                     changed = False
                     async with lock:
@@ -262,15 +284,15 @@ class DoorsCoordinator(DataUpdateCoordinator):
                         self.async_set_updated_data(self._state)
 
             except Exception as err:
-                _LOGGER.error(f'error updating internal controller {controller.id} information ({err})')
+                _LOGGER.error(f"error updating internal controller {controller.id} information ({err})")
 
         try:
             controller = Controller(controller_id, None, None)
             for v in self._controllers:
-                if int(f'{v.id}') == int(f'{controller_id}'):
+                if int(f"{v.id}") == int(f"{controller_id}"):
                     controller = v
 
-            _LOGGER.debug(f'fetch door {name} information')
+            _LOGGER.debug(f"fetch door {name} information")
 
             response = await self._uhppote.get_door(controller.id, door_id, callback)
             if response and response.controller == controller.id and response.door == door_id:
@@ -282,15 +304,17 @@ class DoorsCoordinator(DataUpdateCoordinator):
             _LOGGER.error(f'error retrieving door {door["door_id"]} information ({err})')
 
         async with lock:
-            self._state[idx].update({
-                ATTR_DOOR_MODE: mode,
-                ATTR_DOOR_DELAY: delay,
-                ATTR_AVAILABLE: available,
-            })
+            self._state[idx].update(
+                {
+                    ATTR_DOOR_MODE: mode,
+                    ATTR_DOOR_DELAY: delay,
+                    ATTR_AVAILABLE: available,
+                }
+            )
 
     def _resolve(self, controller_id):
         for controller in self._controllers:
             if controller.id == controller_id:
                 return controller
 
-        return Controller(int(f'{controller_id}'), None, None)
+        return Controller(int(f"{controller_id}"), None, None)

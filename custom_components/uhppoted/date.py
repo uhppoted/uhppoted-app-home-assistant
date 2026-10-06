@@ -22,10 +22,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     cards = Coordinators.cards(entry.entry_id)
 
     def f(card, name, unique_id):
-        entities.extend([
-            CardStartDate(cards, unique_id, card, name),
-            CardEndDate(cards, unique_id, card, name),
-        ])
+        entities.extend(
+            [
+                CardStartDate(cards, unique_id, card, name),
+                CardEndDate(cards, unique_id, card, name),
+            ]
+        )
 
     configure_cards(options, f)
     async_add_entities(entities, update_before_add=True)

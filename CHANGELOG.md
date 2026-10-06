@@ -4,6 +4,8 @@
 
 ### Updated
 1. Migrated from _github.com/uhppoted/uhppoted-app-home-assistant_ to _codeberg.org/uhppoted/uhppoted-app-home-assistant_.
+2. Updated to use uhppoted-lib-python 0.9.1.1 for _connect-to-self_ fixes.
+3. Replaced _yapf_ formatter with _black_.
 
 
 ## [0.9.0.1](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.9.0.1) - 2026-01-27

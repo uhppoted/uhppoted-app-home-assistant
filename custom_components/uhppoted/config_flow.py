@@ -126,15 +126,17 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         self.data = {}
         self.options = {}
         self.doors = []
-        self.configuration = {'cards': []}
+        self.configuration = {"cards": []}
         self.cache = {}
 
         self.options.update(get_IPv4(defaults))
-        self.options.update({
-            CONF_TIMEOUT: self._timeout,
-            CONF_CONTROLLERS: [],
-            CONF_DOORS: [],
-        })
+        self.options.update(
+            {
+                CONF_TIMEOUT: self._timeout,
+                CONF_CONTROLLERS: [],
+                CONF_DOORS: [],
+            }
+        )
 
         return await self.async_step_IPv4()
 
@@ -151,27 +153,35 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         listen = self.options.get(CONF_LISTEN_ADDR, self._listen)
         debug = self.options.get(CONF_DEBUG, self._debug)
 
-        binds = SelectSelectorConfig(options=[{ 'label': f'{v}', 'value': f'{v}' } for v in get_bind_addresses()],
-                                     multiple=False,
-                                     custom_value=True,
-                                     mode=SelectSelectorMode.LIST) # yapf: disable
+        binds = SelectSelectorConfig(
+            options=[{"label": f"{v}", "value": f"{v}"} for v in get_bind_addresses()],
+            multiple=False,
+            custom_value=True,
+            mode=SelectSelectorMode.LIST,
+        )
 
-        broadcasts = SelectSelectorConfig(options=[{ 'label': f'{v}:60000', 'value': f'{v}:60000' } for v in get_broadcast_addresses()],
-                                          multiple=False,
-                                          custom_value=True,
-                                          mode=SelectSelectorMode.LIST) # yapf: disable
+        broadcasts = SelectSelectorConfig(
+            options=[{"label": f"{v}:60000", "value": f"{v}:60000"} for v in get_broadcast_addresses()],
+            multiple=False,
+            custom_value=True,
+            mode=SelectSelectorMode.LIST,
+        )
 
-        listens = SelectSelectorConfig(options=[{ 'label': f'{v}:60001', 'value': f'{v}:60001' } for v in get_listen_addresses()],
-                                       multiple=False,
-                                       custom_value=True,
-                                       mode=SelectSelectorMode.LIST) # yapf: disable
+        listens = SelectSelectorConfig(
+            options=[{"label": f"{v}:60001", "value": f"{v}:60001"} for v in get_listen_addresses()],
+            multiple=False,
+            custom_value=True,
+            mode=SelectSelectorMode.LIST,
+        )
 
-        schema = vol.Schema({
-            vol.Optional(CONF_BIND_ADDR, default=bind): SelectSelector(binds),
-            vol.Optional(CONF_BROADCAST_ADDR, default=broadcast): SelectSelector(broadcasts),
-            vol.Optional(CONF_LISTEN_ADDR, default=listen): SelectSelector(listens),
-            vol.Optional(CONF_DEBUG, default=debug): bool,
-        })
+        schema = vol.Schema(
+            {
+                vol.Optional(CONF_BIND_ADDR, default=bind): SelectSelector(binds),
+                vol.Optional(CONF_BROADCAST_ADDR, default=broadcast): SelectSelector(broadcasts),
+                vol.Optional(CONF_LISTEN_ADDR, default=listen): SelectSelector(listens),
+                vol.Optional(CONF_DEBUG, default=debug): bool,
+            }
+        )
 
         return self.async_show_form(step_id="IPv4", data_schema=schema, errors=errors)
 
@@ -179,12 +189,12 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         errors: Dict[str, str] = {}
 
         if user_input is not None:
-            address = user_input.get(CONF_EVENTS_DEST_ADDR, '')
+            address = user_input.get(CONF_EVENTS_DEST_ADDR, "")
 
             try:
                 validate_events_addr(address)
             except ValueError as err:
-                errors[CONF_EVENTS_DEST_ADDR] = f'{err}'
+                errors[CONF_EVENTS_DEST_ADDR] = f"{err}"
 
             if not errors:
                 self.options.update([[CONF_EVENTS_DEST_ADDR, address]])
@@ -192,57 +202,64 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
                 return await self.async_step_controllers()
 
         addr = self.options.get(CONF_EVENTS_DEST_ADDR, self._events_dest_addr)
-        addresses = [v for v in get_IPv4_addresses() if v != '127.0.0.1']
+        addresses = [v for v in get_IPv4_addresses() if v != "127.0.0.1"]
 
-        select = SelectSelectorConfig(options=[{ 'label': f'{v}:60001', 'value': f'{v}:60001' } for v in addresses],
-                                      multiple=False,
-                                      custom_value=True,
-                                      mode=SelectSelectorMode.LIST) # yapf: disable
+        select = SelectSelectorConfig(
+            options=[{"label": f"{v}:60001", "value": f"{v}:60001"} for v in addresses],
+            multiple=False,
+            custom_value=True,
+            mode=SelectSelectorMode.LIST,
+        )
 
-        schema = vol.Schema({
-            vol.Optional(CONF_EVENTS_DEST_ADDR, default=''): SelectSelector(select),
-        })
+        schema = vol.Schema(
+            {
+                vol.Optional(CONF_EVENTS_DEST_ADDR, default=""): SelectSelector(select),
+            }
+        )
 
         return self.async_show_form(step_id="events", data_schema=schema, errors=errors)
 
     async def async_step_controllers(self, user_input: Optional[Dict[str, Any]] = None):
         controllers = self._get_all_controllers(self.options)
 
-        self.cache['controllers'] = controllers
+        self.cache["controllers"] = controllers
 
         if len(controllers) < 2:
             for v in controllers:
-                self._controllers.append({
-                    'controller': {
-                        'serial_no': v['controller'],
-                        'address': v.get('address', ''),
-                        'port': v.get('port', 60000),
-                        'protocol': v.get('protocol', 'UDP'),
-                        'configured': False,
-                    },
-                    'doors': None,
-                })
+                self._controllers.append(
+                    {
+                        "controller": {
+                            "serial_no": v["controller"],
+                            "address": v.get("address", ""),
+                            "port": v.get("port", 60000),
+                            "protocol": v.get("protocol", "UDP"),
+                            "configured": False,
+                        },
+                        "doors": None,
+                    }
+                )
 
             return await self.async_step_controller()
 
         selected = get_configured_controllers(self.options)
         if len(selected) == 0:
-            selected = [v['controller'] for v in controllers]
+            selected = [v["controller"] for v in controllers]
 
-        (schema, placeholders, errors) = super().step_controllers(controllers, selected, self.options, user_input,
-                                                                  self.cache)
+        (schema, placeholders, errors) = super().step_controllers(controllers, selected, self.options, user_input, self.cache)
 
         # NTS: errors are for display only
         if user_input is None:
-            return self.async_show_form(step_id="controllers",
-                                        data_schema=schema,
-                                        errors=errors,
-                                        description_placeholders=placeholders)
+            return self.async_show_form(
+                step_id="controllers",
+                data_schema=schema,
+                errors=errors,
+                description_placeholders=placeholders,
+            )
         else:
             return await self.async_step_controller()
 
     async def async_step_controller(self, user_input: Optional[Dict[str, Any]] = None):
-        it = next((v for v in self._controllers if not v['controller']['configured']), None)
+        it = next((v for v in self._controllers if not v["controller"]["configured"]), None)
         if it == None:
             try:
                 validate_all_controllers(self.options)
@@ -250,15 +267,17 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
             except ValueError as err:
                 return await self.async_step_controllers()
         else:
-            controller = it['controller']
+            controller = it["controller"]
 
             (schema, placeholders, errors) = super().step_controller(controller, self.options, user_input)
 
             if user_input is None or errors:
-                return self.async_show_form(step_id="controller",
-                                            data_schema=schema,
-                                            errors=errors,
-                                            description_placeholders=placeholders)
+                return self.async_show_form(
+                    step_id="controller",
+                    data_schema=schema,
+                    errors=errors,
+                    description_placeholders=placeholders,
+                )
             else:
                 return await self.async_step_controller()
 
@@ -266,120 +285,132 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         (schema, placeholders, errors) = super().step_controllers_optins(self.options, user_input)
 
         if user_input is None or errors:
-            return self.async_show_form(step_id="controllers_optins",
-                                        data_schema=schema,
-                                        errors=errors,
-                                        description_placeholders=placeholders)
+            return self.async_show_form(
+                step_id="controllers_optins",
+                data_schema=schema,
+                errors=errors,
+                description_placeholders=placeholders,
+            )
         else:
             interlocks = user_input.get(CONF_INTERLOCKS, False)
             antipassback = user_input.get(CONF_ANTIPASSBACK, False)
 
-            self.options.update([
-                [CONF_INTERLOCKS, interlocks],
-                [CONF_ANTIPASSBACK, antipassback],
-            ])
+            self.options.update(
+                [
+                    [CONF_INTERLOCKS, interlocks],
+                    [CONF_ANTIPASSBACK, antipassback],
+                ]
+            )
 
             return await self.async_step_doors()
 
     async def async_step_doors(self, user_input: Optional[Dict[str, Any]] = None):
-        it = next((v for v in self._controllers if not v['doors']), None)
+        it = next((v for v in self._controllers if not v["doors"]), None)
         if it == None:
             return await self.async_step_door()
         else:
-            controller = it['controller']
+            controller = it["controller"]
 
         errors: Dict[str, str] = {}
         if user_input is not None:
             if not errors:
-                it['doors'] = {
-                    'doors': [int(f'{v}') for v in user_input['doors']],
-                    'configured': False,
+                it["doors"] = {
+                    "doors": [int(f"{v}") for v in user_input["doors"]],
+                    "configured": False,
                 }
 
                 return await self.async_step_doors()
 
         doors = []
-        if re.match('^[1-9].*', f"{controller['serial_no']}"):
+        if re.match("^[1-9].*", f"{controller['serial_no']}"):
             doors.append(1)
 
-        if re.match('^[2-9].*', f"{controller['serial_no']}"):
+        if re.match("^[2-9].*", f"{controller['serial_no']}"):
             doors.append(2)
 
-        if re.match('^[3-9].*', f"{controller['serial_no']}"):
+        if re.match("^[3-9].*", f"{controller['serial_no']}"):
             doors.append(3)
 
-        if re.match('^[4-9].*', f"{controller['serial_no']}"):
+        if re.match("^[4-9].*", f"{controller['serial_no']}"):
             doors.append(4)
 
-        select = SelectSelectorConfig(options=[{ 'label': f'Door {v}', 'value': f'{v}' } for v in doors],
-                                      multiple=True,
-                                      custom_value=False,
-                                      mode=SelectSelectorMode.LIST) # yapf: disable
+        select = SelectSelectorConfig(
+            options=[{"label": f"Door {v}", "value": f"{v}"} for v in doors],
+            multiple=True,
+            custom_value=False,
+            mode=SelectSelectorMode.LIST,
+        )
 
-        schema = vol.Schema({
-            vol.Required('doors', default=[f'{v}' for v in doors]): SelectSelector(select),
-        })
+        schema = vol.Schema(
+            {
+                vol.Required("doors", default=[f"{v}" for v in doors]): SelectSelector(select),
+            }
+        )
 
         placeholders = {
-            'controller': f'{controller["name"]}',
-            'serial_no': f'{controller["serial_no"]}',
+            "controller": f'{controller["name"]}',
+            "serial_no": f'{controller["serial_no"]}',
         }
 
-        return self.async_show_form(step_id="doors",
-                                    data_schema=schema,
-                                    errors=errors,
-                                    description_placeholders=placeholders)
+        return self.async_show_form(
+            step_id="doors",
+            data_schema=schema,
+            errors=errors,
+            description_placeholders=placeholders,
+        )
 
     async def async_step_door(self, user_input: Optional[Dict[str, Any]] = None):
 
         def f(v):
-            return len(v['doors']) > 0 and not v['configured']
+            return len(v["doors"]) > 0 and not v["configured"]
 
-        it = next((v for v in self._controllers if f(v['doors'])), None)
+        it = next((v for v in self._controllers if f(v["doors"])), None)
         if it == None:
             return await self.async_step_cards()
         else:
-            controller = it['controller']['name']
-            serial_no = it['controller']['serial_no']
-            doors = it['doors']['doors']
+            controller = it["controller"]["name"]
+            serial_no = it["controller"]["serial_no"]
+            doors = it["doors"]["doors"]
 
         errors: Dict[str, str] = {}
         if user_input is not None:
             l = [user_input[f"door{v}_id"] for v in doors]
             for d in doors:
                 try:
-                    k = f'door{d}_id'
+                    k = f"door{d}_id"
                     v = user_input[k]
                     validate_door_id(v, self.options)
                     validate_door_duplicates(v, l)
                 except ValueError as err:
-                    errors[k] = f'{err}'
+                    errors[k] = f"{err}"
 
             if not errors:
                 v = self.options[CONF_DOORS]
 
                 for d in doors:
-                    v.append({
-                        CONF_DOOR_UNIQUE_ID: uuid.uuid4(),
-                        CONF_DOOR_ID: user_input[f'door{d}_id'],
-                        CONF_DOOR_CONTROLLER: controller,
-                        CONF_DOOR_NUMBER: int(f'{d}'),
-                    })
+                    v.append(
+                        {
+                            CONF_DOOR_UNIQUE_ID: uuid.uuid4(),
+                            CONF_DOOR_ID: user_input[f"door{d}_id"],
+                            CONF_DOOR_CONTROLLER: controller,
+                            CONF_DOOR_NUMBER: int(f"{d}"),
+                        }
+                    )
 
                 self.options.update({CONF_DOORS: v})
-                it['doors']['configured'] = True
+                it["doors"]["configured"] = True
 
                 return await self.async_step_door()
 
         defaults = {
-            'door1_id': DEFAULT_DOOR1,
-            'door2_id': DEFAULT_DOOR2,
-            'door3_id': DEFAULT_DOOR3,
-            'door4_id': DEFAULT_DOOR4,
+            "door1_id": DEFAULT_DOOR1,
+            "door2_id": DEFAULT_DOOR2,
+            "door3_id": DEFAULT_DOOR3,
+            "door4_id": DEFAULT_DOOR4,
         }
 
         if user_input is not None:
-            for k in ['door1_id', 'door2_id', 'door3_id', 'door4_id']:
+            for k in ["door1_id", "door2_id", "door3_id", "door4_id"]:
                 if k in user_input:
                     defaults[k] = user_input[k]
 
@@ -387,67 +418,79 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
 
         for d in [1, 2, 3, 4]:
             if d in doors:
-                key = f'door{d}_id'
+                key = f"door{d}_id"
                 schema = schema.extend({vol.Required(key, default=defaults[key]): str})
 
         placeholders = {
-            'controller': f'{it["controller"]["name"]}',
-            'serial_no': f'{it["controller"]["serial_no"]}',
+            "controller": f'{it["controller"]["name"]}',
+            "serial_no": f'{it["controller"]["serial_no"]}',
         }
 
-        return self.async_show_form(step_id="door",
-                                    data_schema=schema,
-                                    errors=errors,
-                                    description_placeholders=placeholders)
+        return self.async_show_form(
+            step_id="door",
+            data_schema=schema,
+            errors=errors,
+            description_placeholders=placeholders,
+        )
 
     async def async_step_cards(self, user_input: Optional[Dict[str, Any]] = None):
         errors: Dict[str, str] = {}
 
         if user_input is not None:
             if not errors:
-                self.configuration['cards'] = [{
-                    'card': int(f'{v}'),
-                    'unique_id': uuid.uuid4(),
-                    'configured': False,
-                } for v in user_input[CONF_CARDS]]
+                self.configuration["cards"] = [
+                    {
+                        "card": int(f"{v}"),
+                        "unique_id": uuid.uuid4(),
+                        "configured": False,
+                    }
+                    for v in user_input[CONF_CARDS]
+                ]
 
                 return await self.async_step_card()
 
         cards = [v[CONF_CARD_NUMBER] for v in await get_all_cards(self.options, self._max_cards, self._preferred_cards)]
 
         if len(cards) < 2:
-            self.configuration['cards'] = [{
-                'card': int(f'{v}'),
-                'unique_id': uuid.uuid4(),
-                'configured': False,
-            } for v in cards]
+            self.configuration["cards"] = [
+                {
+                    "card": int(f"{v}"),
+                    "unique_id": uuid.uuid4(),
+                    "configured": False,
+                }
+                for v in cards
+            ]
 
             return await self.async_step_card()
 
-        schema = vol.Schema({
-            vol.Required(CONF_CARDS, default=[f'{v}' for v in cards]):
-            SelectSelector(
-                SelectSelectorConfig(options=[f'{v}' for v in cards],
-                                     multiple=True,
-                                     custom_value=False,
-                                     mode=SelectSelectorMode.LIST)),
-        })
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_CARDS, default=[f"{v}" for v in cards]): SelectSelector(
+                    SelectSelectorConfig(
+                        options=[f"{v}" for v in cards],
+                        multiple=True,
+                        custom_value=False,
+                        mode=SelectSelectorMode.LIST,
+                    )
+                ),
+            }
+        )
 
         return self.async_show_form(step_id="cards", data_schema=schema, errors=errors)
 
     async def async_step_card(self, user_input: Optional[Dict[str, Any]] = None):
 
         def f(v):
-            return not v['configured']
+            return not v["configured"]
 
-        it = (v for v in self.configuration['cards'] if f(v))
+        it = (v for v in self.configuration["cards"] if f(v))
         card = next(it, None)
         if card == None:
             try:
                 validate_all_cards(self.options)
                 return self.async_create_entry(title="uhppoted", data=self.data, options=self.options)
             except ValueError as err:
-                self.configuration['cards'] = []
+                self.configuration["cards"] = []
                 return await self.async_step_cards()
 
         cards = []
@@ -458,25 +501,27 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
         errors: Dict[str, str] = {}
         if user_input is not None:
             for ix, card in enumerate(cards):
-                k = f'card{ix+1}_name'
+                k = f"card{ix+1}_name"
                 try:
                     validate_card_id(user_input[k])
                 except ValueError as err:
-                    errors[k] = f'{err}'
+                    errors[k] = f"{err}"
 
             if not errors:
                 v = self.options.get(CONF_CARDS, [])
 
                 for ix, card in enumerate(cards):
-                    k = f'card{ix+1}_name'
+                    k = f"card{ix+1}_name"
                     name = user_input[k]
-                    v.append({
-                        CONF_CARD_UNIQUE_ID: card['unique_id'],
-                        CONF_CARD_NUMBER: card['card'],
-                        CONF_CARD_NAME: name,
-                    })
+                    v.append(
+                        {
+                            CONF_CARD_UNIQUE_ID: card["unique_id"],
+                            CONF_CARD_NUMBER: card["card"],
+                            CONF_CARD_NAME: name,
+                        }
+                    )
 
-                    card['configured'] = True
+                    card["configured"] = True
 
                 self.options.update({CONF_CARDS: v})
 
@@ -484,24 +529,26 @@ class UhppotedConfigFlow(UhppotedFlow, ConfigFlow, domain=DOMAIN):
 
         defaults = {}
         for ix, card in enumerate(cards):
-            defaults[f'card{ix+1}_name'] = f"{card['card']}"
+            defaults[f"card{ix+1}_name"] = f"{card['card']}"
 
         if user_input is not None:
             for ix, card in enumerate(cards):
-                k = f'card{ix+1}_name'
+                k = f"card{ix+1}_name"
                 if k in user_input:
                     defaults[k] = user_input[k]
 
         placeholders = {}
         for ix, card in enumerate(cards):
-            placeholders[f'card{ix+1}'] = f"{card['card']}"
+            placeholders[f"card{ix+1}"] = f"{card['card']}"
 
         schema = vol.Schema({})
         for ix, card in enumerate(cards):
-            k = f'card{ix+1}_name'
+            k = f"card{ix+1}_name"
             schema = schema.extend({vol.Required(k, default=defaults[k]): str})
 
-        return self.async_show_form(step_id="card",
-                                    data_schema=schema,
-                                    errors=errors,
-                                    description_placeholders=placeholders)
+        return self.async_show_form(
+            step_id="card",
+            data_schema=schema,
+            errors=errors,
+            description_placeholders=placeholders,
+        )

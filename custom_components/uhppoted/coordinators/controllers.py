@@ -60,7 +60,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         self._state = {}
         self._initialised = False
 
-        _LOGGER.info(f'controllers coordinator initialised ({interval.total_seconds():.0f}s)')
+        _LOGGER.info(f"controllers coordinator initialised ({interval.total_seconds():.0f}s)")
 
     def __del__(self):
         self.unload()
@@ -136,7 +136,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
             gathered = await asyncio.gather(*tasks, return_exceptions=True)
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller information ({err})')
+            _LOGGER.error(f"error retrieving controller information ({err})")
             for t in tasks:
                 t.close()
 
@@ -148,7 +148,7 @@ class ControllersCoordinator(DataUpdateCoordinator):
         return self._db.controllers
 
     async def _get_controller(self, lock, controller):
-        _LOGGER.debug(f'fetch controller info {controller.id}')
+        _LOGGER.debug(f"fetch controller info {controller.id}")
 
         address = None
         protocol = controller.protocol
@@ -159,159 +159,189 @@ class ControllersCoordinator(DataUpdateCoordinator):
 
         async def callback(response):
             try:
-                _LOGGER.debug(f'get-controller::callback {controller.id} {response}')
+                _LOGGER.debug(f"get-controller::callback {controller.id} {response}")
                 if response and response.controller == controller.id:
-                    keys = [ATTR_CONTROLLER_ADDRESS, ATTR_NETMASK, ATTR_GATEWAY, ATTR_FIRMWARE, ATTR_AVAILABLE]
+                    keys = [
+                        ATTR_CONTROLLER_ADDRESS,
+                        ATTR_NETMASK,
+                        ATTR_GATEWAY,
+                        ATTR_FIRMWARE,
+                        ATTR_AVAILABLE,
+                    ]
                     old = self._state[controller.id].copy()
 
                     async with lock:
-                        self._state[controller.id].update({
-                            ATTR_CONTROLLER_ADDRESS: f'{response.ip_address}',
-                            ATTR_NETMASK: f'{response.subnet_mask}',
-                            ATTR_GATEWAY: f'{response.gateway}',
-                            ATTR_FIRMWARE: f'{response.version} {response.date:%Y-%m-%d}',
-                            ATTR_AVAILABLE: True,
-                        })
+                        self._state[controller.id].update(
+                            {
+                                ATTR_CONTROLLER_ADDRESS: f"{response.ip_address}",
+                                ATTR_NETMASK: f"{response.subnet_mask}",
+                                ATTR_GATEWAY: f"{response.gateway}",
+                                ATTR_FIRMWARE: f"{response.version} {response.date:%Y-%m-%d}",
+                                ATTR_AVAILABLE: True,
+                            }
+                        )
 
                     updated = self._state[controller.id].copy()
 
                     if self._changed(keys, old, updated):
-                        _LOGGER.info(f'{controller} controller information updated')
+                        _LOGGER.info(f"{controller} controller information updated")
                         self.async_set_updated_data(self._state)
 
             except Exception as err:
-                _LOGGER.error(f'error updating internal controller {controller.id} information ({err})')
+                _LOGGER.error(f"error updating internal controller {controller.id} information ({err})")
 
         try:
             response = await self._uhppote.get_controller(controller.id, callback)
             if response and response.controller == controller.id:
-                address = f'{response.ip_address}'
-                netmask = f'{response.subnet_mask}'
-                gateway = f'{response.gateway}'
-                firmware = f'{response.version} {response.date:%Y-%m-%d}'
+                address = f"{response.ip_address}"
+                netmask = f"{response.subnet_mask}"
+                gateway = f"{response.gateway}"
+                firmware = f"{response.version} {response.date:%Y-%m-%d}"
                 available = True
 
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller.id} information ({err})')
+            _LOGGER.error(f"error retrieving controller {controller.id} information ({err})")
 
         async with lock:
-            self._state[controller.id].update({
-                ATTR_CONTROLLER_ADDRESS: address,
-                ATTR_NETMASK: netmask,
-                ATTR_GATEWAY: gateway,
-                ATTR_FIRMWARE: firmware,
-                ATTR_CONTROLLER_PROTOCOL: protocol,
-                ATTR_AVAILABLE: available,
-            })
+            self._state[controller.id].update(
+                {
+                    ATTR_CONTROLLER_ADDRESS: address,
+                    ATTR_NETMASK: netmask,
+                    ATTR_GATEWAY: gateway,
+                    ATTR_FIRMWARE: firmware,
+                    ATTR_CONTROLLER_PROTOCOL: protocol,
+                    ATTR_AVAILABLE: available,
+                }
+            )
 
     async def _get_listener(self, lock, controller):
-        _LOGGER.debug(f'fetch controller event listener {controller.id}')
+        _LOGGER.debug(f"fetch controller event listener {controller.id}")
 
         listener = None
 
         async def callback(response):
             try:
-                _LOGGER.debug(f'get-listener::callback {controller.id} {response}')
+                _LOGGER.debug(f"get-listener::callback {controller.id} {response}")
                 if response and response.controller == controller.id:
                     keys = [ATTR_CONTROLLER_LISTENER]
                     old = self._state[controller.id].copy()
 
                     async with lock:
-                        self._state[controller.id].update({
-                            ATTR_CONTROLLER_LISTENER:
-                            f'{response.address}:{response.port}',
-                        })
+                        self._state[controller.id].update(
+                            {
+                                ATTR_CONTROLLER_LISTENER: f"{response.address}:{response.port}",
+                            }
+                        )
 
                     updated = self._state[controller.id].copy()
                     if self._changed(keys, old, updated):
-                        _LOGGER.info(f'{controller} controller event listener updated')
+                        _LOGGER.info(f"{controller} controller event listener updated")
                         self.async_set_updated_data(self._state)
 
             except Exception as err:
-                _LOGGER.error(f'error updating internal controller {controller.id} event listener ({err})')
+                _LOGGER.error(f"error updating internal controller {controller.id} event listener ({err})")
 
         try:
             response = await self._uhppote.get_listener(controller.id, callback)
             if response and response.controller == controller.id:
-                listener = f'{response.address}:{response.port}'
+                listener = f"{response.address}:{response.port}"
 
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller.id} event listener ({err})')
+            _LOGGER.error(f"error retrieving controller {controller.id} event listener ({err})")
 
         async with lock:
-            self._state[controller.id].update({
-                ATTR_CONTROLLER_LISTENER: listener,
-            })
+            self._state[controller.id].update(
+                {
+                    ATTR_CONTROLLER_LISTENER: listener,
+                }
+            )
 
     async def _get_datetime(self, lock, controller):
-        _LOGGER.debug(f'fetch controller datetime {controller.id}')
+        _LOGGER.debug(f"fetch controller datetime {controller.id}")
 
         async def callback(response):
             try:
-                _LOGGER.debug(f'get-listener::callback {controller.id} {response}')
+                _LOGGER.debug(f"get-listener::callback {controller.id} {response}")
                 if response and response.controller == controller.id:
                     keys = [ATTR_CONTROLLER_DATETIME]
                     old = self._state[controller.id].copy()
 
                     async with lock:
-                        self._state[controller.id].update({
-                            ATTR_CONTROLLER_DATETIME:
-                            datetime.datetime(response.datetime.year, response.datetime.month, response.datetime.day,
-                                              response.datetime.hour, response.datetime.minute,
-                                              response.datetime.second, 0,
-                                              datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo),
-                        })
+                        self._state[controller.id].update(
+                            {
+                                ATTR_CONTROLLER_DATETIME: datetime.datetime(
+                                    response.datetime.year,
+                                    response.datetime.month,
+                                    response.datetime.day,
+                                    response.datetime.hour,
+                                    response.datetime.minute,
+                                    response.datetime.second,
+                                    0,
+                                    datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo,
+                                ),
+                            }
+                        )
 
                     updated = self._state[controller.id].copy()
 
                     if self._changed(keys, old, updated):
-                        _LOGGER.debug(f'{controller} controller date/time updated')
+                        _LOGGER.debug(f"{controller} controller date/time updated")
                         self.async_set_updated_data(self._state)
 
             except Exception as err:
-                _LOGGER.error(f'error updating internal controller {controller.id} date/time ({err})')
+                _LOGGER.error(f"error updating internal controller {controller.id} date/time ({err})")
 
         sysdatetime = None
 
         try:
             response = await self._uhppote.get_time(controller.id, callback)
             if response and response.controller == controller.id:
-                sysdatetime = datetime.datetime(response.datetime.year, response.datetime.month, response.datetime.day,
-                                                response.datetime.hour, response.datetime.minute,
-                                                response.datetime.second, 0,
-                                                datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo)
+                sysdatetime = datetime.datetime(
+                    response.datetime.year,
+                    response.datetime.month,
+                    response.datetime.day,
+                    response.datetime.hour,
+                    response.datetime.minute,
+                    response.datetime.second,
+                    0,
+                    datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo,
+                )
 
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller.id} date/time ({err})')
+            _LOGGER.error(f"error retrieving controller {controller.id} date/time ({err})")
 
         async with lock:
-            self._state[controller.id].update({
-                ATTR_CONTROLLER_DATETIME: sysdatetime,
-            })
+            self._state[controller.id].update(
+                {
+                    ATTR_CONTROLLER_DATETIME: sysdatetime,
+                }
+            )
 
     async def _get_interlock(self, lock, controller):
-        _LOGGER.debug(f'fetch controller door interlock mode {controller.id}')
+        _LOGGER.debug(f"fetch controller door interlock mode {controller.id}")
 
         async def callback(response):
             try:
-                _LOGGER.debug(f'get-interlock::callback {controller} {response}')
+                _LOGGER.debug(f"get-interlock::callback {controller} {response}")
                 if response and response.controller == controller.id:
                     keys = [ATTR_CONTROLLER_INTERLOCK]
                     old = self._state[controller.id].copy()
 
                     async with lock:
-                        self._state[controller.id].update({
-                            ATTR_CONTROLLER_INTERLOCK: response.interlock,
-                        })
+                        self._state[controller.id].update(
+                            {
+                                ATTR_CONTROLLER_INTERLOCK: response.interlock,
+                            }
+                        )
 
                     updated = self._state[controller.id].copy()
 
                     if self._changed(keys, old, updated):
-                        _LOGGER.info(f'{controller} controller door interlock mode updated')
+                        _LOGGER.info(f"{controller} controller door interlock mode updated")
                         self.async_set_updated_data(self._state)
 
             except Exception as err:
-                _LOGGER.error(f'error updating internal controller {controller.id} door interlock mode ({err})')
+                _LOGGER.error(f"error updating internal controller {controller.id} door interlock mode ({err})")
 
         interlock = -1
 
@@ -321,36 +351,40 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 interlock = response.interlock
 
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller.id} door interlock mode ({err})')
+            _LOGGER.error(f"error retrieving controller {controller.id} door interlock mode ({err})")
 
         async with lock:
-            self._state[controller.id].update({
-                ATTR_CONTROLLER_INTERLOCK: interlock,
-            })
+            self._state[controller.id].update(
+                {
+                    ATTR_CONTROLLER_INTERLOCK: interlock,
+                }
+            )
 
     async def _get_antipassback(self, lock, controller):
-        _LOGGER.debug(f'fetch controller anti-passback {controller.id}')
+        _LOGGER.debug(f"fetch controller anti-passback {controller.id}")
 
         async def callback(response):
             try:
-                _LOGGER.debug(f'get-antipassback {controller} {response}')
+                _LOGGER.debug(f"get-antipassback {controller} {response}")
                 if response and response.controller == controller.id:
                     keys = [ATTR_CONTROLLER_ANTIPASSBACK]
                     old = self._state[controller.id].copy()
 
                     async with lock:
-                        self._state[controller.id].update({
-                            ATTR_CONTROLLER_ANTIPASSBACK: response.antipassback,
-                        })
+                        self._state[controller.id].update(
+                            {
+                                ATTR_CONTROLLER_ANTIPASSBACK: response.antipassback,
+                            }
+                        )
 
                     updated = self._state[controller.id].copy()
 
                     if self._changed(keys, old, updated):
-                        _LOGGER.info(f'{controller} controller anti-passback updated')
+                        _LOGGER.info(f"{controller} controller anti-passback updated")
                         self.async_set_updated_data(self._state)
 
             except Exception as err:
-                _LOGGER.error(f'error updating internal controller {controller} anti-passback ({err})')
+                _LOGGER.error(f"error updating internal controller {controller} anti-passback ({err})")
 
         antipassback = -1
 
@@ -360,19 +394,21 @@ class ControllersCoordinator(DataUpdateCoordinator):
                 antipassback = response.antipassback
 
         except Exception as err:
-            _LOGGER.error(f'error retrieving controller {controller} anti-passback ({err})')
+            _LOGGER.error(f"error retrieving controller {controller} anti-passback ({err})")
 
         async with lock:
-            self._state[controller.id].update({
-                ATTR_CONTROLLER_ANTIPASSBACK: antipassback,
-            })
+            self._state[controller.id].update(
+                {
+                    ATTR_CONTROLLER_ANTIPASSBACK: antipassback,
+                }
+            )
 
     def _resolve(self, controller_id):
         for controller in self._controllers:
             if controller.id == controller_id:
                 return controller
 
-        return Controller(int(f'{controller_id}'), None, None)
+        return Controller(int(f"{controller_id}"), None, None)
 
     def _changed(self, keys, old, updated):
         _old = {k: old.get(k) for k in keys}

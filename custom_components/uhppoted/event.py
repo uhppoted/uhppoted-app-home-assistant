@@ -38,26 +38,29 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     events = Coordinators.events(entry.entry_id)
     entities = []
 
-    opt_in = namedtuple('opt_in', ['cards', 'doors', 'controllers'])(defaults.get(CONF_EVENTS_CARDS_ENABLED,
-                                                                                  DEFAULT_EVENTS_CARDS_ENABLED),
-                                                                     defaults.get(CONF_EVENTS_DOORS_ENABLED,
-                                                                                  DEFAULT_EVENTS_DOORS_ENABLED),
-                                                                     defaults.get(CONF_EVENTS_CONTROLLERS_ENABLED,
-                                                                                  DEFAULT_EVENTS_CONTROLLERS_ENABLED))
+    opt_in = namedtuple("opt_in", ["cards", "doors", "controllers"])(
+        defaults.get(CONF_EVENTS_CARDS_ENABLED, DEFAULT_EVENTS_CARDS_ENABLED),
+        defaults.get(CONF_EVENTS_DOORS_ENABLED, DEFAULT_EVENTS_DOORS_ENABLED),
+        defaults.get(CONF_EVENTS_CONTROLLERS_ENABLED, DEFAULT_EVENTS_CONTROLLERS_ENABLED),
+    )
 
     def f(unique_id, controller, serial_no, address):
         if opt_in.controllers != False:
-            entities.extend([
-                ControllerEvent(events, unique_id, controller, serial_no),
-            ])
+            entities.extend(
+                [
+                    ControllerEvent(events, unique_id, controller, serial_no),
+                ]
+            )
 
     def g(unique_id, controller, serial_no, door, door_no):
         if opt_in.doors != False:
-            entities.extend([
-                DoorOpened(events, unique_id, controller, serial_no, door, door_no),
-                DoorButtonPressed(events, unique_id, controller, serial_no, door, door_no),
-                DoorUnlocked(events, unique_id, controller, serial_no, door, door_no),
-            ])
+            entities.extend(
+                [
+                    DoorOpened(events, unique_id, controller, serial_no, door, door_no),
+                    DoorButtonPressed(events, unique_id, controller, serial_no, door, door_no),
+                    DoorUnlocked(events, unique_id, controller, serial_no, door, door_no),
+                ]
+            )
 
     def h(card, name, unique_id):
         if opt_in.cards != False:

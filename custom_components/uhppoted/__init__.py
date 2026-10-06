@@ -96,11 +96,11 @@ PLATFORMS = [
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     defaults = {
-        CONF_BIND_ADDR: '0.0.0.0',
-        CONF_BROADCAST_ADDR: '255.255.255.255:60000',
-        CONF_LISTEN_ADDR: '0.0.0.0:60001',
+        CONF_BIND_ADDR: "0.0.0.0",
+        CONF_BROADCAST_ADDR: "255.255.255.255:60000",
+        CONF_LISTEN_ADDR: "0.0.0.0:60001",
         CONF_DEBUG: False,
-        CONF_TIMEZONE: 'Local',
+        CONF_TIMEZONE: "Local",
         CONF_TIMEOUT: DEFAULT_TIMEOUT,  # 2.5s
         CONF_RETRY_DELAY: DEFAULT_RETRY_DELAY,  # 120s
         CONF_MAX_CARDS: DEFAULT_MAX_CARDS,  # 10
@@ -111,7 +111,6 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_POLL_CARDS: DEFAULT_POLL_CARDS,  # 30s
         CONF_POLL_EVENTS: DEFAULT_POLL_EVENTS,  # 30s
         CONF_CONTROLLERS: [],
-
         # caching
         CONF_CACHE_ENABLED: DEFAULT_CACHE_ENABLED,
         CONF_CACHE_EXPIRY_CONTROLLER: DEFAULT_CACHE_EXPIRY_CONTROLLER,
@@ -123,22 +122,19 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         CONF_CACHE_EXPIRY_INTERLOCK: DEFAULT_CACHE_EXPIRY_INTERLOCK,
         CONF_CACHE_EXPIRY_ANTIPASSBACK: DEFAULT_CACHE_EXPIRY_ANTIPASSBACK,
         CONF_CACHE_EXPIRY_EVENT: DEFAULT_CACHE_EXPIRY_EVENT,
-
         # event listener
         CONF_EVENTS_LISTENER_ENABLED: DEFAULT_EVENTS_LISTENER_ENABLED,
         CONF_EVENTS_LISTENER_MAX_BACKOFF: DEFAULT_EVENTS_LISTENER_MAX_BACKOFF,
-
         # events opt-out
         CONF_EVENTS_CARDS_ENABLED: DEFAULT_EVENTS_CARDS_ENABLED,
         CONF_EVENTS_DOORS_ENABLED: DEFAULT_EVENTS_DOORS_ENABLED,
         CONF_EVENTS_CONTROLLERS_ENABLED: DEFAULT_EVENTS_CONTROLLERS_ENABLED,
-
         # persisted entities
         CONF_PERSISTED_ENTITIES: DEFAULT_PERSISTED_ENTITIES,
     }
 
-    if 'uhppoted' in config:
-        c = config['uhppoted']
+    if "uhppoted" in config:
+        c = config["uhppoted"]
         topics = [
             CONF_BIND_ADDR,
             CONF_BROADCAST_ADDR,
@@ -162,78 +158,76 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
                 defaults[v] = c[v]
 
         # caching
-        if caching := c.get('cache'):
-            defaults[CONF_CACHE_ENABLED] = caching.get('enabled', DEFAULT_CACHE_ENABLED)
-            if expiry := caching.get('expiry'):
-                defaults[CONF_CACHE_EXPIRY_CONTROLLER] = expiry.get('controller', DEFAULT_CACHE_EXPIRY_CONTROLLER)
-                defaults[CONF_CACHE_EXPIRY_LISTENER] = expiry.get('listener', DEFAULT_CACHE_EXPIRY_LISTENER)
-                defaults[CONF_CACHE_EXPIRY_DATETIME] = expiry.get('datetime', DEFAULT_CACHE_EXPIRY_DATETIME)
-                defaults[CONF_CACHE_EXPIRY_DOOR] = expiry.get('door', DEFAULT_CACHE_EXPIRY_DOOR)
-                defaults[CONF_CACHE_EXPIRY_CARD] = expiry.get('card', DEFAULT_CACHE_EXPIRY_CARD)
-                defaults[CONF_CACHE_EXPIRY_STATUS] = expiry.get('status', DEFAULT_CACHE_EXPIRY_STATUS)
-                defaults[CONF_CACHE_EXPIRY_INTERLOCK] = expiry.get('interlock', DEFAULT_CACHE_EXPIRY_INTERLOCK)
-                defaults[CONF_CACHE_EXPIRY_ANTIPASSBACK] = expiry.get('antipassback', DEFAULT_CACHE_EXPIRY_ANTIPASSBACK)
-                defaults[CONF_CACHE_EXPIRY_EVENT] = expiry.get('event', DEFAULT_CACHE_EXPIRY_EVENT)
+        if caching := c.get("cache"):
+            defaults[CONF_CACHE_ENABLED] = caching.get("enabled", DEFAULT_CACHE_ENABLED)
+            if expiry := caching.get("expiry"):
+                defaults[CONF_CACHE_EXPIRY_CONTROLLER] = expiry.get("controller", DEFAULT_CACHE_EXPIRY_CONTROLLER)
+                defaults[CONF_CACHE_EXPIRY_LISTENER] = expiry.get("listener", DEFAULT_CACHE_EXPIRY_LISTENER)
+                defaults[CONF_CACHE_EXPIRY_DATETIME] = expiry.get("datetime", DEFAULT_CACHE_EXPIRY_DATETIME)
+                defaults[CONF_CACHE_EXPIRY_DOOR] = expiry.get("door", DEFAULT_CACHE_EXPIRY_DOOR)
+                defaults[CONF_CACHE_EXPIRY_CARD] = expiry.get("card", DEFAULT_CACHE_EXPIRY_CARD)
+                defaults[CONF_CACHE_EXPIRY_STATUS] = expiry.get("status", DEFAULT_CACHE_EXPIRY_STATUS)
+                defaults[CONF_CACHE_EXPIRY_INTERLOCK] = expiry.get("interlock", DEFAULT_CACHE_EXPIRY_INTERLOCK)
+                defaults[CONF_CACHE_EXPIRY_ANTIPASSBACK] = expiry.get("antipassback", DEFAULT_CACHE_EXPIRY_ANTIPASSBACK)
+                defaults[CONF_CACHE_EXPIRY_EVENT] = expiry.get("event", DEFAULT_CACHE_EXPIRY_EVENT)
 
         # event listener
-        if events := c.get('events'):
-            if listener := events.get('listener'):
-                defaults[CONF_EVENTS_LISTENER_ENABLED] = listener.get('enabled', DEFAULT_EVENTS_LISTENER_ENABLED)
-                defaults[CONF_EVENTS_LISTENER_MAX_BACKOFF] = listener.get('max_backoff',
-                                                                          DEFAULT_EVENTS_LISTENER_MAX_BACKOFF)
+        if events := c.get("events"):
+            if listener := events.get("listener"):
+                defaults[CONF_EVENTS_LISTENER_ENABLED] = listener.get("enabled", DEFAULT_EVENTS_LISTENER_ENABLED)
+                defaults[CONF_EVENTS_LISTENER_MAX_BACKOFF] = listener.get("max_backoff", DEFAULT_EVENTS_LISTENER_MAX_BACKOFF)
         # events opt-out
-        if events := c.get('events'):
-            if cards := events.get('cards'):
-                defaults[CONF_EVENTS_CARDS_ENABLED] = cards.get('enabled', DEFAULT_EVENTS_CARDS_ENABLED)
-            if doors := events.get('doors'):
-                defaults[CONF_EVENTS_DOORS_ENABLED] = doors.get('enabled', DEFAULT_EVENTS_DOORS_ENABLED)
-            if controllers := events.get('controllers'):
-                defaults[CONF_EVENTS_CONTROLLERS_ENABLED] = controllers.get('enabled',
-                                                                            DEFAULT_EVENTS_CONTROLLERS_ENABLED)
+        if events := c.get("events"):
+            if cards := events.get("cards"):
+                defaults[CONF_EVENTS_CARDS_ENABLED] = cards.get("enabled", DEFAULT_EVENTS_CARDS_ENABLED)
+            if doors := events.get("doors"):
+                defaults[CONF_EVENTS_DOORS_ENABLED] = doors.get("enabled", DEFAULT_EVENTS_DOORS_ENABLED)
+            if controllers := events.get("controllers"):
+                defaults[CONF_EVENTS_CONTROLLERS_ENABLED] = controllers.get("enabled", DEFAULT_EVENTS_CONTROLLERS_ENABLED)
         # persisted entities
-        if persisted := c.get('persisted'):
-            if entities := persisted.get('entities'):
+        if persisted := c.get("persisted"):
+            if entities := persisted.get("entities"):
                 defaults[CONF_PERSISTED_ENTITIES] = entities
 
-    _LOGGER.info(f'default bind address:        {defaults[CONF_BIND_ADDR]}')
-    _LOGGER.info(f'default broadcast address:   {defaults[CONF_BROADCAST_ADDR]}')
-    _LOGGER.info(f'default listen address:      {defaults[CONF_LISTEN_ADDR]}')
-    _LOGGER.info(f'default debug:               {defaults[CONF_DEBUG]}')
-    _LOGGER.info(f'default timezone:            {defaults[CONF_TIMEZONE]}')
-    _LOGGER.info(f'default timeout:             {defaults[CONF_TIMEOUT]}s')
-    _LOGGER.info(f'default retry delay:         {defaults[CONF_RETRY_DELAY]}s')
-    _LOGGER.info(f'max. cards:                  {defaults[CONF_MAX_CARDS]}')
-    _LOGGER.info(f'preferred cards:             {defaults[CONF_PREFERRED_CARDS]}')
-    _LOGGER.info(f'PIN enabled:                 {defaults[CONF_PIN_ENABLED]}')
-    _LOGGER.info(f'poll interval - controllers: {defaults[CONF_POLL_CONTROLLERS]}')
-    _LOGGER.info(f'poll interval - doors:       {defaults[CONF_POLL_DOORS]}s')
-    _LOGGER.info(f'poll interval - cards:       {defaults[CONF_POLL_CARDS]}s')
-    _LOGGER.info(f'poll interval - events:      {defaults[CONF_POLL_EVENTS]}s')
-    _LOGGER.info(f'controllers:                 {defaults[CONF_CONTROLLERS]}')
+    _LOGGER.info(f"default bind address:        {defaults[CONF_BIND_ADDR]}")
+    _LOGGER.info(f"default broadcast address:   {defaults[CONF_BROADCAST_ADDR]}")
+    _LOGGER.info(f"default listen address:      {defaults[CONF_LISTEN_ADDR]}")
+    _LOGGER.info(f"default debug:               {defaults[CONF_DEBUG]}")
+    _LOGGER.info(f"default timezone:            {defaults[CONF_TIMEZONE]}")
+    _LOGGER.info(f"default timeout:             {defaults[CONF_TIMEOUT]}s")
+    _LOGGER.info(f"default retry delay:         {defaults[CONF_RETRY_DELAY]}s")
+    _LOGGER.info(f"max. cards:                  {defaults[CONF_MAX_CARDS]}")
+    _LOGGER.info(f"preferred cards:             {defaults[CONF_PREFERRED_CARDS]}")
+    _LOGGER.info(f"PIN enabled:                 {defaults[CONF_PIN_ENABLED]}")
+    _LOGGER.info(f"poll interval - controllers: {defaults[CONF_POLL_CONTROLLERS]}")
+    _LOGGER.info(f"poll interval - doors:       {defaults[CONF_POLL_DOORS]}s")
+    _LOGGER.info(f"poll interval - cards:       {defaults[CONF_POLL_CARDS]}s")
+    _LOGGER.info(f"poll interval - events:      {defaults[CONF_POLL_EVENTS]}s")
+    _LOGGER.info(f"controllers:                 {defaults[CONF_CONTROLLERS]}")
 
     # caching
-    _LOGGER.info(f'cache.enabled:                {defaults[CONF_CACHE_ENABLED]}')
-    _LOGGER.info(f'cache.expiry - controller:    {defaults[CONF_CACHE_EXPIRY_CONTROLLER]}')
-    _LOGGER.info(f'cache.expiry - listener:      {defaults[CONF_CACHE_EXPIRY_LISTENER]}')
-    _LOGGER.info(f'cache.expiry - date/time:     {defaults[CONF_CACHE_EXPIRY_DATETIME]}')
-    _LOGGER.info(f'cache.expiry - door:          {defaults[CONF_CACHE_EXPIRY_DOOR]}')
-    _LOGGER.info(f'cache.expiry - card:          {defaults[CONF_CACHE_EXPIRY_CARD]}')
-    _LOGGER.info(f'cache.expiry - status:        {defaults[CONF_CACHE_EXPIRY_STATUS]}')
-    _LOGGER.info(f'cache.expiry - interlock:     {defaults[CONF_CACHE_EXPIRY_INTERLOCK]}')
-    _LOGGER.info(f'cache.expiry - antipassback:  {defaults[CONF_CACHE_EXPIRY_ANTIPASSBACK]}')
-    _LOGGER.info(f'cache.expiry - event:         {defaults[CONF_CACHE_EXPIRY_EVENT]}')
+    _LOGGER.info(f"cache.enabled:                {defaults[CONF_CACHE_ENABLED]}")
+    _LOGGER.info(f"cache.expiry - controller:    {defaults[CONF_CACHE_EXPIRY_CONTROLLER]}")
+    _LOGGER.info(f"cache.expiry - listener:      {defaults[CONF_CACHE_EXPIRY_LISTENER]}")
+    _LOGGER.info(f"cache.expiry - date/time:     {defaults[CONF_CACHE_EXPIRY_DATETIME]}")
+    _LOGGER.info(f"cache.expiry - door:          {defaults[CONF_CACHE_EXPIRY_DOOR]}")
+    _LOGGER.info(f"cache.expiry - card:          {defaults[CONF_CACHE_EXPIRY_CARD]}")
+    _LOGGER.info(f"cache.expiry - status:        {defaults[CONF_CACHE_EXPIRY_STATUS]}")
+    _LOGGER.info(f"cache.expiry - interlock:     {defaults[CONF_CACHE_EXPIRY_INTERLOCK]}")
+    _LOGGER.info(f"cache.expiry - antipassback:  {defaults[CONF_CACHE_EXPIRY_ANTIPASSBACK]}")
+    _LOGGER.info(f"cache.expiry - event:         {defaults[CONF_CACHE_EXPIRY_EVENT]}")
 
     # event listener
-    _LOGGER.info(f'events.listener.enabled:      {defaults[CONF_EVENTS_LISTENER_ENABLED]}')
-    _LOGGER.info(f'events.listener.max-backoff:  {defaults[CONF_EVENTS_LISTENER_MAX_BACKOFF]}')
+    _LOGGER.info(f"events.listener.enabled:      {defaults[CONF_EVENTS_LISTENER_ENABLED]}")
+    _LOGGER.info(f"events.listener.max-backoff:  {defaults[CONF_EVENTS_LISTENER_MAX_BACKOFF]}")
 
     # events opt-out
-    _LOGGER.info(f'events.cards.enabled:         {defaults[CONF_EVENTS_CARDS_ENABLED]}')
-    _LOGGER.info(f'events.doors.enabled:         {defaults[CONF_EVENTS_DOORS_ENABLED]}')
-    _LOGGER.info(f'events.controllers.enabled:   {defaults[CONF_EVENTS_CONTROLLERS_ENABLED]}')
+    _LOGGER.info(f"events.cards.enabled:         {defaults[CONF_EVENTS_CARDS_ENABLED]}")
+    _LOGGER.info(f"events.doors.enabled:         {defaults[CONF_EVENTS_DOORS_ENABLED]}")
+    _LOGGER.info(f"events.controllers.enabled:   {defaults[CONF_EVENTS_CONTROLLERS_ENABLED]}")
 
     # persisted entities
-    _LOGGER.info(f'persisted.entities:           {defaults[CONF_PERSISTED_ENTITIES]}')
+    _LOGGER.info(f"persisted.entities:           {defaults[CONF_PERSISTED_ENTITIES]}")
 
     hass.data.setdefault(DOMAIN, defaults)
 
@@ -269,7 +263,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await Coordinators.cards(entry.entry_id).async_config_entry_first_refresh()
         await Coordinators.events(entry.entry_id).async_config_entry_first_refresh()
     except Exception as err:
-        _LOGGER.error(f'error pre-loading entities ({err})')
+        _LOGGER.error(f"error pre-loading entities ({err})")
 
     return True
 

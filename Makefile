@@ -4,7 +4,7 @@ DIST    ?= "uhppoted-app-home-assistant_$(VERSION)"
 .PHONY: docker
 .PHONY: update
 
-SHARE="/usr/local/etc/com.github.uhppoted/home-assistant"
+SHARE="/usr/local/etc/org.codeberg.uhppoted/home-assistant"
 
 push:
 	git push
@@ -17,8 +17,8 @@ update-release:
 	@echo "update-release: nothing to do"
 
 format: 
-	. .venv/bin/activate && yapf -ri custom_components/uhppoted
-	. .venv/bin/activate && yapf -ri tests
+	. .venv/bin/activate; black --line-length 127 custom_components/uhppoted
+	. .venv/bin/activate; black --line-length 127 tests
 
 translate:
 	python3 -m script.translations develop
@@ -36,7 +36,6 @@ release: build-all
 	rsync -av --delete \
           --exclude '.DS_Store'   \
           --exclude '__pycache__' \
-          --exclude '.style.yapf' \
           custom_components/uhppoted dist/$(DIST)/
 	tar --directory=dist/$(DIST) --exclude=".DS_Store" -cvzf dist/$(DIST)-alpha.tar.gz uhppoted
 	cd dist/$(DIST); zip -x .DS_Store --recurse-paths ../$(DIST)-alpha.zip .

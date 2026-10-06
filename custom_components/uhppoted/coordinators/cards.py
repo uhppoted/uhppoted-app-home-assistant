@@ -55,7 +55,7 @@ class CardsCoordinator(DataUpdateCoordinator):
         self._state = {}
         self._initialised = False
 
-        _LOGGER.info(f'cards coordinator initialised ({interval.total_seconds():.0f}s)')
+        _LOGGER.info(f"cards coordinator initialised ({interval.total_seconds():.0f}s)")
 
     def __del__(self):
         self.unload()
@@ -65,14 +65,14 @@ class CardsCoordinator(DataUpdateCoordinator):
 
     async def add_card(self, card):
         controllers = self._controllers
-        cardno = int(f'{card}')
+        cardno = int(f"{card}")
         errors = []
 
         for controller in controllers:
             try:
                 response = await self._uhppote.get_card(controller.id, cardno)
                 if response.controller == controller.id and response.card_number == cardno:
-                    _LOGGER.info(f'card {card} already exists on controller {controller.id}')
+                    _LOGGER.info(f"card {card} already exists on controller {controller.id}")
                 elif response.controller == controller.id and response.card_number == 0:
                     start_date = default_card_start_date()
                     end_date = default_card_end_date()
@@ -82,32 +82,41 @@ class CardsCoordinator(DataUpdateCoordinator):
                     door4 = 0
                     PIN = 0
 
-                    response = await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2,
-                                                            door3, door4, PIN)
+                    response = await self._uhppote.put_card(
+                        controller.id,
+                        card,
+                        start_date,
+                        end_date,
+                        door1,
+                        door2,
+                        door3,
+                        door4,
+                        PIN,
+                    )
                     if response.stored:
-                        _LOGGER.info(f'card {card} added to controller {controller.id}')
+                        _LOGGER.info(f"card {card} added to controller {controller.id}")
                     else:
-                        errors.append(f'{controller.id}')
-                        _LOGGER.warning(f'card {card} not added to controller {controller.id}')
+                        errors.append(f"{controller.id}")
+                        _LOGGER.warning(f"card {card} not added to controller {controller.id}")
                 else:
-                    errors.append(f'{controller.id}')
-                    _LOGGER.error(f'invalid get-card response for {card} from {controller.id} ({response})')
+                    errors.append(f"{controller.id}")
+                    _LOGGER.error(f"invalid get-card response for {card} from {controller.id} ({response})")
 
             except Exception as e:
-                errors.append(f'{controller.id}')
-                _LOGGER.exception(f'error adding card {card} to controller {controller.id} ({e})')
+                errors.append(f"{controller.id}")
+                _LOGGER.exception(f"error adding card {card} to controller {controller.id} ({e})")
 
         if errors and len(errors) > 1:
             raise ValueError(f'error adding card {card} to controllers {",".join(errors)}')
 
         if errors and len(errors) > 0:
-            raise ValueError(f'error adding card {card} to controller {errors[0]}')
+            raise ValueError(f"error adding card {card} to controller {errors[0]}")
 
         return True
 
     async def delete_card(self, card):
         controllers = self._controllers
-        cardno = int(f'{card}')
+        cardno = int(f"{card}")
         errors = []
 
         for controller in controllers:
@@ -115,19 +124,19 @@ class CardsCoordinator(DataUpdateCoordinator):
                 response = await self._uhppote.delete_card(controller.id, cardno)
                 if response.controller == controller.id:
                     if response.deleted:
-                        _LOGGER.info(f'card {card} deleted from controller {controller.id}')
+                        _LOGGER.info(f"card {card} deleted from controller {controller.id}")
                     else:
-                        _LOGGER.warning(f'card {card} not deleted from controller {controller.id}')
+                        _LOGGER.warning(f"card {card} not deleted from controller {controller.id}")
 
             except Exception as e:
-                errors.append(f'{controller.id}')
-                _LOGGER.exception(f'error deleting card {card} from controller {controller.id} ({e})')
+                errors.append(f"{controller.id}")
+                _LOGGER.exception(f"error deleting card {card} from controller {controller.id} ({e})")
 
         if errors and len(errors) > 1:
             raise ValueError(f'error deleting card {card} from controllers {",".join(errors)}')
 
         if errors and len(errors) > 0:
-            raise ValueError(f'error deleting card {card} from controller {errors[0]}')
+            raise ValueError(f"error deleting card {card} from controller {errors[0]}")
 
         return True
 
@@ -151,7 +160,7 @@ class CardsCoordinator(DataUpdateCoordinator):
 
         record = self._state.get(card)
         if record is not None:
-            for p in record.get('permissions', []):
+            for p in record.get("permissions", []):
                 door = resolve_door_by_name(self._options, p)
                 if door is not None:
                     doors.append(door)
@@ -168,13 +177,13 @@ class CardsCoordinator(DataUpdateCoordinator):
                 PIN = 0
 
                 if record is not None:
-                    if date := record.get('start_date'):
+                    if date := record.get("start_date"):
                         start_date = date
 
-                    if date := record.get('end_date'):
+                    if date := record.get("end_date"):
                         end_date = date
 
-                    if pin := record.get('PIN'):
+                    if pin := record.get("PIN"):
                         PIN = pin
 
                     for door in doors:
@@ -189,62 +198,72 @@ class CardsCoordinator(DataUpdateCoordinator):
                                 door4 = 1
 
                 for k, v in kwargs.items():
-                    if k == 'start_date':
+                    if k == "start_date":
                         start_date = v
-                    elif k == 'end_date':
+                    elif k == "end_date":
                         end_date = v
-                    elif k == 'PIN':
+                    elif k == "PIN":
                         PIN = v
-                    elif k == 'door':
-                        if f'{v.get(CONF_CONTROLLER_SERIAL_NUMBER)}' == str(controller.id):
-                            d = f'{v.get(CONF_DOOR_NUMBER)}'
+                    elif k == "door":
+                        if f"{v.get(CONF_CONTROLLER_SERIAL_NUMBER)}" == str(controller.id):
+                            d = f"{v.get(CONF_DOOR_NUMBER)}"
                             if d == str(1):
-                                door1 = kwargs.get('permission', door1)
+                                door1 = kwargs.get("permission", door1)
                             elif d == str(2):
-                                door2 = kwargs.get('permission', door2)
+                                door2 = kwargs.get("permission", door2)
                             elif d == str(3):
-                                door3 = kwargs.get('permission', door3)
+                                door3 = kwargs.get("permission", door3)
                             elif d == str(4):
-                                door4 = kwargs.get('permission', door4)
+                                door4 = kwargs.get("permission", door4)
 
-                if response := await self._uhppote.put_card(controller.id, card, start_date, end_date, door1, door2,
-                                                            door3, door4, PIN):
+                if response := await self._uhppote.put_card(
+                    controller.id,
+                    card,
+                    start_date,
+                    end_date,
+                    door1,
+                    door2,
+                    door3,
+                    door4,
+                    PIN,
+                ):
                     if response.stored:
                         permissions = []
-                        if door1 > 0: permissions.append(1)
-                        if door2 > 0: permissions.append(2)
-                        if door3 > 0: permissions.append(3)
-                        if door4 > 0: permissions.append(4)
+                        if door1 > 0:
+                            permissions.append(1)
+                        if door2 > 0:
+                            permissions.append(2)
+                        if door3 > 0:
+                            permissions.append(3)
+                        if door4 > 0:
+                            permissions.append(4)
 
-                        self._state[card].update({
-                            ATTR_CARD_STARTDATE:
-                            start_date,
-                            ATTR_CARD_ENDDATE:
-                            end_date,
-                            ATTR_CARD_PERMISSIONS:
-                            resolve_permissions(self._options, {controller.id: permissions}),
-                            ATTR_CARD_PIN:
-                            PIN,
-                            ATTR_AVAILABLE:
-                            True,
-                        })
+                        self._state[card].update(
+                            {
+                                ATTR_CARD_STARTDATE: start_date,
+                                ATTR_CARD_ENDDATE: end_date,
+                                ATTR_CARD_PERMISSIONS: resolve_permissions(self._options, {controller.id: permissions}),
+                                ATTR_CARD_PIN: PIN,
+                                ATTR_AVAILABLE: True,
+                            }
+                        )
 
                         self.async_set_updated_data(self._state)
                     else:
-                        errors.append(f'{controller.id}')
+                        errors.append(f"{controller.id}")
                 else:
-                    errors.append(f'{controller.id}')
+                    errors.append(f"{controller.id}")
 
             except Exception as e:
-                errors.append(f'{controller.id}')
-                _LOGGER.exception(f'error updating card {card} on controller {controller.id} ({e})')
+                errors.append(f"{controller.id}")
+                _LOGGER.exception(f"error updating card {card} on controller {controller.id} ({e})")
 
         if errors and len(errors) > 1:
             _LOGGER.exception(f'error updating card {card} on controllers {",".join(errors)}')
             return False
 
         if errors and len(errors) > 0:
-            _LOGGER.exception(f'error updating card {card} on controller {errors[0]}')
+            _LOGGER.exception(f"error updating card {card} on controller {errors[0]}")
             return False
 
         return True
@@ -281,7 +300,7 @@ class CardsCoordinator(DataUpdateCoordinator):
             tasks += [self._get_card(controllers, lock, card) for card in contexts]
             gathered = await asyncio.gather(*tasks, return_exceptions=True)
         except Exception as err:
-            _LOGGER.error(f'error retrieving card information ({err})')
+            _LOGGER.error(f"error retrieving card information ({err})")
             for task in tasks:
                 task.close()
 
@@ -293,19 +312,21 @@ class CardsCoordinator(DataUpdateCoordinator):
         return self._db.cards
 
     async def _get_card(self, controllers, lock, card):
-        _LOGGER.debug(f'fetch card {card} information')
+        _LOGGER.debug(f"fetch card {card} information")
 
         async def callback(response):
             try:
                 if response and response.card_number == card:
                     async with lock:
                         record = self._state.setdefault(
-                            card, {
+                            card,
+                            {
                                 ATTR_AVAILABLE: False,
                                 ATTR_CARD_STARTDATE: None,
                                 ATTR_CARD_ENDDATE: None,
                                 ATTR_CARD_PERMISSIONS: None,
-                            })
+                            },
+                        )
 
                         start_date = record.get(ATTR_CARD_STARTDATE)
                         end_date = record.get(ATTR_CARD_ENDDATE)
@@ -320,25 +341,31 @@ class CardsCoordinator(DataUpdateCoordinator):
 
                         # ... recalculate permissions
                         _allowed = []
-                        if response.door_1 > 0: _allowed.append(1)
-                        if response.door_2 > 0: _allowed.append(2)
-                        if response.door_3 > 0: _allowed.append(3)
-                        if response.door_4 > 0: _allowed.append(4)
+                        if response.door_1 > 0:
+                            _allowed.append(1)
+                        if response.door_2 > 0:
+                            _allowed.append(2)
+                        if response.door_3 > 0:
+                            _allowed.append(3)
+                        if response.door_4 > 0:
+                            _allowed.append(4)
 
                         doors = resolve_permissions(self._options, {response.controller: [1, 2, 3, 4]})
                         allowed = resolve_permissions(self._options, {response.controller: _allowed})
                         updated = list((set(permissions) - set(doors)) | (set(doors) & set(allowed)))
 
-                        self._state[card].update({
-                            ATTR_CARD_STARTDATE: start_date,
-                            ATTR_CARD_ENDDATE: end_date,
-                            ATTR_CARD_PERMISSIONS: updated,
-                            ATTR_AVAILABLE: True,
-                        })
+                        self._state[card].update(
+                            {
+                                ATTR_CARD_STARTDATE: start_date,
+                                ATTR_CARD_ENDDATE: end_date,
+                                ATTR_CARD_PERMISSIONS: updated,
+                                ATTR_AVAILABLE: True,
+                            }
+                        )
 
                     self.async_set_updated_data(self._state)
             except Exception as exc:
-                _LOGGER.error(f'error updating internal controller {controller.id} information ({exc})')
+                _LOGGER.error(f"error updating internal controller {controller.id} information ({exc})")
 
         info = {
             ATTR_AVAILABLE: False,
@@ -363,10 +390,14 @@ class CardsCoordinator(DataUpdateCoordinator):
                         end_date = response.end_date
 
                     permissions[controller.id] = []
-                    if response.door_1 > 0: permissions[controller.id].append(1)
-                    if response.door_2 > 0: permissions[controller.id].append(2)
-                    if response.door_3 > 0: permissions[controller.id].append(3)
-                    if response.door_4 > 0: permissions[controller.id].append(4)
+                    if response.door_1 > 0:
+                        permissions[controller.id].append(1)
+                    if response.door_2 > 0:
+                        permissions[controller.id].append(2)
+                    if response.door_3 > 0:
+                        permissions[controller.id].append(3)
+                    if response.door_4 > 0:
+                        permissions[controller.id].append(4)
 
                     if response.pin > 0:
                         PIN = response.pin
@@ -380,7 +411,7 @@ class CardsCoordinator(DataUpdateCoordinator):
             }
 
         except Exception as exc:
-            _LOGGER.error(f'error retrieving card {card} information ({exc})')
+            _LOGGER.error(f"error retrieving card {card} information ({exc})")
 
         async with lock:
             self._state[card].update(info)
@@ -390,4 +421,4 @@ class CardsCoordinator(DataUpdateCoordinator):
             if controller.id == controller_id:
                 return controller
 
-        return Controller(int(f'{controller_id}'), None, None)
+        return Controller(int(f"{controller_id}"), None, None)
