@@ -49,24 +49,14 @@ doors and maybe a ten or so access cards - so, not e.g. a large mansion, minor p
 
 ### Current Release
 
-## [0.9.0.1](https://codeberg.org/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.9.0.1) - 2026-01-27
+## [0.9.1](https://codeberg.org/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.9.1) - 2026-10-13
 
-1. Added decorated event `uhppoted.door.event.decorated`.
-2. Added decorated event `uhppoted.controller.event.decorated`.
-3. Added opt-out for card, door and controller event entities to _configuration.yaml_.
-4. Reworked door interlocks to use _HomeAssistant_ storage to persist interlock mode.
-5. Changed door interlock from _automatically restored_ to an opt-in _configuration.yaml_.
+Promoted to _beta_.
 
-## [0.9.0](https://github.com/uhppoted/uhppoted-app-home-assistant/releases/tag/v0.9.0) - 2025-12-16
+1. Migrated from _github.com/uhppoted/uhppoted-app-home-assistant_ to _codeberg.org/uhppoted/uhppoted-app-home-assistant_.
+2. Updated to use uhppoted-lib-python 0.9.1.1 for _connect-to-self_ fixes.
+3. Updated dependencies for security patches.
 
-1. Reworked to use _uhppoted-lib-python_ _async_ implementation.
-2. Fixed incorrect handling of _address in use_ errors for event listener.
-3. Bumped `uhppoted` lib dependency to v0.8.11.2.
-4. Added _event listener_ disable option to _configuration.yaml_.
-5. Reworked to use HA data when setting card start/end date, PIN or permissions.
-6. Reduced the amount of _uhppoted_ driver logging.
-7. Added '<none>' to _option-flow_ event listener address list.
-8. Optimised door entity updates.
 
 ## Installation
 

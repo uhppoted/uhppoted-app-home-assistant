@@ -2,8 +2,6 @@ name: nightly
 
 on:
   workflow_dispatch:
-  # release:
-  #   types: [published]
 
 jobs:
 
@@ -31,16 +29,16 @@ jobs:
       run: make build-all
 
     - name: Build archive
-      run: make release DIST=uhppoted-app-home-assistant_alpha-nightly
+      run: make release DIST=uhppoted-app-home-assistant_beta-nightly
 
     - name: Upload .tar.gz artifact
       uses: actions/upload-artifact@v4
       with:
         path: dist/*.tar.gz
-        name: uhppoted-app-home-assistant_alpha-nightly.tar.gz
+        name: uhppoted-app-home-assistant_beta-nightly.tar.gz
 
     - name: Upload .zip artifact
       uses: actions/upload-artifact@v4
       with:
         path: dist/*.zip
-        name: uhppoted-app-home-assistant_alpha-nightly.zip
+        name: uhppoted-app-home-assistant_beta-nightly.zip
