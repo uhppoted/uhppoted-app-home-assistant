@@ -53,7 +53,7 @@ doors and maybe a ten or so access cards - so, not e.g. a large mansion, minor p
 
 Promoted to _beta_.
 
-1. Migrated from _github.com/uhppoted/uhppoted-app-home-assistant_ to _codeberg.org/uhppoted/uhppoted-app-home-assistant_.
+1. Migrated from _github_ to _codeberg_.
 2. Updated to use uhppoted-lib-python 0.9.1.1 for _connect-to-self_ fixes.
 3. Updated dependencies for security patches.
 
