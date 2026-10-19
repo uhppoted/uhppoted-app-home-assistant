@@ -1,6 +1,6 @@
 # TODO
 
-- [x] Migrate to codeberg.org (cf. https://codeberg.org/uhppoted/uhppoted/issues/1)
+## In Progress
 
 - [ ] restructure _get_xxx_ to avoid duplicate calls
    - [x] get_controller
